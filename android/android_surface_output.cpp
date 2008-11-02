@@ -63,7 +63,8 @@ OSCL_EXPORT_REF AndroidSurfaceOutput::AndroidSurfaceOutput(const sp<ISurface>& s
 
     // running in emulation?
     char value[PROPERTY_VALUE_MAX];
-    if (property_get("ro.kernel.qemu", value, 0)) {
+    if (property_get("ro.kernel.qemu", value, 0) ||
+    	property_get("pv.codecs.software", value, 0)) {
         LOGV("Running in emulation - fallback to software codecs");
         mEmulation = true;
     }

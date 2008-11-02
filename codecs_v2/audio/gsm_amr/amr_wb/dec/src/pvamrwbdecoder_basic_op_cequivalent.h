@@ -55,7 +55,7 @@ extern "C"
 
 #include "normalize_amr_wb.h"
 
-#if defined(C_EQUIVALENT)
+#if defined(C_EQUIVALENT) || defined(_ARM_V4_GCC)
 
 
     /*----------------------------------------------------------------------------

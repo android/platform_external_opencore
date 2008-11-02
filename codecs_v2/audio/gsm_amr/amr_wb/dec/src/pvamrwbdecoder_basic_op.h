@@ -234,7 +234,7 @@ __inline int32 shr_int32(int32 L_var1, int16 var2)
 
 #endif
 
-#if defined(C_EQUIVALENT)
+#if defined(C_EQUIVALENT) || defined(_ARM_V4_GCC)
 
 #include "pvamrwbdecoder_basic_op_cequivalent.h"
 

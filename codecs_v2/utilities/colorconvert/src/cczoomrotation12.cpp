@@ -536,7 +536,12 @@ int32 ColorConvert12::get_frame12(uint8 **src, uint8 *dst,
 
         asm("mov		r0, #1");
         asm("add		sp, sp, #32");
+#ifndef __ARM_ARCH_4__
         asm("ldmfd		sp!, {r0, r4-r11, pc}");
+#else
+        asm("ldmfd		sp!, {r0, r4-r11, lr}");
+        asm("bx			lr");
+#endif
 //		asm(".ltorg");
     }
     return 1;

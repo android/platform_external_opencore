@@ -58,7 +58,7 @@ extern "C"
 
 #endif
 
-#if defined(C_EQUIVALENT)
+#if defined(C_EQUIVALENT) || defined(PV_ARM_V4_GCC)
 
 #include "pv_mp3dec_fxd_op_c_equivalent.h"
 

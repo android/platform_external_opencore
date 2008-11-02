@@ -49,7 +49,7 @@ LOCAL_MODULE := libpvamrwbdecoder
 
 LOCAL_CFLAGS :=   $(PV_CFLAGS)
 ifeq ($(TARGET_ARCH),arm)
- LOCAL_CFLAGS += -D_ARM_GCC
+ LOCAL_CFLAGS += -D_ARM_$(ARMV4)GCC
  else
  LOCAL_CFLAGS += -DC_EQUIVALENT
  endif

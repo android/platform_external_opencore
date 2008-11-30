@@ -4940,6 +4940,23 @@ void PVMFJitterBufferNode::RtcpTimerEvent(PvmfRtcpTimer* pTimer)
  */
 void PVMFJitterBufferNode::PVMFJBInactivityTimerEvent()
 {
+    /*
+     * Some server will send out media data as soon as possible. It
+     * will cause the timeout event trigger, but the buffer still
+     * have data not playback yet. If timeout occur but jitter buffer
+     * still have data, we should not just trigger the timeout event.
+     * We should wait the buffer empty. In this patch, we will reset
+     * the timeout timer to wait the buffer empty.
+     */
+    if (iJitterDelayPercent > 0)
+    {
+        /* Cancel and reschedule in the inactivity timer */
+        iRemoteInactivityTimer->Cancel();
+        uint32 inactivityDurationInMS = iRemoteInactivityTimer->getMaxInactivityDurationInMS();
+        iRemoteInactivityTimer->RunIfNotReady(inactivityDurationInMS * 1000);
+        return;
+    }
+
     PVUuid eventuuid = PVMFJitterBufferNodeEventTypeUUID;
     int32 errcode = PVMFJitterBufferNodeRemoteInactivityTimerExpired;
     /*

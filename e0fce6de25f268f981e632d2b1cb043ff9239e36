@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "z1e66892291c1a776981af82edcb7f8ae",
+        "filename": "codecs_v2/audio/mp3/dec/src/pv_mp3dec_fxd_op.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1001211
+      },
+      "writtenOn": "2008-12-03T16:11:25Z",
+      "side": 1,
+      "message": "Should not have fall back to C equivalent code for ARM V4.",
+      "revId": "e0fce6de25f268f981e632d2b1cb043ff9239e36",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "z7adecff7b49b360ae3143e74d4f6fce7",
+        "filename": "codecs_v2/utilities/colorconvert/src/cczoomrotation12.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 1001211
+      },
+      "writtenOn": "2008-12-03T16:11:25Z",
+      "side": 1,
+      "message": "Would prefer to use consistent macros \nfor all codecs/color-conversion to select architecture.",
+      "revId": "e0fce6de25f268f981e632d2b1cb043ff9239e36",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

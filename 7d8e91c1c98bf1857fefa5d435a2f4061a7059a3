@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "z0831816a3bfc04b9c31edde2edb293f3",
+        "filename": "nodes/streaming/jitterbuffernode/src/pvmf_jitter_buffer_node.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4943,
+      "author": {
+        "id": 1000660
+      },
+      "writtenOn": "2008-12-03T16:11:19Z",
+      "side": 1,
+      "message": "Please keep the source code within the same width as surrounding code, and definitely below 100 columns (comments within 80 columns are preferred), please use /* */ for multiline comments.",
+      "revId": "7d8e91c1c98bf1857fefa5d435a2f4061a7059a3",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "z58e9de088ea150249f800c682475742a",
+        "filename": "nodes/streaming/jitterbuffernode/src/pvmf_jitter_buffer_node.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4951,
+      "author": {
+        "id": 1000660
+      },
+      "writtenOn": "2008-12-03T16:11:19Z",
+      "side": 1,
+      "message": "Please remove the trailing tabs on the line above.",
+      "revId": "7d8e91c1c98bf1857fefa5d435a2f4061a7059a3",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "za2daffa1afb1aa15ba15f1f6bd395d3d",
+        "filename": "nodes/streaming/jitterbuffernode/src/pvmf_jitter_buffer_node.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4952,
+      "author": {
+        "id": 1000660
+      },
+      "writtenOn": "2008-12-03T16:11:19Z",
+      "side": 1,
+      "message": "Please add a single space on each side of the \"*\" operator.",
+      "revId": "7d8e91c1c98bf1857fefa5d435a2f4061a7059a3",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

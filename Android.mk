@@ -1,5 +1,6 @@
 ifneq ($(BUILD_WITHOUT_PV),true)
 LOCAL_PATH := $(call my-dir)
+PV_TOP := $(LOCAL_PATH)
 include $(CLEAR_VARS)
 
 PV_CFLAGS := -Wno-non-virtual-dtor -DENABLE_MEMORY_PLAYBACK -DUSE_CML2_CONFIG
@@ -14,7 +15,6 @@ endif
 
 include $(CLEAR_VARS)
 
-PV_TOP := extlibs/opencore
 FORMAT := nj
 
 PV_COPY_HEADERS_TO := libpv

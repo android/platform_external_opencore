@@ -1,19 +1,18 @@
-/* thread_init.cpp
-**
-** Copyright 2007, The Android Open Source Project
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+/* 
+ * Copyright (C) 2007, Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "playerdriver.h"
 #include <media/thread_init.h>
@@ -22,11 +21,14 @@
 #include "android_log_appender.h"
 #include "pvlogger_time_and_id_layout.h"
 
-#include "pvlogger.h"
 #include "oscl_mem.h"
 #include "oscl_error.h"
 
 #include "omx_core.h"
+
+#if (PVLOGGER_INST_LEVEL > 0)
+#include "android_logger_config.h"
+#endif
 
 using namespace android;
 bool gotkey=false;
@@ -90,16 +92,12 @@ bool InitializeForThread()
             LOGE("pthread_setspecific error %d", error);
             return false;
         }
-
-#if 0
-    PVLoggerAppender *appender = new AndroidLogAppender<TimeAndIdLayout,1024>();
-    OsclRefCounterSA<LogAppenderDestructDealloc<AndroidLogAppender<TimeAndIdLayout,1024> > > *appenderRefCounter =
-            new OsclRefCounterSA<LogAppenderDestructDealloc<AndroidLogAppender<TimeAndIdLayout,1024> > >(appender);
-    OsclRefCounter *refCounter = appenderRefCounter;
-    OsclSharedPtr<PVLoggerAppender> appenderPtr(appender, refCounter);
-    PVLogger *rootnode = PVLogger::GetLoggerObject("");
-    rootnode->AddAppender(appenderPtr);
-    rootnode->SetLogLevel(PVLOGMSG_DEBUG);
+#if (PVLOGGER_INST_LEVEL > 0)
+        PVLoggerConfigFile obj;
+        if(obj.IsLoggerConfigFilePresent())
+        {
+            obj.SetLoggerSettings();
+        }
 #endif
     }
     return true;

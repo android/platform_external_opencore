@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, The Android Open Source Project
+ * Copyright (C) 2008, Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "audio_input"
 #include <utils/Log.h>
-#include <utils/threads.h>
 
 #include "oscl_base.h"
 #include "android_audio_input.h"
@@ -51,15 +50,12 @@ AndroidAudioInput::AndroidAudioInput()
     iMaxAmplitude(0),
     iTrackMaxAmplitude(false)
 {
-    LOGV("AndroidAudioInput constructor %p", this);
+    LOGV("AndroidAudioInput constructor");
     // semaphore used to communicate between this  mio and the audio output thread
     iAudioThreadSem = new OsclSemaphore();
     iAudioThreadSem->Create(0);
     iAudioThreadTermSem = new OsclSemaphore();
     iAudioThreadTermSem->Create(0);
-
-    iAudioThreadStartLock = new Mutex();
-    iAudioThreadStartCV = new Condition();
 
     //locks to access the queues by this mio and by the audio output thread
     iWriteResponseQueueLock.Create();
@@ -67,7 +63,7 @@ AndroidAudioInput::AndroidAudioInput()
 
 
     {
-        iAudioFormat=PVMF_FORMAT_UNKNOWN;
+        iAudioFormat=PVMF_MIME_FORMAT_UNKNOWN;
         iAudioNumChannelsValid=false;
         iAudioSamplingRateValid=false;
         iExitAudioThread=false;
@@ -85,7 +81,7 @@ AndroidAudioInput::AndroidAudioInput()
 ////////////////////////////////////////////////////////////////////////////
 AndroidAudioInput::~AndroidAudioInput()
 {
-    LOGV("AndroidAudioInput destructor %p", this);
+    LOGV("AndroidAudioInput destructor");
 
     if(iWriteCompleteAO)
     {
@@ -95,7 +91,8 @@ AndroidAudioInput::~AndroidAudioInput()
 
     if(iMediaBufferMemPool)
     {
-        OSCL_TEMPLATED_DELETE(iMediaBufferMemPool, OsclMemPoolFixedChunkAllocator, OsclMemPoolFixedChunkAllocator);
+        //OSCL_TEMPLATED_DELETE(iMediaBufferMemPool, OsclMemPoolFixedChunkAllocator, OsclMemPoolFixedChunkAllocator);
+        OSCL_DELETE(iMediaBufferMemPool);
         iMediaBufferMemPool = NULL;
     }
 
@@ -106,8 +103,6 @@ AndroidAudioInput::~AndroidAudioInput()
     iAudioThreadTermSem->Close();
     delete iAudioThreadTermSem;
 
-    delete iAudioThreadStartLock;
-    delete iAudioThreadStartCV;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -150,7 +145,7 @@ OSCL_EXPORT_REF PvmiMediaTransfer* AndroidAudioInput::createMediaTransfer(PvmiMI
         PvmiKvp* write_formats,
         int32 write_flags)
 {
-    LOGV("createMediaTransfer %p", this);
+    LOGV("createMediaTransfer");
     OSCL_UNUSED_ARG(read_formats);
     OSCL_UNUSED_ARG(read_flags);
     OSCL_UNUSED_ARG(write_formats);
@@ -174,7 +169,7 @@ OSCL_EXPORT_REF PvmiMediaTransfer* AndroidAudioInput::createMediaTransfer(PvmiMI
 OSCL_EXPORT_REF void AndroidAudioInput::deleteMediaTransfer(PvmiMIOSession& aSession,
         PvmiMediaTransfer* media_transfer)
 {
-    LOGV("deleteMediaTransfer %p", this);
+    LOGV("deleteMediaTransfer");
     uint32 index = (uint32)aSession;
     if(!media_transfer || index >= iObservers.size())
     {
@@ -308,7 +303,7 @@ OSCL_EXPORT_REF PVMFCommandId AndroidAudioInput::DiscardData(const OsclAny* aCon
 ////////////////////////////////////////////////////////////////////////////
 OSCL_EXPORT_REF PVMFCommandId AndroidAudioInput::Stop(const OsclAny* aContext)
 {
-    LOGV("Stop %p", this);
+    LOGV("Stop");
     if(iState != STATE_STARTED && iState != STATE_PAUSED)
     {
         LOGV("Invalid state");
@@ -322,7 +317,7 @@ OSCL_EXPORT_REF PVMFCommandId AndroidAudioInput::Stop(const OsclAny* aContext)
 ////////////////////////////////////////////////////////////////////////////
 OSCL_EXPORT_REF void AndroidAudioInput::ThreadLogon()
 {
-    LOGV("ThreadLogon %p", this);
+    LOGV("ThreadLogon");
     if(!iThreadLoggedOn)
     {
         AddToScheduler();
@@ -362,9 +357,10 @@ OSCL_EXPORT_REF PVMFCommandId AndroidAudioInput::CancelCommand( PVMFCommandId aC
 OSCL_EXPORT_REF void AndroidAudioInput::setPeer(PvmiMediaTransfer* aPeer)
 {
     LOGV("setPeer");
-    if(iPeer || !aPeer)
+    if(iPeer && aPeer)
     {
-        OSCL_LEAVE(OsclErrGeneral);
+		LOGE("Ln %d iPeer 0x%x aPeer 0x%x", __LINE__, iPeer, aPeer); 
+		OSCL_LEAVE(OsclErrGeneral);
         return;
     }
 
@@ -521,7 +517,7 @@ OSCL_EXPORT_REF PVMFStatus AndroidAudioInput::getParametersSync(PvmiMIOSession s
         }
         else
         {
-            parameters[0].value.uint32_value = PVMF_PCM16;
+            parameters[0].value.pChar_value = (char*)PVMF_MIME_PCM16;
         }
     }
     else if(pv_mime_strcmp(identifier, OUTPUT_TIMESCALE_CUR_QUERY) == 0)
@@ -739,7 +735,7 @@ void AndroidAudioInput::AddDataEventToQueue(uint32 aMicroSecondsToEvent)
 ////////////////////////////////////////////////////////////////////////////
 void AndroidAudioInput::DoRequestCompleted(const AndroidAudioInputCmd& aCmd, PVMFStatus aStatus, OsclAny* aEventData)
 {
-    LOGV("DoRequestCompleted(%d, %d) this %p", aCmd.iId, aStatus, this);
+    LOGV("DoRequestCompleted(%d, %d)", aCmd.iId, aStatus);
     PVMFCmdResp response(aCmd.iId, aCmd.iContext, aStatus, aEventData);
 
     for(uint32 i = 0; i < iObservers.size(); i++)
@@ -762,7 +758,8 @@ PVMFStatus AndroidAudioInput::DoInit()
     OSCL_TRY(err,
         if(iMediaBufferMemPool)
         {
-            OSCL_TEMPLATED_DELETE(iMediaBufferMemPool, OsclMemPoolFixedChunkAllocator, OsclMemPoolFixedChunkAllocator);
+            //OSCL_TEMPLATED_DELETE(iMediaBufferMemPool, OsclMemPoolFixedChunkAllocator, OsclMemPoolFixedChunkAllocator);
+            OSCL_DELETE(iMediaBufferMemPool);
             iMediaBufferMemPool = NULL;
         }
         iMediaBufferMemPool = OSCL_NEW(OsclMemPoolFixedChunkAllocator, (4));
@@ -780,9 +777,6 @@ PVMFStatus AndroidAudioInput::DoStart()
 {
     LOGV("DoStart");
 
-    iAudioThreadStartLock->lock();
-    iAudioThreadStarted = false;
-
     OsclThread AudioInput_Thread;
     OsclProcStatus::eOsclProcError ret = AudioInput_Thread.Create(
             (TOsclThreadFuncPtr)start_audin_thread_func, 0,
@@ -791,19 +785,8 @@ PVMFStatus AndroidAudioInput::DoStart()
     if ( OsclProcStatus::SUCCESS_ERROR != ret)
     { // thread creation failed
         LOGV("Failed to create thread");
-        iAudioThreadStartLock->unlock();
         return PVMFFailure;
     }
-
-    // wait for thread to set up AudioRecord
-    while (!iAudioThreadStarted)
-        iAudioThreadStartCV->wait(*iAudioThreadStartLock);
-
-    status_t startResult = iAudioThreadStartResult;
-    iAudioThreadStartLock->unlock();
-
-    if (startResult != NO_ERROR)
-        return PVMFFailure; // thread failed to set up AudioRecord
 
     iState = STATE_STARTED;
 
@@ -814,7 +797,7 @@ PVMFStatus AndroidAudioInput::DoStart()
 int AndroidAudioInput::start_audin_thread_func(TOsclThreadFuncArg arg)
 {
     prctl(PR_SET_NAME, (unsigned long) "audio in", 0, 0, 0);
-    sp<AndroidAudioInput> obj =  (AndroidAudioInput *)arg;
+    AndroidAudioInput *obj = (AndroidAudioInput *)arg;
     return obj->audin_thread_func();
 }
 
@@ -911,26 +894,13 @@ PVMFStatus AndroidAudioInput::DoRead()
 int AndroidAudioInput::audin_thread_func() {
     // setup audio record session
 
-    iAudioThreadStartLock->lock();
-
-    LOGV("create AudioRecord %p", this);
+    LOGV("create AudioRecord");
     android::AudioRecord
             * record = new android::AudioRecord(
                     android::AudioRecord::DEFAULT_INPUT, iAudioSamplingRate,
-                    android::AudioSystem::PCM_16_BIT, iAudioNumChannels, 4*kBufferSize/iAudioNumChannels/sizeof(int16));
-    LOGV("AudioRecord created %p, this %p", record, this);
+                    android::AudioSystem::PCM_16_BIT, iAudioNumChannels, 4, 0, 0);
 
-    status_t res = record->initCheck();
-    if (res == NO_ERROR)
-        res = record->start();
-
-    iAudioThreadStartResult = res;
-    iAudioThreadStarted = true;
-
-    iAudioThreadStartCV->signal();
-    iAudioThreadStartLock->unlock();
-
-    if (res == NO_ERROR) {
+    if ((record->initCheck() == NO_ERROR) && (record->start() == NO_ERROR)) {
 
         while (!iExitAudioThread) {
             iOSSRequestQueueLock.Lock();
@@ -961,7 +931,7 @@ int AndroidAudioInput::audin_thread_func() {
                 }
             }
 
-            int dataDuration = numOfBytes/iAudioNumChannels/ sizeof(short) * 1000
+            int dataDuration = numOfBytes / sizeof(short) * 1000
                     / iAudioSamplingRate; //ms
             MicData micdata(data, numOfBytes, iTimeStamp,
                     dataDuration);
@@ -975,11 +945,11 @@ int AndroidAudioInput::audin_thread_func() {
             iWriteCompleteAO->ReceiveEvent(P);
         }
 
-        LOGV("record->stop %p, this %p", record, this);
+        LOGV("record->stop");
         record->stop();
     }
 
-    LOGV("delete record %p, this %p", record, this);
+    LOGV("delete record");
     delete record;
     iAudioThreadTermSem->Signal();
     return 0;
@@ -1004,7 +974,7 @@ void AndroidAudioInput::SendMicData(void)
     data_hdr.flags=0;
     data_hdr.duration = data.iDuration;
     data_hdr.stream_id=0;
-    uint32 writeAsyncID = iPeer->writeAsync(0, 0, data.iData, data.iDataLen, data_hdr);
+    uint32 writeAsyncID = iPeer->writeAsync(PVMI_MEDIAXFER_FMT_TYPE_DATA, 0, data.iData, data.iDataLen, data_hdr);
 
     // Save the id and data pointer on iSentMediaData queue for writeComplete call
     AndroidAudioInputMediaData sentData;
@@ -1062,7 +1032,7 @@ PVMFStatus AndroidAudioInput::VerifyAndSetParameter(PvmiKvp* aKvp, bool aSetPara
 
     if(pv_mime_strcmp(aKvp->key, OUTPUT_FORMATS_VALTYPE) == 0)
     {
-        if(aKvp->value.uint32_value == PVMF_PCM16)
+        if(pv_mime_strcmp(aKvp->value.pChar_value, PVMF_MIME_PCM16) == 0)
         {
             return PVMFSuccess;
         }

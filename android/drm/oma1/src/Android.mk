@@ -22,8 +22,8 @@ LOCAL_CFLAGS += $(LOCAL_DRM_1_PLUGIN_CFLAG)
 
 LOCAL_C_INCLUDES := $(PV_TOP)//android/drm/oma1/src \
                     $(PV_INCLUDES) \
-                    $(call include-path-for, libdrm1) \
-                    $(call include-path-for, system-core)/cutils
+                    libs/drm/mobile1/include \
+                    include/cutils
 
 LOCAL_COPY_HEADERS_TO := $(PV_COPY_HEADERS_TO)
 LOCAL_COPY_HEADERS := \

@@ -1,19 +1,18 @@
 /*
-**
-** Copyright 2008, The Android Open Source Project
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ * Copyright (C) 2008, Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "AudioStream"
@@ -38,7 +37,7 @@ static uint32 kConversionBufferSize = 4096;
 */
 OSCL_EXPORT_REF AndroidAudioStream::AndroidAudioStream() :
     AndroidAudioMIO("AndroidAudioStream"),
-    iActiveTiming(NULL), mClockUpdated(false)
+    iActiveTiming(NULL), mConversionBuffer(0), mClockUpdated(false)
 {
     // create active timing object
     LOGV("constructor");
@@ -58,6 +57,7 @@ OSCL_EXPORT_REF AndroidAudioStream::~AndroidAudioStream()
         OsclMemAllocator alloc;
         alloc.deallocate(iActiveTiming);
     }
+    delete [] mConversionBuffer;
 }
 
 PVMFCommandId AndroidAudioStream::QueryInterface(const PVUuid& aUuid, PVInterface*& aInterfacePtr, const OsclAny* aContext)
@@ -92,19 +92,43 @@ void AndroidAudioStream::setParametersSync(PvmiMIOSession aSession, PvmiKvp* aPa
     AndroidAudioMIO::setParametersSync(aSession, aParameters, num_elements, aRet_kvp);
 
     // initialize audio sink when we have enough information
-    if (iAudioSamplingRateValid && iAudioNumChannelsValid && iAudioFormat != PVMF_FORMAT_UNKNOWN) {
-        mAudioSink->open(iAudioSamplingRate, iAudioNumChannels, ((iAudioFormat==PVMF_PCM8)?AudioSystem::PCM_8_BIT:AudioSystem::PCM_16_BIT));
+    if (iAudioSamplingRateValid && iAudioNumChannelsValid) {
+        mAudioSink->open(iAudioSamplingRate, iAudioNumChannels);
 
         // reset flags for next time
         iAudioSamplingRateValid = false;
         iAudioNumChannelsValid  = false;
-        iAudioFormat = PVMF_FORMAT_UNKNOWN;
+
+        // handle 8-bit conversion
+        if (iAudioFormat == PVMF_MIME_PCM8) {
+            if (mConversionBuffer == 0) {
+                mConversionBuffer = new int16_t[kConversionBufferSize];
+            }
+        } else {
+            delete [] mConversionBuffer;
+            mConversionBuffer = 0;
+        }
     }
 }
 
 void AndroidAudioStream::writeAudioBuffer(uint8* aData, uint32 aDataLen, PVMFCommandId cmdId, OsclAny* aContext, PVMFTimestamp aTimestamp)
 {
-	mAudioSink->write(aData, aDataLen);
+    // handle 16-bit audio
+    if (mConversionBuffer == 0) {
+        mAudioSink->write(aData, aDataLen);
+    } else {
+        // AudioFlinger doesn't support 8 bit, do conversion here
+        int16 *dst = mConversionBuffer;
+        uint8 *src = aData;
+        while (aDataLen) {
+            uint32 count = aDataLen > kConversionBufferSize ? kConversionBufferSize : aDataLen;
+            for (uint32 i = 0; i < count; i++) {
+                *dst++ = (int(*src++) - 128) * 256;
+            }
+            mAudioSink->write(mConversionBuffer, count * 2);
+            aDataLen -= count;
+        }
+    }
     sendResponse(cmdId, aContext, aTimestamp);
 }
 

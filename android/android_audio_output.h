@@ -1,19 +1,18 @@
 /*
-**
-** Copyright 2008, The Android Open Source Project
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ * Copyright (C) 2008, Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef ANDROID_AUDIO_OUTPUT_H
 #define ANDROID_AUDIO_OUTPUT_H
@@ -41,14 +40,13 @@ public:
     virtual void setParametersSync(PvmiMIOSession aSession, PvmiKvp* aParameters,
             int num_elements, PvmiKvp * & aRet_kvp);
 
-    virtual PVMFCommandId Start(const OsclAny* aContext);
-    virtual PVMFCommandId DiscardData(PVMFTimestamp aTimestamp=0, const OsclAny* aContext=NULL);
+	virtual PVMFCommandId DiscardData(PVMFTimestamp aTimestamp=0, const OsclAny* aContext=NULL);
 
     virtual void cancelCommand(PVMFCommandId aCmdId);
 
-    // FIXME: see comment in AndroidAudioOutput::Stop() implementation
     virtual PVMFCommandId Stop(const OsclAny* aContext=NULL);
-    // virtual PVMFCommandId Reset(const OsclAny* aContext=NULL);
+	virtual PVMFCommandId Reset(const OsclAny* aContext=NULL);
+    
 
 private:
 
@@ -82,9 +80,11 @@ private:
     // semaphores used to communicate with the audio output thread
     OsclSemaphore* iAudioThreadSem;
     OsclSemaphore* iAudioThreadTermSem;
+    OsclSemaphore* iAudioThreadReturnSem;
+    OsclSemaphore* iAudioThreadCreatedSem;
 
-    bool iAudioThreadCreated;
     volatile bool iExitAudioThread;
+    volatile bool iReturnBuffers;
 
     // active timing
     AndroidAudioMIOActiveTimingSupport* iActiveTiming;

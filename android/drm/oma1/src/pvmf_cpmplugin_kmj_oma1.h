@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 The Android Open Source Project
+ * Copyright (C) 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -713,7 +713,7 @@ PRIVATE:
     friend class PVMFCPMKmjPlugInOMA1LocalSyncAccessInterfaceImpl;
 };
 
-class PVMFCPMKmjPlugInOMA1LocalSyncAccessInterfaceImpl : public PVMFCPMPluginLocalSyncAccessInterface
+class PVMFCPMKmjPlugInOMA1LocalSyncAccessInterfaceImpl // : public PVMFCPMPluginLocalSyncAccessInterface
 {
 public:
     PVMFCPMKmjPlugInOMA1LocalSyncAccessInterfaceImpl(PVMFCPMKmjPlugInOMA1&c)

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008, The Android Open Source Project
- * Copyright (C) 2008 HTC Inc.
+ * Copyright (C) 2008, Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +15,7 @@
  */
 
 /* authordriver.h
- *
+ * 
  * The glue between the Android MediaRecorder and PVAuthorInterface
  */
 
@@ -41,28 +40,25 @@
 #include "oscl_mem.h"
 #include "oscl_mem_audit.h"
 #include "oscl_error.h"
-#include "oscl_error_panic.h"
 #include "oscl_utf8conv.h"
 #include "oscl_string_utils.h"
 #include "android_camera_input.h"
 #include "android_audio_input.h"
 #include "pvmf_media_input_node_factory.h"
-#include "pvmf_fileoutput_factory.h"
 #include "pvmf_node_interface.h"
 #include "pvmp4h263encextension.h"
 #include "pvmp4ffcn_clipconfig.h"
-#include "pvmf_fileoutput_config.h"
 #include "pvmfamrencnode_extension.h"
 
 namespace android {
 
 template<class DestructClass>
-class LogAppenderDestructDealloc : public OsclDestructDealloc
+class LogAppenderDestructDealloc : public OsclDestructDealloc 
 {
 public:
-    virtual void destruct_and_dealloc(OsclAny *ptr)
-    {
-        delete((DestructClass*)ptr);
+    virtual void destruct_and_dealloc(OsclAny *ptr) 
+    { 
+        delete((DestructClass*)ptr); 
     }
 };
 
@@ -70,7 +66,6 @@ public:
 //
 enum author_command_type {
     AUTHOR_INIT = 1,
-    AUTHOR_SET_CAMERA,
     AUTHOR_SET_VIDEO_SOURCE,
     AUTHOR_SET_AUDIO_SOURCE,
     AUTHOR_SET_OUTPUT_FORMAT,
@@ -84,7 +79,6 @@ enum author_command_type {
     AUTHOR_START,
     AUTHOR_STOP,
     AUTHOR_RESET,
-    AUTHOR_CLOSE,
     AUTHOR_QUIT = 100
 };
 
@@ -151,20 +145,14 @@ struct set_video_frame_rate_command : author_command
 struct set_preview_surface_command : author_command
 {
     set_preview_surface_command() : author_command(AUTHOR_SET_PREVIEW_SURFACE) {};
-    sp<ISurface>                     surface;
-};
-
-struct set_camera_command : author_command
-{
-    set_camera_command() : author_command(AUTHOR_SET_CAMERA) {};
-    sp<ICamera>                      camera;
+    sp<Surface>                      surface;
 };
 
 class AuthorDriver :
-public OsclActiveObject,
-public PVCommandStatusObserver,
-public PVInformationalEventObserver,
-public PVErrorEventObserver
+    public OsclActiveObject,
+    public PVCommandStatusObserver,
+    public PVInformationalEventObserver,
+    public PVErrorEventObserver
 {
 public:
     AuthorDriver();
@@ -180,7 +168,6 @@ public:
     void commandFailed(author_command *ac);
     void handleInit(author_command *ac);
     void handleSetAudioSource(set_audio_source_command *ac);
-    void handleSetCamera(set_camera_command *ac);
     void handleSetVideoSource(set_video_source_command *ac);
     void handleSetOutputFormat(set_output_format_command *ac);
     void handleSetAudioEncoder(set_audio_encoder_command *ac);
@@ -193,7 +180,6 @@ public:
     void handleStart(author_command *ac);
     void handleStop(author_command *ac);
     void handleReset(author_command *ac);
-    void handleClose(author_command *ac);
     void handleQuit(author_command *ac);
 
     void endOfData();
@@ -201,21 +187,13 @@ public:
     void CommandCompleted(const PVCmdResponse& aResponse);
     void HandleErrorEvent(const PVAsyncErrorEvent& aEvent);
     void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
-
+    
     status_t getMaxAmplitude(int *max);
-    PVAEState getAuthorEngineState();
 
 private:
     // Finish up a non-async command in such a way that
     // the event loop will keep running.
     void FinishNonAsyncCommand(author_command *ec);
- 
-    // remove input video and/or audio source(s)
-    void removeDataSources(author_command *ac);
-
-    // Release resources acquired in a recording session
-    // Can be called only in the IDLE state of the authoring engine
-    void doCleanUp();
 
     // Starts the PV scheduler thread.
     static int startAuthorThread(void *cookie);
@@ -228,18 +206,15 @@ private:
 
     PVAuthorEngineInterface    *mAuthor;
 
-    PvmiMIOControl           *mVideoInputMIO;
+    PvmiMIOControl            *mVideoInputMIO;
     PVMFNodeInterface        *mVideoNode;
-    sp<AndroidAudioInput>    mAudioInputMIO;
+    PvmiMIOControl            *mAudioInputMIO;
     PVMFNodeInterface        *mAudioNode;
 
-    void                       *mSelectedComposer;
+    void                    *mSelectedComposer;
     PVInterface                *mComposerConfig;
     PVInterface                *mVideoEncoderConfig;
     PVInterface                *mAudioEncoderConfig;
-
-    char                    *mOutputFileName;
-    bool                    mKeepOutputFile;
 
     int                     mVideoWidth;
     int                     mVideoHeight;
@@ -258,8 +233,6 @@ private:
     // Command queue and its lock.
     List<author_command *>  mCommandQueue;
     Mutex                   mQueueLock;
-
-    sp<ICamera>             mCamera;
 };
 
 class AuthorDriverWrapper
@@ -271,8 +244,6 @@ public:
     status_t getMaxAmplitude(int *max);
 
 private:
-    void resetAndClose();
-
     AuthorDriver    *mAuthorDriver;
 };
 

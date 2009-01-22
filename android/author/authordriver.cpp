@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008, The Android Open Source Project
- * Copyright (C) 2008 HTC Inc.
+ * Copyright (C) 2008, Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -15,69 +14,55 @@
  * limitations under the License.
  */
 
-//#define LOG_NDEBUG 0
-#define LOG_TAG "AuthorDriver"
-
-#include <unistd.h>
-#include <media/thread_init.h>
-#include <ui/ISurface.h>
-#include <ui/ICamera.h>
-#include "pv_omxmastercore.h"
 #include "authordriver.h"
+#include "pv_omxcore.h"
+#include <sys/prctl.h>
 
 using namespace android;
+
+#if (PVLOGGER_INST_LEVEL > 0)
+#include "android_logger_config.h"
+#endif
 
 AuthorDriverWrapper::AuthorDriverWrapper()
 {
     mAuthorDriver = new AuthorDriver();
 }
 
-void AuthorDriverWrapper::resetAndClose()
-{
-    mAuthorDriver->enqueueCommand(new author_command(AUTHOR_RESET), NULL, NULL);
-    mAuthorDriver->enqueueCommand(new author_command(AUTHOR_CLOSE), NULL, NULL);
-}
-
 AuthorDriverWrapper::~AuthorDriverWrapper()
 {
-    if (mAuthorDriver) {
-        // set the authoring engine to the IDLE state.
-        PVAEState state = mAuthorDriver->getAuthorEngineState();
-        switch (state) {
-        case PVAE_STATE_IDLE:
-            break;
-
-        case PVAE_STATE_RECORDING:
-            mAuthorDriver->enqueueCommand(new author_command(AUTHOR_STOP),  NULL, NULL);
-            resetAndClose();
-            break;
-
-        default:
-            resetAndClose();
-            break;
-        }
-
-        // now it is safe to quit.
-        author_command *ac = new author_command(AUTHOR_QUIT);
-        enqueueCommand(ac, NULL, NULL); // will wait on mSyncSem, signaled by author thread
-        delete ac; // have to delete this manually because CommandCompleted won't be called
-    }
+    author_command *ac = new author_command(AUTHOR_QUIT);
+    enqueueCommand(ac, NULL, NULL); // will wait on mSyncSem, signaled by author thread
+    delete ac; // have to delete this manually because CommandCompleted won't be called
 }
 
 status_t AuthorDriverWrapper::getMaxAmplitude(int *max)
 {
-    if (mAuthorDriver) {
-        return mAuthorDriver->getMaxAmplitude(max);
-    }
-    return NO_INIT;
+    return mAuthorDriver->getMaxAmplitude(max);
 }
 
 status_t AuthorDriverWrapper::enqueueCommand(author_command *ac, media_completion_f comp, void *cookie)
 {
-    if (mAuthorDriver) {
-        return mAuthorDriver->enqueueCommand(ac, comp, cookie);
-    }
-    return NO_INIT;
+    return mAuthorDriver->enqueueCommand(ac, comp, cookie);
+}
+
+static void pv_global_init()
+{
+    OsclBase::Init();
+    OsclErrorTrap::Init();
+    OsclMem::Init();
+    PVLogger::Init();
+    OMX_Init();
+}
+
+static void pv_global_cleanup()
+{
+    OsclScheduler::Cleanup();
+    PVLogger::Cleanup();
+    OsclMem::Cleanup();
+    OsclErrorTrap::Cleanup();
+    OsclBase::Cleanup();
+    OMX_Deinit();
 }
 
 AuthorDriver::AuthorDriver()
@@ -85,13 +70,12 @@ AuthorDriver::AuthorDriver()
                mAuthor(NULL),
                mVideoInputMIO(NULL),
                mVideoNode(NULL),
+               mAudioInputMIO(NULL),
                mAudioNode(NULL),
                mSelectedComposer(NULL),
                mComposerConfig(NULL),
                mVideoEncoderConfig(NULL),
                mAudioEncoderConfig(NULL),
-               mOutputFileName(NULL),
-               mKeepOutputFile(false),
                mVideoWidth(DEFAULT_FRAME_WIDTH),
                mVideoHeight(DEFAULT_FRAME_HEIGHT),
                mVideoFrameRate((int)DEFAULT_FRAME_RATE),
@@ -180,7 +164,6 @@ status_t AuthorDriver::enqueueCommand(author_command *ac, media_completion_f com
 void AuthorDriver::FinishNonAsyncCommand(author_command *ac)
 {
     ac->comp(0, ac->cookie); // this signals the semaphore for synchronous calls
-    delete ac;
 }
 
 // The OSCL scheduler calls this when we get to run (this should happen only
@@ -198,7 +181,7 @@ void AuthorDriver::Run()
     switch(ac->which) {
     case AUTHOR_INIT:
         handleInit(ac);
-        break;
+        break; 
 
     case AUTHOR_SET_AUDIO_SOURCE:
         handleSetAudioSource((set_audio_source_command *)ac);
@@ -222,28 +205,27 @@ void AuthorDriver::Run()
 
     case AUTHOR_SET_VIDEO_SIZE:
         handleSetVideoSize((set_video_size_command *)ac);
+        FinishNonAsyncCommand(ac);
         return;
 
     case AUTHOR_SET_VIDEO_FRAME_RATE:
         handleSetVideoFrameRate((set_video_frame_rate_command *)ac);
+        FinishNonAsyncCommand(ac);
         return;
 
     case AUTHOR_SET_PREVIEW_SURFACE:
         handleSetPreviewSurface((set_preview_surface_command *)ac);
-        return;
-
-    case AUTHOR_SET_CAMERA:
-        handleSetCamera((set_camera_command *)ac);
+        FinishNonAsyncCommand(ac);
         return;
 
     case AUTHOR_SET_OUTPUT_FILE:
         handleSetOutputFile((set_output_file_command *)ac);
+        FinishNonAsyncCommand(ac);
         return;
 
     case AUTHOR_PREPARE: handlePrepare(ac); break;
     case AUTHOR_START: handleStart(ac); break;
     case AUTHOR_STOP: handleStop(ac); break;
-    case AUTHOR_CLOSE: handleClose(ac); break;
     case AUTHOR_RESET: handleReset(ac); break;
     case AUTHOR_QUIT: handleQuit(ac); return;
 
@@ -256,7 +238,6 @@ void AuthorDriver::Run()
 
 void AuthorDriver::commandFailed(author_command *ac)
 {
-    LOGE("Command (%d) failed", ac->which);
     ac->comp(UNKNOWN_ERROR, ac->cookie);
     delete ac;
 }
@@ -276,9 +257,9 @@ void AuthorDriver::handleSetAudioSource(set_audio_source_command *ac)
     case AUDIO_SOURCE_DEFAULT:
     case AUDIO_SOURCE_MIC:
         mAudioInputMIO = new AndroidAudioInput();
-        if(mAudioInputMIO != NULL){
+        if(mAudioInputMIO){
             LOGV("create mio input audio");
-            mAudioNode = PvmfMediaInputNodeFactory::Create(static_cast<PvmiMIOControl *>(mAudioInputMIO.get()));
+            mAudioNode = PvmfMediaInputNodeFactory::Create(mAudioInputMIO);
             if(mAudioNode){
                 break;
             }
@@ -304,22 +285,21 @@ void AuthorDriver::handleSetVideoSource(set_video_source_command *ac)
 
     switch(ac->vs) {
     case VIDEO_SOURCE_DEFAULT:
-    case VIDEO_SOURCE_CAMERA: {
-        AndroidCameraInput* cameraInput = new AndroidCameraInput();
-        if (cameraInput) {
+    case VIDEO_SOURCE_CAMERA:
+        mVideoInputMIO = new AndroidCameraInput();
+        if(mVideoInputMIO){
             LOGV("create mio input video");
-            mVideoNode = PvmfMediaInputNodeFactory::Create(cameraInput);
-            if (mVideoNode) {
-                // pass in the application supplied camera object
-                if (mCamera != 0) cameraInput->SetCamera(mCamera);
-                mVideoInputMIO = cameraInput;
+            mVideoNode = PvmfMediaInputNodeFactory::Create(mVideoInputMIO);
+            if(mVideoNode){
                 break;
             }
-            delete cameraInput;
+            else{
+            // do nothing, let it go in default case
+            }
         }
-        commandFailed(ac);
-        return;
-    }
+        else{
+        // do nothing, let it go in default case
+        }
     default:
         commandFailed(ac);
         return;
@@ -334,9 +314,8 @@ void AuthorDriver::handleSetOutputFormat(set_output_format_command *ac)
     int error = 0;
     OSCL_HeapString<OsclMemAllocator> iComposerMimeType;
 
-    if (ac->of == OUTPUT_FORMAT_DEFAULT) {
+    if (ac->of == OUTPUT_FORMAT_DEFAULT)
         ac->of = OUTPUT_FORMAT_THREE_GPP;
-    }
 
     switch(ac->of) {
     case OUTPUT_FORMAT_THREE_GPP:
@@ -347,12 +326,7 @@ void AuthorDriver::handleSetOutputFormat(set_output_format_command *ac)
         iComposerMimeType = "/x-pvmf/ff-mux/mp4";
         break;
 
-    case OUTPUT_FORMAT_RAW_AMR:
-        iComposerMimeType = "/x-pvmf/ff-mux/amr-nb"; 
-        break;
-
     default:
-        LOGE("Ln %d unsupported file format: %d", __LINE__, ac->of);
         commandFailed(ac);
         return;
     }
@@ -417,9 +391,9 @@ void AuthorDriver::handleSetVideoEncoder(set_video_encoder_command *ac)
         commandFailed(ac);
         return;
     }
-
+   
     mVideoEncoder = ac->ve;
-
+ 
     OSCL_TRY(error, mAuthor->AddMediaTrack(*mVideoNode, iVideoEncoderMimeType, mSelectedComposer, mVideoEncoderConfig, ac));
     OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
 }
@@ -433,65 +407,59 @@ void AuthorDriver::handleSetVideoSize(set_video_size_command *ac)
     mVideoHeight = ac->height;
 
     ((AndroidCameraInput *)mVideoInputMIO)->SetFrameSize(ac->width, ac->height);
-    FinishNonAsyncCommand(ac);
 }
 
 void AuthorDriver::handleSetVideoFrameRate(set_video_frame_rate_command *ac)
 {
-    if (mVideoInputMIO == NULL) {
-        LOGE("camera MIO is NULL");
-        commandFailed(ac);
+    if (mVideoInputMIO == NULL)
         return;
-    }
 
     mVideoFrameRate = ac->rate;
 
     ((AndroidCameraInput *)mVideoInputMIO)->SetFrameRate(ac->rate);
-    FinishNonAsyncCommand(ac);
-}
-
-void AuthorDriver::handleSetCamera(set_camera_command *ac)
-{
-    LOGV("mCamera = %p", ac->camera.get());
-    mCamera = ac->camera;
-    FinishNonAsyncCommand(ac);
 }
 
 void AuthorDriver::handleSetPreviewSurface(set_preview_surface_command *ac)
 {
+    if (ac->surface == NULL) {
+        commandFailed(ac);
+        return;
+    }
+
     if (mVideoInputMIO == NULL) {
-        LOGE("camera MIO is NULL");
         commandFailed(ac);
         return;
     }
 
     ((AndroidCameraInput *)mVideoInputMIO)->SetPreviewSurface(ac->surface);
-    FinishNonAsyncCommand(ac);
 }
 
 void AuthorDriver::handleSetOutputFile(set_output_file_command *ac)
 {
-    PVMFStatus ret = PVMFFailure;
-    PvmfFileOutputNodeConfigInterface *config = NULL;
-    OSCL_wHeapString<OsclMemAllocator> wFileName;
+    int error = 0;
+
+    if (!mComposerConfig) {
+        commandFailed(ac);
+        return;
+    }
+
+    PVMp4FFCNClipConfigInterface *config = OSCL_STATIC_CAST(PVMp4FFCNClipConfigInterface*, mComposerConfig);
+    if (!config) {
+        commandFailed(ac);
+        return;
+    }
+
+    config->SetPresentationTimescale(1000);
+
     oscl_wchar output[512];
-
-    if (!mComposerConfig) goto exit;
-
-    config = OSCL_STATIC_CAST(PvmfFileOutputNodeConfigInterface*, mComposerConfig);
-    if (!config) goto exit;
-
+    OSCL_wHeapString<OsclMemAllocator> wFileName;
     oscl_UTF8ToUnicode(ac->path, strlen(ac->path), output, 512);
     wFileName.set(output, oscl_strlen(output));
-    ret = config->SetOutputFileName(wFileName);
-
-exit:
-    if (ret == PVMFSuccess) {
-        mOutputFileName = ac->path;
-        FinishNonAsyncCommand(ac);
-    } else {
-        free(ac->path);
+    PVMFStatus ret = config->SetOutputFileName(wFileName);
+    free(ac->path);
+    if (ret != PVMFSuccess) {
         commandFailed(ac);
+        return;
     }
 }
 
@@ -512,15 +480,18 @@ void AuthorDriver::handleStart(author_command *ac)
 void AuthorDriver::handleStop(author_command *ac)
 {
     int error = 0;
-    OSCL_TRY(error, mAuthor->Stop(ac));
+    OSCL_TRY(error, mAuthor->Stop());
     OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
-
-    mKeepOutputFile = true;
-}
-
-void AuthorDriver::handleClose(author_command *ac)
-{
-    int error = 0;
+    OSCL_TRY(error, mAuthor->Reset());
+    OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
+    if(mAudioNode){
+        OSCL_TRY(error, mAuthor->RemoveDataSource(*mAudioNode));
+        OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
+    }
+    if(mVideoNode){
+        OSCL_TRY(error, mAuthor->RemoveDataSource(*mVideoNode));
+        OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
+    }
     OSCL_TRY(error, mAuthor->Close(ac));
     OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
 }
@@ -530,43 +501,6 @@ void AuthorDriver::handleReset(author_command *ac)
     int error = 0;
     OSCL_TRY(error, mAuthor->Reset(ac));
     OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
-
-    // remove data sources
-    removeDataSources(ac);
-}
-
-void AuthorDriver::removeDataSources(author_command *ac)
-{
-    if (mOutputFileName) {
-        if (!mKeepOutputFile) {
-            LOGV("remove output filei(%s)", mOutputFileName);
-            unlink(mOutputFileName);
-        }
-        free(mOutputFileName);
-        mOutputFileName = NULL;
-    }
-
-    if (mComposerConfig) {
-        mComposerConfig->removeRef();
-        mComposerConfig = NULL;
-    }
-    if (mVideoEncoderConfig) {
-        mVideoEncoderConfig->removeRef();
-        mVideoEncoderConfig = NULL; 
-    }
-    if (mAudioEncoderConfig) {
-        mAudioEncoderConfig->removeRef();
-        mAudioEncoderConfig = NULL;
-    }
-    int error = 0;
-    if (mAudioNode) {
-        OSCL_TRY(error, mAuthor->RemoveDataSource(*mAudioNode));
-        OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
-    }
-    if (mVideoNode) {
-        OSCL_TRY(error, mAuthor->RemoveDataSource(*mVideoNode));
-        OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
-    }
 }
 
 void AuthorDriver::handleQuit(author_command *ac)
@@ -582,47 +516,24 @@ void AuthorDriver::handleQuit(author_command *ac)
     return ed->authorThread();
 }
 
-void AuthorDriver::doCleanUp()
-{
-    if (mCamera != NULL) {
-        mCamera.clear();
-    }
-
-    if (mVideoNode) {
-        PvmfMediaInputNodeFactory::Delete(mVideoNode);
-        mVideoNode = NULL;
-        delete mVideoInputMIO;
-        mVideoInputMIO = NULL;
-    }
-
-    if (mAudioNode) {
-        PvmfMediaInputNodeFactory::Delete(mAudioNode);
-        mAudioNode = NULL;
-        mAudioInputMIO.clear();
-    }
-}
-
 int AuthorDriver::authorThread()
 {
     int error;
 
-    LOGV("InitializeForThread");
-    if (!InitializeForThread()) {
-        LOGE("InitializeForThread failed");
-        mAuthor = NULL;
-        mSyncSem->Signal();
-        return -1;
-    }
-
-    LOGV("OMX_Init");
-    PV_MasterOMX_Init();
+    pv_global_init();
+#if (PVLOGGER_INST_LEVEL > 0)
+        PVLoggerConfigFile obj;
+        if(obj.IsLoggerConfigFilePresent())
+        {
+            obj.SetLoggerSettings();
+        }
+#endif
 
     OsclScheduler::Init("AndroidAuthorDriver");
     LOGV("Create author ...");
     OSCL_TRY(error, mAuthor = PVAuthorEngineFactory::CreateAuthor(this, this, this));
     if (error) {
         // Just crash the first time someone tries to use it for now?
-        LOGE("authorThread init error");
         mAuthor = NULL;
         mSyncSem->Signal();
         return -1;
@@ -635,7 +546,20 @@ int AuthorDriver::authorThread()
     sched->StartScheduler(mSyncSem);
     LOGV("Delete Author");
     PVAuthorEngineFactory::DeleteAuthor(mAuthor);
- 
+
+    if (mVideoNode) {
+        PvmfMediaInputNodeFactory::Delete(mVideoNode);
+        mVideoNode = NULL;
+        delete mVideoInputMIO;
+        mVideoInputMIO = NULL;
+    }
+
+    if (mAudioNode) {
+        PvmfMediaInputNodeFactory::Delete(mAudioNode);
+        mAudioNode = NULL;
+        delete mAudioInputMIO;
+        mAudioInputMIO = NULL;
+    }
 
     // Let the destructor know that we're out
     mSyncStatus = OK;
@@ -652,8 +576,7 @@ int AuthorDriver::authorThread()
 
    //moved below delete this, similar code on playerdriver.cpp caused a crash.
    //cleanup of oscl should happen at the end.
-    PV_MasterOMX_Deinit();
-    UninitializeForThread();
+    pv_global_cleanup();
     return 0;
 }
 
@@ -672,13 +595,10 @@ void AuthorDriver::CommandCompleted(const PVCmdResponse& aResponse)
     // XXX do we want to make this illegal?  combo commands like
     // SETUP_DEFAULT_SINKS will need some changing
     if (ac == NULL) {
-        // NULL command may be expected from the author engine from
-        // time to time?
-        // LOGE("Unexpected NULL command");
+        // LOGD("ac == NULL\n");
         return;
     }
 
-    LOGV("Command (%d) completed with status(%d)", ac->which, aResponse.GetCmdStatus());
     if (ac->which == AUTHOR_SET_OUTPUT_FORMAT) {
         mSelectedComposer = aResponse.GetResponseData();
     }
@@ -688,43 +608,14 @@ void AuthorDriver::CommandCompleted(const PVCmdResponse& aResponse)
         case VIDEO_ENCODER_H263: {
             PVMp4H263EncExtensionInterface *config = OSCL_STATIC_CAST(PVMp4H263EncExtensionInterface*,
                                                                       mVideoEncoderConfig);
-            // TODO:
-            // fix the hardcoded bit rate settings.
             if (config) {
-                int bitrate_setting = 192000;
-                if (mVideoWidth >= 480) {
-                    bitrate_setting = 420000; // unstable
-                } else if (mVideoWidth >= 352) {
-                    bitrate_setting = 360000;
-                } else if (mVideoWidth >= 320) {
-                    bitrate_setting = 320000;
-                }
                 config->SetNumLayers(1);
-                config->SetOutputBitRate(0, bitrate_setting);
+                config->SetOutputBitRate(0, 58850);    //XXX
                 config->SetOutputFrameSize(0, mVideoWidth, mVideoHeight);
                 config->SetOutputFrameRate(0, mVideoFrameRate);
                 config->SetIFrameInterval(mVideoFrameRate);
             }
-        } break;
-        case VIDEO_ENCODER_MPEG_4_SP: {
-            PVMp4H263EncExtensionInterface *config = OSCL_STATIC_CAST(PVMp4H263EncExtensionInterface*,
-                                                                      mVideoEncoderConfig);
-            if (config) {
-                int bitrate_setting = 192000;
-                if (mVideoWidth >= 480) {
-                    bitrate_setting = 420000; // unstable
-                } else if (mVideoWidth >= 352) {
-                    bitrate_setting = 360000;
-                } else if (mVideoWidth >= 320) {
-                    bitrate_setting = 320000;
-                }
-                config->SetNumLayers(1);
-                config->SetOutputBitRate(0, bitrate_setting);
-                config->SetOutputFrameSize(0, mVideoWidth, mVideoHeight);
-                config->SetOutputFrameRate(0, mVideoFrameRate);
-                config->SetIFrameInterval(mVideoFrameRate);
-            }
-        } break;
+            } break;
 
         default:
             break;
@@ -745,13 +636,6 @@ void AuthorDriver::CommandCompleted(const PVCmdResponse& aResponse)
         default:
             break;
         }
-    }
-
-    // delete video and/or audio nodes to prevent memory leakage
-    // when an authroing session is reused
-    if (ac->which == AUTHOR_CLOSE) {
-        LOGV("doCleanUp");
-        doCleanUp();
     }
 
     // Translate the PVMF error codes into Android ones 
@@ -788,19 +672,14 @@ void AuthorDriver::HandleInformationalEvent(const PVAsyncInformationalEvent& aEv
 
 status_t AuthorDriver::getMaxAmplitude(int *max)
 {
-    if (mAudioInputMIO == NULL) {
+    if (!mAudioInputMIO) {
         return android::UNKNOWN_ERROR;
     }
-    *max = mAudioInputMIO->maxAmplitude();
+    AndroidAudioInput *audioInput = static_cast<AndroidAudioInput*>(mAudioInputMIO);
+    *max = audioInput->maxAmplitude();
     return android::OK;
 }
 
-PVAEState AuthorDriver::getAuthorEngineState()
-{
-    if (mAuthor) {
-        return mAuthor->GetPVAuthorState();
-    }
-    return PVAE_STATE_IDLE;
-}
+
 
 

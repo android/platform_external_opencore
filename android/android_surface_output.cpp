@@ -1,24 +1,28 @@
-/*
- * Copyright (C) 2008, Google Inc.
+/* ------------------------------------------------------------------
+ * Copyright (C) 2008 PacketVideo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * -------------------------------------------------------------------
  */
 
-//#define LOG_NDEBUG 0
+#define LOG_NDEBUG 0
 #define LOG_TAG "VideoMIO"
 #include <utils/Log.h>
 
 #include "android_surface_output.h"
+#include <media/PVPlayer.h>
+
 #include "pvlogger.h"
 #include "pv_mime_string_utils.h"
 #include "oscl_snprintf.h"
@@ -47,37 +51,41 @@ static const char* pmem = "/dev/pmem";
 // This class implements the reference media IO for file output
 // This class constitutes the Media IO component
 
-OSCL_EXPORT_REF AndroidSurfaceOutput::AndroidSurfaceOutput(const sp<ISurface>& surface)
-    : OsclTimerObject(OsclActiveObject::EPriorityNominal, "androidsurfaceoutput"),
-        mSurface(surface)
+OSCL_EXPORT_REF AndroidSurfaceOutput::AndroidSurfaceOutput() :
+    OsclTimerObject(OsclActiveObject::EPriorityNominal, "androidsurfaceoutput")
 {
-    LOGV("AndroidAudioSurfaceOutput surface=%p", surface.get());
     initData();
 
     iColorConverter = NULL;
     mInitialized = false;
     mEmulation = false;
     mHardwareCodec = false;
+    mPvPlayer = NULL;
+    mFrameBufferIndex = 0;
 
     // running in emulation?
     char value[PROPERTY_VALUE_MAX];
     if (property_get("ro.kernel.qemu", value, 0)) {
-        LOGV("Running in emulation - fallback to software codecs");
+        LOGV("Emulation mode - using software codecs");
         mEmulation = true;
     }
 }
 
+status_t AndroidSurfaceOutput::set(PVPlayer* pvPlayer, const sp<ISurface>& surface)
+{
+    mPvPlayer = pvPlayer;
+    mSurface = surface;
+    return NO_ERROR;
+}
+
 void AndroidSurfaceOutput::initData()
 {
+    iVideoHeight = iVideoWidth = iVideoDisplayHeight = iVideoDisplayWidth = 0;
     iVideoFormat=PVMF_MIME_FORMAT_UNKNOWN;
-    iVideoHeightValid=false;
-    iVideoWidthValid=false;
-    iVideoDisplayHeightValid=false;
-    iVideoDisplayWidthValid=false;
+    resetVideoParameterFlags();
 
     // hardware specific information
     iVideoSubFormat = PVMF_MIME_FORMAT_UNKNOWN;
-    iVideoSubFormatValid = false;
 
     iCommandCounter=0;
     iLogger=NULL;
@@ -93,14 +101,28 @@ void AndroidSurfaceOutput::initData()
 void AndroidSurfaceOutput::ResetData()
     //reset all data from this session.
 {
+    Cleanup();
+
     //reset all the received media parameters.
     iVideoFormatString="";
     iVideoFormat=PVMF_MIME_FORMAT_UNKNOWN;
-    iVideoHeightValid=false;
-    iVideoWidthValid=false;
-    iVideoDisplayHeightValid=false;
-    iVideoDisplayWidthValid=false;
+    resetVideoParameterFlags();
     iIsMIOConfigured = false;
+}
+
+void AndroidSurfaceOutput::resetVideoParameterFlags()
+{
+    iVideoParameterFlags = VIDEO_PARAMETERS_INVALID;
+
+    // FIXME: Hack required because subformat is not passed when
+    // hardware accelerator is not present.
+    // emulator never uses subformat
+    //if (mEmulation) iVideoParameterFlags |= VIDEO_SUBFORMAT_VALID;
+}
+
+bool AndroidSurfaceOutput::checkVideoParameterFlags()
+{
+    return (iVideoParameterFlags & VIDEO_PARAMETERS_MASK) == VIDEO_PARAMETERS_VALID;
 }
 
 void AndroidSurfaceOutput::Cleanup()
@@ -122,13 +144,12 @@ void AndroidSurfaceOutput::Cleanup()
 
     // We'll close frame buf and delete here for now.
     CloseFrameBuf();
-   
+
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0,"AndroidSurfaceOutput::Cleanup() Out"));
  }
 
 OSCL_EXPORT_REF AndroidSurfaceOutput::~AndroidSurfaceOutput()
 {
-    LOGV("destructor");
     Cleanup();
 }
 
@@ -244,7 +265,6 @@ PVMFCommandId AndroidSurfaceOutput:: Init(const OsclAny* aContext)
     switch(iState)
     {
     case STATE_LOGGED_ON:
-
         status=PVMFSuccess;
         iState=STATE_INITIALIZED;
         break;
@@ -317,11 +337,11 @@ PVMFCommandId AndroidSurfaceOutput::Pause(const OsclAny* aContext)
         // if not configured, PVMFMIOConfigurationComplete is not sent
         // there should not be any media data.
 	if(iIsMIOConfigured) { 
-        if (mHardwareCodec) {
-            mSurface->postBuffer(mOffset);
-        } else {
-            mSurface->postBuffer(mFrameBuffers[mFrameBufferIndex]);
-        }
+	if (mHardwareCodec) {
+		mSurface->postBuffer(mOffset);
+	} else {
+		mSurface->postBuffer(mFrameBuffers[mFrameBufferIndex]);
+	}
         }
         break;
 
@@ -738,8 +758,9 @@ PVMFStatus AndroidSurfaceOutput::getParametersSync(PvmiMIOSession aSession, Pvmi
         aParameters=(PvmiKvp*)oscl_malloc(sizeof(PvmiKvp));
         if (aParameters == NULL) return PVMFErrNoMemory;
         aParameters[num_parameter_elements++].value.pChar_value=(char*) PVMF_MIME_YUV420;
-            return PVMFSuccess;
-        }
+
+        return PVMFSuccess;
+    }
 
     //unrecognized key.
     return PVMFFailure;
@@ -794,7 +815,7 @@ void AndroidSurfaceOutput::setParametersSync(PvmiMIOSession aSession, PvmiKvp* a
         else if (pv_mime_strcmp(aParameters[i].key, MOUT_VIDEO_WIDTH_KEY) == 0)
         {
             iVideoWidth=(int32)aParameters[i].value.uint32_value;
-            iVideoWidthValid=true;
+            iVideoParameterFlags |= VIDEO_WIDTH_VALID;
             LOGV("iVideoWidth=%d", iVideoWidth);
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                 (0,"AndroidSurfaceOutput::setParametersSync() Video Width Key, Value %d",iVideoWidth));
@@ -802,7 +823,7 @@ void AndroidSurfaceOutput::setParametersSync(PvmiMIOSession aSession, PvmiKvp* a
         else if (pv_mime_strcmp(aParameters[i].key, MOUT_VIDEO_HEIGHT_KEY) == 0)
         {
             iVideoHeight=(int32)aParameters[i].value.uint32_value;
-            iVideoHeightValid=true;
+            iVideoParameterFlags |= VIDEO_HEIGHT_VALID;
             LOGV("iVideoHeight=%d", iVideoHeight);
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                 (0,"AndroidSurfaceOutput::setParametersSync() Video Height Key, Value %d",iVideoHeight));
@@ -810,7 +831,7 @@ void AndroidSurfaceOutput::setParametersSync(PvmiMIOSession aSession, PvmiKvp* a
         else if (pv_mime_strcmp(aParameters[i].key, MOUT_VIDEO_DISPLAY_HEIGHT_KEY) == 0)
         {
             iVideoDisplayHeight=(int32)aParameters[i].value.uint32_value;
-            iVideoDisplayHeightValid=true;
+            iVideoParameterFlags |= DISPLAY_HEIGHT_VALID;
             LOGV("iVideoDisplayHeight=%d", iVideoDisplayHeight);
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                 (0,"AndroidSurfaceOutput::setParametersSync() Video Display Height Key, Value %d",iVideoDisplayHeight));
@@ -818,7 +839,7 @@ void AndroidSurfaceOutput::setParametersSync(PvmiMIOSession aSession, PvmiKvp* a
         else if (pv_mime_strcmp(aParameters[i].key, MOUT_VIDEO_DISPLAY_WIDTH_KEY) == 0)
         {
             iVideoDisplayWidth=(int32)aParameters[i].value.uint32_value;
-            iVideoDisplayWidthValid=true;
+            iVideoParameterFlags |= DISPLAY_WIDTH_VALID;
             LOGV("iVideoDisplayWidth=%d", iVideoDisplayWidth);
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                 (0,"AndroidSurfaceOutput::setParametersSync() Video Display Width Key, Value %d",iVideoDisplayWidth));
@@ -826,9 +847,11 @@ void AndroidSurfaceOutput::setParametersSync(PvmiMIOSession aSession, PvmiKvp* a
         else if (pv_mime_strcmp(aParameters[i].key, MOUT_VIDEO_SUBFORMAT_KEY) == 0)
         {
             iVideoSubFormat=aParameters[i].value.pChar_value;
-            iVideoSubFormatValid = true;
+            iVideoParameterFlags |= VIDEO_SUBFORMAT_VALID;
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0,"AndroidSurfaceOutput::setParametersSync() Video SubFormat Key, Value %s",iVideoSubFormat.getMIMEStrPtr()));
+
+LOGV("VIDEO SUBFORMAT SET TO %s\n",iVideoSubFormat.getMIMEStrPtr());
         }
         else
         {
@@ -843,14 +866,14 @@ void AndroidSurfaceOutput::setParametersSync(PvmiMIOSession aSession, PvmiKvp* a
             return;
         }
     }
-    initCheck();
+    uint32 mycache = iVideoParameterFlags ;
+    if( checkVideoParameterFlags() )
+	initCheck();
+    iVideoParameterFlags = mycache;
 
     // when all necessary parameters are received, send 
     // PVMFMIOConfigurationComplete event to observer
-
-    if(!iIsMIOConfigured && iVideoHeightValid && iVideoWidthValid &&
-        iVideoDisplayHeightValid && iVideoDisplayWidthValid
-        && iVideoSubFormatValid)
+    if(!iIsMIOConfigured && checkVideoParameterFlags() )
     {
         iIsMIOConfigured = true;
         if(iObserver)
@@ -875,7 +898,6 @@ uint32 AndroidSurfaceOutput::getCapabilityMetric (PvmiMIOSession aSession)
 PVMFStatus AndroidSurfaceOutput::verifyParametersSync (PvmiMIOSession aSession, PvmiKvp* aParameters, int num_elements)
 {
     OSCL_UNUSED_ARG(aSession);
-    //LOGV("verifyParametersSync in");
 
     // Go through each parameter
     for (int32 i=0; i<num_elements; i++) {
@@ -891,7 +913,6 @@ PVMFStatus AndroidSurfaceOutput::verifyParametersSync (PvmiMIOSession aSession, 
         }
     }
     return PVMFSuccess;
-    //LOGV("verifyParametersSync out");
 }
 
 //
@@ -973,15 +994,17 @@ void AndroidSurfaceOutput::Run()
 OSCL_EXPORT_REF bool AndroidSurfaceOutput::initCheck()
 {
 
-    // emulator never uses subformat
-    if (mEmulation) iVideoSubFormatValid = true;
-
-    // initialize once, and only when we have all the required parameters
-    if (mInitialized || !iVideoDisplayWidthValid || !iVideoDisplayHeightValid ||
-            !iVideoWidthValid || !iVideoHeightValid || !iVideoSubFormatValid)
+    // initialize only when we have all the required parameters
+    if (!checkVideoParameterFlags())
         return mInitialized;
 
-    // color converter requires even height/width
+    // release resources if previously initialized
+    CloseFrameBuf();
+
+    // reset flags in case display format changes in the middle of a stream
+    resetVideoParameterFlags();
+
+    // copy parameters in case we need to adjust them
     int displayWidth = iVideoDisplayWidth;
     int displayHeight = iVideoDisplayHeight;
     int frameWidth = iVideoWidth;
@@ -1015,12 +1038,13 @@ OSCL_EXPORT_REF bool AndroidSurfaceOutput::initCheck()
             frameSize = frameWidth * frameHeight * 2;
 
             // create frame buffer heap and register with surfaceflinger
+
             mFrameHeap = new MemoryHeapBase(frameSize * kBufferCount);
             if (mFrameHeap->heapID() < 0) {
                 LOGE("Error creating frame buffer heap");
                 return false;
             }
-            mSurface->registerBuffers(displayWidth, displayHeight, frameWidth, frameHeight, PIXEL_FORMAT_RGB_565, mFrameHeap);
+            status_t ret = mSurface->registerBuffers(displayWidth, displayHeight, frameWidth, frameHeight, PIXEL_FORMAT_RGB_565, mFrameHeap);
 
             // create frame buffers
             for (int i = 0; i < kBufferCount; i++) {
@@ -1050,7 +1074,7 @@ OSCL_EXPORT_REF bool AndroidSurfaceOutput::initCheck()
             mHeapPmem = new MemoryHeapPmem(master, 0);
             mHeapPmem->slap();
             master.clear();
-            mSurface->registerBuffers(displayWidth, displayHeight, frameWidth, frameHeight, PIXEL_FORMAT_YCbCr_420_SP, mHeapPmem);
+            status_t ret = mSurface->registerBuffers(displayWidth, displayHeight, frameWidth, frameHeight, PIXEL_FORMAT_YCbCr_420_SP, mHeapPmem);
 
             // create frame buffers
             for (int i = 0; i < kBufferCount; i++) {
@@ -1067,6 +1091,9 @@ OSCL_EXPORT_REF bool AndroidSurfaceOutput::initCheck()
         mFrameBufferIndex = 0;
         mInitialized = true;
     }
+
+    // update app
+    mPvPlayer->sendEvent(MEDIA_SET_VIDEO_SIZE, displayWidth, displayHeight);
 
     return mInitialized;
 }
@@ -1095,7 +1122,7 @@ OSCL_EXPORT_REF PVMFStatus AndroidSurfaceOutput::WriteFrameBuf(uint8* aData, uin
             master.clear();
 
             // register frame buffers with SurfaceFlinger
-            mSurface->registerBuffers(iVideoDisplayWidth, iVideoDisplayHeight, iVideoWidth, iVideoHeight, PIXEL_FORMAT_YCbCr_420_SP, mHeapPmem);
+            status_t ret = mSurface->registerBuffers(iVideoDisplayWidth, iVideoDisplayHeight, iVideoWidth, iVideoHeight, PIXEL_FORMAT_YCbCr_420_SP, mHeapPmem);
 
             mInitialized = true;
         }
@@ -1135,8 +1162,9 @@ OSCL_EXPORT_REF void AndroidSurfaceOutput::CloseFrameBuf()
     if (mSurface.get()) {
         LOGV("unregisterBuffers");
         mSurface->unregisterBuffers();
-        mSurface.clear();
+//        mSurface.clear();
     }
+
     // free frame buffers
     LOGV("free frame buffers");
     for (int i = 0; i < kBufferCount; i++) {
@@ -1160,13 +1188,9 @@ OSCL_EXPORT_REF void AndroidSurfaceOutput::CloseFrameBuf()
 
 OSCL_EXPORT_REF bool AndroidSurfaceOutput::GetVideoSize(int *w, int *h) {
 
-    if (iVideoDisplayHeightValid && iVideoDisplayWidthValid)
-    {
-        *w = iVideoDisplayWidth;
-        *h = iVideoDisplayHeight;
-        return true;
-    }
-    return false;
+    *w = iVideoDisplayWidth;
+    *h = iVideoDisplayHeight;
+    return iVideoDisplayWidth != 0 && iVideoDisplayHeight != 0;
 }
 
 bool AndroidSurfaceOutput::getPmemFd(OsclAny *private_data_ptr, uint32 *pmemFD)

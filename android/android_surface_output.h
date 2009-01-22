@@ -1,17 +1,19 @@
-/*
- * Copyright (C) 2008, Google Inc.
+/* ------------------------------------------------------------------
+ * Copyright (C) 2008 PacketVideo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * -------------------------------------------------------------------
  */
 
 #ifndef ANDROID_SURFACE_OUTPUT_H_INCLUDED
@@ -83,6 +85,21 @@ typedef struct PLATFORM_PRIVATE_LIST
     PLATFORM_PRIVATE_ENTRY* entryList;
 } PLATFORM_PRIVATE_LIST;
 
+// define bits, mask and validity check for video parameters
+#define VIDEO_PARAMETERS_INVALID 0
+#define VIDEO_SUBFORMAT_VALID (1 << 0)
+#define DISPLAY_HEIGHT_VALID (1 << 1)
+#define DISPLAY_WIDTH_VALID (1 << 2)
+#define VIDEO_HEIGHT_VALID (1 << 3)
+#define VIDEO_WIDTH_VALID (1 << 4)
+#define VIDEO_PARAMETERS_MASK (VIDEO_SUBFORMAT_VALID | DISPLAY_HEIGHT_VALID | \
+        DISPLAY_WIDTH_VALID | VIDEO_HEIGHT_VALID | VIDEO_WIDTH_VALID)
+#define VIDEO_PARAMETERS_VALID (VIDEO_SUBFORMAT_VALID | DISPLAY_HEIGHT_VALID | \
+        DISPLAY_WIDTH_VALID | VIDEO_HEIGHT_VALID | VIDEO_WIDTH_VALID)
+
+namespace android {
+    class PVPlayer;
+}
 
 class PVLogger;
 class PVMFMediaClock;
@@ -132,7 +149,10 @@ class AndroidSurfaceOutput :    public OsclTimerObject
 
 {
 public:
-    OSCL_IMPORT_REF AndroidSurfaceOutput(const sp<ISurface>& surface);
+    OSCL_IMPORT_REF AndroidSurfaceOutput();
+
+    // parameter initialization
+    virtual status_t set(android::PVPlayer* pvPlayer, const sp<ISurface>& surface);
 
     // For Frame Buffer
     OSCL_IMPORT_REF bool initCheck();
@@ -242,6 +262,8 @@ public:
 
 private:
     void initData();
+    void resetVideoParameterFlags();
+    bool checkVideoParameterFlags();
 
     // From OsclTimerObject
     void Run();
@@ -311,16 +333,13 @@ private:
     bool iFileOpened;
 
     // Video parameters
+    uint32 iVideoParameterFlags;
     OSCL_HeapString<OsclMemAllocator> iVideoFormatString;
     PVMFFormatType iVideoFormat;
     int32 iVideoHeight;
-    bool iVideoHeightValid;
     int32 iVideoWidth;
-    bool iVideoWidthValid;
     int32 iVideoDisplayHeight;
-    bool iVideoDisplayHeightValid;
     int32 iVideoDisplayWidth;
-    bool iVideoDisplayWidthValid;
 
     // hardware specific
     PVMFFormatType iVideoSubFormat;
@@ -337,6 +356,7 @@ private:
     // software color conversion for software codecs
     ColorConvertBase* iColorConverter;
 
+    android::PVPlayer*          mPvPlayer;
     bool                        mInitialized;
     bool                        mEmulation;
     sp<ISurface>                mSurface;
@@ -352,7 +372,6 @@ private:
     uint32                      mOffset;
 
     void convertFrame(void* src, void* dst, size_t len);
-
     //This bool is set true when all necassary parameters have been received.
     bool iIsMIOConfigured;
 

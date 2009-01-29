@@ -1078,7 +1078,15 @@ void PlayerDriver::HandleInformationalEvent(const PVAsyncInformationalEvent& aEv
             uint8 *localBuf = aEvent.GetLocalBuffer();
             if (localBuf != NULL) {
                 uint32 bufPercent;
-                oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
+                // @TODO - Get rid of this later
+                if (mDataSource->GetDataSourceFormatType() == (char*)PVMF_MIME_DATA_SOURCE_HTTP_URL)
+                {
+                    oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
+                }
+                else //RTSP
+                {
+                    oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                }
                 LOGV("PVMFInfoBufferingStatus(%u)", bufPercent);
                 mPvPlayer->sendEvent(MEDIA_BUFFERING_UPDATE, bufPercent);
             }

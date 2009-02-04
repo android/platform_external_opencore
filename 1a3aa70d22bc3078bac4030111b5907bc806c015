@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAACX///60\u003d",
+        "filename": "NOTICE",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2009-02-04T16:26:00Z",
+      "side": 1,
+      "message": "The tabs here could be removed also.",
+      "revId": "1a3aa70d22bc3078bac4030111b5907bc806c015",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

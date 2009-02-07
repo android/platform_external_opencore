@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAADn////g\u003d",
+        "filename": "codecs_v2/audio/mp3/dec/src/pvmp3_huffman_parsing.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2009-02-07T15:26:50Z",
+      "side": 1,
+      "message": "Replace tabs with spaces.",
+      "revId": "fbfc11238f3cb3ed22b61420eba81b92525c9e6a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

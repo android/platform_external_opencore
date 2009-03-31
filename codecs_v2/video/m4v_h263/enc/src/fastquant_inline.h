@@ -26,7 +26,7 @@
 #include "mp4def.h"
 #include "oscl_base_macros.h"
 
-#if !defined(PV_ARM_GCC_V5) && !defined(PV_ARM_GCC_V4) /* ARM GNU COMPILER  */
+#if !defined(PV_ARM_GCC_V5) /* ARM GNU COMPILER  */
 
 __inline int32 aan_scale(int32 q_value, int32 coeff, int32 round, int32 QPdiv2)
 {
@@ -424,7 +424,7 @@ __inline int32 coeff_dequant_mpeg_intra(int32 q_value, int32 tmp)
     return q_value;
 }
 
-#elif ( defined(PV_ARM_GCC_V4) || defined(PV_ARM_GCC_V5) ) /* ARM GNU COMPILER  */
+#elif defined(PV_ARM_GCC_V5) /* ARM GNU COMPILER  */
 
 __inline int32 aan_scale(int32 q_value, int32 coeff,
                          int32 round, int32 QPdiv2)

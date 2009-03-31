@@ -18,7 +18,7 @@
 #ifndef _VLC_ENCODE_INLINE_H_
 #define _VLC_ENCODE_INLINE_H_
 
-#if !defined(PV_ARM_GCC_V5) && !defined(PV_ARM_GCC_V4)
+#if !defined(PV_ARM_GCC_V5)
 
 __inline  Int zero_run_search(UInt *bitmapzz, Short *dataBlock, RunLevelBlock *RLB, Int nc)
 {
@@ -209,7 +209,7 @@ __inline  Int zero_run_search(UInt *bitmapzz, Short *dataBlock, RunLevelBlock *R
     return idx;
 }
 
-#elif ( defined(PV_ARM_GCC_V4) || defined(PV_ARM_GCC_V5) ) /* ARM GNU COMPILER  */
+#elif defined(PV_ARM_GCC_V5) /* ARM GNU COMPILER  */
 
 __inline Int m4v_enc_clz(UInt temp)
 {

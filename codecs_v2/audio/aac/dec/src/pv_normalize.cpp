@@ -98,7 +98,7 @@ Returns
 ----------------------------------------------------------------------------*/
 
 #if defined(_ARM)
-#elif (defined(PV_ARM_GCC_V5)||defined(PV_ARM_GCC_V4))
+#elif defined(PV_ARM_GCC_V5)
 /* function is inlined in header file */
 
 

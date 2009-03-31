@@ -22,7 +22,7 @@
 #ifndef _DCT_INLINE_H_
 #define _DCT_INLINE_H_
 
-#if !defined(PV_ARM_GCC_V5) && !defined(PV_ARM_GCC_V4)
+#if !defined(PV_ARM_GCC_V5)
 
 #include "oscl_base_macros.h"
 
@@ -266,7 +266,7 @@ __inline int32 sum_abs(int32 k0, int32 k1, int32 k2, int32 k3,
     return abs_sum;
 }
 
-#elif ( defined(PV_ARM_GCC_V5) || defined(PV_ARM_GCC_V4) )  /* ARM GNU COMPILER  */
+#elif defined(PV_ARM_GCC_V5)  /* ARM GNU COMPILER  */
 
 __inline int32 mla724(int32 op1, int32 op2, int32 op3)
 {

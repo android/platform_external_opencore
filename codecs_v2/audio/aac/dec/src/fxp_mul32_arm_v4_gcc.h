@@ -45,7 +45,7 @@ extern "C"
 #include "pv_audio_type_defs.h"
 
 
-#if defined (_ARM_V4_GCC) /* ARM_V4 GNU COMPILER  */
+#if defined (PV_ARM_GCC_V4)
 
 
 #define preload_cache( a)

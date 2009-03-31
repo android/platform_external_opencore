@@ -10,7 +10,11 @@ ifeq ($(ENABLE_PV_LOGGING),1)
 endif
 
 ifeq ($(TARGET_ARCH),arm)
+  ifeq ($(TARGET_ARCH_VERSION),armv4t)
+  PV_CFLAGS += -DPV_ARM_GCC_V4
+  else
   PV_CFLAGS += -DPV_ARM_GCC_V5
+  endif
 endif
 
 include $(CLEAR_VARS)

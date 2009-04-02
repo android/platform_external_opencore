@@ -62,6 +62,13 @@
  * by every Oscl platform.
  */
 
+struct mediasigbushandler {
+  int (*handlesigbus)(siginfo_t*, mediasigbushandler*);
+  void *data,*sigbusvar;
+  int base,len;
+  struct mediasigbushandler *next;
+};
+
 class Oscl_FileServer;
 class OsclNativeFile : public HeapBase
 {

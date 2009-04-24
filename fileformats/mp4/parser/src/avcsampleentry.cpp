@@ -23,7 +23,10 @@
 
 
 AVCSampleEntry::AVCSampleEntry(MP4_FF_FILE *fp, uint32 size, uint32 type)
-        : Atom(fp, size, type)
+    : Atom(fp, size, type),
+      _ownDecoderSpecificInfo(true),
+      _ownAVCConfigurationBox(true)
+
 {
     _mp4ErrorCode = READ_AVC_SAMPLE_ENTRY_FAILED;
 
@@ -213,10 +216,44 @@ AVCSampleEntry::AVCSampleEntry(MP4_FF_FILE *fp, uint32 size, uint32 type)
     }
 }
 
+AVCSampleEntry::AVCSampleEntry(AVCConfigurationBox* avc_box, 
+                               DecoderSpecificInfo* dsi,
+                               uint16 width,
+                               uint16 height) :
+    Atom(AVC_SAMPLE_ENTRY),
+    _width(width),
+    _height(height),
+    _decoderSpecificInfo(dsi),
+    _ownDecoderSpecificInfo(false),
+    _pAVCConfigurationBox(avc_box),
+    _ownAVCConfigurationBox(false)
+
+{
+    memset(_reserved, 0, sizeof(_reserved));
+    _dataReferenceIndex = 0;
+    _preDefined1 = 0;
+    _reserved1 = 0;
+    memset(_predefined2, 0, sizeof(_predefined2));
+    _horizResolution = 0;
+    _vertResolution = 0;
+    _reserved2 = 0;
+    _preDefined2 = 0;
+    memset(_compressorName, 0, sizeof(_compressorName));
+    _depth = 0;
+    _predefined3 = 0;
+
+    _pPASPBox = NULL;
+    _pMPEG4BitRateBox     = NULL;
+
+    _success = true;
+    _mp4ErrorCode = EVERYTHING_FINE;
+}
+
+
 // Destructor
 AVCSampleEntry::~AVCSampleEntry()
 {
-    if (_pAVCConfigurationBox != NULL)
+    if (_pAVCConfigurationBox != NULL && _ownAVCConfigurationBox)
     {
         PV_MP4_FF_DELETE(NULL, AVCConfigurationBox, _pAVCConfigurationBox);
     }
@@ -228,7 +265,7 @@ AVCSampleEntry::~AVCSampleEntry()
     {
         PV_MP4_FF_DELETE(NULL, PASPBox, _pPASPBox);
     }
-    if (_decoderSpecificInfo != NULL)
+    if (_decoderSpecificInfo != NULL && _ownDecoderSpecificInfo)
     {
         PV_MP4_FF_DELETE(NULL, DecoderSpecificInfo, _decoderSpecificInfo);
     }

@@ -375,6 +375,7 @@ class PVMP4FFNodeTrackOMA2DRMInfo
         {
             iTrackId = aSrc.iTrackId;
             iDRMInfoSize = aSrc.iDRMInfoSize;
+            iDRMInfo = NULL;
             if (iDRMInfoSize > 0)
             {
                 iDRMInfo = OSCL_ARRAY_NEW(uint8, iDRMInfoSize);

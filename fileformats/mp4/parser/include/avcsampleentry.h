@@ -32,7 +32,10 @@ class AVCSampleEntry : public Atom
 {
 
     public:
+        // Main constructor
         AVCSampleEntry(MP4_FF_FILE *fp, uint32 size, uint32 type);
+        // Constructor used after Ecnv parsing
+        AVCSampleEntry(AVCConfigurationBox* avc_box, DecoderSpecificInfo* dsi, uint16 width, uint16 height);
         virtual ~AVCSampleEntry();
 
         int16  getWidth()
@@ -265,8 +268,10 @@ class AVCSampleEntry : public Atom
         int16  _depth;
         int16  _predefined3;
         DecoderSpecificInfo* _decoderSpecificInfo;
+        bool                 _ownDecoderSpecificInfo;
 
         AVCConfigurationBox          *_pAVCConfigurationBox;
+        bool                          _ownAVCConfigurationBox;
         MPEG4BitRateBox              *_pMPEG4BitRateBox;
         PASPBox                      *_pPASPBox;
 };

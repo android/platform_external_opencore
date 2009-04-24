@@ -214,6 +214,8 @@ class EcnaBox : public SampleEntry
         Oscl_Vector<DecoderSpecificInfo *, OsclMemAllocator> *_pAMRWBDecSpecInfoArray;
 };
 
+class AVCSampleEntry;
+
 class EcnvBox : public SampleEntry
 {
 
@@ -240,6 +242,11 @@ class EcnvBox : public SampleEntry
         uint32 getMaxBitrate() const;
         uint16 getWidth() const;
         uint16 getHeight() const;
+
+        // Construct an AVCSampleEntry. The caller is responsible for 
+        // deleting the object.
+        AVCSampleEntry* getAVCSampleEntry();
+
         ProtectionSchemeInformationBox *_pProtectionSchemeInformationBox;
 
     private:

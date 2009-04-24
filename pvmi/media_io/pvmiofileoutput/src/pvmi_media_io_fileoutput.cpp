@@ -58,6 +58,7 @@ OSCL_EXPORT_REF void PVMFMediaFileOutputRegistryFactory::ReleaseMediaIO(PvmiMIOC
 OSCL_EXPORT_REF PVRefFileOutput::PVRefFileOutput(const OSCL_wString& aFileName, bool logStrings)
         : OsclTimerObject(OsclActiveObject::EPriorityNominal, "pvreffileoutput")
         , iOutputFileName(aFileName)
+        , iCompressedMedia(false)
 #if (LOG_OUTPUT_TO_FILE)
         , iLogOutputToFile(true)
 #else
@@ -77,6 +78,7 @@ OSCL_EXPORT_REF PVRefFileOutput::PVRefFileOutput(const OSCL_wString& aFileName
         , bool logStrings)
         : OsclTimerObject(OsclActiveObject::EPriorityNominal, "pvreffileoutput")
         , iOutputFileName(aFileName)
+        , iCompressedMedia(false)
 #if (LOG_OUTPUT_TO_FILE)
         , iLogOutputToFile(true)
 #else
@@ -108,6 +110,7 @@ OSCL_EXPORT_REF PVRefFileOutput::PVRefFileOutput(const oscl_wchar* aFileName
         , bool aActiveTiming)
         : OsclTimerObject(OsclActiveObject::EPriorityNominal, "pvreffileoutput")
         , iOutputFileName(aFileName)
+        , iCompressedMedia(false)
 #if (LOG_OUTPUT_TO_FILE)
         , iLogOutputToFile(true)
 #else

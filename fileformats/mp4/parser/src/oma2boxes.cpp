@@ -26,6 +26,7 @@
 #include "fonttableatom.h"
 #include "amrdecoderspecificinfo.h"
 #include "h263decoderspecificinfo.h"
+#include "avcsampleentry.h"
 
 typedef Oscl_Vector<DecoderSpecificInfo*, OsclMemAllocator> decoderSpecificInfoVecType;
 
@@ -957,6 +958,16 @@ uint16 EcnvBox::getHeight() const
     return (uint16)(_reserved2 & 0x0000FFFF);
 }
 
+AVCSampleEntry* EcnvBox::getAVCSampleEntry()
+{
+    AVCSampleEntry* avc_sample_entry = NULL;
+    if (_pAVCConfigurationBox != NULL) {
+        PV_MP4_FF_NEW(NULL, AVCSampleEntry, (_pAVCConfigurationBox , getDecoderSpecificInfo(), getWidth(), getHeight()), avc_sample_entry);
+    }
+
+    return avc_sample_entry;
+}
+
 
 // Destructor
 EcnvBox::~EcnvBox()
@@ -982,10 +993,6 @@ EcnvBox::~EcnvBox()
     if (_pMPEG4BitRateBox != NULL)
     {
         PV_MP4_FF_DELETE(NULL, MPEG4BitRateBox, _pMPEG4BitRateBox);
-    }
-    if (_decoderSpecificInfo != NULL)
-    {
-        PV_MP4_FF_DELETE(NULL, DecoderSpecificInfo, _decoderSpecificInfo);
     }
     if (_decoderSpecificInfo != NULL)
     {

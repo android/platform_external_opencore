@@ -270,6 +270,14 @@ SampleDescriptionAtom::SampleDescriptionAtom(MP4_FF_FILE *fp,
                             _pProtectionSchemeInformationBox =
                                 ((EcnvBox*)entry)->_pProtectionSchemeInformationBox;
 
+                            EcnvBox* ebox = (EcnvBox*)entry;
+                            AVCSampleEntry* pAVCSampleEntry = ebox->getAVCSampleEntry();
+                            if (pAVCSampleEntry) 
+                            {
+                                _oAVC = true;
+                                pAVCSampleEntry->setParent(this);
+                                (*_pAVCSampleEntryVec).push_back(pAVCSampleEntry);
+                            }
                         }
                         else if (atomType == H263_SAMPLE_ENTRY_ATOM)
                         {

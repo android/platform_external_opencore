@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAQ3///8E\u003d",
+        "filename": "nodes/pvomxbasedecnode/src/pvmf_omx_basedec_node.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2009-05-06T15:18:46Z",
+      "side": 1,
+      "message": "This is ok. While you are at it, can you also initialize iNumOutstandingInputBuffers to 0.",
+      "revId": "d47f13685c82cf7cf7ee2c0cd37f5862b081c5e0",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

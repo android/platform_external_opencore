@@ -181,6 +181,7 @@ typedef struct tPVAmrDecoderExternal
 
 } tPVAmrDecoderExternal;
 
+#ifdef __cplusplus
 // CDecoder_AMRInterface
 class CDecoder_AMRInterface
 {
@@ -195,6 +196,7 @@ class CDecoder_AMRInterface
         OSCL_IMPORT_REF virtual void StopL() = 0;
         OSCL_IMPORT_REF virtual void TerminateDecoderL() = 0;
 };
+#endif
 
 
 

@@ -134,7 +134,7 @@ extern "C"
 ; LOCAL STORE/BUFFER/POINTER DEFINITIONS
 ; Variable declaration - defined here and used outside this module
 ----------------------------------------------------------------------------*/
-const int16 prmnofsf[NUM_OF_SPMODES] =
+static const int16 prmnofsf[NUM_OF_SPMODES] =
 {
     63,  81, 100,
     108, 116, 128,

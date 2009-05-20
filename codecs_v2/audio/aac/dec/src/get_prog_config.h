@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: get_prog_config.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                                      Date:
- Description:
+ Filename: get_prog_config.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

@@ -17,14 +17,8 @@
  */
 /*
 
- Pathname: ps_bstr_decoding.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                   Date:
- Description:
-
+ Filename: ps_bstr_decoding.h
+j
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

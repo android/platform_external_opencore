@@ -50,18 +50,19 @@ class TSC_component;
 class TSC_mt
 {
     public:
-        TSC_mt()
+        TSC_mt():
+                iTSCcomponent(NULL),
+                iLogger(NULL),
+                iH245(NULL),
+                iH223(NULL)
         {
             iLogger = PVLogger::GetLoggerObject("3g324m.h245user");
         };
-        ~TSC_mt() {};
+        ~TSC_mt();
 
-        void SetMembers(H245* aH245, H223* aH223, TSC_component* aTSCcomponent)
-        {
-            iH245 = aH245;
-            iH223 = aH223;
-            iTSCcomponent = aTSCcomponent;
-        }
+        void Reset();
+
+        void SetMembers(H245* aH245, H223* aH223, TSC_component* aTSCcomponent);
         void InitVarsSession();
         void ClearVars();
         void DeleteMuxEntry(uint32 aParam);
@@ -72,6 +73,14 @@ class TSC_mt
         void MtTrfReq(OlcList& aOlcs);
         void MtTrfRps(uint32 sequenceNumber, PS_MuxDescriptor pMux);
         void MtRjtReq();
+        uint32 PendingMuxTable()
+        {
+            return iPendingMtSn;
+        }
+        void ClearPendingMuxTable()
+        {
+            iPendingMtSn = -1;
+        }
         bool MuxTableSendComplete(uint32 sn);
 
         uint32 SendMuxTableForLcn(TPVChannelId id);
@@ -91,7 +100,6 @@ class TSC_mt
         int iPendingMtSn;
         Oscl_Vector<int, OsclMemAllocator> iToBeDeletedMuxEntryNumbers;
 
-        //TSC_capability* iTSCcapability;
         TSC_component* iTSCcomponent;
 
         PVLogger* iLogger;

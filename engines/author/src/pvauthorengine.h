@@ -48,11 +48,15 @@
 #ifndef PVAE_NODE_UTILITY_H_INCLUDED
 #include "pvaenodeutility.h"
 #endif
-
 #ifndef PVMI_CONFIG_AND_CAPABILITY_H_INCLUDED
 #include "pvmi_config_and_capability.h"
 #endif
+#ifndef PVMF_MEDIA_CLOCK_H_INCLUDED
+#include "pvmf_media_clock.h"
+#endif
+
 #define K3gpComposerMimeType "/x-pvmf/ff-mux/3gp"
+#define KMP4ComposerMimeType "/x-pvmf/ff-mux/mp4"
 #define KAmrNbEncMimeType "/x-pvmf/audio/encode/amr-nb"
 #define KAMRWbEncMimeType "/x-pvmf/audio/encode/amr-wb"
 #define KH263EncMimeType "/x-pvmf/video/encode/h263"
@@ -61,12 +65,12 @@
 #define KTextEncMimeType "/x-pvmf/text/encode/txt"
 
 //MIME strings for .amr and .aac composer
-#define KAMRNbComposerMimeType		"/x-pvmf/ff-mux/amr-nb"
-#define KAMRWbComposerMimeType		"/x-pvmf/ff-mux/amr-wb"
-#define KAACADIFComposerMimeType	"/x-pvmf/ff-mux/adif"
-#define KAACADTSComposerMimeType	"/x-pvmf/ff-mux/adts"
-#define KAACADIFEncMimeType			"/x-pvmf/audio/encode/aac/adif"
-#define KAACADTSEncMimeType			"/x-pvmf/audio/encode/aac/adts"
+#define KAMRNbComposerMimeType      "/x-pvmf/ff-mux/amr-nb"
+#define KAMRWbComposerMimeType      "/x-pvmf/ff-mux/amr-wb"
+#define KAACADIFComposerMimeType    "/x-pvmf/ff-mux/adif"
+#define KAACADTSComposerMimeType    "/x-pvmf/ff-mux/adts"
+#define KAACADIFEncMimeType         "/x-pvmf/audio/encode/aac/adif"
+#define KAACADTSEncMimeType         "/x-pvmf/audio/encode/aac/adts"
 #define KAACMP4EncMimeType          "/x-pvmf/audio/encode/X-MPEG4-AUDIO"
 //end of changes
 
@@ -142,11 +146,11 @@ const PVAuthorKeyStringData PVAuthorConfigProdInfoKeys[PVAUTHORCONFIG_PRODINFO_N
  * PVAuthorEngine Class
  */
 class PVAuthorEngine : public PVAuthorEngineInterface,
-            public OsclTimerObject,
-            public PVMFNodeErrorEventObserver,
-            public PVMFNodeInfoEventObserver,
-            public PVAENodeUtilObserver,
-            public PvmiCapabilityAndConfig
+        public OsclTimerObject,
+        public PVMFNodeErrorEventObserver,
+        public PVMFNodeInfoEventObserver,
+        public PVAENodeUtilObserver,
+        public PvmiCapabilityAndConfig
 {
     public:
         static PVAuthorEngineInterface* Create(PVCommandStatusObserver* aCmdStatusObserver,
@@ -339,7 +343,7 @@ class PVAuthorEngine : public PVAuthorEngineInterface,
 
         // private functions used internally in cap-config class functions
         //f(n) used in SetParametersSync function of cap-config class
-        PVMFStatus DoCapConfigSetParameters(PVEngineCommand& aCmd, bool aSyncCmd = false);	// f(n) used in SetParametersSync function of cap-config class
+        PVMFStatus DoCapConfigSetParameters(PVEngineCommand& aCmd, bool aSyncCmd = false);  // f(n) used in SetParametersSync function of cap-config class
         //f(n) used in GetParametersSync function of cap-config class
         PVMFStatus DoCapConfigGetParametersSync(PvmiKeyType aIdentifier, PvmiKvp*& aParameters, int& aNumParamElements, PvmiCapabilityContext aContext);
         //f(n) used in ReleaseParametersSync function of cap-config class
@@ -378,6 +382,11 @@ class PVAuthorEngine : public PVAuthorEngineInterface,
         PvmiConfigAndCapabilityCmdObserver *iCfgCapCmdObserver;
         int iAsyncNumElements;
         bool iDoResetNodeContainers;
+
+        //authoring clock related
+        PVMFTimebase_Tickcount iAuthorClockTimebase;
+        PVMFMediaClock iAuthorClock;
+        PVMFStatus SendAuthoringClockToDataSources(uint aIndex, bool aReset = false);
 };
 
 

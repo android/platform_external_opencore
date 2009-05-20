@@ -17,14 +17,8 @@
  */
 /*
 
-  Pathname: pv_normalize.h
+ Filename: pv_normalize.h
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -54,7 +48,7 @@
 ; DEFINES AND SIMPLE TYPEDEF'S
 ----------------------------------------------------------------------------*/
 
-#if defined(_ARM)
+#if defined(PV_ARM_V5)
 
 __inline Int pv_normalize(Int32 x)
 {
@@ -68,7 +62,7 @@ __inline Int pv_normalize(Int32 x)
 }
 
 
-#elif (defined(PV_ARM_GCC_V5)||defined(PV_ARM_GCC_V4))
+#elif defined(PV_ARM_GCC_V5)
 
 __inline Int pv_normalize(Int32 x)
 {

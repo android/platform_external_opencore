@@ -332,7 +332,7 @@ class ProtocolContainer
         {
             return PVMFSuccess;    // used in PVMFProtocolEngineNode::doInit
         }
-        OSCL_IMPORT_REF virtual PVMFStatus doPrepare();							// used in PVMFProtocolEngineNode::doPrepare, the default implementation is for both 3gpp and fasttrack download
+        OSCL_IMPORT_REF virtual PVMFStatus doPrepare();                         // used in PVMFProtocolEngineNode::doPrepare, the default implementation is for both 3gpp and fasttrack download
         virtual bool doProPrepare()
         {
             return true;    // used only for fasttrack, invoke the call to generate SDP info.
@@ -362,7 +362,7 @@ class ProtocolContainer
             OSCL_UNUSED_ARG(aCmd);
             return PVMFSuccess;
         }
-        OSCL_IMPORT_REF virtual bool reconnectSocket(const bool aForceSocketReconnect = true);	// used for progressive download and http streaming
+        OSCL_IMPORT_REF virtual bool reconnectSocket(const bool aForceSocketReconnect = true);  // used for progressive download and http streaming
         virtual bool needSocketReconnect()
         {
             return true;
@@ -553,28 +553,28 @@ class ProtocolContainer
 enum PVProtocolEngineNodePrcoessingState
 {
     ProcessingState_Idle = 0,
-    ProcessingState_NormalDataflow,				// normal data flow
+    ProcessingState_NormalDataflow,             // normal data flow
     // other states are changed to using event
 };
 
 static const TPVMFNodeInterfaceState SetStateByCommand[11] =
 {
-    EPVMFNodeInitialized,	// PVMF_GENERIC_NODE_INIT=4
-    EPVMFNodePrepared,		// PVMF_GENERIC_NODE_PREPARE=5
-    EPVMFNodeStarted,		// PVMF_GENERIC_NODE_START=6
-    EPVMFNodePrepared,		// PVMF_GENERIC_NODE_STOP=7
-    EPVMFNodeStarted,		// PVMF_GENERIC_NODE_FLUSH=8
-    EPVMFNodePaused,		// PVMF_GENERIC_NODE_PAUSE=9
-    EPVMFNodeCreated,		// PVMF_GENERIC_NODE_RESET=10
-    EPVMFNodeLastState,		// PVMF_GENERIC_NODE_CANCELALLCOMMANDS=11
-    EPVMFNodeLastState,		// PVMF_GENERIC_NODE_CANCELCOMMAND=12
-    EPVMFNodeStarted,		// PVPROTOCOLENGINE_NODE_CMD_SEEK=13,
-    EPVMFNodeStarted		// PVPROTOCOLENGINE_NODE_CMD_BITSTREAM_SWITCH=14
+    EPVMFNodeInitialized,   // PVMF_GENERIC_NODE_INIT=4
+    EPVMFNodePrepared,      // PVMF_GENERIC_NODE_PREPARE=5
+    EPVMFNodeStarted,       // PVMF_GENERIC_NODE_START=6
+    EPVMFNodePrepared,      // PVMF_GENERIC_NODE_STOP=7
+    EPVMFNodeStarted,       // PVMF_GENERIC_NODE_FLUSH=8
+    EPVMFNodePaused,        // PVMF_GENERIC_NODE_PAUSE=9
+    EPVMFNodeCreated,       // PVMF_GENERIC_NODE_RESET=10
+    EPVMFNodeLastState,     // PVMF_GENERIC_NODE_CANCELALLCOMMANDS=11
+    EPVMFNodeLastState,     // PVMF_GENERIC_NODE_CANCELCOMMAND=12
+    EPVMFNodeStarted,       // PVPROTOCOLENGINE_NODE_CMD_SEEK=13,
+    EPVMFNodeStarted        // PVPROTOCOLENGINE_NODE_CMD_BITSTREAM_SWITCH=14
 };
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-//////	PVProtocolEngineNodeInternalEvent definition
+//////  PVProtocolEngineNodeInternalEvent definition
 ////////////////////////////////////////////////////////////////////////////////////
 
 // This structure defines the internal event(constrast to node event) struture, which serves as the basis of
@@ -674,10 +674,10 @@ struct EndOfDataProcessingInfo
 
     bool isValid() const
     {
-        return (iSendResumeNotification		||
-                iExtraDataComeIn			||
-                iSendServerDisconnectEvent	||
-                iStreamingDone				||
+        return (iSendResumeNotification     ||
+                iExtraDataComeIn            ||
+                iSendServerDisconnectEvent  ||
+                iStreamingDone              ||
                 iForceStop);
     }
 
@@ -810,6 +810,10 @@ class HttpHeaderAvailableHandler : public PVProtocolEngineNodeInternalEventHandl
         {
             ;
         }
+
+    private:
+        bool Handle1xxResponse();
+
 };
 
 class FirstPacketAvailableHandler : public PVProtocolEngineNodeInternalEventHandler
@@ -826,13 +830,13 @@ class FirstPacketAvailableHandler : public PVProtocolEngineNodeInternalEventHand
 };
 
 
-class NormalDataAvailableHandler : public PVProtocolEngineNodeInternalEventHandler
+class ProtocolEngineDataAvailableHandler : public PVProtocolEngineNodeInternalEventHandler
 {
     public:
         bool handle(PVProtocolEngineNodeInternalEvent &aEvent);
 
         // constructor
-        NormalDataAvailableHandler(PVMFProtocolEngineNode *aNode) :
+        ProtocolEngineDataAvailableHandler(PVMFProtocolEngineNode *aNode) :
                 PVProtocolEngineNodeInternalEventHandler(aNode)
         {
             ;
@@ -852,13 +856,13 @@ class ProtocolStateCompleteHandler : public PVProtocolEngineNodeInternalEventHan
         }
 };
 
-class NormalDataFlowHandler : public PVProtocolEngineNodeInternalEventHandler
+class MainDataFlowHandler : public PVProtocolEngineNodeInternalEventHandler
 {
     public:
         bool handle(PVProtocolEngineNodeInternalEvent &aEvent);
 
         // constructor
-        NormalDataFlowHandler(PVMFProtocolEngineNode *aNode) : PVProtocolEngineNodeInternalEventHandler(aNode), iSendSocketReconnect(false)
+        MainDataFlowHandler(PVMFProtocolEngineNode *aNode) : PVProtocolEngineNodeInternalEventHandler(aNode), iSendSocketReconnect(false)
         {
             ;
         }
@@ -939,7 +943,7 @@ class OutgoingMsgSentSuccessHandler : public PVProtocolEngineNodeInternalEventHa
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-//////	PVMFProtocolEngineNodeOutput
+//////  PVMFProtocolEngineNodeOutput
 ////////////////////////////////////////////////////////////////////////////////////
 
 // Observer class for pvHttpStreamingOutput to notify the node when the output buffer is available since
@@ -1093,7 +1097,7 @@ class PVMFProtocolEngineNodeOutput
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-//////	DownloadControlInterface
+//////  DownloadControlInterface
 ////////////////////////////////////////////////////////////////////////////////////
 enum DownloadControlSupportObjectType
 {
@@ -1141,7 +1145,7 @@ class DownloadControlInterface
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
-//////	DownloadProgressInterface
+//////  DownloadProgressInterface
 ////////////////////////////////////////////////////////////////////////////////////
 
 // This class encapsulates the download progress update based on different download progress modes
@@ -1168,7 +1172,7 @@ class DownloadProgressInterface
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
-//////	EventReporter
+//////  EventReporter
 ////////////////////////////////////////////////////////////////////////////////////
 // This class wraps up sending node info&error event.
 enum EventReporterSupportObjectType
@@ -1532,14 +1536,14 @@ class InterfacingObjectContainer
             if (!aForceSet)
             {
                 if (aInfo.isDownloadStreamingDone) iProtocolStateCompleteInfo.isDownloadStreamingDone = true;
-                if (aInfo.isWholeSessionDone)	  iProtocolStateCompleteInfo.isWholeSessionDone = true;
-                if (aInfo.isEOSAchieved)			  iProtocolStateCompleteInfo.isEOSAchieved = true;
+                if (aInfo.isWholeSessionDone)     iProtocolStateCompleteInfo.isWholeSessionDone = true;
+                if (aInfo.isEOSAchieved)              iProtocolStateCompleteInfo.isEOSAchieved = true;
             }
             else
             {
                 iProtocolStateCompleteInfo.isDownloadStreamingDone = aInfo.isDownloadStreamingDone;
-                iProtocolStateCompleteInfo.isWholeSessionDone	   = aInfo.isWholeSessionDone;
-                iProtocolStateCompleteInfo.isEOSAchieved		   = aInfo.isEOSAchieved;
+                iProtocolStateCompleteInfo.isWholeSessionDone      = aInfo.isWholeSessionDone;
+                iProtocolStateCompleteInfo.isEOSAchieved           = aInfo.isEOSAchieved;
             }
         }
         ProtocolStateCompleteInfo *getProtocolStateCompleteInfo()
@@ -1585,22 +1589,22 @@ class InterfacingObjectContainer
         // clear
         void clear()
         {
-            iHttpHeaderLength			= 0;
-            iFileSize					= 0;
-            iSocketReconnectCmdSent		= false;
-            iCurrRedirectTrials			= 0;
-            isCurrentInputDataUnwanted	= true; // when clear(), treat all the input data unwanted (that needs to be ignored), let command and event to enable it
-            iProcessingDone				= false;
-            iKeepAliveTimeout			= 0;
-            iDisableHeadRequest			= true; // changed on the request of Japan
-            iMaxASFHeaderSize			= 0;
-            iCancelCmdHappened			= false;
-            iTruncatedForLimitSize		= false;
+            iHttpHeaderLength           = 0;
+            iFileSize                   = 0;
+            iSocketReconnectCmdSent     = false;
+            iCurrRedirectTrials         = 0;
+            isCurrentInputDataUnwanted  = true; // when clear(), treat all the input data unwanted (that needs to be ignored), let command and event to enable it
+            iProcessingDone             = false;
+            iKeepAliveTimeout           = 0;
+            iDisableHeadRequest         = true; // changed on the request of Japan
+            iMaxASFHeaderSize           = 0;
+            iCancelCmdHappened          = false;
+            iTruncatedForLimitSize      = false;
             iProtocolStateCompleteInfo.clear();
         }
 
     private:
-        PVMFFormatType	iDownloadFormat;
+        PVMFFormatType  iDownloadFormat;
         // set by SetSourceInitializationData()
         INetURI iDownloadURI;
         // set by SetLoggingURL
@@ -1663,7 +1667,7 @@ class InterfacingObjectContainer
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-//////	PVMFProtocolEngineNodeTimer
+//////  PVMFProtocolEngineNodeTimer
 ////////////////////////////////////////////////////////////////////////////////////
 
 // This class wraps OsclTimer<allocator> to hide some details and make call more expressive
@@ -1720,7 +1724,7 @@ class PVMFProtocolEngineNodeTimer
         uint32 getTimerVectorIndex(const uint32 aTimerID);
 
     private:
-        OsclTimer<PVMFProtocolEngineNodeAllocator>	*iWatchdogTimer;
+        OsclTimer<PVMFProtocolEngineNodeAllocator>  *iWatchdogTimer;
         Oscl_Vector<TimerUnit, PVMFProtocolEngineNodeAllocator> iTimerVec;
 };
 

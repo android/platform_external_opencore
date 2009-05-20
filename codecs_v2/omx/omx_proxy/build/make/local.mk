@@ -6,11 +6,9 @@ include $(MK)/clear.mk
 
 TARGET := pvomx_proxy_lib
 
-XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
+
 
 OPTIMIZE_FOR_PERFORMANCE_OVER_SIZE := true
-
-XCPPFLAGS +=
 
 XINCDIRS += \
   ../../../../../extern_libs_v2/khronos/openmax/include \

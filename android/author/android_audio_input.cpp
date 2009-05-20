@@ -35,6 +35,13 @@ static const int kBufferSize = 2048;
 // Define entry point for this DLL
 OSCL_DLL_ENTRY_POINT_DEFAULT()
 
+// At the start of a recording we are going to mute the first 300ms in
+// order to eliminate recording of the videorecorder signaltone.
+static const int32 AUTO_RAMP_START_MS = 300;
+
+// After the initial mute we're going to linearly ramp up the volume
+// over the next 300ms.
+static const int32 AUTO_RAMP_DURATION_MS = 300;
 
 ////////////////////////////////////////////////////////////////////////////
 AndroidAudioInput::AndroidAudioInput()
@@ -49,7 +56,8 @@ AndroidAudioInput::AndroidAudioInput()
     iMediaBufferMemPool(NULL),
     iState(STATE_IDLE),
     iMaxAmplitude(0),
-    iTrackMaxAmplitude(false)
+    iTrackMaxAmplitude(false),
+    iAudioThreadStarted(false)
 {
     LOGV("AndroidAudioInput constructor %p", this);
     // semaphore used to communicate between this  mio and the audio output thread
@@ -824,6 +832,31 @@ PVMFStatus AndroidAudioInput::DoReset()
 {
     LOGV("DoReset");
     iExitAudioThread = true;
+    iDataEventCounter = 0;
+    if(iAudioThreadStarted ){
+    iAudioThreadSem->Signal();
+    iAudioThreadTermSem->Wait();
+    iAudioThreadStarted = false;
+    }
+    while(!iCmdQueue.empty())
+    {
+        AndroidAudioInputCmd cmd = iCmdQueue[0];
+        iCmdQueue.erase(iCmdQueue.begin());
+    }
+    Cancel();
+    while(!iOSSRequestQueue.empty())
+    {
+        uint8* data = iOSSRequestQueue[0];
+        iMediaBufferMemPool->deallocate(data);
+        iOSSRequestQueue.erase(&iOSSRequestQueue[0]);
+    }
+    while(!iWriteResponseQueue.empty())
+    {
+        MicData micdata = iWriteResponseQueue[0];
+        iMediaBufferMemPool->deallocate(micdata.iData);
+        iWriteResponseQueue.erase(&iWriteResponseQueue[0]);
+    }
+    iState = STATE_IDLE;
     return PVMFSuccess;
 }
 
@@ -845,8 +878,11 @@ PVMFStatus AndroidAudioInput::DoStop()
     iExitAudioThread = true;
     iDataEventCounter = 0;
     iState = STATE_STOPPED;
+    if(iAudioThreadStarted ){
     iAudioThreadSem->Signal();
     iAudioThreadTermSem->Wait();
+    iAudioThreadStarted = false;
+    }
     return PVMFSuccess;
 }
 
@@ -865,6 +901,11 @@ PVMFStatus AndroidAudioInput::DoRead()
         LOGV("not started");
         return PVMFSuccess;
     }
+    if (NULL == iPeer)
+    {
+        LOGV("iPeer Null");
+        return PVMFSuccess;
+    } 
 
     uint32 timeStamp = 0;
     uint32 writeAsyncID = 0;
@@ -900,6 +941,58 @@ PVMFStatus AndroidAudioInput::DoRead()
     return PVMFSuccess;
 }
 
+void AndroidAudioInput::RampVolume(
+    int32 timeInFrames,
+    int32 kAutoRampDurationFrames,
+    void *_data,
+    size_t numBytes) const {
+    int16 *data = (int16 *)_data;
+
+    // Apply the ramp to the entire buffer or to the end of the ramp duration
+    // whichever comes first.
+    int32 kStopFrame = timeInFrames + numBytes / sizeof(int16);
+    if (kStopFrame > kAutoRampDurationFrames) {
+        kStopFrame = kAutoRampDurationFrames;
+    }
+
+    const int32 kShift = 14;
+    int32 fixedMultiplier =
+        (timeInFrames << kShift) / kAutoRampDurationFrames;
+
+    if (iAudioNumChannels == 1) {
+        while (timeInFrames < kStopFrame) {
+            data[0] = (data[0] * fixedMultiplier) >> kShift;
+            ++data;
+            ++timeInFrames;
+
+            if ((timeInFrames & 3) == 0) {
+                // Update the multiplier every 4 frames.
+
+                fixedMultiplier =
+                    (timeInFrames << kShift) / kAutoRampDurationFrames;
+            }
+        }
+    } else {
+        LOG_ALWAYS_FATAL_IF(
+                iAudioNumChannels != 2,
+                "We only support mono or stereo audio data here.");
+
+        // Stereo
+        while (timeInFrames < kStopFrame) {
+            data[0] = (data[0] * fixedMultiplier) >> kShift;
+            data[1] = (data[1] * fixedMultiplier) >> kShift;
+            data += 2;
+            ++timeInFrames;
+
+            if ((timeInFrames & 3) == 0) {
+                // Update the multiplier every 4 frames.
+
+                fixedMultiplier =
+                    (timeInFrames << kShift) / kAutoRampDurationFrames;
+            }
+        }
+    }
+}
 ////////////////////////////////////////////////////////////////////////////
 int AndroidAudioInput::audin_thread_func() {
     // setup audio record session
@@ -925,6 +1018,16 @@ int AndroidAudioInput::audin_thread_func() {
 
     if (res == NO_ERROR) {
 
+        // We are going to ramp up the volume from 0 to full at the
+        // start of recording.
+        int64_t numFramesRecorded = 0;
+
+        const int32 kAutoRampStartFrames =
+            AUTO_RAMP_START_MS * iAudioSamplingRate / 1000;
+
+        const int32 kAutoRampDurationFrames =
+            AUTO_RAMP_DURATION_MS * iAudioSamplingRate / 1000;
+
         while (!iExitAudioThread) {
             iOSSRequestQueueLock.Lock();
             if (iOSSRequestQueue.empty()) {
@@ -941,10 +1044,22 @@ int AndroidAudioInput::audin_thread_func() {
             if (numOfBytes <= 0)
                 break;
 
+            if (numFramesRecorded < kAutoRampStartFrames) {
+                // Start with silence...
+                memset(data, 0, numOfBytes);
+            } else {
+                // Then ramp up the volume...
+                int64_t delta = numFramesRecorded - kAutoRampStartFrames;
+                if (delta < kAutoRampDurationFrames) {
+                    RampVolume(
+                            delta, kAutoRampDurationFrames, data, numOfBytes);
+                }
+            }
+
             if (iTrackMaxAmplitude) {
-                short *p = (short*) data;
+                int16 *p = (int16*) data;
                 for (int i = numOfBytes >> 1; i > 0; --i) {
-                    short v = *p++;
+                    int16 v = *p++;
                     if (v < 0) {
                         v = -v;
                     }
@@ -954,8 +1069,10 @@ int AndroidAudioInput::audin_thread_func() {
                 }
             }
 
-            int dataDuration = numOfBytes/iAudioNumChannels/ sizeof(short) * 1000
-                    / iAudioSamplingRate; //ms
+            int32 dataFrames = numOfBytes / sizeof(int16) / iAudioNumChannels;
+            numFramesRecorded += dataFrames;
+            int dataDuration = dataFrames * 1000 / iAudioSamplingRate; //ms
+
             MicData micdata(data, numOfBytes, iTimeStamp,
                     dataDuration);
             iWriteResponseQueueLock.Lock();
@@ -982,6 +1099,16 @@ void AndroidAudioInput::SendMicData(void)
 {
     //LOGE("SendMicData in\n");
     //ASSUMPTION: the output queue is always available. no wait
+    if(iState != STATE_STARTED)
+    {
+        LOGV("not started");
+        return;
+    }
+    if (NULL == iPeer)
+    {    
+        LOGV("iPeer Null");
+        return;
+    }
     iWriteResponseQueueLock.Lock();
     //LOGE("SendMicData QSize %d\n", iWriteResponseQueue.size());
     if(iWriteResponseQueue.empty())

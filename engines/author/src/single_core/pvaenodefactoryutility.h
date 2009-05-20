@@ -162,7 +162,8 @@ class PVAuthorEngineNodeFactoryUtility
 
         static bool QueryRegistry(const PvmfMimeString& aMimeType, PVUuid& aUuid)
         {
-            if (CompareMimeTypes(aMimeType, OSCL_HeapString<OsclMemAllocator>(K3gpComposerMimeType)))
+            if (CompareMimeTypes(aMimeType, OSCL_HeapString<OsclMemAllocator>(K3gpComposerMimeType)) ||
+                    CompareMimeTypes(aMimeType, OSCL_HeapString<OsclMemAllocator>(KMP4ComposerMimeType)))
             {
                 aUuid = KPVMp4FFComposerNodeUuid;
             }

@@ -175,7 +175,7 @@ CompositionOffsetAtom::CompositionOffsetAtom(MP4_FF_FILE *fp,
                         _fileptr = OSCL_PLACEMENT_NEW(ptr, MP4_FF_FILE());
                         _fileptr->_fileServSession = fp->_fileServSession;
                         _fileptr->_pvfile.SetCPM(fp->_pvfile.GetCPM());
-
+                        _fileptr->_pvfile.SetFileHandle(fp->_pvfile.iFileHandle);
                         if (AtomUtils::OpenMP4File(filename,
                                                    Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
                                                    _fileptr) != 0)

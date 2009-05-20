@@ -9,6 +9,9 @@ TARGET := pvplayer_engine_test
 
 
 XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
+# Temporarily ignore these warnings in the player test code until they can be
+# fixed
+CXXFLAGS += $(DISABLE_STRICT_ALIASING_WARNINGS)
 
 XCPPFLAGS += -DBUILD_OMX_DEC_NODE 
 
@@ -40,7 +43,7 @@ SRCS := test_pv_player_engine.cpp \
         test_pv_player_engine_testset_cpmdlapassthru.cpp
 
 
-LIBS := unit_test opencore_player opencore_common
+LIBS := unit_test opencore_player opencore_common opencore_net_support
 
 ifneq ($(ARCHITECTURE),win32)
   SYSLIBS = -lpthread -ldl
@@ -54,6 +57,6 @@ PE_TARGET = pvplayer_engine_test
 run_pe_test:: $(REALTARGET) default
 	$(quiet) ${RM} -r ${PE_TEST_DIR}
 	$(quiet) ${MKDIR} ${PE_TEST_DIR}
-	$(quiet) $(CP) $(SRC_ROOT)/tools_v2/build/package/opencore/elem/default/pvplayer.cfg $(PE_TEST_DIR)
+	$(quiet) $(CP) $(SRC_ROOT)/tools_v2/build/package/opencore/elem/common/pvplayer.cfg $(PE_TEST_DIR)
 	$(quiet) $(CP) -r $(SRC_ROOT)/engines/player/test/data/* $(PE_TEST_DIR)
 	$(quiet) export LD_LIBRARY_PATH=${BUILD_ROOT}/installed_lib/${HOST_ARCH}; cd $(PE_TEST_DIR) && ${BUILD_ROOT}/bin/${HOST_ARCH}/$(PE_TARGET) $(TEST_ARGS) $(SOURCE_ARGS)

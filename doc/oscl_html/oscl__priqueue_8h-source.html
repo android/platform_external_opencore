@@ -52,7 +52,7 @@
 00068         <span class="comment">//return delta from "first" to "last" expressed as a number of T elements.</span>
 00069         <span class="keywordtype">int</span> delta_T(<a class="code" href="group__osclbase.html#a25">OsclAny</a>*first, <a class="code" href="group__osclbase.html#a25">OsclAny</a>*last)
 00070         {
-00071             <span class="keywordflow">return</span> ((int)last -(int)first) / pVec-&gt;<a class="code" href="classOscl__Vector__Base.html#n3">sizeof_T</a>;
+00071             <span class="keywordflow">return</span> ((int)last - (int)first) / pVec-&gt;<a class="code" href="classOscl__Vector__Base.html#n3">sizeof_T</a>;
 00072         }
 00073 
 00074         <a class="code" href="classOscl__Opaque__Type__Compare.html">Oscl_Opaque_Type_Compare</a>* pOpaqueType;
@@ -80,7 +80,7 @@
 00096 <span class="keyword">class </span>Compare = <a class="code" href="classOsclCompareLess.html">OsclCompareLess&lt;Qelem&gt;</a> &gt;
 00097 
 <a name="l00098"></a><a class="code" href="classOsclPriorityQueue.html">00098</a> <span class="keyword">class </span><a class="code" href="classOsclPriorityQueue.html">OsclPriorityQueue</a> : <span class="keyword">public</span> <a class="code" href="classOsclPriorityQueueBase.html">OsclPriorityQueueBase</a>
-00099             , <span class="keyword">public</span> <a class="code" href="classOscl__Opaque__Type__Compare.html">Oscl_Opaque_Type_Compare</a>
+00099         , <span class="keyword">public</span> <a class="code" href="classOscl__Opaque__Type__Compare.html">Oscl_Opaque_Type_Compare</a>
 00100 {
 00101 
 00102     <span class="keyword">public</span>:
@@ -165,7 +165,7 @@
 <a name="l00181"></a><a class="code" href="classOsclPriorityQueue.html#b3">00181</a>         <span class="keywordtype">int</span> <a class="code" href="classOsclPriorityQueue.html#b3">validate</a>()
 00182         {
 00183             <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> ch;
-00184             <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> par = 0;par &lt; <a class="code" href="classOsclPriorityQueue.html#n0">c</a>.size();par++)
+00184             <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> par = 0; par &lt; <a class="code" href="classOsclPriorityQueue.html#n0">c</a>.size(); par++)
 00185             {
 00186                 ch = 2 * par + 1;
 00187                 <span class="keywordflow">if</span> (ch &lt; <a class="code" href="classOsclPriorityQueue.html#n0">c</a>.size() &amp;&amp; <a class="code" href="classOsclPriorityQueue.html#n1">comp</a>.compare(<a class="code" href="classOsclPriorityQueue.html#n0">c</a>[par], <a class="code" href="classOsclPriorityQueue.html#n0">c</a>[ch]))
@@ -214,7 +214,7 @@
 00230 <span class="preprocessor">#endif</span>
 00231 <span class="preprocessor"></span>
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

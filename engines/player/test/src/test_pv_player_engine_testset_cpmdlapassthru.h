@@ -37,11 +37,6 @@
 #include "pvmf_streaming_data_source.h"
 #endif
 
-#if RUN_FASTTRACK_TESTCASES
-#ifndef PVPVXPARSER_H_INCLUDED
-#include "pvpvxparser.h"
-#endif
-#endif
 
 #ifndef PVMF_DOWNLOAD_DATA_SOURCE_H_INCLUDED
 #include "pvmf_download_data_source.h"
@@ -83,8 +78,8 @@ enum OMA1_DLA_TESTMODE
  *             -# CreatePlayer()
  *             -# AddDataSource()
  *             -# Init() will Fail depending on the TestMode chosen
- *	       -# Query License
- *	       -# Acquire License
+ *         -# Query License
+ *         -# Acquire License
  *             -# AddDataSink() (video)
  *             -# AddDataSink() (audio)
  *             -# Prepare()
@@ -99,7 +94,6 @@ enum OMA1_DLA_TESTMODE
  *
  */
 class PVMFLocalDataSource;
-class PVMFOma1PassthruPluginFactory;
 class PVPlayerLicenseAcquisitionInterface;
 class pvplayer_async_test_cpmdlapassthru : public pvplayer_async_test_base
 {
@@ -249,9 +243,6 @@ class pvplayer_async_test_cpmdlapassthru : public pvplayer_async_test_base
         PVMFDownloadDataSourcePVX* iDownloadContextDataPVX;
         PVMFDownloadDataSourceHTTP* iDownloadContextDataHTTP;
         int32 iDownloadMaxfilesize;
-#if RUN_FASTTRACK_TESTCASES
-        CPVXInfo iDownloadPvxInfo;
-#endif
         OSCL_wHeapString<OsclMemAllocator> iDownloadURL;
         OSCL_wHeapString<OsclMemAllocator> iDownloadFilename;
         OSCL_HeapString<OsclMemAllocator> iDownloadProxy;
@@ -260,7 +251,6 @@ class pvplayer_async_test_cpmdlapassthru : public pvplayer_async_test_base
         bool iDownloadOnly, iDownloadThenPlay;
         bool iContentTooLarge;
         PVMFCPMPluginFactoryRegistryClient iPluginRegistryClient;
-        PVMFOma1PassthruPluginFactory* iPluginFactory;
         OSCL_HeapString<OsclMemAllocator> iPluginMimeType;
         //for license acquisition.
         PVPlayerLicenseAcquisitionInterface* iLicenseIF;

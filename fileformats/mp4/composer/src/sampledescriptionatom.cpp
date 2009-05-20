@@ -249,7 +249,7 @@ void PVA_FF_SampleDescriptionAtom::addTextDecoderSpecificInfo(PVA_FF_TextSampleD
                 }
                 else
                 {
-                    for (uint32 kk = 0;kk < _SDIndex.size();kk++)
+                    for (uint32 kk = 0; kk < _SDIndex.size(); kk++)
                     {
                         if (_SDIndex[kk] == pinfo->sdindex)
                         {
@@ -333,15 +333,21 @@ PVA_FF_SampleDescriptionAtom::setTargetBitrate(uint32 bitrate)
             if (type == VIDEO_SAMPLE_ENTRY)
             {
                 PVA_FF_VisualSampleEntry *ventry = (PVA_FF_VisualSampleEntry*) getSampleEntryAt(0);
-                ventry->setTargetBitrate(bitrate);
+                if (ventry)
+                {
+                    ventry->setTargetBitrate(bitrate);
+                }
             }
             else if (type == H263_SAMPLE_ENTRY)
             {
                 PVA_FF_H263SampleEntry *hentry = (PVA_FF_H263SampleEntry*) getSampleEntryAt(0);
-                PVA_FF_H263SpecficAtom *pH263info =
-                    (PVA_FF_H263SpecficAtom *)(hentry->get3GPPDecoderSpecificInfo());
-                pH263info->_ph263_decbitrateatom->setAvgBitrate(bitrate);
-                pH263info->_ph263_decbitrateatom->setMaxBitrate(bitrate);
+                if (hentry)
+                {
+                    PVA_FF_H263SpecficAtom *pH263info =
+                        (PVA_FF_H263SpecficAtom *)(hentry->get3GPPDecoderSpecificInfo());
+                    pH263info->_ph263_decbitrateatom->setAvgBitrate(bitrate);
+                    pH263info->_ph263_decbitrateatom->setMaxBitrate(bitrate);
+                }
             }
             break;
         }
@@ -351,7 +357,10 @@ PVA_FF_SampleDescriptionAtom::setTargetBitrate(uint32 bitrate)
             if (_codecType == CODEC_TYPE_AAC_AUDIO)
             {
                 PVA_FF_AudioSampleEntry *entry = (PVA_FF_AudioSampleEntry*) getSampleEntryAt(0);
-                entry->setTargetBitrate(bitrate);
+                if (entry)
+                {
+                    entry->setTargetBitrate(bitrate);
+                }
             }
             break;
         }
@@ -389,7 +398,10 @@ PVA_FF_SampleDescriptionAtom::nextSample(uint32 size, uint8 flags)
             if (_codecType == CODEC_TYPE_MPEG4_VIDEO)
             {
                 PVA_FF_VisualSampleEntry *entry = (PVA_FF_VisualSampleEntry*) getSampleEntryAt(0);
-                entry->nextSampleSize(size);
+                if (entry)
+                {
+                    entry->nextSampleSize(size);
+                }
             }
             nReturn = 1;
             break;
@@ -400,7 +412,10 @@ PVA_FF_SampleDescriptionAtom::nextSample(uint32 size, uint8 flags)
             {
                 //HANDLE LIKE VIDEO - ONLY ONE SAMPLE ENTRY PER TRACK
                 PVA_FF_AudioSampleEntry *entry = (PVA_FF_AudioSampleEntry*) getSampleEntryAt(0);
-                entry->nextSampleSize(size);
+                if (entry)
+                {
+                    entry->nextSampleSize(size);
+                }
                 nReturn = 1;
             }
             else
@@ -414,12 +429,15 @@ PVA_FF_SampleDescriptionAtom::nextSample(uint32 size, uint8 flags)
                     if (getSampleEntryAt(0) != NULL)
                     {
                         PVA_FF_AMRSampleEntry *entry = (PVA_FF_AMRSampleEntry *)(getSampleEntryAt(0));
-                        mode_set = entry->getModeSet();
-                        if (audio_frame_type < 16)
+                        if (entry)
                         {
-                            mode_set |= AMRModeSetMask[(int)audio_frame_type];
+                            mode_set = entry->getModeSet();
+                            if (audio_frame_type < 16)
+                            {
+                                mode_set |= AMRModeSetMask[(int)audio_frame_type];
+                            }
+                            entry->setModeSet(mode_set);
                         }
-                        entry->setModeSet(mode_set);
                     }
                     nReturn = 1;
                 }
@@ -435,7 +453,10 @@ PVA_FF_SampleDescriptionAtom::nextSample(uint32 size, uint8 flags)
         default:
         {
             PVA_FF_MpegSampleEntry *entry = (PVA_FF_MpegSampleEntry*) getSampleEntryAt(0);
-            entry->nextSampleSize(size);
+            if (entry)
+            {
+                entry->nextSampleSize(size);
+            }
             nReturn = 1;
         }
         break;
@@ -466,7 +487,10 @@ PVA_FF_SampleDescriptionAtom::nextTextSample(uint32 size, uint8 flags, int32 ind
         default:
         {
             PVA_FF_MpegSampleEntry *entry = (PVA_FF_MpegSampleEntry*) getSampleEntryAt(0);
-            entry->nextSampleSize(size);
+            if (entry)
+            {
+                entry->nextSampleSize(size);
+            }
             nReturn = 1;
         }
         break;
@@ -749,7 +773,10 @@ PVA_FF_SampleDescriptionAtom::SetMaxSampleSize(uint32 aSize)
             if (_codecType == CODEC_TYPE_MPEG4_VIDEO)
             {
                 PVA_FF_VisualSampleEntry *entry = (PVA_FF_VisualSampleEntry*) getSampleEntryAt(0);
-                entry->nextSampleSize(aSize);
+                if (entry)
+                {
+                    entry->nextSampleSize(aSize);
+                }
             }
             break;
         }
@@ -758,7 +785,10 @@ PVA_FF_SampleDescriptionAtom::SetMaxSampleSize(uint32 aSize)
             if (_codecType == CODEC_TYPE_AAC_AUDIO)
             {
                 PVA_FF_AudioSampleEntry *entry = (PVA_FF_AudioSampleEntry*) getSampleEntryAt(0);
-                entry->nextSampleSize(aSize);
+                if (entry)
+                {
+                    entry->nextSampleSize(aSize);
+                }
             }
             break;
         }
@@ -766,7 +796,10 @@ PVA_FF_SampleDescriptionAtom::SetMaxSampleSize(uint32 aSize)
         default:
         {
             PVA_FF_MpegSampleEntry *entry = (PVA_FF_MpegSampleEntry*) getSampleEntryAt(0);
-            entry->nextSampleSize(aSize);
+            if (entry)
+            {
+                entry->nextSampleSize(aSize);
+            }
             break;
         }
     }
@@ -782,7 +815,10 @@ PVA_FF_SampleDescriptionAtom::writeMaxSampleSize(MP4_AUTHOR_FF_FILE_IO_WRAP *_af
             if (_codecType == CODEC_TYPE_MPEG4_VIDEO)
             {
                 PVA_FF_VisualSampleEntry *entry = (PVA_FF_VisualSampleEntry*) getSampleEntryAt(0);
-                entry->writeMaxSampleSize(_afp);
+                if (entry)
+                {
+                    entry->writeMaxSampleSize(_afp);
+                }
             }
             break;
         }
@@ -791,7 +827,10 @@ PVA_FF_SampleDescriptionAtom::writeMaxSampleSize(MP4_AUTHOR_FF_FILE_IO_WRAP *_af
             if (_codecType == CODEC_TYPE_AAC_AUDIO)
             {
                 PVA_FF_AudioSampleEntry *entry = (PVA_FF_AudioSampleEntry*) getSampleEntryAt(0);
-                entry->writeMaxSampleSize(_afp);
+                if (entry)
+                {
+                    entry->writeMaxSampleSize(_afp);
+                }
             }
             break;
         }
@@ -799,7 +838,10 @@ PVA_FF_SampleDescriptionAtom::writeMaxSampleSize(MP4_AUTHOR_FF_FILE_IO_WRAP *_af
         default:
         {
             PVA_FF_MpegSampleEntry *entry = (PVA_FF_MpegSampleEntry*) getSampleEntryAt(0);
-            entry->writeMaxSampleSize(_afp);
+            if (entry)
+            {
+                entry->writeMaxSampleSize(_afp);
+            }
             break;
         }
     }

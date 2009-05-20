@@ -17,17 +17,7 @@
  */
 /*
 
- Pathname: ./src/set_mc_info.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Modified per review comments
-
- Description: Change audioObjectType from Int to enum types
-
- Who:                               Date:
- Description:
+ Filename: set_mc_info.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -179,28 +169,6 @@
     ENDIF
 
     RETURN(SUCCESS)
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

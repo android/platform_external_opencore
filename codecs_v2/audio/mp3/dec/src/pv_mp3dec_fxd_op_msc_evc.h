@@ -22,12 +22,6 @@
 
    Pathname: ./cpp/include/pv_mp3dec_fxd_op_msc_evc.h
 
-     Date: 08/20/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -70,7 +64,7 @@ extern "C"
 
 #define Qfmt15(x)   (Int16)(x*((int32)1<<15) + (x>=0?0.5F:-0.5F))
 
-#define fxp_mul32_Q32( a,  b)	_MulHigh( b, a)
+#define fxp_mul32_Q32( a,  b)   _MulHigh( b, a)
 
 
 

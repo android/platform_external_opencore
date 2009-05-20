@@ -17,28 +17,8 @@
  */
 /*
 
- Pathname: mix_radix_fft.c
+ Filename: mix_radix_fft.cpp
  Funtions: mix_radix_fft
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Eliminated pointer dependency ( pData_1) on Buffer address.
-               Modified for-loop to countdown loops.
-
- Description:  No shift information going in/out from fft_rx4_long.
-
- Description:
-            (1) Increased precision on the radix 2 fft coeff. (from Q10 to Q12)
-            (2) Increased precision on the input (from 0.5 to 1.0).
-            (3) Eliminated hardly used condition (exp = 0).
-            (4) Change interface to fft_rx4_long, so now the same function is
-                used for forward and inverse calculations.
-
- Description:  per code review comments, eliminated unnecessary headers
-
- Who:                       Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -90,28 +70,6 @@
 
    MODIFY( x[] )
    RETURN( exponent )
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

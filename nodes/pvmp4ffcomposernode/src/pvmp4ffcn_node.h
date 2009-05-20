@@ -103,19 +103,17 @@ typedef PVMFPortVector<PVMp4FFComposerPort, PVMp4FFCNAlloc> PVMp4FFCNPortVector;
 
 #define PROFILING_ON (PVLOGGER_INST_LEVEL >= PVLOGMSG_INST_PROF)
 
-#if PROFILING_ON
 #ifndef PVMF_MEDIA_CLOCK_H_INCLUDED
 #include "pvmf_media_clock.h"
-#endif
 #endif
 
 ////////////////////////////////////////////////////////////////////////////
 class PVMp4FFComposerNode : public PVMFNodeInterface,
-            public OsclActiveObject,
-            public PVMp4FFCNTrackConfigInterface,
-            public PVMp4FFCNClipConfigInterface,
-            public PvmfComposerSizeAndDurationInterface,
-            public PvmiCapabilityAndConfig
+        public OsclActiveObject,
+        public PVMp4FFCNTrackConfigInterface,
+        public PVMp4FFCNClipConfigInterface,
+        public PvmfComposerSizeAndDurationInterface,
+        public PvmiCapabilityAndConfig
 {
     public:
         PVMp4FFComposerNode(int32 aPriority);
@@ -202,9 +200,8 @@ class PVMp4FFComposerNode : public PVMFNodeInterface,
         uint8 iNum_PPS_Set;
 
         Oscl_Vector<PVA_FF_TextSampleDescInfo*, OsclMemAllocator> textdecodervector;
-        int32 iText_sdIndex;
-        // implemetation of PvmiCapabilityAndConfig class functions here
 
+        // implemetation of PvmiCapabilityAndConfig class functions here
         void setObserver(PvmiConfigAndCapabilityCmdObserver* aObserver);
 
         PVMFStatus getParametersSync(PvmiMIOSession aSession, PvmiKeyType aIdentifier,
@@ -267,8 +264,12 @@ class PVMp4FFComposerNode : public PVMFNodeInterface,
          */
         PVMFStatus ProcessIncomingMsg(PVMFPortInterface* aPort);
 
-        PVMFStatus AddMemFragToTrack(Oscl_Vector<OsclMemoryFragment, OsclMemAllocator> aFrame, OsclRefCounterMemFrag& aMemFrag, PVMFFormatType aFormat,
-                                     uint32& aTimestamp, int32 aTrackId, PVMp4FFComposerPort *aPort);
+        PVMFStatus AddSampleToTrack(Oscl_Vector<OsclMemoryFragment, OsclMemAllocator> aFrame,
+                                    PVMFFormatType aFormat,
+                                    uint32 aSeqNum,
+                                    uint32& aTimestamp,
+                                    int32 aTrackId,
+                                    PVMp4FFComposerPort *aPort);
         int32 GetIETFFrameSize(uint8 aFrameType, int32 aCodecType);
 
         /////////////////////////////////////////////////////
@@ -422,34 +423,14 @@ public:
         uint32 iCacheSize;
         int32 iConfigSize;
         uint8 *pConfig;
-        int32 iTrackId_H264;
-        int32 iTrackId_Text;
         int32 iSyncSample;
-        PVMFFormatType iformat_h264;
-        PVMFFormatType iformat_text;
         bool iNodeEndOfDataReached;
         bool iSampleInTrack;
         bool iFileRendered;
 
-#if PROFILING_ON
-        uint32 iMaxSampleAddTime;
-        uint32 iMinSampleAddTime;
-        uint32 iMinSampleSize;
-        uint32 iMaxSampleSize;
-        uint32 iNumSamplesAdded;
         PVLogger* iDiagnosticsLogger;
         bool oDiagnosticsLogged;
 
-        // Statistics
-        struct PVMp4FFCNStats
-        {
-            int32 iTrackId;
-            uint32 iNumFrames;
-            uint32 iDuration;
-        };
-
-        PVMp4FFCNStats iStats[3];
-#endif
 #ifdef _TEST_AE_ERROR_HANDLING
         bool iErrorHandlingAddMemFrag;
         bool iErrorHandlingAddTrack;
@@ -464,6 +445,16 @@ public:
         uint32 iFileDuration;
         uint32 iErrorDataPathStall;
 #endif
+
+        PVMFStatus BreakUpAVCSampleIntoNALs(PVMFSharedMediaDataPtr& aMediaDataPtr,
+                                            PVMp4FFComposerPort* aPort,
+                                            Oscl_Vector<OsclMemoryFragment, OsclMemAllocator>& aMemFragVec);
+        bool GetAVCNALLength(OsclBinIStreamBigEndian& stream, uint32& lengthSize, int32& len);
+        bool IsRandomAccessPoint(PVMp4FFComposerPort* aPort, Oscl_Vector <OsclMemoryFragment, OsclMemAllocator>& aList);
+        bool IsAVC_IDR_NAL(Oscl_Vector <OsclMemoryFragment, OsclMemAllocator>& aList);
+        bool IsMPEG4KeyFrame(Oscl_Vector <OsclMemoryFragment, OsclMemAllocator>& aList);
+        bool IsH263KeyFrame(Oscl_Vector <OsclMemoryFragment, OsclMemAllocator>& aList);
+        void GetTextSDIndex(uint32 aSampleNum, int32& aIndex);
 };
 
 #endif // PVMP4FFC_NODE_H_INCLUDED

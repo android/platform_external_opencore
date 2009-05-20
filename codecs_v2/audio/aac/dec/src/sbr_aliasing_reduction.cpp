@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_aliasing_reduction.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_aliasing_reduction.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

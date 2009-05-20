@@ -72,7 +72,8 @@ class MediaAtom : public Atom
                   uint32 size,
                   uint32 type,
                   bool oPVContentDownloadable = false,
-                  uint32 parsingMode = 0);
+                  uint32 parsingMode = 0,
+                  bool aOpenFileOncePerTrack = true);
 
         virtual ~MediaAtom();
 
@@ -141,7 +142,7 @@ class MediaAtom : public Atom
             }
         }
 
-        int32 updateFileSize(uint32	filesize)
+        int32 updateFileSize(uint32 filesize)
         {
             if (_pmediaInformation != NULL)
             {

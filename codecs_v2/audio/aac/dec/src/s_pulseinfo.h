@@ -17,17 +17,7 @@
  */
 /*
 
- Pathname: s_PulseInfo.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Comment out unused field.
-
- Description:  Fix ARM warnings, update copyright.
-
- Who:                                       Date:
- Description:
+ Filename: s_pulseinfo.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

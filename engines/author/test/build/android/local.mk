@@ -9,6 +9,7 @@ TARGET := test_pvauthorengine
 # Comment this out until all warnings are fixed
 #XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 XCPPFLAGS += -D_IMOTION_SPECIFIC_UT_DISABLE
+XCPPFLAGS += -D_UNICODE -DUNICODE
 
 XINCDIRS +=  ../../../../common/include ../../src/single_core ../../config/android ../../../../../pvmi/pvmf/include ../../../../../nodes/common/include  ../../../../../extern_libs_v2/khronos/openmax/include
 
@@ -37,7 +38,7 @@ AE_TARGET = test_pvauthorengine
 run_ae_test:: $(REALTARGET) default
 	$(quiet) ${RM} -r ${AE_TEST_DIR}
 	$(quiet) ${MKDIR} ${AE_TEST_DIR}
-	$(quiet) $(CP) $(SRC_ROOT)/tools_v2/build/package/opencore/elem/default/pvplayer.cfg $(AE_TEST_DIR)
+	$(quiet) $(CP) $(SRC_ROOT)/tools_v2/build/package/opencore/elem/common/pvplayer.cfg $(AE_TEST_DIR)
 	$(quiet) $(CP) $(SRC_ROOT)/engines/author/test/test_input/* $(AE_TEST_DIR)
 	$(quiet) export LD_LIBRARY_PATH=${BUILD_ROOT}/installed_lib/${HOST_ARCH}; cd $(AE_TEST_DIR) && ${BUILD_ROOT}/bin/${HOST_ARCH}/$(AE_TARGET) $(TEST_ARGS) $(SOURCE_ARGS)
 

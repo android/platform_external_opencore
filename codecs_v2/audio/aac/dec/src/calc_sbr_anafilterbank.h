@@ -22,12 +22,6 @@
     get_dse
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
 
 */
 
@@ -87,9 +81,9 @@ extern "C"
 
 
     void calc_sbr_anafilterbank_LC(Int32 * Sr,
-                                   Int16 * X,
-                                   Int32 scratch_mem[][64],
-                                   Int32 maxBand);
+    Int16 * X,
+    Int32 scratch_mem[][64],
+    Int32 maxBand);
 
 
 #ifdef HQ_SBR

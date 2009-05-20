@@ -6,15 +6,7 @@ include $(MK)/clear.mk
 
 TARGET := pvmfrecognizer
 
-
 XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
-
-
-
-XINCDIRS +=  $(VOB_BASE_DIR)/pvmi/pvmf/include \
-  $(VOB_BASE_DIR)/baselibs/pv_mime_utils/src
-
-
 
 SRCDIR := ../../src
 INCSRCDIR := ../../include

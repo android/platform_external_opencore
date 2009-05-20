@@ -2,7 +2,8 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
- 	src/aacfileparser.cpp
+	src/aacfileparser.cpp \
+ 	src/aacfileio.cpp
 
 
 LOCAL_MODULE := libpvaacparser
@@ -23,6 +24,7 @@ LOCAL_C_INCLUDES := \
 LOCAL_COPY_HEADERS_TO := $(PV_COPY_HEADERS_TO)
 
 LOCAL_COPY_HEADERS := \
- 	include/aacfileparser.h
+	include/aacfileparser.h \
+ 	include/aacfileio.h
 
 include $(BUILD_STATIC_LIBRARY)

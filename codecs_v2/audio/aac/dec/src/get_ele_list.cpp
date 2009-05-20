@@ -17,35 +17,8 @@
  */
 /*
 
- Pathname: get_ele_list.c
+ Filename: get_ele_list.cpp
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description: Change to PacketVideo standard, rename variables.
-
- Description: Add own header file, make pInputStream second param for speed.
-
- Description: Changes per code review:
-              1) Include header file
-              2) Convert to count down
-              3) Add return (not in review)
-
- Description:
- (1) Updated copyright header
- (2) Replaced include of "interface.h" with "e_ProgConfig.h"
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9 or less and get1bits
-			  when only 1 bit is read.
-
- Who:                                 Date:
- Description:
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -138,28 +111,6 @@
     END FOR
 
     RETURNS nothing
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

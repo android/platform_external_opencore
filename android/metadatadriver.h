@@ -29,6 +29,8 @@
 #include "oscl_mem_audit.h"
 #include "oscl_error.h"
 #include "oscl_snprintf.h"
+#include "pvmf_source_context_data.h"
+#include "oscl_file_handle.h"
 
 #include "oscl_scheduler.h"
 #include "oscl_utf8conv.h"
@@ -80,6 +82,11 @@ public:
     // This call may be time consuming.
     // Returns OK if no operation failed; otherwise, it returns UNKNOWN_ERROR.
     status_t setDataSource(const char* srcUrl);
+
+    // This call may be time consuming.          
+    // Returns OK if no operation failed; otherwise, it returns UNKNOWN_ERROR.       
+    // The caller _retains_ ownership of "fd".       
+    status_t setDataSourceFd(int fd, int64_t offset, int64_t length);        
 
     // Captures a representative frame. Returns NULL if failure.
     VideoFrame *captureFrame();
@@ -145,6 +152,7 @@ private:
     status_t extractMetadata(const char* key, char* value, uint32 valueLength);
     static int startDriverThread(void *cookie);
     int retrieverThread();
+    void closeSharedFdIfNecessary(); 
 
     OsclSemaphore* mSyncSem;
 
@@ -161,7 +169,8 @@ private:
 #if BEST_THUMBNAIL_MODE
     PVMFLocalDataSource* mLocalDataSource;
 #endif
-    OSCL_wHeapString<OsclMemAllocator> mDataSourceUrl;
+    PVMFSourceContextData *mSourceContextData;
+    const char* mDataSourceUrl;
 
     // Required for frame retrieval
     PVFrameBufferProperty mFrameBufferProp;
@@ -180,6 +189,10 @@ private:
     // get these out of mMetadataValueList
     char mMetadataValues[NUM_METADATA_KEYS][MAX_METADATA_STRING_LENGTH];
     MediaAlbumArt *mMediaAlbumArt;
+         
+    // If sourcing from a file descriptor, this holds a dup of it to prevent         
+    // it from going away while we pass around the sharedfd: URI.        
+    int mSharedFd; 
 };
 
 }; // namespace android

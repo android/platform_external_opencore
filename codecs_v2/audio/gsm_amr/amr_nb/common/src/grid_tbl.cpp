@@ -28,18 +28,7 @@ terms listed above has been obtained from the copyright holder.
 ****************************************************************************************/
 /*
 
- Filename: /audio/gsm_amr/c/src/grid_tbl.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Added #ifdef __cplusplus and removed "extern" from table
-              definition.
-
- Description: Put "extern" back.
-
- Who: 						Date:
- Description:
+ Filename: grid_tbl.cpp
 
 ------------------------------------------------------------------------------
  MODULE DESCRIPTION
@@ -118,13 +107,13 @@ extern "C"
  INPUT AND OUTPUT DEFINITIONS
 
  Inputs:
-	None
+    None
 
  Outputs:
-	None
+    None
 
  Returns:
-	None
+    None
 
  Global Variables Used:
     None
@@ -150,22 +139,6 @@ extern "C"
 ------------------------------------------------------------------------------
  PSEUDO-CODE
 
-
-------------------------------------------------------------------------------
- RESOURCES USED [optional]
-
- When the code is written for a specific target processor the
- the resources used should be documented below.
-
- HEAP MEMORY USED: x bytes
-
- STACK MEMORY USED: x bytes
-
- CLOCK CYCLES: (cycle count equation for this function) + (variable
-                used to represent cycle count for each subroutine
-                called)
-     where: (cycle count variable) = cycle count for [subroutine
-                                     name]
 
 ------------------------------------------------------------------------------
  CAUTION [optional]

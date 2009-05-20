@@ -17,35 +17,11 @@
  */
 /*
 
- Pathname: lt_decode.c
+ Filename: lt_decode.cpp
 
 
 ------------------------------------------------------------------------------
 
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  First round of optimizations.
-
- Description:  pInputStream is now the 2nd parameter to this function.
-
- Description:  Changed to work with MT's new get_ics_info.c function, which
- only calls lt_decode if LTP is enabled.  This removes one grab from the
- bitstream and one "if" from this code.  Also, changed setting of weight.
- Now, rather than setting the actual weight, I only set the index into
- a table in this function.
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9 or less and get1bits
-			  when only 1 bit is read.
-
- Who:                                   Date:
- Description:
-------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
  Inputs:
@@ -233,28 +209,6 @@
         ENDFOR (; m > 0; m--)
 
     ENDIF (win_type != EIGHT_SHORT_SEQUENCE)
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

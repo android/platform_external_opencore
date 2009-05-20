@@ -51,11 +51,14 @@
 #include "oscl_string_utils.h"
 #endif
 
+#include "pv_2way_proxy_factory.h"
+
 #include "alloc_dealloc_test.h"
 
 void alloc_dealloc_test::test()
 {
-    fprintf(fileoutput, "Start alloc dealloc test, proxy %d.\n", iUseProxy);
+    fprintf(fileoutput, "----- Start alloc dealloc test, proxy %d. ----- \n", iUseProxy);
+    fprintf(fileoutput, "\n** Test Number: %d. ** \n", iTestNum);
     int error = 0;
 
     scheduler = OsclExecScheduler::Current();
@@ -110,11 +113,6 @@ void alloc_dealloc_test::Run()
 
 void alloc_dealloc_test::DoCancel()
 {
-}
-
-void alloc_dealloc_test::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
-{
-    OSCL_UNUSED_ARG(aEvent);
 }
 
 void alloc_dealloc_test::CommandCompleted(const PVCmdResponse& aResponse)

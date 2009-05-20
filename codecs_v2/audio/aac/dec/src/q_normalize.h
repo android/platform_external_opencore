@@ -17,17 +17,7 @@
  */
 /*
 
- Pathname: q_normalize.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
- (1) Added PV Copyright notice.
- (2) Removed embedded TABS
-
- Who:                       Date:
- Description:
+ Filename: q_normalize.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

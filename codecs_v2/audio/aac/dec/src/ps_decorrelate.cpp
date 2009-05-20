@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: ps_decorrelate.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: ps_decorrelate.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

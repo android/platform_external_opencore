@@ -155,7 +155,8 @@ OSCL_EXPORT_REF bool MP4FileRecognizer::IsMP4File(PVMFCPMPluginAccessInterfaceFa
         return oReturn;
     }
 
-    uint32 fileSize;
+    AtomUtils::seekFromStart(fp, 0);
+    uint32 fileSize = 0;
     AtomUtils::getCurrentFileSize(fp, fileSize);
     fp->_fileSize = (int32)fileSize;
     int32 fpos = AtomUtils::getCurrentFilePosition(fp);
@@ -188,6 +189,7 @@ OSCL_EXPORT_REF bool MP4FileRecognizer::IsMP4File(PVMFCPMPluginAccessInterfaceFa
         }
     }
 
+    AtomUtils::seekFromStart(fp, 0);
     AtomUtils::CloseMP4File(fp);
     return (oReturn);
 }

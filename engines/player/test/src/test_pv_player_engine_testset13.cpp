@@ -80,7 +80,7 @@
 #endif
 //Default Fast-track download file
 #define DEFAULT_FASTTRACK_DL_FILE "test.pvx"
-#define USE_NEW_PVMF_COMMONSOURCE_CONTEXT_DATA	1
+#define USE_NEW_PVMF_COMMONSOURCE_CONTEXT_DATA  1
 
 //Network Reconnect time after Disconnection milli secs
 #define NW_RECONNECT_AFTER_DISCONNECT 10
@@ -90,95 +90,6 @@
 //
 void pvplayer_async_test_genericprofiling::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -194,17 +105,6 @@ void pvplayer_async_test_genericprofiling::CreateDownloadDataSource()
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -394,9 +294,6 @@ void pvplayer_async_test_genericprofiling::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -2294,95 +2191,6 @@ void pvplayer_async_test_genericprofiling::PrintMetadataInfo()
 //
 void pvplayer_async_test_genericplaypauserepositionresumetest::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -2398,17 +2206,6 @@ void pvplayer_async_test_genericplaypauserepositionresumetest::CreateDownloadDat
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -2599,9 +2396,6 @@ void pvplayer_async_test_genericplaypauserepositionresumetest::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -4338,7 +4132,7 @@ void pvplayer_async_test_genericplaypauserepositionresumetest::HandleInformation
             if (localBuf != NULL)
             {
                 uint32 bufPercent = 0;
-                oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                 fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
             }
         }
@@ -4517,95 +4311,6 @@ void pvplayer_async_test_genericplaypauserepositionresumetest::PrintMetadataInfo
 //
 void pvplayer_async_test_genericopensetplaybackrangestartplaystoptest::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -4621,17 +4326,6 @@ void pvplayer_async_test_genericopensetplaybackrangestartplaystoptest::CreateDow
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -4818,9 +4512,6 @@ void pvplayer_async_test_genericopensetplaybackrangestartplaystoptest::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -6418,7 +6109,7 @@ void pvplayer_async_test_genericopensetplaybackrangestartplaystoptest::HandleInf
         iNumBufferingComplete++;
         //we should only get one of these.
         //if(iNumBufferingComplete==2)
-        //	PVPATB_TEST_IS_TRUE(false);
+        //  PVPATB_TEST_IS_TRUE(false);
         if (iNumBufferingComplete == 1)
         {
             if (iState == STATE_WAIT_FOR_BUFFCOMPLETE)
@@ -6484,7 +6175,7 @@ void pvplayer_async_test_genericopensetplaybackrangestartplaystoptest::HandleInf
             if (localBuf != NULL)
             {
                 uint32 bufPercent = 0;
-                oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                 fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
             }
         }
@@ -6663,95 +6354,6 @@ void pvplayer_async_test_genericopensetplaybackrangestartplaystoptest::PrintMeta
 //
 void pvplayer_async_test_genericopenplayrepositiontoendtest::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -6767,17 +6369,6 @@ void pvplayer_async_test_genericopenplayrepositiontoendtest::CreateDownloadDataS
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -6964,9 +6555,6 @@ void pvplayer_async_test_genericopenplayrepositiontoendtest::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -8583,7 +8171,7 @@ void pvplayer_async_test_genericopenplayrepositiontoendtest::HandleInformational
         iNumBufferingComplete++;
         //we should only get one of these.
         //if(iNumBufferingComplete==2)
-        //	PVPATB_TEST_IS_TRUE(false);
+        //  PVPATB_TEST_IS_TRUE(false);
         if (iNumBufferingComplete == 1)
         {
             if (iState == STATE_WAIT_FOR_BUFFCOMPLETE)
@@ -8650,7 +8238,7 @@ void pvplayer_async_test_genericopenplayrepositiontoendtest::HandleInformational
             if (localBuf != NULL)
             {
                 uint32 bufPercent = 0;
-                oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                 fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
             }
         }
@@ -8829,95 +8417,6 @@ void pvplayer_async_test_genericopenplayrepositiontoendtest::PrintMetadataInfo()
 //
 void pvplayer_async_test_genericnetworkdisconnect::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -8933,17 +8432,6 @@ void pvplayer_async_test_genericnetworkdisconnect::CreateDownloadDataSource()
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -9116,9 +8604,6 @@ void pvplayer_async_test_genericnetworkdisconnect::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -10871,7 +10356,7 @@ void pvplayer_async_test_genericnetworkdisconnect::HandleInformationalEvent(cons
                 if (localBuf != NULL)
                 {
                     uint32 bufPercent = 0;
-                    oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                    oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                     fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
                 }
             }
@@ -11095,95 +10580,6 @@ void pvplayer_async_test_genericnetworkdisconnect::PrintMetadataInfo()
 //
 void pvplayer_async_test_genericnetworkdisconnectreconnect::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -11199,17 +10595,6 @@ void pvplayer_async_test_genericnetworkdisconnectreconnect::CreateDownloadDataSo
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -11383,9 +10768,6 @@ void pvplayer_async_test_genericnetworkdisconnectreconnect::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -13315,7 +12697,7 @@ void pvplayer_async_test_genericnetworkdisconnectreconnect::HandleInformationalE
                 if (localBuf != NULL)
                 {
                     uint32 bufPercent = 0;
-                    oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                    oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                     fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
                 }
             }
@@ -13539,95 +12921,6 @@ void pvplayer_async_test_genericnetworkdisconnectreconnect::PrintMetadataInfo()
 //
 void pvplayer_async_test_genericcancelallnetworkdisconnect::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -13643,17 +12936,6 @@ void pvplayer_async_test_genericcancelallnetworkdisconnect::CreateDownloadDataSo
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -13826,9 +13108,6 @@ void pvplayer_async_test_genericcancelallnetworkdisconnect::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -15558,7 +14837,7 @@ void pvplayer_async_test_genericcancelallnetworkdisconnect::HandleInformationalE
                 if (localBuf != NULL)
                 {
                     uint32 bufPercent = 0;
-                    oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                    oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                     fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
                 }
             }
@@ -15782,95 +15061,6 @@ void pvplayer_async_test_genericcancelallnetworkdisconnect::PrintMetadataInfo()
 //
 void pvplayer_async_test_genericplaypauserepositionresumenwdisconnectcancelalltest::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -15886,17 +15076,6 @@ void pvplayer_async_test_genericplaypauserepositionresumenwdisconnectcancelallte
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -16083,9 +15262,6 @@ void pvplayer_async_test_genericplaypauserepositionresumenwdisconnectcancelallte
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -17830,7 +17006,7 @@ void pvplayer_async_test_genericplaypauserepositionresumenwdisconnectcancelallte
             if (localBuf != NULL)
             {
                 uint32 bufPercent = 0;
-                oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                 fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
             }
         }
@@ -18009,95 +17185,6 @@ void pvplayer_async_test_genericplaypauserepositionresumenwdisconnectcancelallte
 //
 void pvplayer_async_test_genericpvmferrorcorruptrenotified::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -18113,17 +17200,6 @@ void pvplayer_async_test_genericpvmferrorcorruptrenotified::CreateDownloadDataSo
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -18290,9 +17366,6 @@ void pvplayer_async_test_genericpvmferrorcorruptrenotified::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -19533,95 +18606,6 @@ void pvplayer_async_test_genericpvmferrorcorruptrenotified::PrintMetadataInfo()
 //
 void pvplayer_async_test_genericopenplaygetmetadatatest::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -19637,17 +18621,6 @@ void pvplayer_async_test_genericopenplaygetmetadatatest::CreateDownloadDataSourc
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -21433,7 +20406,7 @@ void pvplayer_async_test_genericopenplaygetmetadatatest::HandleInformationalEven
             if (localBuf != NULL)
             {
                 uint32 bufPercent = 0;
-                oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                 fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
             }
         }
@@ -21678,95 +20651,6 @@ void pvplayer_async_test_genericopenplaygetmetadatatest::PrintMetadataInfo()
 //
 void pvplayer_async_test_genericopengetmetadatapictest::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -21782,17 +20666,6 @@ void pvplayer_async_test_genericopengetmetadatapictest::CreateDownloadDataSource
     iContentTooLarge = false;
     bool aIsNewSession = true;
 
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-    else
-#endif
     {
         iDownloadContextDataHTTP = new PVMFDownloadDataSourceHTTP(aIsNewSession, iDownloadConfigFilename, iDownloadFilename,
                 iDownloadMaxfilesize,
@@ -23482,7 +22355,7 @@ void pvplayer_async_test_genericopengetmetadatapictest::HandleInformationalEvent
             if (localBuf != NULL)
             {
                 uint32 bufPercent = 0;
-                oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                 fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
             }
         }

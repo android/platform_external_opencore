@@ -17,15 +17,8 @@
  */
 /*
 
-  Filename: calc_sbr_synfilterbank.c
+ Filename: calc_sbr_synfilterbank.cpp
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

@@ -22,13 +22,6 @@
 
    Filename: pvmp3_dec_defs.h
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -72,10 +65,10 @@
 
 /* MPEG Header Definitions - ID Bit Values */
 
-#define	MPEG_1      		0
-#define	MPEG_2      		1
-#define	MPEG_2_5      		2
-#define	INVALID_VERSION     -1
+#define MPEG_1              0
+#define MPEG_2              1
+#define MPEG_2_5            2
+#define INVALID_VERSION     -1
 
 /* MPEG Header Definitions - Mode Values */
 
@@ -124,7 +117,8 @@ extern "C"
         COMMAND_LINE_ERROR        = 9,       /* error in command line */
         MEMORY_ALLOCATION_ERROR   = 10,   /* error allocating memory */
         NO_ENOUGH_MAIN_DATA_ERROR = 11,
-        SYNCH_LOST_ERROR          = 12
+        SYNCH_LOST_ERROR          = 12,
+        OUTPUT_BUFFER_TOO_SMALL   = 13     /* output buffer can't hold output */
     } ERROR_CODE;
 
     /*----------------------------------------------------------------------------

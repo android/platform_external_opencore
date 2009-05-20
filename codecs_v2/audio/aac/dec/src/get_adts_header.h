@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ./include/get_adts_header.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: get_adts_header.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

@@ -17,13 +17,7 @@
  */
 /*
 
-  Pathname: ./include/e_TNS_Const.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: e_tns_const.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_reset_dec.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_reset_dec.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

@@ -18,16 +18,9 @@
 /*
 
  Filename: sbr_open.h
- Funtions:
+ Functions:
     get_dse
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 ------------------------------------------------------------------------------
 SC 29 Software Copyright Licencing Disclaimer:
 

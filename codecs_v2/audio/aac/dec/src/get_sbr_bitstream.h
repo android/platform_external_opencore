@@ -22,12 +22,6 @@
     get_dse
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
 SC 29 Software Copyright Licencing Disclaimer:
 
 This software module was originally developed by
@@ -112,7 +106,7 @@ extern "C"
 #endif
 
     void get_sbr_bitstream(SBRBITSTREAM *sbrBitStream,
-                           BITS *pInputStream);
+    BITS *pInputStream);
 
 #ifdef __cplusplus
 }

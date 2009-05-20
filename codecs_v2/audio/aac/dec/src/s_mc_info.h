@@ -17,15 +17,8 @@
  */
 /*
 
- Pathname: s_MC_Info.h
+ Filename: s_mc_info.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: (1) use enum type for audioObjectType (2) update revision history
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

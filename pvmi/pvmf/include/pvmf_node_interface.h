@@ -155,7 +155,7 @@ class PVMFNodeCmdStatusObserver
         /**
         Handle an event that has been generated.
 
-        @param "aResponse"	"The response to a previously issued command."
+        @param "aResponse"  "The response to a previously issued command."
         */
         virtual void NodeCommandCompleted(const PVMFCmdResp& aResponse) = 0;
 
@@ -251,7 +251,7 @@ class PVMFNodeInterface: public PVMFPortActivityHandler
 
         virtual PVMFStatus Disconnect(PVMFSessionId aSessionId)
         {
-            for (uint32 i = 0;i < iSessions.size();i++)
+            for (uint32 i = 0; i < iSessions.size(); i++)
             {
                 if (iSessions[i].iId == aSessionId)
                 {

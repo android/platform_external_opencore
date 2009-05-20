@@ -75,5 +75,13 @@ extern "C"
     {
         return PVOMXInterface::Instance();
     }
+    OSCL_EXPORT_REF void PVReleaseInterface(void* aInterface)
+    {
+        PVOMXInterface* pInterface = (PVOMXInterface*)aInterface;
+        if (pInterface)
+        {
+            OSCL_DELETE(pInterface);
+        }
+    }
 
 }

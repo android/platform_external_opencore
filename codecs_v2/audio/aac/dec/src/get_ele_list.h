@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ./include/get_ele_list.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: get_ele_list.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

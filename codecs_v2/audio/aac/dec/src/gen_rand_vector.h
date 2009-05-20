@@ -17,15 +17,8 @@
  */
 /*
 
- Pathname: gen_rand_vector.h
+ Filename: gen_rand_vector.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Added include of pv_audio_type_defs.h
-
- Who:						Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -37,8 +30,8 @@
 /*----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
-#ifndef	gen_rand_vector_H
-#define	gen_rand_vector_H
+#ifndef gen_rand_vector_H
+#define gen_rand_vector_H
 
 /*----------------------------------------------------------------------------
 ; INCLUDES

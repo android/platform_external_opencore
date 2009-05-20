@@ -81,11 +81,6 @@
 #endif
 
 // only include pvmf_downloadmanager_config.h if CML2 is NOT being used
-#ifndef USE_CML2_CONFIG
-#ifndef PVMF_DOWNLOADMANAGER_CONFIG_H_INCLUDED
-#include "pvmf_downloadmanager_config.h"
-#endif
-#endif
 
 #if(PVMF_DOWNLOADMANAGER_SUPPORT_PPB)
 #ifndef  PVMF_MEMORYBUFFERDATASTREAM_FACTORY_H_INCLUDED
@@ -436,10 +431,10 @@ class PVMFDownloadManagerSubNodeContainerBase
 * Containers for the protocol, socket, and parser nodes (but not the cpm object and not the recognizer)
 */
 class PVMFDownloadManagerSubNodeContainer
-            : public PVMFDownloadManagerSubNodeContainerBase
-            , public PVMFNodeErrorEventObserver
-            , public PVMFNodeInfoEventObserver
-            , public PVMFNodeCmdStatusObserver
+        : public PVMFDownloadManagerSubNodeContainerBase
+        , public PVMFNodeErrorEventObserver
+        , public PVMFNodeInfoEventObserver
+        , public PVMFNodeCmdStatusObserver
 {
     public:
         PVMFDownloadManagerSubNodeContainer()
@@ -529,8 +524,8 @@ class PVMFDownloadManagerSubNodeContainer
 /* Container for the recognizer
  */
 class PVMFDownloadManagerRecognizerContainer
-            : public PVMFDownloadManagerSubNodeContainerBase,
-            public PVMFRecognizerCommmandHandler
+        : public PVMFDownloadManagerSubNodeContainerBase,
+        public PVMFRecognizerCommmandHandler
 {
     public:
         // Recognizer to use for determining mime type of downloaded data
@@ -599,18 +594,18 @@ class PVMFDownloadManagerRecognizerContainer
  *
  */
 class PVMFDownloadManagerNode
-            : public PVMFNodeInterface
-            , public OsclActiveObject
-            , public PvmiCapabilityAndConfig
-            //required extension interfaces for player source nodes.
-            , public PVMFDataSourceInitializationExtensionInterface
-            , public PVMFTrackSelectionExtensionInterface
-            , public PvmfDataSourcePlaybackControlInterface
-            , public PVMFMetadataExtensionInterface
-            , public PVMFDataSourceNodeRegistryInitInterface
-            , public PVMFCPMPluginLicenseInterface
-            // For observing the playback clock states
-            , public PVMFMediaClockStateObserver
+        : public PVMFNodeInterface
+        , public OsclActiveObject
+        , public PvmiCapabilityAndConfig
+        //required extension interfaces for player source nodes.
+        , public PVMFDataSourceInitializationExtensionInterface
+        , public PVMFTrackSelectionExtensionInterface
+        , public PvmfDataSourcePlaybackControlInterface
+        , public PVMFMetadataExtensionInterface
+        , public PVMFDataSourceNodeRegistryInitInterface
+        , public PVMFCPMPluginLicenseInterface
+        // For observing the playback clock states
+        , public PVMFMediaClockStateObserver
 {
     public:
         PVMFDownloadManagerNode(int32 aPriority = OsclActiveObject::EPriorityNominal);
@@ -996,11 +991,11 @@ struct DownloadManagerKeyStringData
 // These constants are not tunables.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#define PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_SC		1500
-#define PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_PPB	64000
-#define PVMF_DOWNLOADMANAGER_TCP_BUFFER_NOT_AVAILABLE	2
-#define PVMF_DOWNLOADMANAGER_TCP_BUFFER_OVERHEAD		64
-#define PVMF_DOWNLOADMANAGER_TCP_AVG_SMALL_PACKET_SIZE	250
+#define PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_SC     1500
+#define PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_PPB    64000
+#define PVMF_DOWNLOADMANAGER_TCP_BUFFER_NOT_AVAILABLE   2
+#define PVMF_DOWNLOADMANAGER_TCP_BUFFER_OVERHEAD        64
+#define PVMF_DOWNLOADMANAGER_TCP_AVG_SMALL_PACKET_SIZE  250
 
 
 

@@ -25,7 +25,7 @@ class av_duplicate_test : public test_base
 {
     public:
         av_duplicate_test(bool aUseProxy, int aMaxRuns) :
-                test_base(PVMF_MIME_AMR_IF2, PVMF_MIME_AMR_IF2, PVMF_MIME_YUV420, PVMF_MIME_YUV420, aUseProxy, aMaxRuns) {};
+                test_base(aUseProxy, aMaxRuns) {};
 
         ~av_duplicate_test()
         {

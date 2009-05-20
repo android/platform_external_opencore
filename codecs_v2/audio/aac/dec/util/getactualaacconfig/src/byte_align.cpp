@@ -91,19 +91,6 @@ void byte_align(
     RETURN(nothing)
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-
- STACK USAGE:
-
-     where:
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES:
-
-------------------------------------------------------------------------------
 */
 
 

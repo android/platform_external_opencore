@@ -17,15 +17,7 @@
  */
 /*
 
- Filename: sbr_get_noise_floor_data.c
-
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_get_noise_floor_data.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

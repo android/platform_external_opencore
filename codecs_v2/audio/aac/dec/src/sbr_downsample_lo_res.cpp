@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_downsample_lo_res.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_downsample_lo_res.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -86,7 +79,7 @@ Copyright (c) ISO/IEC 2002.
 
 
 #include    "sbr_downsample_lo_res.h"
-#include	"sbr_constants.h"
+#include    "sbr_constants.h"
 
 /*----------------------------------------------------------------------------
 ; MACROS

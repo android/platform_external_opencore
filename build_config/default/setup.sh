@@ -85,9 +85,9 @@ function menu()
 
 function mkcmdcmpl()
 {
-    printf "\nGetting make cmdline completion values...\n"
+    echo_stdout "getting make cmdline completion values"
     export PV_MAKE_COMPLETION_TARGETS=`make -j completion_targets`
-    printf "Done getting make cmdline completion values.\n\n"
+    echo_stdout "done getting make cmdline completion values."
 }
 
 

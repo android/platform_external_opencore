@@ -52,7 +52,7 @@ class PVMFStreamingDataSource : public PVInterface
         PVMFStreamingDataSource(OsclFileHandle*aFileHandle = NULL)
                 : iFileHandle(aFileHandle)
                 , iPreviewMode(false)
-                , iIntent(BITMASK_PVMF_SOURCE_INTENT_PLAY)
+                , iIntent(BITMASK_PVMF_SOURCE_INTENT_PLAY + BITMASK_PVMF_SOURCE_INTENT_GETMETADATA)
         {
         }
 
@@ -108,7 +108,7 @@ class PVMFStreamingDataSource : public PVInterface
 
         OSCL_wHeapString<OsclMemAllocator> iProxyName;
         //HTTP proxy name, either ip or dns
-        int32	iProxyPort;
+        int32   iProxyPort;
         //HTTP proxy port
 };
 

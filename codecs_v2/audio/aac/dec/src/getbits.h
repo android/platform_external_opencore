@@ -17,18 +17,7 @@
  */
 /*
 
- Pathname: getbits.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Update comments for the structure
-
- Description: Move structur to another file
-
- Who:                                            Date: MM/DD/YYYY
- Description:
-
+ Filename: getbits.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

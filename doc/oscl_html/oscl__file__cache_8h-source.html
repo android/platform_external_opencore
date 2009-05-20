@@ -26,92 +26,146 @@
 00029 <span class="preprocessor"></span>
 00030 <span class="preprocessor">#include "<a class="code" href="oscl__file__io_8h.html">oscl_file_io.h</a>"</span>
 00031 
-00032 <span class="keyword">class </span><a class="code" href="classOscl__File.html">Oscl_File</a>;
+00032 <span class="keyword">class </span><a class="code" href="classOsclFileCache.html">OsclFileCache</a>;
 00033 
-<a name="l00034"></a><a class="code" href="classOsclFileCache.html">00034</a> <span class="keyword">class </span><a class="code" href="classOsclFileCache.html">OsclFileCache</a> : <span class="keyword">public</span> <a class="code" href="classHeapBase.html">HeapBase</a>
+<a name="l00034"></a><a class="code" href="classOsclFileCacheBuffer.html">00034</a> <span class="keyword">class </span><a class="code" href="classOsclFileCacheBuffer.html">OsclFileCacheBuffer</a>
 00035 {
 00036     <span class="keyword">public</span>:
-00037         <a class="code" href="classOsclFileCache.html#a0">OsclFileCache</a>(<a class="code" href="classOscl__File.html">Oscl_File</a>&amp; aContainer);
-00038         <a class="code" href="classOsclFileCache.html#a1">~OsclFileCache</a>();
-00039 
-00040         int32 <a class="code" href="classOsclFileCache.html#a2">Open</a>(uint32 mode, uint32 cache_size);
-00041 
-00042         <span class="keywordtype">void</span> <a class="code" href="classOsclFileCache.html#a3">Close</a>();
-00043 
-00044         uint32 <a class="code" href="classOsclFileCache.html#a4">Read</a>(<span class="keywordtype">void</span>* outputBuffer, uint32 size, uint32 numelements);
-00045 
-00046         uint32 <a class="code" href="classOsclFileCache.html#a5">Write</a>(<span class="keyword">const</span> <span class="keywordtype">void</span>* inputBuffer, uint32 size, uint32 numelements);
+<a name="l00037"></a><a class="code" href="classOsclFileCacheBuffer.html#a0">00037</a>         <a class="code" href="classOsclFileCacheBuffer.html#a0">OsclFileCacheBuffer</a>(): <a class="code" href="classOsclFileCacheBuffer.html#m1">isFixed</a>(false)
+00038                 , <a class="code" href="classOsclFileCacheBuffer.html#m2">capacity</a>(0)
+00039                 , <a class="code" href="classOsclFileCacheBuffer.html#m3">usableSize</a>(0)
+00040                 , <a class="code" href="classOsclFileCacheBuffer.html#m4">pBuffer</a>(<a class="code" href="group__osclbase.html#a81">NULL</a>)
+00041                 , <a class="code" href="classOsclFileCacheBuffer.html#m5">filePosition</a>(0)
+00042                 , <a class="code" href="classOsclFileCacheBuffer.html#m6">currentPos</a>(0)
+00043                 , <a class="code" href="classOsclFileCacheBuffer.html#m7">endPos</a>(0)
+00044                 , <a class="code" href="classOsclFileCacheBuffer.html#m8">updateStart</a>(0)
+00045                 , <a class="code" href="classOsclFileCacheBuffer.html#m9">updateEnd</a>(0)
+00046         {}
 00047 
-<a name="l00048"></a><a class="code" href="classOsclFileCache.html#a6">00048</a>         <a class="code" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>  <a class="code" href="classOsclFileCache.html#a6">FileSize</a>()
-00049         {
-00050             <span class="keywordflow">return</span> _fileSize;
-00051         }
+<a name="l00048"></a><a class="code" href="classOsclFileCacheBuffer.html#m0">00048</a>         <a class="code" href="classOsclFileCache.html">OsclFileCache</a>* <a class="code" href="classOsclFileCacheBuffer.html#m0">iContainer</a>;
+00049 
+00050         <span class="comment">//Movable or fixed cache?</span>
+<a name="l00051"></a><a class="code" href="classOsclFileCacheBuffer.html#m1">00051</a>         <span class="keywordtype">bool</span> <a class="code" href="classOsclFileCacheBuffer.html#m1">isFixed</a>;
 00052 
-00053         int32 <a class="code" href="classOsclFileCache.html#a7">Seek</a>(<a class="code" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>  offset, <a class="code" href="classOscl__File.html#s11">Oscl_File::seek_type</a> origin);
-00054 
-<a name="l00055"></a><a class="code" href="classOsclFileCache.html#a8">00055</a>         <a class="code" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>  <a class="code" href="classOsclFileCache.html#a8">Tell</a>()
-00056         {
-00057             <span class="keywordflow">return</span> (_cacheFilePosition + _currentCachePos);
-00058         }
-00059 
-00060         int32 <a class="code" href="classOsclFileCache.html#a9">Flush</a>();
+00053         <span class="comment">//Capacity of the cache buffer</span>
+<a name="l00054"></a><a class="code" href="classOsclFileCacheBuffer.html#m2">00054</a>         uint32 <a class="code" href="classOsclFileCacheBuffer.html#m2">capacity</a>;
+00055 
+00056         <span class="comment">//Usable size of the cache buffer (may be l.t. its capacity)</span>
+<a name="l00057"></a><a class="code" href="classOsclFileCacheBuffer.html#m3">00057</a>         uint32 <a class="code" href="classOsclFileCacheBuffer.html#m3">usableSize</a>;
+00058 
+00059         <span class="comment">//constant pointer to cache buffer</span>
+<a name="l00060"></a><a class="code" href="classOsclFileCacheBuffer.html#m4">00060</a>         uint8*    <a class="code" href="classOsclFileCacheBuffer.html#m4">pBuffer</a>;
 00061 
-<a name="l00062"></a><a class="code" href="classOsclFileCache.html#a10">00062</a>         int32 <a class="code" href="classOsclFileCache.html#a10">EndOfFile</a>()
-00063         {
-00064             <span class="keywordflow">return</span> (<a class="code" href="classOsclFileCache.html#a8">Tell</a>() == <a class="code" href="classOsclFileCache.html#a6">FileSize</a>()) ? 1 : 0;
-00065         }
-00066 
-00067     <span class="keyword">private</span>:
-00068         <a class="code" href="classOscl__File.html">Oscl_File</a>&amp; iContainer;
+00062         <span class="comment">//the native file position corresponding to the start of the</span>
+00063         <span class="comment">//cache</span>
+<a name="l00064"></a><a class="code" href="classOsclFileCacheBuffer.html#m5">00064</a>         <a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>  <a class="code" href="classOsclFileCacheBuffer.html#m5">filePosition</a>;
+00065 
+00066         <span class="comment">//current working position (virtual file pointer) in the cache.</span>
+00067         <span class="comment">//units: 0-based byte offset from beginning of cache</span>
+<a name="l00068"></a><a class="code" href="classOsclFileCacheBuffer.html#m6">00068</a>         uint32    <a class="code" href="classOsclFileCacheBuffer.html#m6">currentPos</a>;
 00069 
-00070         <span class="comment">//file mode from the Open call.</span>
-00071         uint32 _mode;
-00072 
-00073         <span class="comment">//Size of the cache buffer, set by the Open call.</span>
-00074         uint32 _cacheSize;
-00075 
-00076         <span class="comment">//constant pointer to cache buffer</span>
-00077         uint8*    _pCacheBufferStart;
-00078 
-00079         <span class="comment">//the native file position corresponding to the start of the</span>
-00080         <span class="comment">//cache</span>
-00081         <a class="code" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>  _cacheFilePosition;
-00082 
-00083         <span class="comment">//current working position (virtual file pointer) in the cache.</span>
-00084         <span class="comment">//units: 0-based byte offset from beginning of cache</span>
-00085         uint32    _currentCachePos;
+00070         <span class="comment">//end of valid data in the cache.</span>
+00071         <span class="comment">//units: 0-based byte offset from beginning of cache</span>
+<a name="l00072"></a><a class="code" href="classOsclFileCacheBuffer.html#m7">00072</a>         uint32    <a class="code" href="classOsclFileCacheBuffer.html#m7">endPos</a>;
+00073 
+00074         <span class="comment">//variables to track the range of data in the cache that</span>
+00075         <span class="comment">//has been updated by write operations, but has not yet</span>
+00076         <span class="comment">//been written to disk.</span>
+00077         <span class="comment">//units: 0-based byte offset from beginning of cache</span>
+<a name="l00078"></a><a class="code" href="classOsclFileCacheBuffer.html#m8">00078</a>         uint32    <a class="code" href="classOsclFileCacheBuffer.html#m8">updateStart</a>;
+<a name="l00079"></a><a class="code" href="classOsclFileCacheBuffer.html#m9">00079</a>         uint32    <a class="code" href="classOsclFileCacheBuffer.html#m9">updateEnd</a>;
+00080 
+00081         int32 <a class="code" href="classOsclFileCacheBuffer.html#a1">SetPosition</a>(<a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>  pos);
+00082         int32 <a class="code" href="classOsclFileCacheBuffer.html#a2">PrepRead</a>();
+00083         int32 <a class="code" href="classOsclFileCacheBuffer.html#a3">PrepWrite</a>();
+00084         int32 <a class="code" href="classOsclFileCacheBuffer.html#a4">WriteUpdatesToFile</a>();
+00085         int32 <a class="code" href="classOsclFileCacheBuffer.html#a5">FillFromFile</a>(uint32, uint32);
 00086 
-00087         <span class="comment">//end of valid data in the cache.</span>
-00088         <span class="comment">//units: 0-based byte offset from beginning of cache</span>
-00089         uint32    _endCachePos;
-00090 
-00091         <span class="comment">//variables to track the range of data in the cache that</span>
-00092         <span class="comment">//has been updated by write operations, but has not yet</span>
-00093         <span class="comment">//been written to disk.</span>
-00094         <span class="comment">//units: 0-based byte offset from beginning of cache</span>
-00095         uint32    _cacheUpdateStart;
-00096         uint32    _cacheUpdateEnd;
-00097 
-00098         <span class="comment">//Current file size.  This is a virtual file size and</span>
-00099         <span class="comment">//may not match the native file size when there is</span>
-00100         <span class="comment">//cached data.</span>
-00101         <a class="code" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>         _fileSize;
-00102 
-00103         <span class="comment">//Current true native file position.</span>
-00104         <a class="code" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>  _nativePosition;
+<a name="l00087"></a><a class="code" href="classOsclFileCacheBuffer.html#a6">00087</a>         <span class="keywordtype">bool</span> <a class="code" href="classOsclFileCacheBuffer.html#a6">IsUpdated</a>()
+00088         {
+00089             <span class="keywordflow">return</span> <a class="code" href="classOsclFileCacheBuffer.html#m9">updateEnd</a> &gt; <a class="code" href="classOsclFileCacheBuffer.html#m8">updateStart</a>;
+00090         }
+00091 
+00092         <span class="comment">//return true if this cache contains the input position.</span>
+<a name="l00093"></a><a class="code" href="classOsclFileCacheBuffer.html#a7">00093</a>         <span class="keywordtype">bool</span> <a class="code" href="classOsclFileCacheBuffer.html#a7">Contains</a>(<a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>  pos)
+00094         {
+00095             <span class="keywordflow">return</span> (<a class="code" href="classOsclFileCacheBuffer.html#m5">filePosition</a> &lt;= pos &amp;&amp; pos &lt; <a class="code" href="classOsclFileCacheBuffer.html#m5">filePosition</a> + (TOsclFileOffset)<a class="code" href="classOsclFileCacheBuffer.html#m3">usableSize</a>);
+00096         }
+00097         <span class="comment">//return true if this cache preceeds the input position.</span>
+<a name="l00098"></a><a class="code" href="classOsclFileCacheBuffer.html#a8">00098</a>         <span class="keywordtype">bool</span> <a class="code" href="classOsclFileCacheBuffer.html#a8">Preceeds</a>(<a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>  pos)
+00099         {
+00100             <span class="keywordflow">return</span> (<a class="code" href="classOsclFileCacheBuffer.html#m5">filePosition</a> + (TOsclFileOffset)<a class="code" href="classOsclFileCacheBuffer.html#m3">usableSize</a> &lt;= pos);
+00101         }
+00102 };
+00103 
+00104 <span class="keyword">class </span><a class="code" href="classOscl__File.html">Oscl_File</a>;
 00105 
-00106         int32 SetCachePosition(<a class="code" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>  pos);
-00107         int32 FillCacheFromFile();
-00108         int32 WriteCacheToFile();
-00109 
-00110         <a class="code" href="classPVLogger.html">PVLogger</a>* iLogger;
-00111 };
-00112 
+<a name="l00106"></a><a class="code" href="classOsclFileCache.html">00106</a> <span class="keyword">class </span><a class="code" href="classOsclFileCache.html">OsclFileCache</a> : <span class="keyword">public</span> <a class="code" href="classHeapBase.html">HeapBase</a>
+00107 {
+00108     <span class="keyword">public</span>:
+00109         <a class="code" href="classOsclFileCache.html#a0">OsclFileCache</a>(<a class="code" href="classOscl__File.html">Oscl_File</a>&amp; aContainer);
+00110         <a class="code" href="classOsclFileCache.html#a1">~OsclFileCache</a>();
+00111 
+00112         int32 <a class="code" href="classOsclFileCache.html#a2">Open</a>(uint32 mode, uint32 cache_size);
 00113 
-00114 <span class="preprocessor">#endif // OSCL_FILE_CACHE_H_INCLUDED</span>
-00115 <span class="preprocessor"></span>
+00114         <span class="keywordtype">void</span> <a class="code" href="classOsclFileCache.html#a3">Close</a>();
+00115 
+00116         uint32 <a class="code" href="classOsclFileCache.html#a4">Read</a>(<span class="keywordtype">void</span>* outputBuffer, uint32 size, uint32 numelements);
+00117 
+00118         uint32 <a class="code" href="classOsclFileCache.html#a5">Write</a>(<span class="keyword">const</span> <span class="keywordtype">void</span>* inputBuffer, uint32 size, uint32 numelements);
+00119 
+<a name="l00120"></a><a class="code" href="classOsclFileCache.html#a6">00120</a>         <a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>  <a class="code" href="classOsclFileCache.html#a6">FileSize</a>()
+00121         {
+00122             <span class="keywordflow">return</span> _fileSize;
+00123         }
+00124 
+00125         int32 <a class="code" href="classOsclFileCache.html#a7">Seek</a>(<a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>  offset, <a class="code" href="classOscl__File.html#s11">Oscl_File::seek_type</a> origin);
+00126 
+<a name="l00127"></a><a class="code" href="classOsclFileCache.html#a8">00127</a>         <a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>  <a class="code" href="classOsclFileCache.html#a8">Tell</a>()
+00128         {
+00129             <span class="keywordflow">return</span> (_curCache) ? (_curCache-&gt;<a class="code" href="classOsclFileCacheBuffer.html#m5">filePosition</a> + _curCache-&gt;<a class="code" href="classOsclFileCacheBuffer.html#m6">currentPos</a>) : 0;
+00130         }
+00131 
+00132         int32 <a class="code" href="classOsclFileCache.html#a9">Flush</a>();
+00133 
+<a name="l00134"></a><a class="code" href="classOsclFileCache.html#a10">00134</a>         int32 <a class="code" href="classOsclFileCache.html#a10">EndOfFile</a>()
+00135         {
+00136             <span class="keywordflow">return</span> (<a class="code" href="classOsclFileCache.html#a8">Tell</a>() == <a class="code" href="classOsclFileCache.html#a6">FileSize</a>()) ? 1 : 0;
+00137         }
+00138 
+00139     <span class="keyword">private</span>:
+<a name="l00140"></a><a class="code" href="classOsclFileCache.html#l0">00140</a>         <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classOsclFileCacheBuffer.html">OsclFileCacheBuffer</a>;
+00141         <a class="code" href="classOscl__File.html">Oscl_File</a>&amp; iContainer;
+00142 
+00143         <span class="comment">//file mode from the Open call.</span>
+00144         uint32 _mode;
+00145 
+00146     <span class="keyword">public</span>:
+<a name="l00147"></a><a class="code" href="classOsclFileCache.html#m0">00147</a>         <a class="code" href="classOsclFileCacheBuffer.html">OsclFileCacheBuffer</a> <a class="code" href="classOsclFileCache.html#m0">_movableCache</a>;
+<a name="l00148"></a><a class="code" href="classOsclFileCache.html#m1">00148</a>         <a class="code" href="classOscl__Vector.html">Oscl_Vector&lt;OsclFileCacheBuffer, OsclMemAllocator&gt;</a> <a class="code" href="classOsclFileCache.html#m1">_fixedCaches</a>;
+00149         OSCL_IMPORT_REF <a class="code" href="classOsclFileCacheBuffer.html">OsclFileCacheBuffer</a>* <a class="code" href="classOsclFileCache.html#a11">AddFixedCache</a>(<span class="keyword">const</span> <a class="code" href="classOscl__File_1_1OsclFixedCacheParam.html">Oscl_File::OsclFixedCacheParam</a>&amp;);
+00150 
+00151     <span class="keyword">private</span>:
+00152         <a class="code" href="classOsclFileCacheBuffer.html">OsclFileCacheBuffer</a>* _curCache;
+00153         int32 SetCachePosition(<a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>);
+00154         int32 UpdateFixedCaches();
+00155 
+00156         <span class="comment">//Current file size.  This is a virtual file size and</span>
+00157         <span class="comment">//may not match the native file size when there is</span>
+00158         <span class="comment">//cached data.</span>
+00159         <a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>     _fileSize;
+00160 
+00161         <span class="comment">//Current true native file position.</span>
+00162         <a class="code" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>  _nativePosition;
+00163 
+00164         <a class="code" href="classPVLogger.html">PVLogger</a>* iLogger;
+00165 };
+00166 
+00167 
+00168 <span class="preprocessor">#endif // OSCL_FILE_CACHE_H_INCLUDED</span>
+00169 <span class="preprocessor"></span>
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

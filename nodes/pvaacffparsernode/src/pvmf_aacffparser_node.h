@@ -125,32 +125,41 @@
 #include "pvmf_cpmplugin_license_interface.h"
 #endif
 
+#ifndef PVMF_METADATA_INFOMESSAGE_H_INCLUDED
+#include "pvmf_metadata_infomessage.h"
+
+#endif
+
+#ifndef PVMF_DURATION_INFOMESSAGE_H_INCLUDED
+#include "pvmf_duration_infomessage.h"
+#endif
+
 /**
  * Node command handling
  */
 #define PVMF_AAC_PARSER_NODE_NEW(auditCB,T,params,ptr)\
 {\
-	ptr = OSCL_NEW(T,params);\
+    ptr = OSCL_NEW(T,params);\
 }
 
 #define PVMF_AAC_PARSER_NODE_DELETE(auditCB,T,ptr)\
 {\
-	OSCL_DELETE(ptr);\
+    OSCL_DELETE(ptr);\
 }
 
 #define PVMF_AAC_PARSER_NODE_TEMPLATED_DELETE(auditCB, T, Tsimple, ptr)\
 {\
-	OSCL_DELETE(ptre);\
+    OSCL_DELETE(ptre);\
 }
 
 #define PV_AAC_PARSER_NODE_ARRAY_NEW(auditCB, T, count, ptr)\
 {\
-	ptr = OSCL_ARRAY_NEW(T, count);\
+    ptr = OSCL_ARRAY_NEW(T, count);\
 }
 
 #define PV_AAC_PARSER_NODE_ARRAY_DELETE(auditCB, ptr)\
 {\
-	OSCL_ARRAY_DELETE(ptr);\
+    OSCL_ARRAY_DELETE(ptr);\
 }
 
 
@@ -200,7 +209,7 @@ class TrackDataMemPoolProxyAlloc : public Oscl_DefAlloc
 class MediaClockConverter;
 class PVMFAACFFParserNode;
 class PVAACFFNodeTrackPortInfo : public OsclMemPoolFixedChunkAllocatorObserver,
-            public OsclMemPoolResizableAllocatorObserver
+        public OsclMemPoolResizableAllocatorObserver
 {
     public:
 
@@ -244,8 +253,8 @@ class PVAACFFNodeTrackPortInfo : public OsclMemPoolFixedChunkAllocatorObserver,
             iAudioSampleRate              = 0;
             iAudioNumChannels             = 0;
             iAudioBitsPerSample           = 0;
-            iCodecName					  = NULL;
-            iCodecDescription			  = NULL;
+            iCodecName                    = NULL;
+            iCodecDescription             = NULL;
             iResizableSimpleMediaMsgAlloc = NULL;
             /////////////////////////////////////////////////////////
         }
@@ -280,9 +289,9 @@ class PVAACFFNodeTrackPortInfo : public OsclMemPoolFixedChunkAllocatorObserver,
             iContinuousTimeStamp               = aSrc.iContinuousTimeStamp;
             iPrevSampleTimeStamp               = aSrc.iPrevSampleTimeStamp;
             iTrackMaxSampleSize                = aSrc.iTrackMaxSampleSize;
-            iLogger					           = aSrc.iLogger;
-            iDataPathLogger			           = aSrc.iDataPathLogger;
-            iClockLogger			           = aSrc.iClockLogger;
+            iLogger                            = aSrc.iLogger;
+            iDataPathLogger                    = aSrc.iDataPathLogger;
+            iClockLogger                       = aSrc.iClockLogger;
             iPortLogger                        = aSrc.iPortLogger;
             oFormatSpecificInfoLogged          = aSrc.oFormatSpecificInfoLogged;
             iAudioSampleRate                   = aSrc.iAudioSampleRate;
@@ -292,15 +301,15 @@ class PVAACFFNodeTrackPortInfo : public OsclMemPoolFixedChunkAllocatorObserver,
             iMediaDataMemPool                  = aSrc.iMediaDataMemPool;
 
             iAudioBitsPerSample                = aSrc.iAudioBitsPerSample;
-            iCodecName						   = aSrc.iCodecName;;
-            iCodecDescription				   = aSrc.iCodecDescription;
+            iCodecName                         = aSrc.iCodecName;;
+            iCodecDescription                  = aSrc.iCodecDescription;
         }
 
         virtual ~PVAACFFNodeTrackPortInfo()
         {
-            iLogger					           = NULL;
-            iDataPathLogger			           = NULL;
-            iClockLogger			           = NULL;
+            iLogger                            = NULL;
+            iDataPathLogger                    = NULL;
+            iClockLogger                       = NULL;
             iPortLogger                        = NULL;
         }
 
@@ -685,18 +694,19 @@ class PVLogger;
 class PVMFLocalDataSource;
 
 class PVMFAACFFParserNode :  public OsclTimerObject
-            , public PVMFNodeInterface
-            , public PVMFDataSourceInitializationExtensionInterface
-            , public PVMFTrackSelectionExtensionInterface
-            , public PvmfDataSourcePlaybackControlInterface
-            , public PVMFMetadataExtensionInterface
-            , public PVMFCPMStatusObserver
-            , public PVMIDatastreamuserInterface
-            , public PvmiDataStreamObserver
-            , public PVMFFormatProgDownloadSupportInterface
-            , public PVMFCPMPluginLicenseInterface
+        , public PVMFNodeInterface
+        , public PVMFDataSourceInitializationExtensionInterface
+        , public PVMFTrackSelectionExtensionInterface
+        , public PvmfDataSourcePlaybackControlInterface
+        , public PVMFMetadataExtensionInterface
+        , public PVMFCPMStatusObserver
+        , public PVMIDatastreamuserInterface
+        , public PvmiDataStreamObserver
+        , public PVMFFormatProgDownloadSupportInterface
+        , public PVMFCPMPluginLicenseInterface
 {
     public:
+
         PVMFAACFFParserNode(int32 aPriority);
         ~PVMFAACFFParserNode();
 
@@ -750,13 +760,19 @@ class PVMFAACFFParserNode :  public OsclTimerObject
                                    const PvmfMimeString* aFactoryConfig = NULL);
 
         void PassDatastreamReadCapacityObserver(PVMFDataStreamReadCapacityObserver* aObserver);
+        bool setProtocolInfo(Oscl_Vector<PvmiKvp*, OsclMemAllocator>& aInfoKvpVec);
 
         /* From PVMFFormatProgDownloadSupportInterface */
         int32 convertSizeToTime(uint32 fileSize, uint32& aNPTInMS);
         void setFileSize(const uint32 aFileSize);
         void setDownloadProgressInterface(PVMFDownloadProgressInterface*);
         void playResumeNotification(bool aDownloadComplete);
-        void notifyDownloadComplete() {};
+        void notifyDownloadComplete()
+        {
+            PVMF_AACPARSERNODE_LOGSTACKTRACE((0, "PVMFAACParserNode::notifyDownloadComplete()"));
+            playResumeNotification(true);
+        };
+
 
 
         // From PVMFMetadataExtensionInterface
@@ -839,6 +855,7 @@ class PVMFAACFFParserNode :  public OsclTimerObject
                                        , OsclAny* aContextData);
         PVMFStatus GetLicenseStatus(
             PVMFCPMLicenseStatus& aStatus) ;
+
 
     private:
 
@@ -931,6 +948,7 @@ class PVMFAACFFParserNode :  public OsclTimerObject
 
 
     private:  // private data members
+
         void ConstructL();
 
         PVMFNodeCapability iCapability;

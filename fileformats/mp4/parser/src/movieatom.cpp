@@ -47,7 +47,8 @@ OSCL_EXPORT_REF MovieAtom::MovieAtom(MP4_FF_FILE *fp,
                                      uint32 type,
                                      bool oPVContent,
                                      bool oPVContentDownloadable,
-                                     uint32 parsingMode)
+                                     uint32 parsingMode,
+                                     bool aOpenFileOncePerTrack)
         : Atom(fp, size, type)
 {
     PV_MP4_FF_NEW(fp->auditCB, trackAtomVecType, (), _ptrackArray);
@@ -232,7 +233,7 @@ OSCL_EXPORT_REF MovieAtom::MovieAtom(MP4_FF_FILE *fp,
                                   (fp, filename, atomSize,
                                    atomType, oPVContent,
                                    oPVContentDownloadable,
-                                   parsingMode),
+                                   parsingMode, aOpenFileOncePerTrack),
                                   track);
 
 
@@ -306,7 +307,7 @@ OSCL_EXPORT_REF MovieAtom::MovieAtom(MP4_FF_FILE *fp,
             }
             else
             {
-                uint32 ts =	_pmovieHeaderAtom->getTimeScale();
+                uint32 ts = _pmovieHeaderAtom->getTimeScale();
                 if (NULL != _ptrackArray)
                 {
                     for (uint i = 0; i < _ptrackArray->size(); i++)
@@ -1160,7 +1161,7 @@ int32 MovieAtom::queryRepositionTime(uint32 time,
     return modifiedTimeStamp;
 }
 
-int32	MovieAtom::querySyncFrameBeforeTime(uint32 time, uint16 numTracks, uint32 *trackList)
+int32   MovieAtom::querySyncFrameBeforeTime(uint32 time, uint16 numTracks, uint32 *trackList)
 {
     TrackAtom *trackAtom;
     for (uint16 i = 0; i < numTracks; i++)
@@ -1171,13 +1172,13 @@ int32	MovieAtom::querySyncFrameBeforeTime(uint32 time, uint16 numTracks, uint32 
             if (trackAtom->getMediaType() == MEDIA_TYPE_VISUAL)
             {
                 if (!trackAtom->dependsOn())
-                {	//base layer
+                {   //base layer
                     return trackAtom->IsResetNeeded(time);
                 }
             }
         }
     }
-    return EVERYTHING_FINE;	//resetplayback is needed
+    return EVERYTHING_FINE; //resetplayback is needed
 }
 
 uint32 MovieAtom::getTrackWholeIDList(uint32 *ids)
@@ -1205,14 +1206,14 @@ uint32 MovieAtom::getTrackWholeIDList(uint32 *ids)
 }
 
 
-int32 MovieAtom::updateFileSize(uint32	filesize)
+int32 MovieAtom::updateFileSize(uint32  filesize)
 {
     if (NULL == _ptrackArray)
     {
         return DEFAULT_ERROR;
     }
     TrackAtom *trackAtom;
-    int32	returnVal = EVERYTHING_FINE;//success
+    int32   returnVal = EVERYTHING_FINE;//success
     for (uint32 i = 0; i < _ptrackArray->size(); i++)
     {
         trackAtom = (TrackAtom *)(*_ptrackArray)[i];
@@ -1225,7 +1226,7 @@ int32 MovieAtom::updateFileSize(uint32	filesize)
         }
 
     }
-    return returnVal;	//success
+    return returnVal;   //success
 }
 
 OSCL_EXPORT_REF uint32 MovieAtom::getTrackIDList(uint32 *ids, int size)
@@ -2050,7 +2051,7 @@ int32 MovieAtom::getTrackTSStartOffset(uint32& aTSOffset, uint32 aTrackID)
     aTSOffset = 0;
     TrackAtom *track = getTrackForID(aTrackID);
 
-    uint32 movieTimeScale =	_pmovieHeaderAtom->getTimeScale();
+    uint32 movieTimeScale = _pmovieHeaderAtom->getTimeScale();
     if (track != NULL)
     {
         return track->getTrackTSOffset(aTSOffset, movieTimeScale);

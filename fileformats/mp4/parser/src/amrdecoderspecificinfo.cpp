@@ -22,7 +22,7 @@
 /*********************************************************************************/
 /*
     This DecoderSpecificInfo Class that holds the Mpeg4 VOL header for the
-	video stream
+    video stream
 */
 
 #define __IMPLEMENT_AMRDecoderSpecificInfo__
@@ -45,10 +45,7 @@ AMRDecoderSpecificInfo::AMRDecoderSpecificInfo(MP4_FF_FILE *fp, bool o3GPPTrack)
     _frames_per_sample = 0;
     _mode_change_neighbour = 0;
 
-    if (o3GPPTrack)
-    {
-    }
-    else
+    if (!o3GPPTrack)
     {
         AtomUtils::read32(fp, _VendorCode);
 

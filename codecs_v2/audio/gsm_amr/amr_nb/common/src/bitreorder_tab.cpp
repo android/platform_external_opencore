@@ -28,25 +28,7 @@ terms listed above has been obtained from the copyright holder.
 ****************************************************************************************/
 /*
 
- Pathname: .audio/gsm-amr/c/src/bitreorder.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Changed file name to bitreorder_tab.c and .h. Also, updated the
-              module description.
-
- Description: Define "const Word16 *reorderBits[NUM_MODES-1]" as
-              "const Word16 *const reorderBits[NUM_MODES-1]".
-
- Description: Added #ifdef __cplusplus and removed "extern" from table
-              definition. Removed corresponding header file from Include
-              section.
-
- Description: Put "extern" back.
-
- Who:                       Date:
- Description:
+ Filename: bitreorder_tab.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -92,28 +74,6 @@ terms listed above has been obtained from the copyright holder.
 ------------------------------------------------------------------------------
  PSEUDO-CODE
 
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

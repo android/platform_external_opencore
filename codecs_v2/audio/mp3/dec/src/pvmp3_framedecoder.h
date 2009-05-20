@@ -22,13 +22,6 @@
 
    Filename: pvmp3_framedecoder.h
 
-   Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -88,7 +81,7 @@ extern "C"
 
 
     ERROR_CODE pvmp3_framedecoder(tPVMP3DecoderExternal *pExt,
-                                  void                  *pMem);
+    void                  *pMem);
 
 
 

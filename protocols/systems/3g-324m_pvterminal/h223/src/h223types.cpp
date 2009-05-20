@@ -221,18 +221,18 @@ void OlcParam::InitOlc(TPVDirection dir,
                        PS_DataType dtRvs,
                        PS_H223LogicalChannelParameters lcpRvs)
 {
-    H223ChannelParam* forward_params = new H223ChannelParam(id, lcp, dt);
+    H223ChannelParam* forward_params = OSCL_NEW(H223ChannelParam, (id, lcp, dt));
     H223ChannelParam* reverse_params = NULL;
     if (lcpRvs)
     {
-        reverse_params = new H223ChannelParam(idRvs, lcpRvs, dtRvs);
+        reverse_params = OSCL_NEW(H223ChannelParam, (idRvs, lcpRvs, dtRvs));
     }
     // insert into the list of olcs
     Set(dir, id, forward_params, reverse_params);
     SetState(OLC_PENDING);
-    delete forward_params;
+    OSCL_DELETE(forward_params);
     if (reverse_params)
-        delete reverse_params;
+        OSCL_DELETE(reverse_params);
 }
 
 OlcParam::~OlcParam()
@@ -709,7 +709,7 @@ unsigned CPVMultiplexEntryDescriptor::FindLcns(
 
     for (int cnt = ListSize ; cnt != 0 ; cnt --)
     {
-        /* SubElemnt Search	*/
+        /* SubElemnt Search */
         if (pElement->muxType.index)
         {
             int size = 0;

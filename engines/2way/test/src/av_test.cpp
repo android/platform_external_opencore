@@ -16,35 +16,20 @@
  * -------------------------------------------------------------------
  */
 #include "av_test.h"
-
+#include "pv_2way_source_and_sinks_base.h"
 
 void av_test::test()
 {
-    fprintf(fileoutput, "Start avtest, proxy %d,Audio SrcFormat:", iUseProxy);
-
-    printFormatString(iAudSrcFormatType);
-
-    fprintf(fileoutput, " Audio SinkFormat:");
-
-    printFormatString(iAudSinkFormatType);
-
-    fprintf(fileoutput, " Video SourceFormat:");
-
-    printFormatString(iVidSrcFormatType);
-
-    fprintf(fileoutput, " Video SinkFormat:");
-
-    printFormatString(iVidSinkFormatType);
-
-    fprintf(fileoutput, "\n");
-
+    fprintf(fileoutput, "\n-------- Start avtest --------\n");
+    fprintf(fileoutput, "\n** Test Number: %d. ** \n", iTestNum);
+    fprintf(fileoutput, "\nSETTINGS:\nProxy %d", iUseProxy);
+    iSourceAndSinks->PrintFormatTypes();
+    fprintf(fileoutput, "\n----------------------------------\n");
     int error = 0;
 
     scheduler = OsclExecScheduler::Current();
 
     this->AddToScheduler();
-
-    init_mime_strings();
 
     if (start_async_test())
     {
@@ -76,7 +61,7 @@ void av_test::Run()
 
     if (timer)
     {
-        delete timer;
+        OSCL_DELETE(timer);
         timer = NULL;
     }
 
@@ -91,91 +76,10 @@ void av_test::ConnectSucceeded()
 {
 }
 
-void av_test::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
-{
-    int error = 0;
-    switch (aEvent.GetEventType())
-    {
-        case PVT_INDICATION_OUTGOING_TRACK:
-        {
-            TPVChannelId *channel_id = (TPVChannelId *)(&aEvent.GetLocalBuffer()[4]);
-            printf("Indication with logical channel #%d ", *channel_id);
-            if ((aEvent.GetLocalBuffer()[0] == PV_AUDIO) && !iSelAudioSource)
-            {
-                iSelAudioSource = get_audio_source(iAudSrcFormatType);
-                if (iSelAudioSource != NULL)
-                {
-                    OSCL_TRY(error, iAudioAddSourceId = terminal->AddDataSource(*channel_id, *iSelAudioSource));
-                    printf("Audio");
-                }
-            }
-            else if ((aEvent.GetLocalBuffer()[0] == PV_VIDEO) && !iSelVideoSource)
-            {
-                iSelVideoSource = get_video_source(iVidSrcFormatType);
-                if (iSelVideoSource != NULL)
-                {
-                    OSCL_TRY(error, iVideoAddSourceId = terminal->AddDataSource(*channel_id, *iSelVideoSource));
-                    printf("Video");
-                }
-            }
-            else
-            {
-                printf("unknown");
-            }
-            printf(" outgoing Track\n");
-            break;
-        }
-
-        case PVT_INDICATION_INCOMING_TRACK:
-        {
-            TPVChannelId *channel_id = (TPVChannelId *)(&aEvent.GetLocalBuffer()[4]);
-            printf("Indication with logical channel #%d ", *channel_id);
-            if ((aEvent.GetLocalBuffer()[0] == PV_AUDIO) && !iSelAudioSink)
-            {
-                iSelAudioSink = get_audio_sink(iAudSinkFormatType);
-                if (iSelAudioSink != NULL)
-                {
-                    OSCL_TRY(error, iAudioAddSinkId = terminal->AddDataSink(*channel_id, *iSelAudioSink));
-                    printf("Audio");
-                }
-            }
-            else if ((aEvent.GetLocalBuffer()[0] == PV_VIDEO) && !iSelVideoSink)
-            {
-                iSelVideoSink = get_video_sink(iVidSinkFormatType);
-                if (iSelVideoSink != NULL)
-                {
-                    OSCL_TRY(error, iVideoAddSinkId = terminal->AddDataSink(*channel_id, *iSelVideoSink));
-                    printf("Video");
-                }
-            }
-            else
-            {
-                printf("unknown");
-            }
-            printf(" incoming Track\n");
-            break;
-        }
-
-        case PVT_INDICATION_DISCONNECT:
-            iAudioSourceAdded = false;
-            iVideoSourceAdded = false;
-            iAudioSinkAdded = false;
-            iVideoSinkAdded = false;
-            break;
-
-        case PVT_INDICATION_CLOSE_TRACK:
-            break;
-
-        case PVT_INDICATION_INTERNAL_ERROR:
-            break;
-
-        default:
-            break;
-    }
-}
 
 void av_test::InitFailed()
 {
+    fprintf(fileoutput, "\n*************** Test FAILED: Init Failed *************** \n");
     test_is_true(false);
     test_base::InitFailed();
 }
@@ -209,12 +113,14 @@ void av_test::VideoAddSinkSucceeded()
     if (iVideoSourceAdded && iAudioSourceAdded && iAudioSinkAdded)
         timer->RunIfNotReady(TEST_DURATION);
 }
+
 void av_test::VideoAddSourceSucceeded()
 {
     iVideoSourceAdded = true;
     if (iVideoSinkAdded && iAudioSourceAdded && iAudioSinkAdded)
         timer->RunIfNotReady(TEST_DURATION);
 }
+
 void av_test::VideoAddSourceFailed()
 {
     VideoAddSourceSucceeded();
@@ -233,42 +139,54 @@ void av_test::CheckForTimeToDisconnect()
             !iVideoSourceAdded &&
             !iVideoSinkAdded)
     {
+        fprintf(fileoutput, "\nTime to disconnect \n");
         disconnect();
     }
 }
 
 void av_test::AudioRemoveSourceCompleted()
 {
+    fprintf(fileoutput, "\nAudio source removed \n");
     iAudioSourceAdded = false;
     CheckForTimeToDisconnect();
 }
 
 void av_test::AudioRemoveSinkCompleted()
 {
+    fprintf(fileoutput, "\nAudio sink removed \n");
     iAudioSinkAdded = false;
     CheckForTimeToDisconnect();
 }
+
 void av_test::VideoRemoveSourceCompleted()
 {
+    fprintf(fileoutput, "\nVideo source removed \n");
     iVideoSourceAdded = false;
     CheckForTimeToDisconnect();
 }
+
 void av_test::VideoRemoveSinkCompleted()
 {
+    fprintf(fileoutput, "\nVideo sink removed \n");
     iVideoSinkAdded = false;
     CheckForTimeToDisconnect();
 }
 
-
-
 void av_test::TimerCallback()
 {
     int error = 0;
-
-    if (iSelVideoSource != NULL)
+    if (!iAudioSourceAdded ||
+            !iAudioSinkAdded ||
+            !iVideoSourceAdded ||
+            !iVideoSinkAdded)
     {
-        OSCL_TRY(error, iVideoRemoveSourceId = terminal->RemoveDataSource(*iSelVideoSource));
+        // wait longer
+        timer->RunIfNotReady(TEST_DURATION);
+        return;
     }
+
+    fprintf(fileoutput, "\nRemoving source and sinks \n");
+    OSCL_TRY(error, iVideoRemoveSourceId = iSourceAndSinks->RemoveVideoSource());
     if (error)
     {
         iTestStatus &= false;
@@ -277,10 +195,7 @@ void av_test::TimerCallback()
     else
     {
         error = 1;
-        if (iSelVideoSink != NULL)
-        {
-            OSCL_TRY(error, iVideoRemoveSinkId = terminal->RemoveDataSink(*iSelVideoSink));
-        }
+        OSCL_TRY(error, iVideoRemoveSinkId = iSourceAndSinks->RemoveVideoSink());
         if (error)
         {
             iTestStatus &= false;
@@ -288,10 +203,7 @@ void av_test::TimerCallback()
         }
     }
 
-    if (iSelAudioSource != NULL)
-    {
-        OSCL_TRY(error, iAudioRemoveSourceId = terminal->RemoveDataSource(*iSelAudioSource));
-    }
+    OSCL_TRY(error, iAudioRemoveSourceId = iSourceAndSinks->RemoveAudioSource());
     if (error)
     {
         iTestStatus &= false;
@@ -300,10 +212,7 @@ void av_test::TimerCallback()
     else
     {
         error = 1;
-        if (iSelAudioSink != NULL)
-        {
-            OSCL_TRY(error, iAudioRemoveSinkId = terminal->RemoveDataSink(*iSelAudioSink));
-        }
+        OSCL_TRY(error, iAudioRemoveSinkId = iSourceAndSinks->RemoveAudioSink());
         if (error)
         {
             iTestStatus &= false;
@@ -314,9 +223,10 @@ void av_test::TimerCallback()
 
 bool av_test::start_async_test()
 {
-    timer = new engine_timer(this);
+    timer = OSCL_NEW(engine_timer, (this));
     if (timer == NULL)
     {
+        fprintf(fileoutput, "\n*************** Test FAILED: no timer *************** \n");
         test_is_true(false);
         return false;
     }

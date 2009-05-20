@@ -88,7 +88,7 @@ typedef enum
     EUnpausing,
     EClosing,
     EMaxDataPathStates
-}TPV2WayDatapathState;
+} TPV2WayDatapathState;
 
 /**
  * TPVPortFormatSetType enum
@@ -250,7 +250,15 @@ class CPV2WayDatapath : public HeapBase, public CPV2WayNodeCommandObserver
                 iAllPortsConnected(false)
         {};
 
-        virtual ~CPV2WayDatapath() {};
+        virtual ~CPV2WayDatapath()
+        {
+            if (iFsi)
+            {
+                OSCL_DEFAULT_FREE(iFsi);
+                iFsi = NULL;
+                iFsiLen = 0;
+            }
+        };
 
         bool IsPortInDatapath(PVMFPortInterface *aPort);
         bool IsNodeInDatapath(PVMFNodeInterface *aNode);

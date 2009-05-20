@@ -24,7 +24,8 @@
 class init_cancel_test : public test_base
 {
     public:
-        init_cancel_test(bool aUseProxy, bool isSIP = false) : test_base(PVMF_MIME_AMR_IF2, PVMF_MIME_AMR_IF2, PVMF_MIME_YUV420, PVMF_MIME_YUV420, aUseProxy, isSIP)
+        init_cancel_test(bool aUseProxy, bool isSIP = false) :
+                test_base(aUseProxy, isSIP)
         {
             iRstCmdId  = iInitCmdId = iCnclCmdId = 0;
         }
@@ -38,8 +39,6 @@ class init_cancel_test : public test_base
         void Run();
 
         void DoCancel();
-
-        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
 
 
     private:

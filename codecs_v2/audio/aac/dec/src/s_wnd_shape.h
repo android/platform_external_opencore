@@ -17,15 +17,7 @@
  */
 /*
 
- Pathname: s_Wnd_Shape.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Change data type to Int
-
- Who:                                       Date:
- Description:
+ Filename: s_wnd_shape.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

@@ -17,46 +17,8 @@
  */
 /*
 
- Pathname: get_tns.c
+ Filename: get_tns.cpp
 
-     Date: 10/25/2000
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  Brought code in-line with PV standards.  Some minor
-               optimizations (count-down for loops, etc.) were made.
-
- Description:  Made cosmetic changes as suggested during review.  Also,
- changed calculation of s_mask and n_mask from table-based to being
- calculated based on res_index.  Also, the flag coef_res was changed
- from having a range of [3,4] to having a range of [0,1], which corresponds
- exactly with the true value that is passed via the bitstream.
-
- Description:  Modified to use more efficient TNS memory structure.
-
- Description: Updated to reflect more efficient usage of memory by the TNS
- filters.
-
- Description: Updated the SW template to include the full pathname to the
- source file and a slightly modified copyright header.
-
- Description: Moved pInputStream to be the 2nd parameter, for a slight
- optimization on some platforms.
-
- Description: Moved pSfbTop outside of the loops, since its value does
- not change.
-
- Description: Replace some instances of getbits to get1bits
-			  when only 1 bit is read.
-
- Who:                       Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -166,28 +128,7 @@
 
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
-
-----------------------------------------------------------------------------*/
+*/
 /*----------------------------------------------------------------------------
 ; INCLUDES
 ----------------------------------------------------------------------------*/

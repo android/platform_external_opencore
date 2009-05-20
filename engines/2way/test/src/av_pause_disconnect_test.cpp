@@ -350,7 +350,7 @@ bool av_pause_disconnect_test::start_async_test()
         return false;
     }
 
-    create_sink_source();
+
 
     OSCL_TRY(error, terminal->InitL(iSdkInitInfo, iCommServer));
     if (error)

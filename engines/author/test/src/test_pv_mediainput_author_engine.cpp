@@ -201,17 +201,10 @@ bool PVMediaInputAuthorEngineTest::Set_Default_Params(int32 aTestnum, PVMediaInp
         }
         break;
 
-        case YUV_Input_VOnly_3gpTest:
+        case YUVFromAVI_Input_VOnly_3gpTest:
         {
             aMediaInputParam.iIPFileInfo = KYUV_AVI_VIDEO_ONLY;
             aMediaInputParam.iOPFileInfo = KYUV_VOnly_3GPP_Output;
-        }
-        break;
-
-        case H264_Input_VOnly_3gpTest:
-        {
-            aMediaInputParam.iIPFileInfo = KYUV_AVI_VIDEO_ONLY;
-            aMediaInputParam.iOPFileInfo = KH264_VOnly_MP4_Output;
         }
         break;
 
@@ -482,8 +475,7 @@ void PVMediaInputAuthorEngineTest::test()
         {
             case PVMediaInput_Open_Compose_Stop_Test:
             case PVMediaInput_Open_RealTimeCompose_Stop_Test:
-            case YUV_Input_VOnly_3gpTest:
-            case H264_Input_VOnly_3gpTest:
+            case YUVFromAVI_Input_VOnly_3gpTest:
             case PCM16_Input_AOnly_3gpTest:
             case PCM16_YUV_Input_AV_3gpTest:
             case PCM16In_AMROut_Test:
@@ -620,8 +612,8 @@ void PVMediaInputAuthorEngineTest::test()
 
                     //fprintf(iFile, "\nCurrently executing test:%d\n\n", iNextTestCase);
                     fprintf(iFile, "Begin test with the following parameters:\
-				\nInput File Name : %s\nOutput File Name: %s,\nVideo Encoder: %s,\nAudio Encoder: %s,\
-				\nComposer: %s\n", iMediaInputParam.iIPFileInfo.get_cstr(), iMediaInputParam.iOPFileInfo.get_cstr(),
+\t\t\t\t\nInput File Name : %s\nOutput File Name: %s,\nVideo Encoder: %s,\nAudio Encoder: %s,\
+\t\t\t\t\nComposer: %s\n", iMediaInputParam.iIPFileInfo.get_cstr(), iMediaInputParam.iOPFileInfo.get_cstr(),
                     iMediaInputParam.iVideoEncInfo.get_cstr(), iMediaInputParam.iAudioEncInfo.get_cstr(),
                     iMediaInputParam.iComposerInfo.get_cstr());
 
@@ -918,7 +910,7 @@ void PVMediaInputAuthorEngineTest::Print_TestCase_Name(int32 aTestnum)
             fprintf(iFile, "Open Real Time Compose Stop test with AVI/WAV MIO Comp:\n");
         }
         break;
-        case YUV_Input_VOnly_3gpTest:
+        case YUVFromAVI_Input_VOnly_3gpTest:
         {
             fprintf(iFile, "YUV to V-Only .3gp Test with AVI/WAV component\n");
 
@@ -934,14 +926,9 @@ void PVMediaInputAuthorEngineTest::Print_TestCase_Name(int32 aTestnum)
             fprintf(iFile, "PCM16 & YUV to AV .3gp Test\n");
         }
         break;
-        case H264_Input_VOnly_3gpTest:
-        {
-            fprintf(iFile, "H264 to V-Only .3gp Test\n");
-        }
-        break;
         case PCM16In_AMROut_Test:
         {
-            fprintf(iFile, "PCM16 to ARM Test\n");
+            fprintf(iFile, "PCM16 to AMR Test\n");
         }
         break;
         case KMaxFileSizeTest:

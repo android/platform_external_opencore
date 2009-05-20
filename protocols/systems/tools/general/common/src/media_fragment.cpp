@@ -78,7 +78,7 @@ OSCL_EXPORT_REF PoolFragmentAllocator::PoolFragmentAllocator(int32 max_frags, in
 
     num_frags = max_frags;
     frag_size = max_frag_size;
-    entire_list = new BufferStateEntry[max_frags];
+    entire_list = OSCL_ARRAY_NEW(BufferStateEntry, max_frags);
     free_list = entire_list;
     buffer = (uint8 *) OSCL_DEFAULT_MALLOC((max_frags * max_frag_size));
     oscl_memset(buffer, 0, (max_frags * max_frag_size));
@@ -108,7 +108,7 @@ OSCL_EXPORT_REF PoolFragmentAllocator::~PoolFragmentAllocator()
     }
 
     if (buffer) OSCL_DEFAULT_FREE(buffer);
-    if (entire_list) delete[] entire_list;
+    if (entire_list) OSCL_ARRAY_DELETE(entire_list);
     if (buffer_state_listener) OSCL_DELETE(buffer_state_listener);
 }
 

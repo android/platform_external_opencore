@@ -176,7 +176,7 @@ PVMFStatus PVMFMP4FFParserNode::getParametersSync(
     }
     else if ((iBaseKey == NET) && ((compcount == 2) || (compcount == 3)))
     {
-        //	//BaseKey's leading tag is x-pvmf\net
+        //  //BaseKey's leading tag is x-pvmf\net
 
         if (compcount == 2)
         {
@@ -581,6 +581,20 @@ void PVMFMP4FFParserNode::setParametersSync(PvmiMIOSession aSession, PvmiKvp* aP
                     }
                     iParseAudioDuringREW = aParameters[paramind].value.bool_value;
                 }
+                else if (pv_mime_strcmp(compstr, _STRLIT_CHAR("parser/mp4ff-open-file-once-per-track")) >= 0)
+                {
+                    // Make sure its a bool value
+                    PvmiKvpValueType keyvaltype = GetValTypeFromKeyString(aParameters[paramind].key);
+                    if (PVMI_KVPVALTYPE_BOOL != keyvaltype)
+                    {
+                        aRet_kvp = &aParameters[paramind];
+                        PVMF_MP4FFPARSERNODE_LOGINFO((0, "PVMFMP4FFParserNode::setParametersSync Setting "
+                                                      "ff_noaudio valtype error"));
+                        return;
+                    }
+                    iOpenFileOncePerTrack = aParameters[paramind].value.bool_value;
+                }
+
                 else
                 {
                     // Unknown key string
@@ -1049,7 +1063,7 @@ PVMFStatus PVMFMP4FFParserNode::VerifyAndSetConfigParameter(int index, PvmiKvp& 
     }
 
     if (iBaseKey == FILE_IO)
-    {	// Verify the valtype
+    {   // Verify the valtype
         if (keyvaltype != MP4ParserNodeConfig_FileIO_Keys[index].iValueType)
         {
             PVMF_MP4FFPARSERNODE_LOGINFO((0, "PVMFMP4FFParserNode::VerifyAndSetConfigParameter() "

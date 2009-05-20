@@ -17,13 +17,8 @@
  */
 /*
 
- Pathname: ./c/include/fxp_mul32_arm_v5.h
+ Filename: fxp_mul32_arm_v5.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

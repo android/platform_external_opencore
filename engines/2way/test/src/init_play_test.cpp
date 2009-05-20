@@ -22,14 +22,14 @@
 void init_play_test::test()
 {
     int error = 0;
-    char *filename = new char[iFilename.get_size() + 1];
+    char *filename = OSCL_ARRAY_NEW(char, iFilename.get_size() + 1);
     if ((filename == NULL) || (oscl_UnicodeToUTF8(iFilename.get_cstr(), iFilename.get_size(), filename, iFilename.get_size() + 1) == 0))
     {
         OSCL_LEAVE(-1);
     }
     fprintf(fileoutput, "Start init play test, num runs %d, proxy %d, file %s\n", iMaxRuns, iUseProxy, filename);
 
-    delete filename;
+    OSCL_ARRAY_DELETE(filename);
 
     scheduler = OsclExecScheduler::Current();
 
@@ -188,7 +188,7 @@ bool init_play_test::start_async_test()
         return false;
     }
 
-    create_sink_source();
+
 
     OSCL_TRY(error, terminal->InitL(iSdkInitInfo, iCommServer));
     if (error)

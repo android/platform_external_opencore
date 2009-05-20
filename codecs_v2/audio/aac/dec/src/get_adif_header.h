@@ -17,15 +17,7 @@
  */
 /*
 
- Pathname: get_adif_header.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Add parameter to get_adif_header() function.
-
- Who:                                      Date:
- Description:
+ Filename: get_adif_header.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

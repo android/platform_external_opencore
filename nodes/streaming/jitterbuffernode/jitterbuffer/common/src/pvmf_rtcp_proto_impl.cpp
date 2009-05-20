@@ -61,7 +61,7 @@ PVRTCPChannelController::PVRTCPChannelController(PVRTCPChannelControllerObserver
     ipRTCPDataPathLoggerIn = PVLogger::GetLoggerObject("datapath.sourcenode.jitterbuffer.rtcp.in");
     ipRTCPDataPathLoggerOut = PVLogger::GetLoggerObject("datapath.sourcenode.jitterbuffer.rtcp.out");
 
-    ipRTCPTimer	=	NULL;
+    ipRTCPTimer =   NULL;
     iRandGen.Seed(RTCP_RAND_SEED);
     ResetParams();
 }
@@ -81,7 +81,7 @@ void PVRTCPChannelController::ResetParams(bool aMemoryCleanUp)
     iInitialRTCPIntervalComputation = false;
     iRTCPIntervalInMicroSeconds = DEFAULT_RTCP_INTERVAL_USEC;
     iInitialRTCPPacket = true;
-    ipMediaClockConverter	=	NULL;
+    ipMediaClockConverter   =   NULL;
 }
 
 void PVRTCPChannelController::Construct()
@@ -507,7 +507,7 @@ PVMFStatus PVRTCPChannelController::ComposeFeedBackPacket()
                     diff32 = 0;
                 }
             }
-            else	//If Jb is empty we have some data in the pipeline that is sent out to the peer node.
+            else    //If Jb is empty we have some data in the pipeline that is sent out to the peer node.
             {
                 diff32 = tsOfNextPacketToBeDecoded - clientClock32;
             }
@@ -572,7 +572,7 @@ PVMFStatus PVRTCPChannelController::ComposeFeedBackPacket()
 OSCL_EXPORT_REF PVRTCPProtoImplementor* PVRTCPProtoImplementor::New(PVMFMediaClock& aClientPlayBackClock, PVMFMediaClock& aRTCPClock, PVRTCPProtoImplementorObserver* aEventNotifier, bool aBroadcastSession)
 {
     int32 err = OsclErrNone;
-    PVRTCPProtoImplementor*	pRtcpProtoImplementor = NULL;
+    PVRTCPProtoImplementor* pRtcpProtoImplementor = NULL;
     OSCL_TRY(err, pRtcpProtoImplementor = OSCL_NEW(PVRTCPProtoImplementor, (aClientPlayBackClock, aRTCPClock, aEventNotifier, aBroadcastSession));
              if (pRtcpProtoImplementor)
 {
@@ -591,7 +591,7 @@ OSCL_EXPORT_REF PVRTCPProtoImplementor* PVRTCPProtoImplementor::New(PVMFMediaClo
     return pRtcpProtoImplementor;
 }
 
-PVRTCPProtoImplementor::PVRTCPProtoImplementor(PVMFMediaClock& aClientPlayBackClock, PVMFMediaClock& aRTCPClock, PVRTCPProtoImplementorObserver*	aObserver, bool aBroadcastSession)
+PVRTCPProtoImplementor::PVRTCPProtoImplementor(PVMFMediaClock& aClientPlayBackClock, PVMFMediaClock& aRTCPClock, PVRTCPProtoImplementorObserver*    aObserver, bool aBroadcastSession)
         : iBroadcastSession(aBroadcastSession)
         , irClientPlayBackClock(aClientPlayBackClock)
         , irRTCPClock(aRTCPClock)
@@ -606,7 +606,7 @@ void PVRTCPProtoImplementor::ResetParams(bool aMemoryCleanUp)
 {
     OSCL_UNUSED_ARG(aMemoryCleanUp);
     iPerformRTCPBasedAVSync = iBroadcastSession ? true : false;
-    iRTCPAVSyncProcessed =	false;
+    iRTCPAVSyncProcessed =  false;
     iPlayStopTimeAvailable = false;
 }
 
@@ -628,10 +628,13 @@ OSCL_EXPORT_REF void PVRTCPProtoImplementor::AddPVRTCPChannelController(PVRTCPCh
 
 OSCL_EXPORT_REF void PVRTCPProtoImplementor::RemoveAllRTCPChannelControllers()
 {
-    Oscl_Vector<PVRTCPChannelController*, OsclMemAllocator>::iterator iter;
-    for (iter = iPVRTCPChannelController.end() - 1; iter >= iPVRTCPChannelController.begin(); iter--)
+    if (iPVRTCPChannelController.size() > 0)
     {
-        OSCL_DELETE(*iter);
+        Oscl_Vector<PVRTCPChannelController*, OsclMemAllocator>::iterator iter;
+        for (iter = iPVRTCPChannelController.end() - 1; iter >= iPVRTCPChannelController.begin(); iter--)
+        {
+            OSCL_DELETE(*iter);
+        }
     }
     iPVRTCPChannelController.clear();
 }
@@ -847,12 +850,11 @@ bool PVRTCPProtoImplementor::ProcessRTCPSRforAVSync()
             lowestNTPIndex = jj;
             lowestNTP = initNTP;
         }
-        else
-            if (initNTP < lowestNTP)
-            {
-                lowestNTPIndex = jj;
-                lowestNTP = initNTP;
-            }
+        else if (initNTP < lowestNTP)
+        {
+            lowestNTPIndex = jj;
+            lowestNTP = initNTP;
+        }
 
         // Save the reference ntp value
         initNtpTracks[jj] = initNTP;

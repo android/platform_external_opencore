@@ -53,27 +53,35 @@ typedef enum
     PVMP4FFCN_RATE_CONTROL_LOW_DELAY = 3
 } PVMP4FFCNRateControlType;
 
-struct PVMP4FFCNFormatSpecificConfig
+class PVMP4FFCNFormatSpecificConfig
 {
-    uint32 iBitrate;
-    uint32 iTimescale;
+    public:
+        PVMP4FFCNFormatSpecificConfig();
 
-    // Video configuration
-    OsclFloat iFrameRate;
-    uint32 iIFrameInterval;
-    uint32 iWidth;
-    uint32 iHeight;
-    PVMP4FFCNRateControlType iRateControlType;
+        virtual ~PVMP4FFCNFormatSpecificConfig() {};
 
-    // H263 configuration
-    uint8 iH263Profile;
-    uint8 iH263Level;
+        uint32 iBitrate;
+        uint32 iTimescale;
+
+        // Video configuration
+        OsclFloat iFrameRate;
+        uint32 iIFrameInterval;
+        uint32 iWidth;
+        uint32 iHeight;
+        PVMP4FFCNRateControlType iRateControlType;
+
+        // H263 configuration
+        uint8 iH263Profile;
+        uint8 iH263Level;
+
+        //Length of H264 NALSize field - applies only to PVMF_MIME_ISO_AVC_SAMPLE_FORMAT
+        uint32 iNALLenSize;
 };
 
 class PVMp4FFComposerPort : public PvmfPortBaseImpl,
-            public PvmiCapabilityAndConfig,
-            public PVMFPortActivityHandler,
-            public OsclActiveObject
+        public PvmiCapabilityAndConfig,
+        public PVMFPortActivityHandler,
+        public OsclActiveObject
 {
     public:
         PVMp4FFComposerPort(int32 aTag, PVMp4FFComposerNode* aNode, int32 aPriority, const char* aName = NULL);
@@ -176,6 +184,10 @@ class PVMp4FFComposerPort : public PvmfPortBaseImpl,
             iLastTS = aTS;
         }
 
+        //diagnostics related
+        void UpdateDiagnostics(uint32 aTime, uint32 aSize);
+        void LogDiagnostics(PVLogger* aLogger);
+
         friend class PVMp4FFComposerNode;
     private:
         // Implement pure virtuals from OsclActiveObject
@@ -245,6 +257,13 @@ class PVMp4FFComposerPort : public PvmfPortBaseImpl,
 
         //logging
         OSCL_HeapString<OsclMemAllocator> iMimeType;
+
+        //diagnostics
+        uint32 iMaxSampleAddTime;
+        uint32 iMinSampleAddTime;
+        uint32 iMinSampleSize;
+        uint32 iMaxSampleSize;
+        uint32 iNumSamplesAdded;
 };
 
 #endif // PVMP4FFCN_PORT_H_INCLUDED

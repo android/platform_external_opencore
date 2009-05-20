@@ -17,52 +17,8 @@
  */
 /*
 
- Pathname: tns_decode_coef.c
+ Filename: tns_decode_coef.cpp
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Implemented in 16-bit Fixed Point
-
- Description:  Implemented in 24-bit Fixed Point
-
- Description:  Modified to return the calculated LPC coefficients "in place"
- This saves memory, cycles, etc. because it saves a large temporary
- array being declared on the stack in another function (tns_setup_filter)
-
- Description:  Modified to return the q-format of the lpc coefficients.
-
- Description:  Modified for more reliable overflow protection.  tns_decode_coef
- no longer relies on "reasonable" outputs.  This code should handle all
- possible inputs.
-
- Description:  Modified per review comments.
-
- Description:  Added check condition to avoid numbers with a Q bigger than
-        15 from being passed, otherwise in a 16-bit number the sign is lost.
-
- Description:  Modified to utilize scratch memory techniques, thereby
- eliminating two arrays of size TNS_MAX_ORDER, which were previously declared
- on the stack.
-
- Description: Updated the SW template to include the full pathname to the
- source file and a slightly modified copyright header.
-
- Description:
- (1) Changed the order of the unsigned * signed multiply so the
-     casting to Int32 is performed on the unsigned operand.
-
- (2) Removed some unnecessary casting.
- (3) Fixed a problem where a 16-bit value was casted to 32-bits AFTER
-     a shift.  It should have been cast to 32-bits BEFORE the shifting.
-
-
- Description:  modified precision of coefficients
-
- Who:                                   Date:
- Description:
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -157,7 +113,7 @@ a reasonable tolerance for fixed point errors.
 
     for (i=0; i<order; i++)
     {
-		sin_result[i+1] =
+        sin_result[i+1] =
         (Real)sin( coef[i] / ((coef[i] >= 0) ? iqfac : iqfac_m) );
     }
 
@@ -165,22 +121,22 @@ a reasonable tolerance for fixed point errors.
     for (m=1; m<=order; m++)
     {
 
-	    b[0] = lpc[0];
-		for (i=1; i<m; i++)
+        b[0] = lpc[0];
+        for (i=1; i<m; i++)
         {
-		    b[i] = sin_result[m] * lpc[m-i];
+            b[i] = sin_result[m] * lpc[m-i];
             b[i] += lpc[i];
         }
 
-		b[m] = sin_result[m];
+        b[m] = sin_result[m];
 
 
-		for (i=0; i<=m; i++)
+        for (i=0; i<=m; i++)
         {
-		    lpc[i] = b[i];
+            lpc[i] = b[i];
         }
 
-	}
+    }
 
     return;
 
@@ -325,7 +281,7 @@ Int tns_decode_coef(
 
 
     /*
-     *	Conversion to LPC coefficients
+     *  Conversion to LPC coefficients
      */
 
     do
@@ -352,9 +308,9 @@ Int tns_decode_coef(
             mult_high = fxp_mul32_Q31(*(temp_ptr--), sin_result);
 
             /*
-             *	pB[i] = pA[i] + sin_result * pA[m-i]
+             *  pB[i] = pA[i] + sin_result * pA[m-i]
              *
-             *	(mult_high <<1)  eliminates extra sign bit
+             *  (mult_high <<1)  eliminates extra sign bit
              */
 
             *(pB++) =  *(pA++) + (mult_high << 1);

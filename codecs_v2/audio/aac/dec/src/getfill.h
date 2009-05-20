@@ -17,16 +17,7 @@
  */
 /*
 
- Pathname: getfill.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Changed "definition" to "declaration" on line 28 per
-              review comments.
-
- Who:                           Date:
- Description:
+ Filename: getfill.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

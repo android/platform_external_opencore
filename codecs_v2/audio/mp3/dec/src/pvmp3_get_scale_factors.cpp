@@ -23,14 +23,6 @@
 
    Filename: pvmp3_get_scale_factors.cpp
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Description:
-
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 

@@ -107,9 +107,9 @@ typedef struct
 
 // The base class for all pvframemetadata utility asynchronous tests
 class pvframemetadata_async_test_base : public OsclTimerObject,
-            public PVCommandStatusObserver,
-            public PVInformationalEventObserver,
-            public PVErrorEventObserver
+        public PVCommandStatusObserver,
+        public PVInformationalEventObserver,
+        public PVErrorEventObserver
 {
     public:
         pvframemetadata_async_test_base(PVFrameMetadataAsyncTestParam aTestParam) :
@@ -123,6 +123,7 @@ class pvframemetadata_async_test_base : public OsclTimerObject,
             iFileName = aTestParam.iFileName;
             iFileType = aTestParam.iFileType;
             iOutputFrameType = aTestParam.iOutputFrameType;
+            iOutputFrameTypeString = iOutputFrameType.getMIMEStrPtr();
             oscl_UTF8ToUnicode(iOutputFrameTypeString.get_str(), iOutputFrameTypeString.get_size(), iTempWCharBuf, 512);
             iOutputFrameTypeWString.set(iTempWCharBuf, oscl_strlen(iTempWCharBuf));
 
@@ -211,7 +212,7 @@ class pvframemetadata_async_test_base : public OsclTimerObject,
 
 // test_base-based class which will run async tests on pvFrameMetadata utility
 class pvframemetadata_utility_test : public test_case,
-            public pvframemetadata_async_test_observer
+        public pvframemetadata_async_test_observer
 {
     public:
         pvframemetadata_utility_test(char *aFileName, PVMFFormatType aFileType, int32 aFirstTest, int32 aLastTest, int32 aLogLevel);

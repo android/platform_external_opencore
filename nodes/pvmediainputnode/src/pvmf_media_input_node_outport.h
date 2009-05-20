@@ -63,11 +63,11 @@
 class PvmfMediaInputNode;
 
 class PvmfMediaInputNodeOutPort : public OsclTimerObject,
-            public OsclMemPoolFixedChunkAllocatorObserver,
-            public PvmfPortBaseImpl,
-            public PvmiMediaTransfer,
-            public PVMFPortActivityHandler,
-            public PvmiCapabilityAndConfig
+        public OsclMemPoolFixedChunkAllocatorObserver,
+        public PvmfPortBaseImpl,
+        public PvmiMediaTransfer,
+        public PVMFPortActivityHandler,
+        public PvmiCapabilityAndConfig
 {
     public:
         PvmfMediaInputNodeOutPort(PvmfMediaInputNode* aNode, const char* aName = NULL);
@@ -131,6 +131,12 @@ class PvmfMediaInputNodeOutPort : public OsclTimerObject,
         OSCL_IMPORT_REF uint32 getCapabilityMetric(PvmiMIOSession aSession);
         OSCL_IMPORT_REF PVMFStatus verifyParametersSync(PvmiMIOSession aSession, PvmiKvp* aParameters, int num_elements);
         void SendEndOfTrackCommand(const PvmiMediaXferHeader& data_header_info);
+
+        PVMFPortInterface* getConnectedPort()
+        {
+            return iConnectedPort;
+        }
+
     private:
 
         void Run();
@@ -156,6 +162,7 @@ class PvmfMediaInputNodeOutPort : public OsclTimerObject,
         {
             PORT_STATE_BUFFERING = 0,
             PORT_STATE_STARTED,
+            PORT_STATE_STOPPED,
             PORT_STATE_ENDOFTRACK
         };
         PortState iState;
@@ -164,11 +171,6 @@ class PvmfMediaInputNodeOutPort : public OsclTimerObject,
         //for flow control
 
         PvmiMediaTransfer* iPeer;
-
-
-        Oscl_Vector<int32, OsclMemAllocator> itext_sample_index;
-        Oscl_Vector<uint32, OsclMemAllocator> istart_text_sample;
-        Oscl_Vector<uint32, OsclMemAllocator> iend_text_sample;
 
         // Format specific info
         OsclRefCounterMemFrag iFormatSpecificInfo;
@@ -180,6 +182,7 @@ class PvmfMediaInputNodeOutPort : public OsclTimerObject,
         //logging
         OSCL_HeapString<OsclMemAllocator> iMimeType;
         PVLogger* iDataPathLogger;
+        uint8 iNALType;
 };
 
 #endif // PVMF_MEDIA_INPUT_NODE_INPORT_H_INCLUDED

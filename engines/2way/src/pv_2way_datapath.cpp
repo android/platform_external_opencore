@@ -122,7 +122,8 @@ bool CPV2WayDatapath::ResetDatapath()
         {
             if (iNodeList[i].iLoggoffOnReset)
             {
-                PVLOGGER_LOG_USE_ONLY(PVMFStatus status =)((PVMFNodeInterface *)iNodeList[i].iNode)->ThreadLogoff();
+                PVMFStatus status = ((PVMFNodeInterface *)iNodeList[i].iNode)->ThreadLogoff();
+                OSCL_UNUSED_ARG(status);
                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0, "CPV2WayDatapath::ResetDatapath thread logoff status %d\n", status));
             }
         }
@@ -903,7 +904,7 @@ void CPV2WayDatapath::CheckOpen()
     }
 
 //Connect is done when both ports in a port pair are requested
-//	//If reached this point then all ports have been allocated and datapath is deemed open, connect ports and notify upper layer.
+//  //If reached this point then all ports have been allocated and datapath is deemed open, connect ports and notify upper layer.
 
 
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0, "CPV2WayDatapath::CheckOpen open complete\n"));
@@ -1432,6 +1433,11 @@ PVMFFormatType CPV2WayDatapath::GetPortFormatType(PVMFPortInterface &aPort,
     if (status == PVMFSuccess && (aOtherPort != NULL))
     {
         status = GetKvp(*aOtherPort, !aInput, kvpOther, numkvpOtherElements, configOtherPtr);
+        if (status != PVMFSuccess)
+        {
+            ((PvmiCapabilityAndConfig *)configPtr)->releaseParameters(NULL,
+                    kvp, numkvpElements);
+        }
     }
 
     if (status == PVMFSuccess)

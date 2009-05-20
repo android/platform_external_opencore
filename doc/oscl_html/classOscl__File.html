@@ -43,29 +43,33 @@
 <tr><td nowrap align=right valign=top>OSCL_IMPORT_REF&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a2">Oscl_File</a> (uint32 aCacheSize, <a class="el" href="classOsclFileHandle.html">OsclFileHandle</a> *aFileHandle)</td></tr>
 <tr><td nowrap align=right valign=top>OSCL_IMPORT_REF&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a3">~Oscl_File</a> ()</td></tr>
 <tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a4">SetPVCacheSize</a> (uint32 aSize)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a5">SetNativeAccessMode</a> (uint32 aMode)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a6">SetNativeBufferSize</a> (int32 aSize)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a7">SetAsyncReadBufferSize</a> (uint32 aSize)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a8">SetFileHandle</a> (<a class="el" href="classOsclFileHandle.html">OsclFileHandle</a> *aHandle)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a9">Open</a> (const char *filename, uint32 mode, <a class="el" href="classOscl__FileServer.html">Oscl_FileServer</a> &amp;fileserv)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a10">Open</a> (const <a class="el" href="group__osclbase.html#a32">oscl_wchar</a> *filename, uint32 mode, <a class="el" href="classOscl__FileServer.html">Oscl_FileServer</a> &amp;fileserv)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF uint32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a11">Read</a> (<a class="el" href="group__osclbase.html#a25">OsclAny</a> *buffer, uint32 size, uint32 numelements)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF uint32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a12">Write</a> (const <a class="el" href="group__osclbase.html#a25">OsclAny</a> *buffer, uint32 size, uint32 numelements)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a13">Seek</a> (<a class="el" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a> offset, <a class="el" href="classOscl__File.html#s11">seek_type</a> origin)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF <a class="el" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a14">Tell</a> ()</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a15">Close</a> ()</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a16">Flush</a> ()</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a17">EndOfFile</a> ()</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a18">GetError</a> ()</td></tr>
-<tr><td nowrap align=right valign=top><a class="el" href="classOsclFileHandle.html">OsclFileHandle</a> *&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a19">Handle</a> ()</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF <a class="el" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a20">Size</a> ()</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a21">SetLoggingEnable</a> (bool aEnable)</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a22">SetSummaryStatsLoggingEnable</a> (bool aEnable)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a5">AddFixedCache</a> (const <a class="el" href="classOscl__File_1_1OsclFixedCacheParam.html">OsclFixedCacheParam</a> &amp;aParam)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a6">RemoveFixedCache</a> (const <a class="el" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a> &amp;aPos)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a7">SetCacheObserver</a> (<a class="el" href="classOscl__File_1_1OsclCacheObserver.html">OsclCacheObserver</a> *aObs)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a8">SetNativeAccessMode</a> (uint32 aMode)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a9">SetNativeBufferSize</a> (int32 aSize)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a10">SetAsyncReadBufferSize</a> (uint32 aSize)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a11">SetFileHandle</a> (<a class="el" href="classOsclFileHandle.html">OsclFileHandle</a> *aHandle)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a12">Open</a> (const char *filename, uint32 mode, <a class="el" href="classOscl__FileServer.html">Oscl_FileServer</a> &amp;fileserv)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a13">Open</a> (const <a class="el" href="group__osclbase.html#a32">oscl_wchar</a> *filename, uint32 mode, <a class="el" href="classOscl__FileServer.html">Oscl_FileServer</a> &amp;fileserv)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF uint32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a14">Read</a> (<a class="el" href="group__osclbase.html#a25">OsclAny</a> *buffer, uint32 size, uint32 numelements)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF uint32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a15">Write</a> (const <a class="el" href="group__osclbase.html#a25">OsclAny</a> *buffer, uint32 size, uint32 numelements)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a16">Seek</a> (<a class="el" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a> offset, <a class="el" href="classOscl__File.html#s11">seek_type</a> origin)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF <a class="el" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a17">Tell</a> ()</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a18">Close</a> ()</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a19">Flush</a> ()</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a20">EndOfFile</a> ()</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF int32&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a21">GetError</a> ()</td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classOsclFileHandle.html">OsclFileHandle</a> *&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a22">Handle</a> ()</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF <a class="el" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a23">Size</a> ()</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a24">SetLoggingEnable</a> (bool aEnable)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF void&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#a25">SetSummaryStatsLoggingEnable</a> (bool aEnable)</td></tr>
 <tr><td colspan=2><br><h2>Friends</h2></td></tr>
 <tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#l0">OsclFileCache</a></td></tr>
-<tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#l1">asyncfilereadwrite_test</a></td></tr>
-<tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#l2">largeasyncfilereadwrite_test</a></td></tr>
-<tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#l3">asyncfilereadcancel_test</a></td></tr>
+<tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#l1">OsclFileCacheBuffer</a></td></tr>
+<tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#l2">asyncfilereadwrite_test</a></td></tr>
+<tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#l3">largeasyncfilereadwrite_test</a></td></tr>
+<tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classOscl__File.html#l4">asyncfilereadcancel_test</a></td></tr>
 </table>
 <hr><h2>Member Enumeration Documentation</h2>
 <a name="s12" doxytag="Oscl_File::mode_type"></a><p>
@@ -305,7 +309,41 @@ Destructor     </td>
   </tr>
 </table>
 <hr><h2>Member Function Documentation</h2>
-<a name="a15" doxytag="Oscl_File::Close"></a><p>
+<a name="a5" doxytag="Oscl_File::AddFixedCache"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Oscl_File::AddFixedCache </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classOscl__File_1_1OsclFixedCacheParam.html">OsclFixedCacheParam</a> &amp;&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>aParam</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [inline]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+AddFixedCache adds a fixed cache. The fixed cache will be used on the next opportunity. The fixed cache must not overlap with any other fixed cache.<dl compact><dt><b>Parameters: </b></dt><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>aParam:</em>&nbsp;</td><td>
+Cache location and size. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="a18" doxytag="Oscl_File::Close"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -338,7 +376,7 @@ Note: If the file object was opened with an external file handle, then Close wil
 returns 0 if successful, and a non-zero value otherwise </dl>    </td>
   </tr>
 </table>
-<a name="a17" doxytag="Oscl_File::EndOfFile"></a><p>
+<a name="a20" doxytag="Oscl_File::EndOfFile"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -369,7 +407,7 @@ The File EOF(end of file) operation returns a nonzero value after the first read
 </dl>    </td>
   </tr>
 </table>
-<a name="a16" doxytag="Oscl_File::Flush"></a><p>
+<a name="a19" doxytag="Oscl_File::Flush"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -400,7 +438,7 @@ The File Flush operation On an output stream OSCL_FileFlush causes any buffered 
 returns 0 if successful, and a non-zero value otherwise </dl>    </td>
   </tr>
 </table>
-<a name="a18" doxytag="Oscl_File::GetError"></a><p>
+<a name="a21" doxytag="Oscl_File::GetError"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -431,7 +469,7 @@ The File Error operation If no error has occurred on stream, returns 0. Otherwis
 </dl>    </td>
   </tr>
 </table>
-<a name="a19" doxytag="Oscl_File::Handle"></a><p>
+<a name="a22" doxytag="Oscl_File::Handle"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -462,7 +500,7 @@ Retrieve the file handle.
 file handle </dl>    </td>
   </tr>
 </table>
-<a name="a10" doxytag="Oscl_File::Open"></a><p>
+<a name="a13" doxytag="Oscl_File::Open"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -518,7 +556,7 @@ fileserver to use</td></tr>
 returns 0 if successful and a non-zero value otherwise </dl>    </td>
   </tr>
 </table>
-<a name="a9" doxytag="Oscl_File::Open"></a><p>
+<a name="a12" doxytag="Oscl_File::Open"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -574,7 +612,7 @@ fileserver to use</td></tr>
 returns 0 if successful and a non-zero value otherwise </dl>    </td>
   </tr>
 </table>
-<a name="a11" doxytag="Oscl_File::Read"></a><p>
+<a name="a14" doxytag="Oscl_File::Read"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -628,7 +666,41 @@ max number of elements to read</td></tr>
 returns the number of full elements actually read, which may be less than count if an error occurs or if the end of the file is encountered before reaching count. Use the CheckEndOfFile or GetError function to distinguish a read error from an end-of-file condition. </dl>    </td>
   </tr>
 </table>
-<a name="a13" doxytag="Oscl_File::Seek"></a><p>
+<a name="a6" doxytag="Oscl_File::RemoveFixedCache"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Oscl_File::RemoveFixedCache </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a> &amp;&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>aPos</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [inline]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+RemoveFixedCache removes a fixed cache.<dl compact><dt><b>Parameters: </b></dt><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>aPos:</em>&nbsp;</td><td>
+Cache location and size. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="a16" doxytag="Oscl_File::Seek"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -636,7 +708,7 @@ returns the number of full elements actually read, which may be less than count 
         <tr>
           <td class="md" nowrap valign="top"> OSCL_IMPORT_REF int32 Oscl_File::Seek </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a>&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a>&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>offset</em>, </td>
         </tr>
         <tr>
@@ -674,7 +746,7 @@ starting point</td></tr>
 returns 0 on success, and a non-zero value otherwise </dl>    </td>
   </tr>
 </table>
-<a name="a7" doxytag="Oscl_File::SetAsyncReadBufferSize"></a><p>
+<a name="a10" doxytag="Oscl_File::SetAsyncReadBufferSize"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -712,7 +784,36 @@ buffer size in bytes. Zero disables the feature. </td></tr>
 </dl>    </td>
   </tr>
 </table>
-<a name="a8" doxytag="Oscl_File::SetFileHandle"></a><p>
+<a name="a7" doxytag="Oscl_File::SetCacheObserver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Oscl_File::SetCacheObserver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classOscl__File_1_1OsclCacheObserver.html">OsclCacheObserver</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>aObs</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [inline]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a11" doxytag="Oscl_File::SetFileHandle"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -744,7 +845,7 @@ This call is not available when the Oscl_File object is already open.
 <p>
 Note: This feature is used in Symbian with the MMF framework. The MMF framework provides an open RFile handle to access content. When using RFileBuf access mode with an RFile handle, the RFileBuf will be attached to the open RFile handle.
 <p>
-To use the external file handle, the caller starts with a native file handle to an open file. The caller must wrap the native file handle in an <a class="el" href="classOsclFileHandle.html">OsclFileHandle</a> object, pass the <a class="el" href="classOsclFileHandle.html">OsclFileHandle</a> pointer to SetFileHandle, call <a class="el" href="classOscl__File.html#a9">Oscl_File::Open</a>, then proceed to use the Oscl_File object, finally calling <a class="el" href="classOscl__File.html#a15">Oscl_File::Close</a>. In this usage mode, <a class="el" href="classOscl__File.html#a9">Oscl_File::Open</a> and <a class="el" href="classOscl__File.html#a15">Oscl_File::Close</a> do not actually call native file open and close. It is assumed that the caller will close the original native file handle after usage is complete.<dl compact><dt><b>Parameters: </b></dt><dd>
+To use the external file handle, the caller starts with a native file handle to an open file. The caller must wrap the native file handle in an <a class="el" href="classOsclFileHandle.html">OsclFileHandle</a> object, pass the <a class="el" href="classOsclFileHandle.html">OsclFileHandle</a> pointer to SetFileHandle, call <a class="el" href="classOscl__File.html#a12">Oscl_File::Open</a>, then proceed to use the Oscl_File object, finally calling <a class="el" href="classOscl__File.html#a18">Oscl_File::Close</a>. In this usage mode, <a class="el" href="classOscl__File.html#a12">Oscl_File::Open</a> and <a class="el" href="classOscl__File.html#a18">Oscl_File::Close</a> do not actually call native file open and close. It is assumed that the caller will close the original native file handle after usage is complete.<dl compact><dt><b>Parameters: </b></dt><dd>
 <table border=0 cellspacing=2 cellpadding=0>
 <tr><td valign=top><em>aHandle:</em>&nbsp;</td><td>
 container for an open file handle. </td></tr>
@@ -753,7 +854,7 @@ container for an open file handle. </td></tr>
 returns 0 if successful, non-zero if error. </dl>    </td>
   </tr>
 </table>
-<a name="a21" doxytag="Oscl_File::SetLoggingEnable"></a><p>
+<a name="a24" doxytag="Oscl_File::SetLoggingEnable"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -787,7 +888,7 @@ true to enable, false to disable logging. </td></tr>
 </dl>    </td>
   </tr>
 </table>
-<a name="a5" doxytag="Oscl_File::SetNativeAccessMode"></a><p>
+<a name="a8" doxytag="Oscl_File::SetNativeAccessMode"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -823,7 +924,7 @@ access mode. </td></tr>
 </dl>    </td>
   </tr>
 </table>
-<a name="a6" doxytag="Oscl_File::SetNativeBufferSize"></a><p>
+<a name="a9" doxytag="Oscl_File::SetNativeBufferSize"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -897,7 +998,7 @@ cache size in bytes. Zero disables the cache. </td></tr>
 </dl>    </td>
   </tr>
 </table>
-<a name="a22" doxytag="Oscl_File::SetSummaryStatsLoggingEnable"></a><p>
+<a name="a25" doxytag="Oscl_File::SetSummaryStatsLoggingEnable"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -931,13 +1032,13 @@ true to enable, false to disable stats logging. </td></tr>
 </dl>    </td>
   </tr>
 </table>
-<a name="a20" doxytag="Oscl_File::Size"></a><p>
+<a name="a23" doxytag="Oscl_File::Size"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> OSCL_IMPORT_REF <a class="el" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a> Oscl_File::Size </td>
+          <td class="md" nowrap valign="top"> OSCL_IMPORT_REF <a class="el" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a> Oscl_File::Size </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
           <td class="md" valign="top">)&nbsp;</td>
@@ -962,13 +1063,13 @@ Get the file size in bytes.
 - The size of the file, or -1 on error. </dl>    </td>
   </tr>
 </table>
-<a name="a14" doxytag="Oscl_File::Tell"></a><p>
+<a name="a17" doxytag="Oscl_File::Tell"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> OSCL_IMPORT_REF <a class="el" href="osclconfig__io_8h.html#a48">TOsclFileOffset</a> Oscl_File::Tell </td>
+          <td class="md" nowrap valign="top"> OSCL_IMPORT_REF <a class="el" href="osclconfig__io_8h.html#a50">TOsclFileOffset</a> Oscl_File::Tell </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
           <td class="md" valign="top">)&nbsp;</td>
@@ -990,7 +1091,7 @@ Get the file size in bytes.
 The File Tell operation Returns the current file position for file specified by fp     </td>
   </tr>
 </table>
-<a name="a12" doxytag="Oscl_File::Write"></a><p>
+<a name="a15" doxytag="Oscl_File::Write"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -1045,7 +1146,7 @@ The number of elements written </dl>    </td>
   </tr>
 </table>
 <hr><h2>Friends And Related Function Documentation</h2>
-<a name="l3" doxytag="Oscl_File::asyncfilereadcancel_test"></a><p>
+<a name="l4" doxytag="Oscl_File::asyncfilereadcancel_test"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -1067,7 +1168,7 @@ The number of elements written </dl>    </td>
     </td>
   </tr>
 </table>
-<a name="l1" doxytag="Oscl_File::asyncfilereadwrite_test"></a><p>
+<a name="l2" doxytag="Oscl_File::asyncfilereadwrite_test"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -1089,7 +1190,7 @@ The number of elements written </dl>    </td>
     </td>
   </tr>
 </table>
-<a name="l2" doxytag="Oscl_File::largeasyncfilereadwrite_test"></a><p>
+<a name="l3" doxytag="Oscl_File::largeasyncfilereadwrite_test"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -1133,10 +1234,32 @@ The number of elements written </dl>    </td>
     </td>
   </tr>
 </table>
+<a name="l1" doxytag="Oscl_File::OsclFileCacheBuffer"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> friend class OsclFileCacheBuffer<code> [friend]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="oscl__file__io_8h-source.html">oscl_file_io.h</a></ul>
 <hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

@@ -39,12 +39,14 @@
 #include "pv_engine_observer.h"
 #include "pv_engine_observer_message.h"
 #include "tsc_h324m_config_interface.h"
+#include "engine_test.h"
 
 #ifndef NO_2WAY_324
 #include "pv_comms_io_node_factory.h"
 #include "pvmi_mio_comm_loopback_factory.h"
 #endif
 
+#include "test_codecs.h"
 
 #define RX_LOGGER_TAG _STRLIT_CHAR("pvcommionode.rx.bin")
 #define TX_LOGGER_TAG _STRLIT_CHAR("pvcommionode.tx.bin")
@@ -81,26 +83,32 @@
 
 
 
-extern FILE *fileoutput;
+#define LOG_FILE_NAME _STRLIT("pvlog.txt")
 
 
-template<class DestructClass>
-class TwoWayLogAppenderDestructDealloc : public OsclDestructDealloc
-{
-    public:
-        virtual void destruct_and_dealloc(OsclAny *ptr)
-        {
-            delete((DestructClass*)ptr);
-        }
-};
 
 class engine_test_suite : public test_case
 {
     public:
         engine_test_suite();
+        PV2WayUnitTestSourceAndSinks* CreateSourceAndSinks(engine_test* test,
+                const char* const aAudSrcFormatType,
+                const char* const aAudSinkFormatType,
+                const char* const aVidSrcFormatType,
+                const char* const aVidSinkFormatType);
+        bool proxy_tests(const bool aProxy);
+
+        ~engine_test_suite();
 
     private:
-        void proxy_tests(const bool aProxy);
+        TestCodecs codecs;
+        void AddSetupTests(const bool aProxy, int32 firstTest, int32 lastTest);
+        void AddAudioTests(const bool aProxy, int32 firstTest, int32 lastTest);
+        void AddVideoTests(const bool aProxy, int32 firstTest, int32 lastTest);
+        void AddBasicAVTests(const bool aProxy, int32 firstTest, int32 lastTest);
+        void AddAcceptableFormatsTests(const bool aProxy, int32 firstTest, int32 lastTest);
+        void AddNegotiatedFormatsTests(const bool aProxy, int32 firstTest, int32 lastTest);
+
         void play_from_file_tests(const bool aProxy,
                                   const OSCL_wString& aFilename,
                                   const bool aHasAudio,
@@ -109,284 +117,6 @@ class engine_test_suite : public test_case
 
 class engine_timer;
 
-//test function oscl_str_is_valid_utf8
-class engine_test : public test_case,
-            public OsclActiveObject,
-            public PVCommandStatusObserver,
-            public PVInformationalEventObserver,
-            public PVErrorEventObserver
-{
-    public:
-        engine_test(bool aUseProxy = false,
-                    int aMaxRuns = 1) : OsclActiveObject(OsclActiveObject::EPriorityNominal, "Test Engine"),
-                iAudioSourceAdded(false),
-                iAudioAddSourceId(0),
-                iAudioRemoveSourceId(0),
-                iAudioPauseSourceId(0),
-                iAudioResumeSourceId(0),
-                iAudioSinkAdded(false),
-                iAudioAddSinkId(0),
-                iAudioAddSink2Id(0),
-                iAudioRemoveSinkId(0),
-                iAudioPauseSinkId(0),
-                iAudioResumeSinkId(0),
-                iVideoSourceAdded(false),
-                iVideoAddSourceId(0),
-                iVideoRemoveSourceId(0),
-                iVideoPauseSourceId(0),
-                iVideoResumeSourceId(0),
-                iVideoSinkAdded(false),
-                iVideoAddSinkId(0),
-                iVideoAddSink2Id(0),
-                iVideoRemoveSinkId(0),
-                iVideoPauseSinkId(0),
-                iVideoResumeSinkId(0),
-                iUseProxy(aUseProxy),
-                iMaxRuns(aMaxRuns),
-                iCurrentRun(0),
-                iCommServer(NULL),
-                iSelAudioSource(NULL),
-                iSelAudioSink(NULL),
-                iSelVideoSource(NULL),
-                iSelVideoSink(NULL),
-#ifndef NO_2WAY_324
-                iCommServerIOControl(NULL),
-#endif
-                iAudioSource(NULL),
-                iAudioSourceRaw(NULL),
-                iAudioSource2(NULL),
-                iAudioSource3(NULL),
-                iAudioSourceIOControl(NULL),
-                iAudioSourceRawIOControl(NULL),
-                iAudioSource2IOControl(NULL),
-                iAudioSource3IOControl(NULL),
-                iGetSessionParamsId(0),
-                iVideoSourceYUV(NULL),
-                iVideoSourceH263(NULL),
-                iVideoSourceM4V(NULL),
-                iAudioSink(NULL),
-                iAudioSinkRaw(NULL),
-                iAudioSink2(NULL),
-                iVideoSinkYUV(NULL),
-                iVideoSinkH263(NULL),
-                iVideoSinkM4V(NULL),
-                iDuplicatesStarted(false),
-                iVideoPreview(NULL),
-                //iVideoPreviewIOControl(NULL),
-                terminal(NULL),
-                scheduler(NULL),
-                timer(NULL),
-                timer_elapsed(false),
-                early_close(false),
-                iTestStatus(true)
-        {
-            iConnectOptions.iLoopbackMode = PV_LOOPBACK_MUX;
-            iRstCmdId = 0;
-            iDisCmdId = 0;
-            iConnectCmdId = 0;
-            iInitCmdId = 0;
-            iCommsAddSourceId = 0;
-        }
-
-        virtual ~engine_test()
-        {
-        }
-
-        virtual void test() = 0;
-
-        virtual void Run() = 0;
-
-        virtual void DoCancel() = 0;
-
-        void HandleErrorEvent(const PVAsyncErrorEvent& /*aEvent*/)
-        {
-        }
-
-        virtual void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent) = 0;
-
-        virtual void CommandCompleted(const PVCmdResponse& aResponse) = 0;
-
-        virtual void TimerCallback() {};
-
-        static char iProfileName[32];
-        static char iPeerAddress[64];
-        static uint32 iMediaPorts[2];
-
-    protected:
-
-
-        PVCommandId iRstCmdId, iDisCmdId, iConnectCmdId, iInitCmdId;
-
-        PVCommandId iCommsAddSourceId;
-
-        bool iAudioSourceAdded;
-        PVCommandId iAudioAddSourceId;
-        PVCommandId iAudioAddSource2Id;
-        PVCommandId iAudioRemoveSourceId;
-        PVCommandId iAudioPauseSourceId;
-        PVCommandId iAudioResumeSourceId;
-
-        bool iAudioSinkAdded;
-        PVCommandId iAudioAddSinkId;
-        PVCommandId iAudioAddSink2Id;
-        PVCommandId iAudioRemoveSinkId;
-        PVCommandId iAudioPauseSinkId;
-        PVCommandId iAudioResumeSinkId;
-
-        bool iVideoSourceAdded;
-        PVCommandId iVideoAddSourceId;
-        PVCommandId iVideoAddSource2Id;
-        PVCommandId iVideoRemoveSourceId;
-        PVCommandId iVideoPauseSourceId;
-        PVCommandId iVideoResumeSourceId;
-
-        bool iVideoSinkAdded;
-        PVCommandId iVideoAddSinkId;
-        PVCommandId iVideoAddSink2Id;
-        PVCommandId iVideoRemoveSinkId;
-        PVCommandId iVideoPauseSinkId;
-        PVCommandId iVideoResumeSinkId;
-
-        virtual void disconnect()
-        {
-            int error = 0;
-            OSCL_TRY(error, iDisCmdId = terminal->Disconnect());
-            if (error)
-            {
-                reset();
-            }
-        }
-
-        virtual void reset()
-        {
-            int error = 0;
-            OSCL_TRY(error, iRstCmdId = terminal->Reset());
-            if (error)
-            {
-                RunIfNotReady();
-            }
-        }
-
-        virtual void connect()
-        {
-            int error = 0;
-            OSCL_TRY(error, iConnectCmdId = terminal->Connect(iConnectOptions, iCommServer));
-            if (error)
-            {
-                reset();
-            }
-        }
-
-        virtual void printFormatString(PVMFFormatType aFormatType)
-        {
-            fprintf(fileoutput, "%s", aFormatType.getMIMEStrPtr());
-        }
-
-        bool check_audio_started()
-        {
-            return (iAudioSourceAdded && iAudioSinkAdded);
-        }
-        bool check_audio_stopped()
-        {
-            return (!iAudioSourceAdded && !iAudioSinkAdded);
-        }
-        bool check_video_started()
-        {
-            return (iVideoSourceAdded && iVideoSinkAdded);
-        }
-        bool check_video_stopped()
-        {
-            return (!iVideoSourceAdded && !iVideoSinkAdded);
-        }
-
-
-        PVMFNodeInterface *get_audio_source(PVMFFormatType format);
-        PVMFNodeInterface *get_audio_sink(PVMFFormatType format);
-        PVMFNodeInterface *get_video_source(PVMFFormatType format);
-        PVMFNodeInterface *get_video_sink(PVMFFormatType format);
-
-        void create_sink_source();
-        void destroy_sink_source();
-
-        void init_mime_strings();
-
-        bool iUseProxy;
-        int iMaxRuns;
-        int iCurrentRun;
-        PVMFNodeInterface* iCommServer;
-        PVMFNodeInterface* iSelAudioSource;
-        PVMFNodeInterface* iSelAudioSink;
-        PVMFNodeInterface* iSelVideoSource;
-        PVMFNodeInterface* iSelVideoSink;
-#ifndef NO_2WAY_324
-        PvmiMIOControl* iCommServerIOControl;
-        PvmiMIOCommLoopbackSettings iCommSettings;
-#endif
-        PV2Way324ConnectOptions iConnectOptions;
-        //CPV2WaySIPConnectInfo iSIPConnectOptions;
-        PV2Way324InitInfo iSdkInitInfo;
-        //CPV2WaySIPInitInfo iSdkSIPInitInfo;
-
-        PvmiMIOFileInputSettings iAudioSourceRawFileSettings;
-        PvmiMIOFileInputSettings iAudioSource2FileSettings;
-        PvmiMIOFileInputSettings iAudioSource3FileSettings;
-        PvmiMIOFileInputSettings iAudioSourceFileSettings;
-        PVMFNodeInterface* iAudioSource;
-        PVMFNodeInterface* iAudioSourceRaw;
-        PVMFNodeInterface* iAudioSource2;
-        PVMFNodeInterface* iAudioSource3;
-        PvmiMIOControl* iAudioSourceIOControl;
-        PvmiMIOControl* iAudioSourceRawIOControl;
-        PvmiMIOControl* iAudioSource2IOControl;
-        PvmiMIOControl* iAudioSource3IOControl;
-
-        PVCommandId iGetSessionParamsId;
-        PvmiMIOFileInputSettings iVideoSourceYUVFileSettings;
-        PvmiMIOFileInputSettings iVideoSourceH263FileSettings;
-        PvmiMIOFileInputSettings iVideoSourceM4VFileSettings;
-        PVMFNodeInterface* iVideoSourceYUV;
-        PVMFNodeInterface* iVideoSourceH263;
-        PVMFNodeInterface* iVideoSourceM4V;
-        PvmiMIOControl* iVideoSourceYUVIOControl;
-        PvmiMIOControl* iVideoSourceH263IOControl;
-        PvmiMIOControl* iVideoSourceM4VIOControl;
-
-
-        const oscl_wchar* iAudioSinkFileName;
-        const oscl_wchar* iAudioSinkRawFileName;
-        const oscl_wchar* iAudioSink2FileName;
-        PVMFNodeInterface* iAudioSink;
-        PVMFNodeInterface* iAudioSinkRaw;
-        PVMFNodeInterface* iAudioSink2;
-        PVRefFileOutput* iAudioSinkIOControl;
-        PVRefFileOutput* iAudioSinkRawIOControl;
-        PVRefFileOutput* iAudioSink2IOControl;
-
-        const oscl_wchar* iVideoSinkYUVFileName;
-        const oscl_wchar* iVideoSinkH263FileName;
-        const oscl_wchar* iVideoSinkM4VFileName;
-        PVMFNodeInterface* iVideoSinkYUV;
-        PVMFNodeInterface* iVideoSinkH263;
-        PVMFNodeInterface* iVideoSinkM4V;
-        PVRefFileOutput* iVideoSinkYUVIOControl;
-        PVRefFileOutput* iVideoSinkH263IOControl;
-        PVRefFileOutput* iVideoSinkM4VIOControl;
-        bool iDuplicatesStarted;
-        OSCL_wHeapString<OsclMemAllocator> iVideoPreviewFileName;
-        PVMFNodeInterface* iVideoPreview;
-        //PVRefFileOutput* iVideoPreviewIOControl;
-
-        CPV2WayInterface *terminal;
-        OsclExecScheduler *scheduler;
-        engine_timer *timer;
-        bool timer_elapsed;
-        bool early_close;
-
-        CPV2WayH263ConfigInfo iH263ConfigInfo;
-        CPV2WayM4VConfigInfo iM4VConfigInfo;
-
-        bool iTestStatus;
-};
 
 class engine_timer : public OsclTimerObject
 {

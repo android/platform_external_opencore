@@ -115,7 +115,7 @@
   <tr><td class="indexkey"><a class="el" href="oscl__socket__stats_8h.html">oscl_socket_stats.h</a> <a href="oscl__socket__stats_8h-source.html">[code]</a></td><td class="indexvalue"></td></tr>
   <tr><td class="indexkey"><a class="el" href="oscl__socket__tuneables_8h.html">oscl_socket_tuneables.h</a> <a href="oscl__socket__tuneables_8h-source.html">[code]</a></td><td class="indexvalue"></td></tr>
   <tr><td class="indexkey"><a class="el" href="oscl__socket__types_8h.html">oscl_socket_types.h</a> <a href="oscl__socket__types_8h-source.html">[code]</a></td><td class="indexvalue"></td></tr>
-  <tr><td class="indexkey"><a class="el" href="oscl__stdstring_8h.html">oscl_stdstring.h</a> <a href="oscl__stdstring_8h-source.html">[code]</a></td><td class="indexvalue">This file provides standard string operations such as strlen, strncpy, etc</td></tr>
+  <tr><td class="indexkey"><a class="el" href="oscl__stdstring_8h.html">oscl_stdstring.h</a> <a href="oscl__stdstring_8h-source.html">[code]</a></td><td class="indexvalue">This file provides standard string operations such as strlen, strncpy, etc. ANSI defines undefined behavior when the destination pointer is null for operations such as strncpy, strncat, etc. But, we chose to define one. In such cases, we return the destination as null</td></tr>
   <tr><td class="indexkey"><a class="el" href="oscl__str__ptr__len_8h.html">oscl_str_ptr_len.h</a> <a href="oscl__str__ptr__len_8h-source.html">[code]</a></td><td class="indexvalue">Defines a data structure for string containment/manipulations where the storage for the string is maintained externally</td></tr>
   <tr><td class="indexkey"><a class="el" href="oscl__string_8h.html">oscl_string.h</a> <a href="oscl__string_8h-source.html">[code]</a></td><td class="indexvalue">Provides a standardized set of string containers that can be used in place of character arrays</td></tr>
   <tr><td class="indexkey"><a class="el" href="oscl__string__containers_8h.html">oscl_string_containers.h</a> <a href="oscl__string__containers_8h-source.html">[code]</a></td><td class="indexvalue">Provides a standardized set of string containers that can be used in place of character arrays</td></tr>
@@ -170,7 +170,7 @@
   <tr><td class="indexkey"><a class="el" href="pvlogger__registry_8h.html">pvlogger_registry.h</a> <a href="pvlogger__registry_8h-source.html">[code]</a></td><td class="indexvalue"></td></tr>
 </table>
 <hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

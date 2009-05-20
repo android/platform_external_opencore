@@ -17,13 +17,8 @@
  */
 /*
 
- Pathname: fxp_mul32_arm_v4_gcc.h
+ Filename: fxp_mul32_arm_v4_gcc.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -45,7 +40,7 @@ extern "C"
 #include "pv_audio_type_defs.h"
 
 
-#if defined (_ARM_V4_GCC) /* ARM_V4 GNU COMPILER  */
+#if defined (PV_ARM_GCC_V4) /* ARM_V4 GNU COMPILER  */
 
 
 #define preload_cache( a)

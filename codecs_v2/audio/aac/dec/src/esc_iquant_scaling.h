@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ./include/esc_iquant_scaling.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: esc_iquant_scaling.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -87,8 +81,8 @@ extern "C"
         Int32       coef[],
         const Int   sfbWidth,
         Int  const pQFormat,
-        UInt16		scale,
-        Int			  maxInput);
+        UInt16      scale,
+        Int           maxInput);
 
 #ifdef __cplusplus
 }

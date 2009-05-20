@@ -1,0 +1,31 @@
+foreman_176x144_24bit_5sec.rgb 	// input file name 
+test.m4v 	// output file name
+176		// input width
+144 		// input height
+30		// input source frame rate
+RGB24 		// input format - RGB12, RGB24, YUV420, YUV420SEMIPLANAR
+176		// target frame width
+144		// target frame height
+44000		// target bit rate
+15		// target frame rate
+15		// Num of P Frames
+0		// Content type, 0 for Mpeg4 and 1 for H.263
+CBR		// rate control type, CONSTANT_Q, VBR or CBR
+12		// Initial I-frame QP
+15		// Initial P-frame QP
+16		// search range around the MB origin
+0		// mv8x8 flag
+Cyclic		// intra refresh type, Cyclic, Adaptive or Both
+4		// Number of guaranteed I-MB in a frame, when intra refresh type is Cyclic or Both
+70		// packet size in bytes
+Core		// profile, Simple, SimpleScalable, Core, CoreScalable	
+2		// Level, 0,1,2,3 etc
+1		// Resync Enable Flag
+0		// Data Partioning Flag
+0		// Short Header mode Flag
+560		// Resynch markers interval (in bits)
+0		// Reversible variable length coding Enable Flag
+1000		// The number of ticks per second in Mpeg4 bitstream
+0		// GOB Header Interval in caseof H.263 and short header mode
+
+

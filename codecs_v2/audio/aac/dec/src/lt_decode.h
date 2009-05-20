@@ -17,18 +17,9 @@
  */
 /*
 
- Pathname: lt_decode.h
+ Filename: lt_decode.h
 
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Changing to move pInputStream to 2nd parameter.
-
- Description: Replaced "e_WINDOW_TYPE.h" with "e_WINDOW_SEQUENCE.h"
-
- Who:						Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -40,8 +31,8 @@
 /*----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
-#ifndef	LT_DECODE_H
-#define	LT_DECODE_H
+#ifndef LT_DECODE_H
+#define LT_DECODE_H
 
 /*----------------------------------------------------------------------------
 ; INCLUDES

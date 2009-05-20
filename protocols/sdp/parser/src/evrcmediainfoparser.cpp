@@ -18,6 +18,8 @@
 #include "evrc_media_info_parser.h"
 #include "oscl_string_utils.h"
 #include "oscl_string_containers.h"
+#include "evrc_payload_info.h"
+
 
 SDP_ERROR_CODE
 SDPEVRCMediaInfoParser::parseMediaInfo(const char *buff, const int index, SDPInfo *sdp, payloadVector payload_vec, bool isSipSdp, int alt_id, bool alt_def_id)
@@ -268,12 +270,12 @@ SDPEVRCMediaInfoParser::parseMediaInfo(const char *buff, const int index, SDPInf
             return SDP_PAYLOAD_MISMATCH;
         }
 
-        if (evrcA->getCFieldStatus()	|| session->getCFieldStatus())
+        if (evrcA->getCFieldStatus()    || session->getCFieldStatus())
         {
             //if sample rate is zero override with defaults
             Oscl_Vector<PayloadSpecificInfoTypeBase*, SDPParserAlloc> payloadSpecificInfoVector =
                 evrcA->getPayloadSpecificInfoVector();
-            for (int ii = 0; ii < (int)payloadSpecificInfoVector.size();ii++)
+            for (int ii = 0; ii < (int)payloadSpecificInfoVector.size(); ii++)
             {
                 if (payloadSpecificInfoVector[ii]->getSampleRate() == 0)
                 {

@@ -17,14 +17,7 @@
  */
 /*
 
- Pathname: inv_long_complex_rot.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                   Date:
- Description:
+ Filename: inv_long_complex_rot.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

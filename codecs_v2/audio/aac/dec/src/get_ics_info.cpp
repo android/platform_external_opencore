@@ -17,32 +17,7 @@
  */
 /*
 
- Pathname: ./src/get_ics_info.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  Clean up code.
-
- Description:  Fix comments before review, remove lpflag[]
-
- Description:  Update per review comments, and match ISO/IEC 14496-3
-
- Description:  Update per peer review comments.
-
- Description:  Remove "rollback" of used bits, since lt_decode is to change.
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9 or less and get1bits
-			  when only 1 bit is read.
-
- Who:                                   Date:
- Description:
+ Filename: get_ics_info.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -317,28 +292,6 @@
     RETURN (status);
 
 
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

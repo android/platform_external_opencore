@@ -17,30 +17,8 @@
  */
 /*
 
- Pathname: ./src/fft_rx4_short.c
+ Filename: fft_rx4_short.cpp
  Funtions: fft_rx4_short
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-            (1) Eliminated search for max in the main loop.
-            (2) Simplified the function by eliminating different conditions
-                for exp.
-            (3) Reduced precision on w_64rx4 from Q15 to Q12, so now the
-                input can be as high as 1.0 and saturation will not occurre
-                because the accumulation times the new Q12 format will never
-                exceed 31 bits.
-
- Description:
-            (1) Added comment to explain max search elimination and
-                Q format during multiplications
-            (2) Increased down shift from 1 to 2, to ensure that 32-bit
-                numbers will not overflow when 2 consecutive adds are done
-                This was found during code review.
-
- Who:                                   Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -116,28 +94,6 @@
    RETURN( exponent )
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
-
-------------------------------------------------------------------------------
 */
 /*----------------------------------------------------------------------------
 ; INCLUDES
@@ -193,25 +149,25 @@ Int fft_rx4_short(
     Int32      *peak_value)
 
 {
-    Int		n1;
-    Int		n2;
-    Int		n3;
-    Int		j;
-    Int		k;
-    Int		i;
-    Int32  	exp_jw1;
-    Int32  	exp_jw2;
-    Int32  	exp_jw3;
+    Int     n1;
+    Int     n2;
+    Int     n3;
+    Int     j;
+    Int     k;
+    Int     i;
+    Int32   exp_jw1;
+    Int32   exp_jw2;
+    Int32   exp_jw3;
 
 
-    Int32  	t1;
-    Int32  	t2;
-    Int32  	r1;
-    Int32  	r2;
-    Int32  	r3;
-    Int32  	s1;
-    Int32  	s2;
-    Int32  	s3;
+    Int32   t1;
+    Int32   t2;
+    Int32   r1;
+    Int32   r2;
+    Int32   r3;
+    Int32   s1;
+    Int32   s2;
+    Int32   s3;
 
     Int32   *pData1;
     Int32   *pData2;

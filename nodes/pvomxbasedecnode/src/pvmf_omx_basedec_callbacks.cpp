@@ -55,8 +55,10 @@ OsclReturnCode EventHandlerThreadSafeCallbackAO::ProcessEvent(OsclAny* EventData
     {
         PVMFOMXBaseDecNode* ptr = (PVMFOMXBaseDecNode*) iObserver;
 
-        ptr->ProcessCallbackEventHandler_MultiThreaded(EventData);
-
+        if (ptr->IsAdded())
+        {
+            ptr->ProcessCallbackEventHandler_MultiThreaded(EventData);
+        }
     }
     return OsclSuccess;
 }
@@ -199,9 +201,10 @@ OsclReturnCode EmptyBufferDoneThreadSafeCallbackAO::ProcessEvent(OsclAny* EventD
     if (iObserver != NULL)
     {
         PVMFOMXBaseDecNode* ptr = (PVMFOMXBaseDecNode *) iObserver;
-
-        ptr->ProcessCallbackEmptyBufferDone_MultiThreaded(EventData);
-
+        if (ptr->IsAdded())
+        {
+            ptr->ProcessCallbackEmptyBufferDone_MultiThreaded(EventData);
+        }
     }
     return OsclSuccess;
 }
@@ -340,9 +343,10 @@ OsclReturnCode FillBufferDoneThreadSafeCallbackAO::ProcessEvent(OsclAny* EventDa
     if (iObserver != NULL)
     {
         PVMFOMXBaseDecNode* ptr = (PVMFOMXBaseDecNode*) iObserver;
-
-        ptr->ProcessCallbackFillBufferDone_MultiThreaded(EventData);
-
+        if (ptr->IsAdded())
+        {
+            ptr->ProcessCallbackFillBufferDone_MultiThreaded(EventData);
+        }
     }
     return OsclSuccess;
 }

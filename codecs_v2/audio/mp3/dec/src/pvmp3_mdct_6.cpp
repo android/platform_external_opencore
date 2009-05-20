@@ -22,14 +22,6 @@
    MP3 Decoder Library
    Filename: mdct_18.cpp
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Description:
-
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 

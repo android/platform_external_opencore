@@ -34,6 +34,10 @@
 #include "oscl_assert.h"
 #endif
 
+#ifndef OSCL_MEM_H_INCLUDED
+#include "oscl_mem.h"
+#endif
+
 template<class TBufferAccess>
 class VirtualBuffer
 {
@@ -74,7 +78,7 @@ class VirtualBuffer
         operator TBufferAccess*()
         {
             return pCurrFragPos;
-        }; 	// cast
+        };  // cast
         VirtualBuffer& operator++();                        // prefix increment
         VirtualBuffer operator++(int);                      // postfix increment
         VirtualBuffer& operator+=(const int increment);     // addition

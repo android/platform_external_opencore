@@ -10,7 +10,7 @@ TARGET := pv_omx_interface
 XINCDIRS += \
         ../../../../../../extern_libs_v2/khronos/openmax/include
 
-XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
+
 
 SRCDIR := ../../src
 

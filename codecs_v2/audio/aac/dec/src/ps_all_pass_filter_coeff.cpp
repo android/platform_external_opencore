@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: ps_all_pass_filter_coeff.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: ps_all_pass_filter_coeff.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

@@ -63,7 +63,7 @@ void PVMFVideoParserPort::Construct(int32 aTag, PVMFFormatType format, uint8* aF
 
 PVMFVideoParserPort::~PVMFVideoParserPort()
 {
-    if (iFormatSpecificInfo) delete iFormatSpecificInfo;
+    if (iFormatSpecificInfo) OSCL_FREE(iFormatSpecificInfo);
 
     Disconnect();
     ClearMsgQueues();

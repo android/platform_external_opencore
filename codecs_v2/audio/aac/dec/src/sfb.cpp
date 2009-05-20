@@ -17,26 +17,7 @@
  */
 /*
 
- Pathname: ./src/sfb.c
-
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: created to define the scalefactor bands for all sampling rates
-
- Description: Change short to Int16
-
- Description: Modified structure to avoid assigning addresses to constant
-              tables. This solve linking problem when using the
-              /ropi option (Read-only position independent) for some
-              compilers
-              - Eliminated redundant vector sfb_96_128.
-              - Eliminated references to contant vector addresses in
-                samp_rate_info
-
- Who:                              Date:
- Description:
+ Filename: sfb.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -75,28 +56,6 @@
 
 ------------------------------------------------------------------------------
  PSEUDO-CODE
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

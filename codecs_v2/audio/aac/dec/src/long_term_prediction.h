@@ -17,30 +17,7 @@
  */
 /*
 
- Pathname: long_term_prediction.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Modified prototype with array size passed in per review
-              comments.
-
- Description: Changed prototype with "weight_index" instead of "weight".
-
- Description: Removed some passed in buffer size variables since they are
-              not being used for long window.
-
- Description: Temporarily define LTP_Q_FORMAT for current release.
-              Need to change function prototype and pass out Q_format
-              information later.
-
- Description: Updated function prototype to reflect the usage of a
- circular buffer by LTP.
-
- Description:  Updated function interface with new return type
-
- Who:                                   Date:
- Description:
+ Filename: long_term_prediction.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

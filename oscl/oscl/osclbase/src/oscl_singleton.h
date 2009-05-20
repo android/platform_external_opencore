@@ -123,7 +123,7 @@ class OsclSingletonRegistry
             public:
                 SingletonTable(): iRefCount(0)
                 {
-                    for (uint32 i = 0;i < OSCL_SINGLETON_ID_LAST;i++)
+                    for (uint32 i = 0; i < OSCL_SINGLETON_ID_LAST; i++)
                         iSingletons[i] = NULL;
                 }
                 _OsclBasicLock iTableLock;

@@ -27,14 +27,6 @@
       power_1_third
       pvmp3_dequantize_sample
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Description:
-
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 

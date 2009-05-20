@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_code_book_envlevel.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_code_book_envlevel.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

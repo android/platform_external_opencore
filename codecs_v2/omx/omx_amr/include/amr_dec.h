@@ -26,7 +26,7 @@
 #include "OMX_Component.h"
 #endif
 
-#ifndef	FRAME_TYPE_3GPP_H
+#ifndef FRAME_TYPE_3GPP_H
 #include "frame_type_3gpp.h"
 #endif
 
@@ -51,8 +51,7 @@ class OmxAmrDecoder
 
         OMX_BOOL AmrDecodeFrame(OMX_S16* aOutputBuffer,
                                 OMX_U32* aOutputLength, OMX_U8** aInBuffer,
-                                OMX_U32* aInBufSize, OMX_S32* aIsFirstBuffer,
-                                OMX_BOOL* aResizeFlag);
+                                OMX_U32* aInBufSize, OMX_S32* aIsFirstBuffer);
 
         OMX_BOOL AmrDecodeSilenceFrame(OMX_S16* aOutputBuffer,
                                        OMX_U32* aOutputLength);
@@ -87,5 +86,5 @@ class OmxAmrDecoder
 
 
 
-#endif	//#ifndef AMR_DEC_H_INCLUDED
+#endif  //#ifndef AMR_DEC_H_INCLUDED
 

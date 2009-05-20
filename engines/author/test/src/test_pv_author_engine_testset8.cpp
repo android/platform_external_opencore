@@ -223,7 +223,7 @@ bool pv_mediainput_async_test_delete::AddDataSource()
     if (err != OSCL_ERR_NONE)
     {
         PVLOGGER_LOGMSG(PVLOGMSG_INST_REL, iLogger, PVLOGMSG_ERR,
-                        (0, "pvauthor_async_test_miscellaneous::AddDataSource: Error - iAuthor->AddDataSource failed. err=0x%x", err));
+                        (0, "pv_mediainput_async_test_delete::AddDataSource: Error - iAuthor->AddDataSource failed. err=0x%x", err));
 
         iMIOComponent.DeleteInputNode();
         return false;

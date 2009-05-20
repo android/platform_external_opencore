@@ -17,36 +17,7 @@
  */
 /*
 
- Pathname: s_Hcb.h
-
-     Date: 05/07/2001
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
- (1) Modified to include the lines...
-
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-
-    #ifdef __cplusplus
-    }
-    #endif
-
- (2) Updated the copyright header.
-
- Description:
- (1) LAV removed from structure definition, since it was never used.
-
- Description: Huffman tables are stored as UInt16
-
- Description: Modified the declaration of the structure so no pointers are
-              used in the structure.
-
- Who:                       Date:
- Description:
+ Filename: s_hcb.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

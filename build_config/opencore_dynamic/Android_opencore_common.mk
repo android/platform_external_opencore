@@ -38,7 +38,8 @@ LOCAL_WHOLE_STATIC_LIBRARIES := \
  	libpvomxbasedecnode \
  	libpvlatmpayloadparser \
  	libpvwav \
- 	libpvfileparserutils
+ 	libpvfileparserutils \
+ 	libscsp
 
 LOCAL_MODULE := libopencore_common
 
@@ -88,6 +89,7 @@ include   $(PV_TOP)/nodes/pvomxbasedecnode/Android.mk
 include   $(PV_TOP)/protocols/rtp_payload_parser/util/build/Android.mk
 include   $(PV_TOP)/fileformats/wav/parser/Android.mk
 include   $(PV_TOP)/fileformats/common/parser/Android.mk
+include   $(PV_TOP)/fileformats/scsp/Android.mk
 include   $(PV_TOP)/nodes/common/Android.mk
 include   $(PV_TOP)/engines/common/Android.mk
 include   $(PV_TOP)/pvmi/content_policy_manager/plugins/common/Android.mk

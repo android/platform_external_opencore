@@ -97,15 +97,15 @@ class PVMFJitterBufferConstructParams;
 class JitterBufferFactory;
 
 class PVMFJitterBufferNode : public PVInterface,
-            public PVMFNodeInterface,
-            public OsclActiveObject,
-            public PVMFJitterBufferObserver,
-            public PVMFJitterBufferMiscObserver,
-            public PVMFJBEventNotifierObserver,
-            public PVMFMediaClockStateObserver
+        public PVMFNodeInterface,
+        public OsclActiveObject,
+        public PVMFJitterBufferObserver,
+        public PVMFJitterBufferMiscObserver,
+        public PVMFJBEventNotifierObserver,
+        public PVMFMediaClockStateObserver
 {
     public:
-        OSCL_IMPORT_REF PVMFJitterBufferNode(int32 aPriority, JitterBufferFactory* aJBFactory);			//may be provide static func for creation and make the ctor private
+        OSCL_IMPORT_REF PVMFJitterBufferNode(int32 aPriority, JitterBufferFactory* aJBFactory);         //may be provide static func for creation and make the ctor private
         OSCL_IMPORT_REF virtual ~PVMFJitterBufferNode();
 
         //Overrides from PVInterface
@@ -164,6 +164,7 @@ class PVMFJitterBufferNode : public PVInterface,
         virtual void ProcessJBInfoEvent(PVMFAsyncEvent& aEvent);
         virtual void PacketReadyToBeRetrieved(OsclAny* aContext);
         virtual void EndOfStreamSignalled(OsclAny* aContext);
+        virtual void MediaTrackSSRCEstablished(PVMFJitterBuffer* aJitterBuffer, uint32 aSSRC);
 
         //PVMFJitterBufferMiscObserver
         virtual void MessageReadyToSend(PVMFPortInterface*& aPort, PVMFSharedMediaMsgPtr& aMessage);
@@ -185,7 +186,7 @@ class PVMFJitterBufferNode : public PVInterface,
         void DoCancel();
 
         //Extension interface functions implemented in Node
-        virtual void SetRTCPIntervalInMicroSecs(uint32 aRTCPInterval);	//Not used as of now
+        virtual void SetRTCPIntervalInMicroSecs(uint32 aRTCPInterval);  //Not used as of now
         virtual bool SetPortParams(PVMFPortInterface* aPort,
                                    uint32 aTimeScale,
                                    uint32 aBitRate,
@@ -196,7 +197,7 @@ class PVMFJitterBufferNode : public PVInterface,
                                   int32 aStopTimeInMS,
                                   bool oPlayAfterASeek,
                                   bool aStopTimeAvailable = true);
-        virtual void SetPlayBackThresholdInMilliSeconds(uint32 threshold);	//Not used as of now [replace with wait for OOO timeout]
+        virtual void SetPlayBackThresholdInMilliSeconds(uint32 threshold);  //Not used as of now [replace with wait for OOO timeout]
         virtual void SetJitterBufferRebufferingThresholdInMilliSeconds(uint32 aThreshold);
         virtual void GetJitterBufferRebufferingThresholdInMilliSeconds(uint32& aThreshold);
         virtual void SetJitterBufferDurationInMilliSeconds(uint32 duration);
@@ -209,7 +210,7 @@ class PVMFJitterBufferNode : public PVInterface,
 
         virtual void SetClientPlayBackClock(PVMFMediaClock* clientClock);
         virtual bool PrepareForRepositioning(bool oUseExpectedClientClockVal = false,
-                                             uint32 aExpectedClientClockVal = 0);	//called for RTSP based streaming only
+                                             uint32 aExpectedClientClockVal = 0);   //called for RTSP based streaming only
         virtual bool SetPortSSRC(PVMFPortInterface* aPort, uint32 aSSRC);
         virtual bool SetPortRTPParams(PVMFPortInterface* aPort,
                                       bool   aSeqNumBasePresent,
@@ -409,7 +410,7 @@ class PVMFJitterBufferNode : public PVInterface,
         bool PushPortToVect(PVMFJitterBufferPort*& aPort);
         bool PushPortParamsToQ(PVMFJitterBufferPortParams*& aPortParams);
 
-        // 	PvmfRtcpTimer* iRTCPTimer;
+        //  PvmfRtcpTimer* iRTCPTimer;
         void RtcpTimerEvent(PvmfRtcpTimer* pTimer);
         uint32 CalcRtcpInterval(PVMFJitterBufferPortParams* pFeedbackPort);
         PVMFStatus ProcessIncomingRTCPReport(PVMFSharedMediaMsgPtr&,
@@ -466,15 +467,15 @@ class PVMFJitterBufferNode : public PVInterface,
         Oscl_Vector<PVMFJitterBufferPortParams*, OsclMemAllocator> iPortParamsQueue;
         Oscl_Vector<PVMFPortActivity, OsclMemAllocator> iPortActivityQueue;
 
-        bool	oStartPending;
-        bool	oStopOutputPorts;
-        uint32	iPauseTime;
+        bool    oStartPending;
+        bool    oStopOutputPorts;
+        uint32  iPauseTime;
 
-        PVMFMediaClock*	ipClientPlayBackClock;
+        PVMFMediaClock* ipClientPlayBackClock;
 
-        bool	iMediaReceiveingChannelPrepared;
+        bool    iMediaReceiveingChannelPrepared;
 
-        PVMFJitterBufferMisc*	ipJitterBufferMisc;
+        PVMFJitterBufferMisc*   ipJitterBufferMisc;
 
         bool iBroadCastSession;
 
@@ -484,7 +485,7 @@ class PVMFJitterBufferNode : public PVInterface,
         //Node should only observe these and initialize it, and modification to these are supposed to be done by the
         //jitter buffer only
         bool    iDelayEstablished;
-        uint32	iJitterDelayPercent;
+        uint32  iJitterDelayPercent;
         PVMFJitterBufferDataState iJitterBufferState;
 
         /////////////////////////////////////////////////////////////////////////////
@@ -506,7 +507,7 @@ class PVMFJitterBufferNode : public PVInterface,
         bool iPlayingAfterSeek;
         ///////////////////////////////////////////////////////////////////////
         //EventNotification tracking vars
-        PVMFJBEventNotifier*	ipEventNotifier;
+        PVMFJBEventNotifier*    ipEventNotifier;
         uint32 iIncomingMediaInactivityDurationCallBkId;
         bool   iIncomingMediaInactivityDurationCallBkPending;
         uint32 iNotifyBufferingStatusCallBkId;

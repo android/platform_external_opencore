@@ -17,15 +17,8 @@
  */
 /*
 
- Filename: calc_sbr_anafilterbank.c
+ Filename: calc_sbr_anafilterbank.cpp
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

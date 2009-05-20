@@ -16,44 +16,8 @@
  * -------------------------------------------------------------------
  */
 /*
- Pathname: pns_left.c
+ Filename: pns_left.cpp
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Brought code in-line with PV standards.
-               Merged PNS and Intensity blocks into one function.
-               Modified routine to interface with a fixed-point implementation.
-               Modified variable names for clarity.
-               Improved for-loop structure that was previously checking
-               the codebook used in each scale factor band multiple times.
-
- Description:  Added some comments for clarity.
-
- Description:  Changed strategy for q-format.  Q-format for SFBs should not
- be grouped.
-
- Description: Function had to be modified to obey new interpretation of the
- sfb_prediction_used flag.  LTP takes precedence, and PNS should not be
- executed when a collision occurs between these two tools.
-
- Description:
- (1) Added flag "ltp_data_present"
- (2) Where feasible, I updated the code to resemble right_ch_sfb_tools_ms.c
-     Just for conformance, readability.
-
- Description: Added include file - "e_huffmanconst.h"
-
- Description: The same "Factors" pointer indexing problem that existed in
- right_ch_sfb_tools_ms also existed here in pns_left.c
-
- Description:  Modified how groups and windows are handled, as the multigroup
- case was not correct
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -245,28 +209,6 @@
     WHILE (partition < pFrameInfo->num_win);
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
-
-------------------------------------------------------------------------------
 */
 
 
@@ -370,14 +312,14 @@ void pns_left(
         pGroup[3] = 8
         -----------------------------------------------------------*/
 
-        partition = *pGroup++;		/* partition = index of last sbk in group */
+        partition = *pGroup++;      /* partition = index of last sbk in group */
 
         do
         {
             Int band_start = 0;
             for (sfb = 0; sfb < num_bands; sfb++)
             {
-                band_stop = pBand[sfb];	/* band is offset table, band_stop is last coef in band */
+                band_stop = pBand[sfb]; /* band is offset table, band_stop is last coef in band */
 
                 Int band_length =  band_stop - band_start;
                 if (pCodebookMap[sfb] == NOISE_HCB)
@@ -412,7 +354,7 @@ void pns_left(
 
                 band_start = band_stop;
 
-            }	/* for (sfb) */
+            }   /* for (sfb) */
 
             spec += pFrameInfo->coef_per_win[win_indx++];
             pFactors += num_bands;

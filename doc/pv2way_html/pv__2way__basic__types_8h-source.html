@@ -32,129 +32,131 @@
 00024 <span class="preprocessor"></span><span class="preprocessor">#include "oscl_mem.h"</span>
 00025 <span class="preprocessor">#endif</span>
 00026 <span class="preprocessor"></span>
-00027 <span class="comment">// CONSTANTS</span>
-<a name="l00029"></a><a class="code" href="pv__2way__basic__types_8h.html#a0">00029</a> <span class="comment"></span><span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a0">PV2WayErrorStatusStart</a> = (-10500);
-<a name="l00031"></a><a class="code" href="pv__2way__basic__types_8h.html#a1">00031</a> <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a1">PV2WayDispatchError</a> = <a class="code" href="pv__2way__basic__types_8h.html#a0">PV2WayErrorStatusStart</a> - 1;
-<a name="l00033"></a><a class="code" href="pv__2way__basic__types_8h.html#a2">00033</a> <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a2">PV2WayErrorRejected</a> = <a class="code" href="pv__2way__basic__types_8h.html#a0">PV2WayErrorStatusStart</a> - 5;
-<a name="l00035"></a><a class="code" href="pv__2way__basic__types_8h.html#a3">00035</a> <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a3">PV2WayErrReplaced</a> = <a class="code" href="pv__2way__basic__types_8h.html#a0">PV2WayErrorStatusStart</a> - 6;
-00036 
-00037 <span class="comment">// DATA TYPES</span>
-<a name="l00042"></a><a class="code" href="pv__2way__basic__types_8h.html#a44">00042</a> <span class="comment"></span><span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a44">TPVTerminalType</a>
-00043 {
-00044     <a class="code" href="pv__2way__basic__types_8h.html#a44a9">PV_323</a>,<span class="comment">/* based on H.323 */</span>
-00045     <a class="code" href="pv__2way__basic__types_8h.html#a44a10">PV_324M</a>, <span class="comment">/* based on H.324m */</span>
-00046     <a class="code" href="pv__2way__basic__types_8h.html#a44a11">PV_SIP</a>, <span class="comment">/* based on SIP */</span>
-00047     <a class="code" href="pv__2way__basic__types_8h.html#a44a12">PV_TERMINAL_TYPE_NONE</a>
-00048 }<a class="code" href="pv__2way__basic__types_8h.html#a4">PV2WayTerminalType</a>;
-00049 
-<a name="l00055"></a><a class="code" href="pv__2way__basic__types_8h.html#a45">00055</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a45">TPVLoopbackMode</a>
-00056 {
-00057     <a class="code" href="pv__2way__basic__types_8h.html#a45a13">PV_LOOPBACK_NONE</a>,
-00058     <a class="code" href="pv__2way__basic__types_8h.html#a45a14">PV_LOOPBACK_COMM</a>, <span class="comment">/* Loops back from Comm source to Comm sink */</span>
-00059     <a class="code" href="pv__2way__basic__types_8h.html#a45a15">PV_LOOPBACK_ENGINE</a>, <span class="comment">/* Loops back media at the engine level, no mux involved */</span>
-00060     <a class="code" href="pv__2way__basic__types_8h.html#a45a16">PV_LOOPBACK_MUX</a> <span class="comment">/* Loops back at the output of the mux */</span>
-00061 }<a class="code" href="pv__2way__basic__types_8h.html#a5">PV2WayLoopbackMode</a>;
-00062 
-<a name="l00068"></a><a class="code" href="pv__2way__basic__types_8h.html#a46">00068</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a46">TPVDirection</a>
-00069 {
-00070     <a class="code" href="pv__2way__basic__types_8h.html#a46a17">PV_DIRECTION_NONE</a> = 0,
-00071     <a class="code" href="pv__2way__basic__types_8h.html#a46a18">INCOMING</a> = 1,
-00072     <a class="code" href="pv__2way__basic__types_8h.html#a46a19">OUTGOING</a> = 2,
-00073     <a class="code" href="pv__2way__basic__types_8h.html#a46a20">PV_DIRECTION_BOTH</a> = 3
-00074 }<a class="code" href="pv__2way__basic__types_8h.html#a6">PV2WayDirection</a>;
-00075 
-<a name="l00079"></a><a class="code" href="pv__2way__basic__types_8h.html#a47">00079</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a47">TPVMediaType_t</a>
-00080 {
-00081     <a class="code" href="pv__2way__basic__types_8h.html#a47a21">PV_MEDIA_NONE</a> = 0,
-00082     <a class="code" href="pv__2way__basic__types_8h.html#a47a22">PV_CONTROL</a> = 1,
-00083     <a class="code" href="pv__2way__basic__types_8h.html#a47a23">PV_AUDIO</a> = 2,
-00084     <a class="code" href="pv__2way__basic__types_8h.html#a47a24">PV_VIDEO</a> = 4,
-00085     <a class="code" href="pv__2way__basic__types_8h.html#a47a25">PV_DATA</a> = 8,
-00086     <a class="code" href="pv__2way__basic__types_8h.html#a47a26">PV_USER_INPUT</a> = 16,
-00087     <a class="code" href="pv__2way__basic__types_8h.html#a47a27">PV_MULTIPLEXED</a> = 32,
-00088     <a class="code" href="pv__2way__basic__types_8h.html#a47a28">PV_MEDIA_ALL</a> = 0xFFFF
-00089 }<a class="code" href="pv__2way__basic__types_8h.html#a7">PV2WayMediaType</a>;
-00090 
-<a name="l00096"></a><a class="code" href="pv__2way__basic__types_8h.html#a8">00096</a> <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a8">PVTrackId</a>;
-00097 
-<a name="l00103"></a><a class="code" href="pv__2way__basic__types_8h.html#a48">00103</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
-00104 {
-00109     <a class="code" href="pv__2way__basic__types_8h.html#a48a29">EIdle</a> = 0,
-00116     <a class="code" href="pv__2way__basic__types_8h.html#a48a30">EInitializing</a>,
-00124     <a class="code" href="pv__2way__basic__types_8h.html#a48a31">ESetup</a>,
-00129     <a class="code" href="pv__2way__basic__types_8h.html#a48a32">EConnecting</a>,
-00133     <a class="code" href="pv__2way__basic__types_8h.html#a48a33">EConnected</a>,
-00137     <a class="code" href="pv__2way__basic__types_8h.html#a48a34">EDisconnecting</a>,
-00141     <a class="code" href="pv__2way__basic__types_8h.html#a48a35">EResetting</a>
-00142 } <a class="code" href="pv__2way__basic__types_8h.html#a48">PV2WayState</a>;
-00143 
-<a name="l00150"></a><a class="code" href="pv__2way__basic__types_8h.html#a49">00150</a> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a49">TPVTIndicationType</a>
-00151 {
-00152 
-00161     <a class="code" href="pv__2way__basic__types_8h.html#a49a36">PVT_INDICATION_INCOMING_TRACK</a>,
-00170     <a class="code" href="pv__2way__basic__types_8h.html#a49a37">PVT_INDICATION_OUTGOING_TRACK</a>,
-00176     <a class="code" href="pv__2way__basic__types_8h.html#a49a38">PVT_INDICATION_DISCONNECT</a>,
-00183     <a class="code" href="pv__2way__basic__types_8h.html#a49a39">PVT_INDICATION_CLOSING_TRACK</a>,
-00192     <a class="code" href="pv__2way__basic__types_8h.html#a49a40">PVT_INDICATION_CLOSE_TRACK</a>,
-00199     <a class="code" href="pv__2way__basic__types_8h.html#a49a41">PVT_INDICATION_PAUSE_TRACK</a>,
-00205     <a class="code" href="pv__2way__basic__types_8h.html#a49a42">PVT_INDICATION_RESUME_TRACK</a>,
-00211     <a class="code" href="pv__2way__basic__types_8h.html#a49a43">PVT_INDICATION_INTERNAL_ERROR</a>,
-00212 };
-00213 
-00214 
-00215 <span class="comment">// CLASS DECLARATION</span>
+00027 <span class="preprocessor">#include "pv_2way_codecspecifier_interface.h"</span>
+00028 
+00029 <span class="comment">// CONSTANTS</span>
+<a name="l00031"></a><a class="code" href="pv__2way__basic__types_8h.html#a0">00031</a> <span class="comment"></span><span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a0">PV2WayErrorStatusStart</a> = (-10500);
+<a name="l00033"></a><a class="code" href="pv__2way__basic__types_8h.html#a1">00033</a> <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a1">PV2WayDispatchError</a> = <a class="code" href="pv__2way__basic__types_8h.html#a0">PV2WayErrorStatusStart</a> - 1;
+<a name="l00035"></a><a class="code" href="pv__2way__basic__types_8h.html#a2">00035</a> <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a2">PV2WayErrorRejected</a> = <a class="code" href="pv__2way__basic__types_8h.html#a0">PV2WayErrorStatusStart</a> - 5;
+<a name="l00037"></a><a class="code" href="pv__2way__basic__types_8h.html#a3">00037</a> <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a3">PV2WayErrReplaced</a> = <a class="code" href="pv__2way__basic__types_8h.html#a0">PV2WayErrorStatusStart</a> - 6;
+00038 
+00039 <span class="comment">// DATA TYPES</span>
+<a name="l00044"></a><a class="code" href="pv__2way__basic__types_8h.html#a44">00044</a> <span class="comment"></span><span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a44">TPVTerminalType</a>
+00045 {
+00046     <a class="code" href="pv__2way__basic__types_8h.html#a44a9">PV_323</a>,<span class="comment">/* based on H.323 */</span>
+00047     <a class="code" href="pv__2way__basic__types_8h.html#a44a10">PV_324M</a>, <span class="comment">/* based on H.324m */</span>
+00048     <a class="code" href="pv__2way__basic__types_8h.html#a44a11">PV_SIP</a>, <span class="comment">/* based on SIP */</span>
+00049     <a class="code" href="pv__2way__basic__types_8h.html#a44a12">PV_TERMINAL_TYPE_NONE</a>
+00050 } <a class="code" href="pv__2way__basic__types_8h.html#a4">PV2WayTerminalType</a>;
+00051 
+<a name="l00057"></a><a class="code" href="pv__2way__basic__types_8h.html#a45">00057</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a45">TPVLoopbackMode</a>
+00058 {
+00059     <a class="code" href="pv__2way__basic__types_8h.html#a45a13">PV_LOOPBACK_NONE</a>,
+00060     <a class="code" href="pv__2way__basic__types_8h.html#a45a14">PV_LOOPBACK_COMM</a>, <span class="comment">/* Loops back from Comm source to Comm sink */</span>
+00061     <a class="code" href="pv__2way__basic__types_8h.html#a45a15">PV_LOOPBACK_ENGINE</a>, <span class="comment">/* Loops back media at the engine level, no mux involved */</span>
+00062     <a class="code" href="pv__2way__basic__types_8h.html#a45a16">PV_LOOPBACK_MUX</a> <span class="comment">/* Loops back at the output of the mux */</span>
+00063 } <a class="code" href="pv__2way__basic__types_8h.html#a5">PV2WayLoopbackMode</a>;
+00064 
+<a name="l00070"></a><a class="code" href="pv__2way__basic__types_8h.html#a46">00070</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a46">TPVDirection</a>
+00071 {
+00072     <a class="code" href="pv__2way__basic__types_8h.html#a46a17">PV_DIRECTION_NONE</a> = 0,
+00073     <a class="code" href="pv__2way__basic__types_8h.html#a46a18">INCOMING</a> = 1,
+00074     <a class="code" href="pv__2way__basic__types_8h.html#a46a19">OUTGOING</a> = 2,
+00075     <a class="code" href="pv__2way__basic__types_8h.html#a46a20">PV_DIRECTION_BOTH</a> = 3
+00076 } <a class="code" href="pv__2way__basic__types_8h.html#a6">PV2WayDirection</a>;
+00077 
+<a name="l00081"></a><a class="code" href="pv__2way__basic__types_8h.html#a47">00081</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a47">TPVMediaType_t</a>
+00082 {
+00083     <a class="code" href="pv__2way__basic__types_8h.html#a47a21">PV_MEDIA_NONE</a> = 0,
+00084     <a class="code" href="pv__2way__basic__types_8h.html#a47a22">PV_CONTROL</a> = 1,
+00085     <a class="code" href="pv__2way__basic__types_8h.html#a47a23">PV_AUDIO</a> = 2,
+00086     <a class="code" href="pv__2way__basic__types_8h.html#a47a24">PV_VIDEO</a> = 4,
+00087     <a class="code" href="pv__2way__basic__types_8h.html#a47a25">PV_DATA</a> = 8,
+00088     <a class="code" href="pv__2way__basic__types_8h.html#a47a26">PV_USER_INPUT</a> = 16,
+00089     <a class="code" href="pv__2way__basic__types_8h.html#a47a27">PV_MULTIPLEXED</a> = 32,
+00090     <a class="code" href="pv__2way__basic__types_8h.html#a47a28">PV_MEDIA_ALL</a> = 0xFFFF
+00091 } <a class="code" href="pv__2way__basic__types_8h.html#a7">PV2WayMediaType</a>;
+00092 
+<a name="l00098"></a><a class="code" href="pv__2way__basic__types_8h.html#a8">00098</a> <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="pv__2way__basic__types_8h.html#a8">PVTrackId</a>;
+00099 
+<a name="l00105"></a><a class="code" href="pv__2way__basic__types_8h.html#a48">00105</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
+00106 {
+00111     <a class="code" href="pv__2way__basic__types_8h.html#a48a29">EIdle</a> = 0,
+00118     <a class="code" href="pv__2way__basic__types_8h.html#a48a30">EInitializing</a>,
+00126     <a class="code" href="pv__2way__basic__types_8h.html#a48a31">ESetup</a>,
+00131     <a class="code" href="pv__2way__basic__types_8h.html#a48a32">EConnecting</a>,
+00135     <a class="code" href="pv__2way__basic__types_8h.html#a48a33">EConnected</a>,
+00139     <a class="code" href="pv__2way__basic__types_8h.html#a48a34">EDisconnecting</a>,
+00143     <a class="code" href="pv__2way__basic__types_8h.html#a48a35">EResetting</a>
+00144 } <a class="code" href="pv__2way__basic__types_8h.html#a48">PV2WayState</a>;
+00145 
+<a name="l00152"></a><a class="code" href="pv__2way__basic__types_8h.html#a49">00152</a> <span class="keyword">enum</span> <a class="code" href="pv__2way__basic__types_8h.html#a49">TPVTIndicationType</a>
+00153 {
+00154 
+00163     <a class="code" href="pv__2way__basic__types_8h.html#a49a36">PVT_INDICATION_INCOMING_TRACK</a>,
+00172     <a class="code" href="pv__2way__basic__types_8h.html#a49a37">PVT_INDICATION_OUTGOING_TRACK</a>,
+00178     <a class="code" href="pv__2way__basic__types_8h.html#a49a38">PVT_INDICATION_DISCONNECT</a>,
+00185     <a class="code" href="pv__2way__basic__types_8h.html#a49a39">PVT_INDICATION_CLOSING_TRACK</a>,
+00194     <a class="code" href="pv__2way__basic__types_8h.html#a49a40">PVT_INDICATION_CLOSE_TRACK</a>,
+00201     <a class="code" href="pv__2way__basic__types_8h.html#a49a41">PVT_INDICATION_PAUSE_TRACK</a>,
+00207     <a class="code" href="pv__2way__basic__types_8h.html#a49a42">PVT_INDICATION_RESUME_TRACK</a>,
+00213     <a class="code" href="pv__2way__basic__types_8h.html#a49a43">PVT_INDICATION_INTERNAL_ERROR</a>,
+00214 };
+00215 
 00216 
-<a name="l00225"></a><a class="code" href="classPV2WayInitInfo.html">00225</a> <span class="keyword">class </span><a class="code" href="classPV2WayInitInfo.html">PV2WayInitInfo</a>
-00226 {
-00227     <span class="keyword">public</span>:
-00232         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classPV2WayInitInfo.html#a0">GetInitInfoClassName</a>(OSCL_wString&amp; aClassName) = 0;
-00233 
-<a name="l00234"></a><a class="code" href="classPV2WayInitInfo.html#a1">00234</a>         <span class="keyword">virtual</span> <a class="code" href="classPV2WayInitInfo.html#a1">~PV2WayInitInfo</a>() { }
+00217 <span class="comment">// CLASS DECLARATION</span>
+00218 
+<a name="l00227"></a><a class="code" href="classPV2WayInitInfo.html">00227</a> <span class="keyword">class </span><a class="code" href="classPV2WayInitInfo.html">PV2WayInitInfo</a>
+00228 {
+00229     <span class="keyword">public</span>:
+00234         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classPV2WayInitInfo.html#a0">GetInitInfoClassName</a>(OSCL_wString&amp; aClassName) = 0;
 00235 
-<a name="l00239"></a><a class="code" href="classPV2WayInitInfo.html#m0">00239</a>         Oscl_Vector&lt;const char*, OsclMemAllocator&gt; <a class="code" href="classPV2WayInitInfo.html#m0">iOutgoingAudioFormats</a>;
-00240 
-<a name="l00244"></a><a class="code" href="classPV2WayInitInfo.html#m1">00244</a>         Oscl_Vector&lt;const char*, OsclMemAllocator&gt; <a class="code" href="classPV2WayInitInfo.html#m1">iOutgoingVideoFormats</a>;
-00245 
-<a name="l00249"></a><a class="code" href="classPV2WayInitInfo.html#m2">00249</a>         Oscl_Vector&lt;const char*, OsclMemAllocator&gt; <a class="code" href="classPV2WayInitInfo.html#m2">iIncomingAudioFormats</a>;
-00250 
-<a name="l00254"></a><a class="code" href="classPV2WayInitInfo.html#m3">00254</a>         Oscl_Vector&lt;const char*, OsclMemAllocator&gt; <a class="code" href="classPV2WayInitInfo.html#m3">iIncomingVideoFormats</a>;
-00255 
-00256 };
+<a name="l00236"></a><a class="code" href="classPV2WayInitInfo.html#a1">00236</a>         <span class="keyword">virtual</span> <a class="code" href="classPV2WayInitInfo.html#a1">~PV2WayInitInfo</a>() { }
+00237 
+<a name="l00241"></a><a class="code" href="classPV2WayInitInfo.html#m0">00241</a>         Oscl_Vector&lt;CodecSpecifier*, OsclMemAllocator&gt; <a class="code" href="classPV2WayInitInfo.html#m0">iOutgoingAudioFormats</a>;
+00242 
+<a name="l00246"></a><a class="code" href="classPV2WayInitInfo.html#m1">00246</a>         Oscl_Vector&lt;CodecSpecifier*, OsclMemAllocator&gt; <a class="code" href="classPV2WayInitInfo.html#m1">iOutgoingVideoFormats</a>;
+00247 
+<a name="l00251"></a><a class="code" href="classPV2WayInitInfo.html#m2">00251</a>         Oscl_Vector&lt;CodecSpecifier*, OsclMemAllocator&gt; <a class="code" href="classPV2WayInitInfo.html#m2">iIncomingAudioFormats</a>;
+00252 
+<a name="l00256"></a><a class="code" href="classPV2WayInitInfo.html#m3">00256</a>         Oscl_Vector&lt;CodecSpecifier*, OsclMemAllocator&gt; <a class="code" href="classPV2WayInitInfo.html#m3">iIncomingVideoFormats</a>;
 00257 
-00258 
-<a name="l00264"></a><a class="code" href="classPV2WayConnectOptions.html">00264</a> <span class="keyword">class </span><a class="code" href="classPV2WayConnectOptions.html">PV2WayConnectOptions</a>
-00265 {
-00266     <span class="keyword">public</span>:
-<a name="l00270"></a><a class="code" href="classPV2WayConnectOptions.html#a0">00270</a>         <a class="code" href="classPV2WayConnectOptions.html#a0">PV2WayConnectOptions</a>()
-00271                 : <a class="code" href="classPV2WayConnectOptions.html#m0">iLoopbackMode</a>(<a class="code" href="pv__2way__basic__types_8h.html#a45a13">PV_LOOPBACK_NONE</a>),
-00272                 <a class="code" href="classPV2WayConnectOptions.html#m1">iLocalId</a>(NULL),
-00273                 <a class="code" href="classPV2WayConnectOptions.html#m2">iLocalIdSize</a>(0),
-00274                 <a class="code" href="classPV2WayConnectOptions.html#m3">iRemoteId</a>(NULL),
-00275                 <a class="code" href="classPV2WayConnectOptions.html#m4">iRemoteIdSize</a>(0) {}
-00276 
-<a name="l00288"></a><a class="code" href="classPV2WayConnectOptions.html#a1">00288</a>         <a class="code" href="classPV2WayConnectOptions.html#a0">PV2WayConnectOptions</a>(<a class="code" href="pv__2way__basic__types_8h.html#a45">TPVLoopbackMode</a> aLoopbackMode,
-00289                              uint8* aLocalId, uint32 aLocalIdSize,
-00290                              uint8* aRemoteId, uint32 aRemoteIdSize)
-00291                 : <a class="code" href="classPV2WayConnectOptions.html#m0">iLoopbackMode</a>(aLoopbackMode),
-00292                 <a class="code" href="classPV2WayConnectOptions.html#m1">iLocalId</a>(aLocalId),
-00293                 <a class="code" href="classPV2WayConnectOptions.html#m2">iLocalIdSize</a>(aLocalIdSize),
-00294                 <a class="code" href="classPV2WayConnectOptions.html#m3">iRemoteId</a>(aRemoteId),
-00295                 <a class="code" href="classPV2WayConnectOptions.html#m4">iRemoteIdSize</a>(aRemoteIdSize)
-00296         {}
-00297 
-00306         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classPV2WayConnectOptions.html#a2">GetConnectInfoClassName</a>(OSCL_wString &amp;aClassName) = 0;
-00307 
-<a name="l00311"></a><a class="code" href="classPV2WayConnectOptions.html#m0">00311</a>         <a class="code" href="pv__2way__basic__types_8h.html#a45">TPVLoopbackMode</a> <a class="code" href="classPV2WayConnectOptions.html#m0">iLoopbackMode</a>;
-00312 
-<a name="l00316"></a><a class="code" href="classPV2WayConnectOptions.html#m1">00316</a>         uint8* <a class="code" href="classPV2WayConnectOptions.html#m1">iLocalId</a>;
-<a name="l00320"></a><a class="code" href="classPV2WayConnectOptions.html#m2">00320</a>         uint32 <a class="code" href="classPV2WayConnectOptions.html#m2">iLocalIdSize</a>;
-00321 
-<a name="l00325"></a><a class="code" href="classPV2WayConnectOptions.html#m3">00325</a>         uint8* <a class="code" href="classPV2WayConnectOptions.html#m3">iRemoteId</a>;
-<a name="l00329"></a><a class="code" href="classPV2WayConnectOptions.html#m4">00329</a>         uint32 <a class="code" href="classPV2WayConnectOptions.html#m4">iRemoteIdSize</a>;
-00330 };
-00331 <span class="preprocessor">#endif</span>
+00258 };
+00259 
+00260 
+<a name="l00266"></a><a class="code" href="classPV2WayConnectOptions.html">00266</a> <span class="keyword">class </span><a class="code" href="classPV2WayConnectOptions.html">PV2WayConnectOptions</a>
+00267 {
+00268     <span class="keyword">public</span>:
+<a name="l00272"></a><a class="code" href="classPV2WayConnectOptions.html#a0">00272</a>         <a class="code" href="classPV2WayConnectOptions.html#a0">PV2WayConnectOptions</a>()
+00273                 : <a class="code" href="classPV2WayConnectOptions.html#m0">iLoopbackMode</a>(<a class="code" href="pv__2way__basic__types_8h.html#a45a13">PV_LOOPBACK_NONE</a>),
+00274                 <a class="code" href="classPV2WayConnectOptions.html#m1">iLocalId</a>(NULL),
+00275                 <a class="code" href="classPV2WayConnectOptions.html#m2">iLocalIdSize</a>(0),
+00276                 <a class="code" href="classPV2WayConnectOptions.html#m3">iRemoteId</a>(NULL),
+00277                 <a class="code" href="classPV2WayConnectOptions.html#m4">iRemoteIdSize</a>(0) {}
+00278 
+<a name="l00290"></a><a class="code" href="classPV2WayConnectOptions.html#a1">00290</a>         <a class="code" href="classPV2WayConnectOptions.html#a0">PV2WayConnectOptions</a>(<a class="code" href="pv__2way__basic__types_8h.html#a45">TPVLoopbackMode</a> aLoopbackMode,
+00291                              uint8* aLocalId, uint32 aLocalIdSize,
+00292                              uint8* aRemoteId, uint32 aRemoteIdSize)
+00293                 : <a class="code" href="classPV2WayConnectOptions.html#m0">iLoopbackMode</a>(aLoopbackMode),
+00294                 <a class="code" href="classPV2WayConnectOptions.html#m1">iLocalId</a>(aLocalId),
+00295                 <a class="code" href="classPV2WayConnectOptions.html#m2">iLocalIdSize</a>(aLocalIdSize),
+00296                 <a class="code" href="classPV2WayConnectOptions.html#m3">iRemoteId</a>(aRemoteId),
+00297                 <a class="code" href="classPV2WayConnectOptions.html#m4">iRemoteIdSize</a>(aRemoteIdSize)
+00298         {}
+00299 
+00308         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classPV2WayConnectOptions.html#a2">GetConnectInfoClassName</a>(OSCL_wString &amp;aClassName) = 0;
+00309 
+<a name="l00313"></a><a class="code" href="classPV2WayConnectOptions.html#m0">00313</a>         <a class="code" href="pv__2way__basic__types_8h.html#a45">TPVLoopbackMode</a> <a class="code" href="classPV2WayConnectOptions.html#m0">iLoopbackMode</a>;
+00314 
+<a name="l00318"></a><a class="code" href="classPV2WayConnectOptions.html#m1">00318</a>         uint8* <a class="code" href="classPV2WayConnectOptions.html#m1">iLocalId</a>;
+<a name="l00322"></a><a class="code" href="classPV2WayConnectOptions.html#m2">00322</a>         uint32 <a class="code" href="classPV2WayConnectOptions.html#m2">iLocalIdSize</a>;
+00323 
+<a name="l00327"></a><a class="code" href="classPV2WayConnectOptions.html#m3">00327</a>         uint8* <a class="code" href="classPV2WayConnectOptions.html#m3">iRemoteId</a>;
+<a name="l00331"></a><a class="code" href="classPV2WayConnectOptions.html#m4">00331</a>         uint32 <a class="code" href="classPV2WayConnectOptions.html#m4">iRemoteIdSize</a>;
+00332 };
+00333 <span class="preprocessor">#endif</span>
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>PV2Way Engine</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

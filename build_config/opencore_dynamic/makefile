@@ -5,15 +5,16 @@ FORMAT := android
 
 include $(CFG_DIR)/../common/local.mk
 
-TESTAPPS="pvplayer_engine_test test_pvauthorengine pv2way_omx_engine_test"
+TESTAPPS="pvplayer_engine_test test_pvauthorengine pv2way_omx_engine_test test_omx_client test_omxenc_client"
 TESTAPP_DIR_pvplayer_engine_test="/engines/player/test/build/android"
 TESTAPP_DIR_test_pvauthorengine="/engines/author/test/build/android"
 TESTAPP_DIR_pv2way_omx_engine_test="/engines/2way/test/build/make"
+TESTAPP_DIR_test_omx_client="/codecs_v2/omx/omx_testapp/build/android"
+TESTAPP_DIR_test_omxenc_client="/codecs_v2/omx/omx_testapp_enc/build/android"
 
 opencore_common_PRELINK := true
 opencore_player_PRELINK := true
 opencore_author_PRELINK := true
-opencore_2way_PRELINK := true
 
 include $(MK)/cml2_shared.mk
 

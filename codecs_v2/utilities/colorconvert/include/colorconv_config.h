@@ -20,24 +20,27 @@
 #define COLORCONV_CONFIG_H_INCLUDED
 
 /** For scaling support, define CCSCALING to 1, else set it to 0 */
-#define CCSCALING 1
+#define CCSCALING   1
 
 /** For rotation support, define CCROTATE to 1, else set it to 0  */
-#define CCROTATE 1
+#define CCROTATE    1
 
 /** To specify RGB format. define RGB_FORMAT to 1. For, BGR format, set it to 0 */
 #define RGB_FORMAT  0
 
+/* If the target supports preload (PLD), define SUPPORT_ARM_PLD, else don't define it */
+//#define SUPPORT_ARM_PLD
+
 /********************************************************************************************
  For YUV422 to YUV420 conversion, the Input YUV422 data can be in three forms:-
-	ENDIAN_1 :
-		Cb1 Y1 Cr1 Y2 Cb2 Y3 Cr2 Y4 .....
+    ENDIAN_1 :
+        Cb1 Y1 Cr1 Y2 Cb2 Y3 Cr2 Y4 .....
 
-	ENDIAN_2 :
-		Y2 Cr1 Y1 Cb1 Y4 Cr2 Y3 Cb2 ....
+    ENDIAN_2 :
+        Y2 Cr1 Y1 Cb1 Y4 Cr2 Y3 Cb2 ....
 
-	ENDIAN_3 :
-		Y1 Cr1 Y2 Cb1 Y3 Cr2 Y4 Cb2 ....
+    ENDIAN_3 :
+        Y1 Cr1 Y2 Cb1 Y3 Cr2 Y4 Cb2 ....
 
 *********************************************************************************************/
 /* Set one of the following to 1  depending on your requirement */
@@ -46,5 +49,3 @@
 #define ENDIAN_3 0
 
 #endif // COLORCONV_CONFIG_H_INCLUDED
-
-

@@ -17,22 +17,7 @@
  */
 /*
 
- Pathname: get_adts_header.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Remove default_config variable
-
- Description: change enter_mc_info to set_mc_info
-
- Description: (1) add error checking for channel_config > 2
-              (2) eliminated call to check_mc_info
-              (3) use (profile + 1) when calling set_mc_info
-              (4) use winmap when calling set_mc_info
-
- Who:                                          Date:
- Description:
+ Filename: get_adts_header.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -278,28 +263,6 @@
     ENDIF
 
     return (status);
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

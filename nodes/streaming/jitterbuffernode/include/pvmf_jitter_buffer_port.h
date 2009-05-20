@@ -51,7 +51,7 @@ class PVMFJitterBuffer;
 #define PVMF_JITTER_BUFFER_NODE_PORT_VECTOR_RESERVE 10
 
 // Capability mime strings
-#define PVMF_JITTER_BUFFER_PORT_SPECIFIC_ALLOCATOR			"x-pvmf/pvmfstreaming/socketmemallocator"
+#define PVMF_JITTER_BUFFER_PORT_SPECIFIC_ALLOCATOR          "x-pvmf/pvmfstreaming/socketmemallocator"
 #define PVMF_JITTER_BUFFER_PORT_SPECIFIC_ALLOCATOR_VALTYPE  "x-pvmf/pvmfstreaming/socketmemallocator;valtype=ksv"
 
 /** Enumerated list of port tags supported by this port */
@@ -83,7 +83,7 @@ class PVMFJitterBufferPortParams
             iId = -1;
             iTag = PVMF_JITTER_BUFFER_PORT_TYPE_UNKNOWN;
 
-            ipJitterBuffer = NULL;				//Only Input ports will have the jitter buffer associated with them
+            ipJitterBuffer = NULL;              //Only Input ports will have the jitter buffer associated with them
             iTimeScale = 0;
             iBitrate = 0;
             iLastMsgTimeStamp = 0;
@@ -98,19 +98,19 @@ class PVMFJitterBufferPortParams
 
         int32                       iId;
         PVMFJitterBufferNodePortTag iTag;
-        PVMFJitterBufferPort&		irPort;
-        PVMFJitterBuffer*			ipJitterBuffer;				//Only Input ports will have the jitter buffer associated with them
-        uint32						iTimeScale;
-        uint32						iBitrate;
-        MediaClockConverter			iMediaClockConverter;
-        PVMFTimestamp				iLastMsgTimeStamp;
-        uint32						iNumMediaMsgsRecvd;
-        uint32						iNumMediaMsgsSent;
-        bool						iJitterBufferEmpty;
-        bool						iProcessIncomingMessages;
-        bool						iProcessOutgoingMessages;
-        bool						iCanReceivePktFromJB;
-        bool						iMonitorForRemoteActivity;
+        PVMFJitterBufferPort&       irPort;
+        PVMFJitterBuffer*           ipJitterBuffer;             //Only Input ports will have the jitter buffer associated with them
+        uint32                      iTimeScale;
+        uint32                      iBitrate;
+        MediaClockConverter         iMediaClockConverter;
+        PVMFTimestamp               iLastMsgTimeStamp;
+        uint32                      iNumMediaMsgsRecvd;
+        uint32                      iNumMediaMsgsSent;
+        bool                        iJitterBufferEmpty;
+        bool                        iProcessIncomingMessages;
+        bool                        iProcessOutgoingMessages;
+        bool                        iCanReceivePktFromJB;
+        bool                        iMonitorForRemoteActivity;
         OSCL_HeapString<OsclMemAllocator> iMimeType;
 };
 
@@ -124,7 +124,7 @@ class PVMFJitterBufferPortParams
  * same flow-control scheme.
  */
 class PVMFJitterBufferPort : public PvmfPortBaseImpl,
-            public PvmiCapabilityAndConfig
+        public PvmiCapabilityAndConfig
 {
     public:
         /**
@@ -173,7 +173,7 @@ class PVMFJitterBufferPort : public PvmfPortBaseImpl,
 
         // Implement pure virtuals from PvmiCapabilityAndConfig interface
         PVMFStatus getParametersSync(PvmiMIOSession aSession, PvmiKeyType aIdentifier,
-                                     PvmiKvp*& aParameters, int& num_parameter_elements,	PvmiCapabilityContext aContext);
+                                     PvmiKvp*& aParameters, int& num_parameter_elements,    PvmiCapabilityContext aContext);
         PVMFStatus releaseParameters(PvmiMIOSession aSession, PvmiKvp* aParameters, int num_elements);
         void setParametersSync(PvmiMIOSession aSession, PvmiKvp* aParameters,
                                int num_elements, PvmiKvp * & aRet_kvp);
@@ -230,16 +230,16 @@ class PVMFJitterBufferPort : public PvmfPortBaseImpl,
     private:
         void Construct();
 
-        PVMFFormatType						iFormat;
-        PVMFJitterBufferNodePortTag			iPortType;
-        PVMFJitterBufferPortParams*			iPortParams;
+        PVMFFormatType                      iFormat;
+        PVMFJitterBufferNodePortTag         iPortType;
+        PVMFJitterBufferPortParams*         iPortParams;
         // Corresponding port paired with current port
-        PVMFJitterBufferPort*				iPortCounterpart;
+        PVMFJitterBufferPort*               iPortCounterpart;
         // Parameters of port paired with current port
-        PVMFJitterBufferPortParams*			iCounterpartPortParams;
+        PVMFJitterBufferPortParams*         iCounterpartPortParams;
 
-        PVMFJitterBufferNode&				irJitterBufferNode;
-        PVLogger*							ipLogger;
+        PVMFJitterBufferNode&               irJitterBufferNode;
+        PVLogger*                           ipLogger;
 
         friend class PVMFJitterBufferNode;
         friend class PVMFJitterBufferExtensionInterfaceImpl;

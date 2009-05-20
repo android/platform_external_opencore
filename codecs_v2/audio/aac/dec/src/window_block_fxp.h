@@ -17,32 +17,7 @@
  */
 /*
 
- Pathname: window_block_fxp.h
-
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-    modified function definition: Time_data from Int to Int32
-    change wnd_shape from structure to passing parameters
-    delete definition of wnd_shape1, not needed.
-
- Description: Modified based on unit test comments
-
- Description: Change copyright, add () around constants.
-
- Description:
-    changed Long_Window_fxp and Short _Window_fxp tables definition, from
-    "const UInt16 *"  to "const UInt16 * const" to avoid global variable
-    definition.
-
- Description: Updated function trans4m_freq_2_time_fxp definition
-
- Description:  Modified function interface to add output_buffer
-
-
- Description:
+ Filename: window_block_fxp.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

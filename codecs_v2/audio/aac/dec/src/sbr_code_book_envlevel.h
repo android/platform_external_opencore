@@ -17,11 +17,7 @@
  */
 /*
 
- Pathname: sbr_code_book_envlevel.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
+ Filename: sbr_code_book_envlevel.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

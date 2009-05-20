@@ -17,38 +17,9 @@
  */
 /*
 
- Pathname: ./src/hufffac.c
+ Filename: hufffac.cpp
  Funtions:
     hufffac
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description: (1) Modified with new templates,
-              (2) Modified variable names for clarity
-              (3) adjusted variables of "for loop"
-              (4) eliminated multiple returns, use return valid
-
- Description: (1) Change return logic: 0 if success, 1 if error
-              (2) Define SectInfo structure to store section codebook index
-                  and section boundary
-              (3) Substitute "switch" with "if- else if"
-              (4) move BITS *pInputStream to second pass-in parameter
-              (5) pass in huffBookUsed[] to save stack size
-
- Description: (1) Remove pass in parameter Hcb pBook
-
- Description: Use binary tree search in decode_huff_cw_binary
-
- Description: Use decode_huff_scl function.
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -279,28 +250,6 @@
     ENDWHILE (group_end)
 
     return status;
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

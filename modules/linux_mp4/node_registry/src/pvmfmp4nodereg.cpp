@@ -46,7 +46,7 @@
 #include "pvmfmp4nodereg.h"
 #endif
 
-#define MP4_LIB_NAME "libopencore_mp4local.so"
+#define MP4_LIB_NAME "libopencore_mp4local"
 
 #define NODE_REGISTRY_LIB_NAME_MAX_LENGTH 64
 
@@ -149,8 +149,8 @@ bool Mp4NodesCoreLibraryLoader::DeleteMp4ParserNode(PVMFNodeInterface* aNode)
 }
 
 class Mp4NodesRegistryInterface: public OsclSharedLibraryInterface,
-            public NodeRegistryPopulatorInterface,
-            public RecognizerPopulatorInterface
+        public NodeRegistryPopulatorInterface,
+        public RecognizerPopulatorInterface
 {
     public:
         Mp4NodesRegistryInterface() {};
@@ -257,7 +257,7 @@ class Mp4NodesRegistryInterface: public OsclSharedLibraryInterface,
 
 extern "C"
 {
-    OsclSharedLibraryInterface *PVGetInterface(void)
+    OSCL_EXPORT_REF OsclSharedLibraryInterface *PVGetInterface(void)
     {
         return OSCL_NEW(Mp4NodesRegistryInterface, ());
     }

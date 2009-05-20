@@ -12,7 +12,7 @@ LOCAL_PRELINK_MODULE := false
 
 -include $(PV_TOP)/Android_system_extras.mk
 
-LOCAL_SHARED_LIBRARIES +=   libopencore_player libopencore_common
+LOCAL_SHARED_LIBRARIES +=   libopencore_common
 
 include $(BUILD_SHARED_LIBRARY)
 include   $(PV_TOP)/modules/linux_rtsp/node_registry/Android.mk

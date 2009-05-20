@@ -93,6 +93,27 @@ int32 AvcDecoder_OMX::ActivateSPS_OMX(void* aUserData, uint aSizeInMbs, uint aNu
     pAvcDecoder_OMX->FrameSize = (aSizeInMbs << 7) * 3;
     pAvcDecoder_OMX->pDpbBuffer = (uint8*) oscl_malloc(aNumBuffers * (pAvcDecoder_OMX->FrameSize));
 
+    if (NULL == pAvcDecoder_OMX->pDpbBuffer)
+    {
+        return 0;
+    }
+
+    // initialize planes to 0x10 (Y) and 0x80 (UV) which makes the initial image appear black
+    // in the absence of an I-frame
+    OMX_U32 UVplanesize = (OMX_U32)(pAvcDecoder_OMX->FrameSize) / 6;
+    uint8 *temp_ptrY  = (uint8 *) pAvcDecoder_OMX->pDpbBuffer;
+    uint8 *temp_ptrUV = temp_ptrY + 4 * UVplanesize;
+
+    for (uint32 ii = 0; ii < aNumBuffers; ii++)
+    {
+        oscl_memset(temp_ptrY, 0x10, 4*UVplanesize);
+        oscl_memset(temp_ptrUV, 0x80, 2*UVplanesize);
+
+        temp_ptrY  += pAvcDecoder_OMX->FrameSize;
+        temp_ptrUV += pAvcDecoder_OMX->FrameSize;
+    }
+
+
     return 1;
 }
 
@@ -160,6 +181,9 @@ OMX_ERRORTYPE AvcDecoder_OMX::AvcDecInit_OMX()
     //Set up the cleanup object in order to do clean up work automatically
     pCleanObject = OSCL_NEW(AVCCleanupObject_OMX, (&AvcHandle));
 
+    iAvcActiveFlag = OMX_FALSE;
+    iSkipToIDR = OMX_TRUE;
+
     return OMX_ErrorNone;
 }
 
@@ -181,7 +205,7 @@ OMX_BOOL AvcDecoder_OMX::AvcDecodeVideo_OMX(OMX_U8* aOutBuffer, OMX_U32* aOutput
     *aResizeFlag = OMX_FALSE;
     OMX_U32 OldWidth, OldHeight;
 
-    OldWidth = 	aPortParam->format.video.nFrameWidth;
+    OldWidth =  aPortParam->format.video.nFrameWidth;
     OldHeight = aPortParam->format.video.nFrameHeight;
 
 
@@ -252,9 +276,22 @@ OMX_BOOL AvcDecoder_OMX::AvcDecodeVideo_OMX(OMX_U8* aOutBuffer, OMX_U32* aOutput
         aPortParam->format.video.nFrameWidth = crop_right - crop_left + 1;
         aPortParam->format.video.nFrameHeight = crop_bottom - crop_top + 1;
 
-        //if( (OldWidth != aPortParam->format.video.nFrameWidth) || (OldHeight !=	aPortParam->format.video.nFrameHeight))
-        // FORCE RESIZE ALWAYS FOR SPS
-        *aResizeFlag = OMX_TRUE;
+        OMX_U32 min_stride = ((aPortParam->format.video.nFrameWidth + 15) & (~15));
+        OMX_U32 min_sliceheight = ((aPortParam->format.video.nFrameHeight + 15) & (~15));
+
+
+        aPortParam->format.video.nStride = min_stride;
+        aPortParam->format.video.nSliceHeight = min_sliceheight;
+
+
+        // finally, compute the new minimum buffer size.
+
+        // Decoder components always output YUV420 format
+        aPortParam->nBufferSize = (aPortParam->format.video.nSliceHeight * aPortParam->format.video.nStride * 3) >> 1;
+
+
+        if ((OldWidth != aPortParam->format.video.nFrameWidth) || (OldHeight !=  aPortParam->format.video.nFrameHeight))
+            *aResizeFlag = OMX_TRUE;
 
         (*iFrameCount)++;
 
@@ -271,6 +308,22 @@ OMX_BOOL AvcDecoder_OMX::AvcDecodeVideo_OMX(OMX_U8* aOutBuffer, OMX_U32* aOutput
     else if (AVC_NALTYPE_SLICE == (AVCNalUnitType) NalType ||
              AVC_NALTYPE_IDR == (AVCNalUnitType) NalType)
     {
+        if (!iAvcActiveFlag)
+            iAvcActiveFlag = OMX_TRUE;
+
+        if (iSkipToIDR == OMX_TRUE)
+        {
+            if (AVC_NALTYPE_IDR == (AVCNalUnitType) NalType)
+            {
+                iSkipToIDR = OMX_FALSE;
+            }
+            else
+            {
+                return OMX_FALSE;
+            }
+        }
+
+
         if ((Status = PVAVCDecodeSlice(&(AvcHandle), pNalBuffer, NalSize)) == AVCDEC_PICTURE_OUTPUT_READY)
         {
             FlushOutput_OMX(aOutBuffer, aOutputLength, aOutTimestamp, OldWidth, OldHeight);
@@ -292,10 +345,15 @@ OMX_BOOL AvcDecoder_OMX::AvcDecodeVideo_OMX(OMX_U8* aOutBuffer, OMX_U32* aOutput
             (*iFrameCount)++;
         }
 
-        if ((AVCDEC_NO_DATA == Status) || (AVCDEC_PACKET_LOSS == Status) ||
+        if ((AVCDEC_NO_DATA == Status) || (AVCDEC_NOT_SUPPORTED == Status) ||
                 (AVCDEC_NO_BUFFER == Status) || (AVCDEC_MEMORY_FAIL == Status) ||
                 (AVCDEC_FAIL == Status))
         {
+            if (AVCDEC_FAIL == Status)
+            {
+                iSkipToIDR = OMX_TRUE;
+            }
+
             return OMX_FALSE;
         }
     }
@@ -323,7 +381,7 @@ OMX_BOOL AvcDecoder_OMX::AvcDecodeVideo_OMX(OMX_U8* aOutBuffer, OMX_U32* aOutput
     //else
     //{
     //printf("\nNAL_type = %d, unsupported nal type or not sure what to do for this type\n", NalType);
-    //	return OMX_FALSE;
+    //  return OMX_FALSE;
     //}
     return OMX_TRUE;
 

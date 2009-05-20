@@ -17,27 +17,7 @@
  */
 /*
 
- Pathname: tns_inv_filter.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Changes made per review comments.
-
- Description: As requested by JT, the q-format for the LPC coefficients is
- now passed via the parameter lpc_qformat.
-
- Description: For speed, the calculation of the shift amount was pulled
- outside of the loop.
-
- Description:
-    Modified casting to ensure proper operations for different platforms
-
- Description:
-    Simplified MAC operations for filter by eliminating extra variables
-
- Who:                       Date:
- Description:
+ Filename: tns_inv_filter.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -224,29 +204,6 @@
         END IF
 
     END FOR
-
-------------------------------------------------------------------------------
- RESOURCES USED
-
-   When the code is written for a specific target processor
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

@@ -65,14 +65,19 @@ class TSC_channelcontrol
                            TSC_lc& aTSClc,
                            TSC_capability& aTSCcapability,
                            TSC_clc& aTSCclc,
-                           TSC_component& aTSCcomponent);
-        ~TSC_channelcontrol() {};
+                           TSC_component* aTSCcomponent);
+        ~TSC_channelcontrol()
+        {
+            Reset();
+        };
 
         void SetMembers(H223* aH223, TSCObserver* aTSCObserver)
         {
             iObserver = aTSCObserver;
             iH223 = aH223;
         }
+
+        void Reset();
 
         LogicalChannelInfo* GetLogicalChannelInfo(PVMFPortInterface& port);
         // utility functions
@@ -97,7 +102,7 @@ class TSC_channelcontrol
         TSC_capability& iTSCcapability;
         TSC_clc& iTSCclc;
 
-        TSC_component& iTSCcomponent;
+        TSC_component* iTSCcomponent;
 };
 
 #endif

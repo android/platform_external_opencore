@@ -20,7 +20,7 @@
 void pff_eos_test::test()
 {
     int error = 0;
-    char *filename = new char[iFilename.get_size() + 1];
+    char *filename = OSCL_ARRAY_NEW(char, iFilename.get_size() + 1);
     if ((filename == NULL) || (oscl_UnicodeToUTF8(iFilename.get_cstr(), iFilename.get_size(), filename, iFilename.get_size() + 1) == 0))
     {
         OSCL_LEAVE(-1);
@@ -28,7 +28,7 @@ void pff_eos_test::test()
 
     fprintf(fileoutput, "Start pff eos test, num runs %d, audio eos %d, vidoe eos %d, proxy %d, file %s\n", iMaxRuns, iWaitForAudioEOS, iWaitForVideoEOS, iUseProxy, filename);
 
-    delete filename;
+    OSCL_ARRAY_DELETE(filename);
 
     scheduler = OsclExecScheduler::Current();
 
@@ -428,7 +428,7 @@ bool pff_eos_test::start_async_test()
         return false;
     }
 
-    create_sink_source();
+
 
     OSCL_TRY(error, terminal->InitL(iSdkInitInfo, iCommServer));
     if (error)

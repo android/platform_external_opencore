@@ -18,15 +18,9 @@
 /*
 
  Filename: sbr_read_data.h
- Funtions:
+ Functions:
     get_dse
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 ------------------------------------------------------------------------------
 SC 29 Software Copyright Licencing Disclaimer:
 
@@ -112,8 +106,8 @@ extern "C"
 #endif
 
     SBR_ERROR sbr_read_data(SBRDECODER_DATA * self,
-                            SBR_DEC * sbrDec,
-                            SBRBITSTREAM *stream);
+    SBR_DEC * sbrDec,
+    SBRBITSTREAM *stream);
 
 #ifdef __cplusplus
 }

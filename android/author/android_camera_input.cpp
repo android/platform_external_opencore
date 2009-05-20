@@ -40,7 +40,7 @@ OSCL_DLL_ENTRY_POINT_DEFAULT()
 AndroidCameraInput::AndroidCameraInput()
     : OsclTimerObject(OsclActiveObject::EPriorityNominal, "AndroidCameraInput")
 {
-    LOGV("constructor");
+    LOGV("constructor(%p)", this);
     iCmdIdCounter = 0;
     iPeer = NULL;
     iThreadLoggedOn = false;
@@ -50,9 +50,9 @@ AndroidCameraInput::AndroidCameraInput()
     iMilliSecondsPerDataEvent = 0;
     iMicroSecondsPerDataEvent = 0;
     iState = STATE_IDLE;
-    mFrameWidth = DEFAULT_FRAME_WIDTH;
-    mFrameHeight= DEFAULT_FRAME_HEIGHT;
-    mFrameRate  = DEFAULT_FRAME_RATE;
+    mFrameWidth = ANDROID_DEFAULT_FRAME_WIDTH;
+    mFrameHeight= ANDROID_DEFAULT_FRAME_HEIGHT;
+    mFrameRate  = ANDROID_DEFAULT_FRAME_RATE;
     mCamera = NULL;
     mHeap = 0;
 
@@ -76,7 +76,7 @@ void AndroidCameraInput::ReleaseQueuedFrames()
         ssize_t offset = 0;
         size_t size = 0;
         sp<IMemoryHeap> heap = data.iFrameBuffer->getMemory(&offset, &size);
-        LOGD("writeComplete: ID = %d, base = %p, offset = %p, size = %d ReleaseQueuedFrames", heap->getHeapID(), heap->base(), offset, size);
+        LOGD("writeComplete: ID = %d, base = %p, offset = %ld, size = %d ReleaseQueuedFrames", heap->getHeapID(), heap->base(), offset, size);
 #endif
         mCamera->releaseRecordingFrame(data.iFrameBuffer);
     }
@@ -140,7 +140,7 @@ PVMFStatus AndroidCameraInput::disconnect(PvmiMIOSession aSession)
         return PVMFFailure;
     }
 
-    iObservers.clear();
+    iObservers.erase(iObservers.begin() + index);
     return PVMFSuccess;
 }
 
@@ -368,13 +368,9 @@ PVMFCommandId AndroidCameraInput::CancelCommand(PVMFCommandId aCmdId,
 OSCL_EXPORT_REF
 void AndroidCameraInput::setPeer(PvmiMediaTransfer* aPeer)
 {
-    LOGV("setPeer");
-    if (iPeer || !aPeer) {
-        if (iPeer) {
-            LOGE("iPeer already exists");
-        } else {
-	    LOGE("aPeer is a NULL pointer");
-        }
+    LOGV("setPeer iPeer 0x%x aPeer 0x%x", iPeer, aPeer);
+    if(iPeer && aPeer){
+    LOGE("setPeer iPeer 0x%x aPeer 0x%x", iPeer, aPeer);
         OSCL_LEAVE(OsclErrGeneral);
         return;
     }
@@ -430,7 +426,7 @@ void AndroidCameraInput::writeComplete(PVMFStatus aStatus,
     ssize_t offset = 0;
     size_t size = 0;
     sp<IMemoryHeap> heap = data.iFrameBuffer->getMemory(&offset, &size);
-    LOGD("writeComplete: ID = %d, base = %p, offset = %p, size = %d", heap->getHeapID(), heap->base(), offset, size);
+    LOGD("writeComplete: ID = %d, base = %p, offset = %ld, size = %d", heap->getHeapID(), heap->base(), offset, size);
 #endif
     mCamera->releaseRecordingFrame(data.iFrameBuffer);
 
@@ -553,7 +549,7 @@ PVMFStatus AndroidCameraInput::getParametersSync(PvmiMIOSession session,
             LOGE("AllocateKvp failed for OUTPUT_FORMATS_VALTYP");
             return status;
         }
-        params[0].value.pChar_value = (char*)PVMF_MIME_YUV420;
+        params[0].value.pChar_value = ANDROID_VIDEO_FORMAT;
     } else if (!pv_mime_strcmp(identifier, VIDEO_OUTPUT_WIDTH_CUR_QUERY)) {
         num_params = 1;
         status = AllocateKvp(params, VIDEO_OUTPUT_WIDTH_CUR_VALUE, num_params);
@@ -744,58 +740,41 @@ void AndroidCameraInput::Run()
     LOGV("Run");
 
     // dequeue frame buffers and write to peer
-    iFrameQueueMutex.Lock();
-    while (!iFrameQueue.empty()) {
-        AndroidCameraInputMediaData data = iFrameQueue[0];
+    if (NULL != iPeer) {
+        iFrameQueueMutex.Lock();
+        while (!iFrameQueue.empty()) {
+            AndroidCameraInputMediaData data = iFrameQueue[0];
 
-        uint32 writeAsyncID = 0;
-        OsclLeaveCode error = OsclErrNone;
-        if (NULL == iPeer)
-            break;
-        OSCL_TRY(error,writeAsyncID = iPeer->writeAsync(PVMI_MEDIAXFER_FMT_TYPE_DATA, 0, (uint8*) (data.iFrameBuffer->pointer()),
-                    data.iFrameSize, data.iXferHeader););
+            uint32 writeAsyncID = 0;
+            OsclLeaveCode error = OsclErrNone;
+            uint8 *ptr = (uint8*) (data.iFrameBuffer->pointer());
+            if (ptr) {
+                OSCL_TRY(error,writeAsyncID = iPeer->writeAsync(PVMI_MEDIAXFER_FMT_TYPE_DATA, 0, ptr,
+                            data.iFrameSize, data.iXferHeader););
+            } else {
+                //FIXME Check why camera sends NULL frames
+                LOGE("Ln %d ERROR null pointer");
+                error = OsclErrBadHandle;
+            }
 
-        if (OsclErrNone == error) {
-	    iFrameQueue.erase(iFrameQueue.begin());
-            data.iId = writeAsyncID;
-            iSentMediaData.push_back(data);
-            ++mFrameRefCount;
+            if (OsclErrNone == error) {
+                iFrameQueue.erase(iFrameQueue.begin());
+                data.iId = writeAsyncID;
+                iSentMediaData.push_back(data);
+                ++mFrameRefCount;
+                LOGV("Ln %d Run writeAsync mFrameRefCount %d writeAsyncID %d", __LINE__, mFrameRefCount, writeAsyncID);
+            } else {
+                //FIXME resend the frame later if ( OsclErrBusy == error)
+                LOGE("Ln %d Run writeAsync error %d mFrameRefCount %d", __LINE__, error, mFrameRefCount);
+                //release buffer immediately if write fails
+                mCamera->releaseRecordingFrame(data.iFrameBuffer);
+                iFrameQueue.erase(iFrameQueue.begin());
+                break;
+            }
         }
-    else if ( OsclErrBusy == error) {
-	    LOGE("Ln %d Run writeAsync BUSY mFrameRefCount %d", __LINE__, mFrameRefCount);
-	    {//release buffer immediately if write fails
-		mCamera->releaseRecordingFrame(data.iFrameBuffer);
-		if (mFrameRefCount) {
-		    --mFrameRefCount;
-		}
-		//LOGV("@@@@@@@@@@@@@ decrementing frame reference count: %d @@@@@@@@@@@@", mFrameRefCount);
-		if (mFrameRefCount <= 0) {
-		    //LOGV("decrement the reference count for mHeap");
-		    mFrameRefCount = 0;
-		    mHeap.clear();
-		}
-	    }
-	    break;
-	}
-	else
-	{
-	    LOGE("Ln %d Run writeAsync error %d mFrameRefCount %d", __LINE__, error, mFrameRefCount);
-	    {//release buffer immediately if write fails
-		mCamera->releaseRecordingFrame(data.iFrameBuffer);
-		if (mFrameRefCount) {
-		    --mFrameRefCount;
-		}
-		//LOGV("@@@@@@@@@@@@@ decrementing frame reference count: %d @@@@@@@@@@@@", mFrameRefCount);
-		if (mFrameRefCount <= 0) {
-		    //LOGV("decrement the reference count for mHeap");
-		    mFrameRefCount = 0;
-		    mHeap.clear();
-		}
-	    }
-	    break;
-	}
+        iFrameQueueMutex.Unlock();
     }
-    iFrameQueueMutex.Unlock();
+
     PVMFStatus status = PVMFFailure;
 
     if (!iCmdQueue.empty()) {
@@ -916,7 +895,7 @@ static void recording_frame_callback(const sp<IMemory>& frame, void *cookie)
         LOGE("Error - CameraInput has not been initialized");
         return;
     }
-
+    
     input->postWriteAsync(frame);
 }
 
@@ -944,23 +923,39 @@ PVMFStatus AndroidCameraInput::DoInit()
             LOGE("No surface is available for display");
         }
         return PVMFFailure;
- 
     }
 
-    LOGD("Intended mFrameWidth=%d, mFrameHe=%d ",mFrameWidth, mFrameHeight);
+    LOGD("Intended mFrameWidth=%d, mFrameHeight=%d ",mFrameWidth, mFrameHeight);
     String8 s = mCamera->getParameters();
+    if (s.length() == 0) {
+        LOGE("Failed to get camera(%p) parameters", mCamera.get());
+        return PVMFFailure;
+    }
     CameraParameters p(s);
     p.setPreviewSize(mFrameWidth, mFrameHeight);
     s = p.flatten();
-    mCamera->setParameters(s);
+    if (mCamera->setParameters(s) != NO_ERROR) {
+        LOGE("Failed to set camera(%p) parameters", mCamera.get());
+        return PVMFFailure;
+    }
 
     // Since we may not honor the preview size that app has requested
     // It is a good idea to get the actual preview size and used it
     // for video recording.
     CameraParameters newCameraParam(mCamera->getParameters());
-    newCameraParam.getPreviewSize(&mFrameWidth, &mFrameHeight);
+    int32 width, height;
+    newCameraParam.getPreviewSize(&width, &height);
+    if (width < 0 || height < 0) {
+        LOGE("Failed to get camera(%p) preview size", mCamera.get());
+        return PVMFFailure;
+    }
+    if (width != mFrameWidth || height != mFrameHeight) {
+        LOGE("Mismatch between the intended frame size (%dx%d) and the available frame size (%dx%d)", mFrameWidth, mFrameHeight, width, height);
+        return PVMFFailure;
+    }
     LOGD("Actual mFrameWidth=%d, mFrameHeight=%d ",mFrameWidth, mFrameHeight);
     if (mCamera->startPreview() != NO_ERROR) {
+    LOGE("Failed to start camera(%p) preview", mCamera.get());
         return PVMFFailure;
     }
     return PVMFSuccess;
@@ -969,13 +964,20 @@ PVMFStatus AndroidCameraInput::DoInit()
 PVMFStatus AndroidCameraInput::DoStart()
 {
     LOGV("DoStart");
-    iState = STATE_STARTED;
-    mCamera->setRecordingCallback(recording_frame_callback, this);
-    if (mCamera->startRecording() != NO_ERROR) {
-        return PVMFFailure;
+    PVMFStatus status = PVMFFailure;
+    if (mCamera == NULL) {
+        status = PVMFFailure;
+    } else {
+        mCamera->setRecordingCallback(recording_frame_callback, this);
+        if (mCamera->startRecording() != NO_ERROR) {
+            status = PVMFFailure;
+        } else {
+            iState = STATE_STARTED;
+            status = PVMFSuccess;
+        }
     }
     AddDataEventToQueue(iMilliSecondsPerDataEvent);
-    return PVMFSuccess;
+    return status;
 }
 
 PVMFStatus AndroidCameraInput::DoPause()
@@ -989,14 +991,13 @@ PVMFStatus AndroidCameraInput::DoPause()
 PVMFStatus AndroidCameraInput::DoReset()
 {
     LOGV("DoReset");
-    if (iState != STATE_STOPPED)
-    {
-        iDataEventCounter = 0;
-        if (mCamera != NULL) {
-            mCamera->setRecordingCallback(NULL, this);
-            mCamera->stopRecording();
-            ReleaseQueuedFrames();
-        }
+    iDataEventCounter = 0;
+    if ( (iState == STATE_STARTED) || (iState == STATE_PAUSED) ) {
+    if (mCamera != NULL) {
+        mCamera->setRecordingCallback(NULL, this);
+        mCamera->stopRecording();
+        ReleaseQueuedFrames();
+    }
     }
     while(!iCmdQueue.empty())
     {
@@ -1023,9 +1024,11 @@ PVMFStatus AndroidCameraInput::DoStop(const AndroidCameraInputCmd& aCmd)
 {
     LOGV("DoStop");
     iDataEventCounter = 0;
+    if (mCamera != NULL) {
     mCamera->setRecordingCallback(NULL, this);
     mCamera->stopRecording();
     ReleaseQueuedFrames();
+    }
     iState = STATE_STOPPED;
     return PVMFSuccess;
 }
@@ -1084,7 +1087,7 @@ PVMFStatus AndroidCameraInput::VerifyAndSetParameter(PvmiKvp* aKvp,
     }
 
     if (!pv_mime_strcmp(aKvp->key, OUTPUT_FORMATS_VALTYPE)) {
-		if(pv_mime_strcmp(aKvp->value.pChar_value, PVMF_MIME_YUV420) == 0) {
+    if(pv_mime_strcmp(aKvp->value.pChar_value, ANDROID_VIDEO_FORMAT) == 0) {
             return PVMFSuccess;
         } else  {
             LOGE("Unsupported format %d", aKvp->value.uint32_value);
@@ -1106,20 +1109,20 @@ void AndroidCameraInput::SetPreviewSurface(const sp<android::ISurface>& surface)
     }
 }
 
-void AndroidCameraInput::SetCamera(const sp<android::ICamera>& camera)
+PVMFStatus AndroidCameraInput::SetCamera(const sp<android::ICamera>& camera)
 {
     LOGV("SetCamera");
     mFlags &= ~ FLAGS_SET_CAMERA | FLAGS_HOT_CAMERA;
     if (camera == NULL) {
         LOGV("camera is NULL");
-        return;
+        return PVMFErrArgument;
     }
 
     // Connect our client to the camera remote
     mCamera = new Camera(camera);
     if (mCamera == NULL) {
         LOGE("Unable to connect to camera");
-        return;
+        return PVMFErrNoResources;
     }
 
     LOGV("Connected to camera");
@@ -1128,6 +1131,7 @@ void AndroidCameraInput::SetCamera(const sp<android::ICamera>& camera)
         mFlags |= FLAGS_HOT_CAMERA;
         LOGV("camera is hot");
     }
+    return PVMFSuccess;
 }
 
 PVMFStatus AndroidCameraInput::postWriteAsync(const sp<IMemory>& frame)
@@ -1138,21 +1142,12 @@ PVMFStatus AndroidCameraInput::postWriteAsync(const sp<IMemory>& frame)
         LOGE("frame is a NULL pointer");
         return PVMFFailure;
     }
-    if (iState != STATE_STARTED)
-    {
-        return PVMFSuccess;
-    }
 
     // release the received recording frame right way
     // if recording has not been started yet or recording has already finished
-    if (!isRecorderStarting()) {
+    if((!iPeer) || (!isRecorderStarting()) ) {
         LOGV("Recording is not started, so recording frame is dropped");
         mCamera->releaseRecordingFrame(frame);
-        return PVMFSuccess;
-    }
-
-    if (!iPeer) {
-        LOGW("iPeer is NULL");
         return PVMFSuccess;
     }
 
@@ -1162,6 +1157,7 @@ PVMFStatus AndroidCameraInput::postWriteAsync(const sp<IMemory>& frame)
         iTimeStamp = 0;
     } else {
         uint32 timeStamp = (systemTime(SYSTEM_TIME_MONOTONIC) / 1000000) - iStartTickCount;
+    // Make sure that no two samples have the same timestamp
         if (iTimeStamp != timeStamp) {
             iTimeStamp = timeStamp;
         } else {
@@ -1173,7 +1169,8 @@ PVMFStatus AndroidCameraInput::postWriteAsync(const sp<IMemory>& frame)
     ssize_t offset = 0;
     size_t size = 0;
     sp<IMemoryHeap> heap = frame->getMemory(&offset, &size);
-    //LOGV("ID = %d, base = %p, offset = %p, size = %d", heap->getHeapID(), heap->base(), offset, size);
+    LOGV("postWriteAsync: ID = %d, base = %p, offset = %p, size = %d pointer %p", heap->getHeapID(), heap->base(), offset, size, frame->pointer());
+    //LOGV("postWriteAsync: ID = %d, base = %p, offset = %p, size = %d", heap->getHeapID(), heap->base(), offset, size);
 
     //LOGV("@@@@@@@@@@@@@ incrementing reference count (%d) @@@@@@@@@@@@@@@", mFrameRefCount);
     if (mHeap == 0) {

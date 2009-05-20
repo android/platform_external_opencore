@@ -36,22 +36,23 @@
 OSCL_DLL_ENTRY_POINT_DEFAULT()
 
 #define PVMF_JITTER_BUFFER_ROLL_OVER_THRESHOLD_16BIT 2000
+const uint16 RTPSEQNUM_ROLLOVER_WRAP_THRESHHOLD_16BIT = 0x8000;
 
 const int32 iEstimatedServerKeepAheadInMilliSeconds = 2000;
 
 /* RTP HEADER CONSTANTS */
-#define SUPPORTED_RTP_HEADER_VERSION	2
-#define RTP_FIXED_HEADER_SIZE			12
-#define RTP_HEADER_V_BIT_MASK			0xC0
-#define RTP_HEADER_V_BIT_OFFSET			6
-#define RTP_HEADER_P_BIT_MASK			0x20
-#define RTP_HEADER_P_BIT_OFFSET			5
-#define RTP_HEADER_X_BIT_MASK			0x10
-#define RTP_HEADER_X_BIT_OFFSET			4
-#define RTP_HEADER_CC_BIT_MASK			0x0F
-#define RTP_HEADER_M_BIT_MASK			0x80
-#define RTP_HEADER_M_BIT_OFFSET			7
-#define RTP_HEADER_PT_MASK				0x7F
+#define SUPPORTED_RTP_HEADER_VERSION    2
+#define RTP_FIXED_HEADER_SIZE           12
+#define RTP_HEADER_V_BIT_MASK           0xC0
+#define RTP_HEADER_V_BIT_OFFSET         6
+#define RTP_HEADER_P_BIT_MASK           0x20
+#define RTP_HEADER_P_BIT_OFFSET         5
+#define RTP_HEADER_X_BIT_MASK           0x10
+#define RTP_HEADER_X_BIT_OFFSET         4
+#define RTP_HEADER_CC_BIT_MASK          0x0F
+#define RTP_HEADER_M_BIT_MASK           0x80
+#define RTP_HEADER_M_BIT_OFFSET         7
+#define RTP_HEADER_PT_MASK              0x7F
 
 OSCL_EXPORT_REF PVMFJitterBuffer* PVMFRTPJitterBufferImpl::New(const PVMFJitterBufferConstructParams& aCreationData)
 {
@@ -128,6 +129,7 @@ PVMFRTPJitterBufferImpl::PVMFRTPJitterBufferImpl(const PVMFJitterBufferConstruct
     iBurstDetectDurationInMilliSec = 0;
     iInitialBuffering = true;
     iBurstClock = NULL;
+    ipRTPInfoTrackerLogger = PVLogger::GetLoggerObject("RTPInfoTracker");
 }
 
 void PVMFRTPJitterBufferImpl::Construct()
@@ -210,7 +212,18 @@ OSCL_EXPORT_REF void PVMFRTPJitterBufferImpl::AdjustRTPTimeStamp()
 
 OSCL_EXPORT_REF void PVMFRTPJitterBufferImpl::setRTPInfoParams(PVMFRTPInfoParams rtpInfo, bool oPlayAfterASeek)
 {
-    iJitterBuffer->setSeqNumBase(rtpInfo.seqNum);
+    //TODO: ??May be we should push in the vect only if seqbase is set
+    if (oPlayAfterASeek)
+    {
+        //Clean everything in the vector before pushing new RTPInfo
+        iRTPInfoParamsVec.clear();
+    }
+
+    if (rtpInfo.seqNumBaseSet)
+    {
+        iJitterBuffer->setSeqNumBase(rtpInfo.seqNum);
+    }
+
     PVMFRTPInfoParams iRTPInfoParams;
     iRTPInfoParams.seqNumBaseSet = rtpInfo.seqNumBaseSet;
     if (rtpInfo.seqNumBaseSet == true)
@@ -294,12 +307,6 @@ OSCL_EXPORT_REF void PVMFRTPJitterBufferImpl::setRTPInfoParams(PVMFRTPInfoParams
     if (iRTPInfoParams.rtpTimeBaseSet)
     {
         iPrevAdjustedRTPTS = iRTPInfoParams.rtpTime;
-    }
-
-    if (oPlayAfterASeek)
-    {
-        //Clean everything in the vector before pushing new RTPInfo
-        iRTPInfoParamsVec.clear();
     }
 
     iRTPInfoParamsVec.push_back(iRTPInfoParams);
@@ -696,7 +703,7 @@ void PVMFRTPJitterBufferImpl::EOSCmdReceived()
 //_______________________________________________________________________________________________
 // Ver |P |X |    CC     |M |         PT         |                 Sequence Number               |
 //_______________________________________________________________________________________________
-//                                     Timestamp												 |
+//                                     Timestamp                                                 |
 //_______________________________________________________________________________________________
 //                                      SSRC                                                     |
 //_______________________________________________________________________________________________
@@ -978,7 +985,7 @@ void PVMFRTPJitterBufferImpl::UpdatePacketArrivalStats(PVMFSharedMediaDataPtr& a
 {
     //Update interarrival jitter
     /* D(i-1,i) = (RecvT(i) - RTP_TS(i)) -
-    			  (RecvT(i-1) - RTP_TS(i-1)) */
+                  (RecvT(i-1) - RTP_TS(i-1)) */
 
     uint32 currPacketRecvTime32;
     bool overflowFlag = false;
@@ -1320,8 +1327,7 @@ void PVMFRTPJitterBufferImpl::DeterminePrevTimeStampPeek(uint32 aSeqNum,
     }
     else
     {
-        uint16 diff32 = 0;
-        if (rtpInfoParams->seqNumBaseSet && IsSequenceNumEarlier(OSCL_STATIC_CAST(uint16, iPrevSeqNumBaseOut), OSCL_STATIC_CAST(uint16, rtpInfoParams->seqNum), diff32))
+        if (rtpInfoParams->seqNumBaseSet && (iPrevSeqNumBaseOut != rtpInfoParams->seqNum))
         {
             aPrevTS = rtpInfoParams->rtpTime;
         }
@@ -1335,17 +1341,14 @@ void PVMFRTPJitterBufferImpl::DeterminePrevTimeStampPeek(uint32 aSeqNum,
 
 bool PVMFRTPJitterBufferImpl::IsSequenceNumEarlier(uint16 aSeqNumToComp, uint16 aBaseSeqNum, uint16& aDiff)
 {
-    aDiff = 0;
-    if (aSeqNumToComp < aBaseSeqNum)
-        return true;
-
-    aDiff = aSeqNumToComp - aBaseSeqNum;
-    if (aDiff < PVMF_JITTER_BUFFER_ROLL_OVER_THRESHOLD_16BIT)
+    PVMF_JB_LOGINFO((0, "PVMFRTPJitterBufferImpl::IsSequenceNumEarlier aSeqNumToComp[%d] , aBaseSeqNum[%d], aDiff[%d]", aSeqNumToComp , aBaseSeqNum, aDiff));
+    aDiff = aBaseSeqNum - aSeqNumToComp;
+    if ((aDiff != 0) && (aDiff < RTPSEQNUM_ROLLOVER_WRAP_THRESHHOLD_16BIT))
     {
-        return false;
+        return true;
     }
-
-    return true;
+    aDiff = 0 - aDiff;
+    return false;
 }
 
 PVMFStatus PVMFRTPJitterBufferImpl::PerformFlowControl(bool aIncomingPacket)
@@ -1379,8 +1382,8 @@ void PVMFRTPJitterBufferImpl::DeterminePrevTimeStamp(uint32 aSeqNum)
             OSCL_LEAVE(OsclErrArgument);
         }
     }
-    uint16 diff = 0;
-    if (rtpInfoParams->seqNumBaseSet && IsSequenceNumEarlier(OSCL_STATIC_CAST(uint16, iPrevSeqNumBaseOut), OSCL_STATIC_CAST(uint16, rtpInfoParams->seqNum), diff))
+
+    if (rtpInfoParams->seqNumBaseSet && (iPrevSeqNumBaseOut != rtpInfoParams->seqNum))
     {
         /* We need to adjust iMonotonicTimeStamp as well for resume */
         if (rtpInfoParams->isPlayAfterPause && rtpInfoParams->nptTimeBaseSet && isPrevNptTimeSet && isPrevRtpTimeSet)
@@ -1415,8 +1418,8 @@ void PVMFRTPJitterBufferImpl::DeterminePrevTimeStamp(uint32 aSeqNum)
         iPrevSeqNumBaseOut = rtpInfoParams->seqNum;
         iPrevTSOut = rtpInfoParams->rtpTime;
     }
-    PVMF_JB_LOGINFO((0, "PVMFJitterBufferImpl::DeterminePrevTimeStamp: RTPInfoSeqNum=%d, iPrevSeqNumBaseOut=%d, iPrevTSOut=%u",
-                     rtpInfoParams->seqNum, iPrevSeqNumBaseOut, iPrevTSOut));
+    PVMF_JB_LOGINFO((0, "PVMFJitterBufferImpl::DeterminePrevTimeStamp: MimeStr %s, RTPInfoSeqNum=%d, iPrevSeqNumBaseOut=%d, iPrevTSOut=%u",
+                     irMimeType.get_cstr(), rtpInfoParams->seqNum, iPrevSeqNumBaseOut, iPrevTSOut));
 
 }
 
@@ -1433,3 +1436,93 @@ void PVMFRTPJitterBufferImpl::ReportJBInfoEvent(PVMFAsyncEvent& aEvent)
     }
     PVMFJitterBufferImpl::ReportJBInfoEvent(aEvent);
 }
+
+PVMFRTPInfoParams* PVMFRTPJitterBufferImpl::FindRTPInfoParams(uint32 aSeqNum)
+{
+    //Repos use case OR no pause in streaming session use case
+    if (iRTPInfoParamsVec.size() == 1)
+    {
+        return (iRTPInfoParamsVec.begin());
+    }
+
+    //Pause-Resume use case.
+    //1. Purge stail entries in RTPInfo vector
+    //   If the number of entries in the vect are more than one
+    //   Traverse the vector from bottom to top (earliest RTPInfo to latest RTPInfo)
+    //   Purge the RTPInfo if
+    //   (aSeqNum - RTPInfo's seqnum) >= RTPSEQNUM_ROLLOVER_WRAP_THRESHHOLD_16BIT in unsigned arithmatic
+    //2. Determine correct RTPInfo
+    //   Traverse RTP entries from latest to earliest and get the one that satisfies
+    //   RTPInfo's seqnum >= aSeqNum in unsigned arithmatic
+
+
+    /////////////////////Purge stail entries///////////////////////
+    bool continuePurging = (iRTPInfoParamsVec.size() > 1);
+    while (continuePurging)
+    {
+        Oscl_Vector<PVMFRTPInfoParams, OsclMemAllocator>::iterator it;
+        for (it = iRTPInfoParamsVec.begin();
+                it < iRTPInfoParamsVec.end();
+                it++)
+        {
+            if ((aSeqNum - it->seqNum) >= RTPSEQNUM_ROLLOVER_WRAP_THRESHHOLD_16BIT)
+            {
+                PVMF_JB_LOGRTPINFO_I((0, "PVMFRTPJitterBufferImpl::FindRTPInfoParams Purging RTPInfo MimeStr[%s] SeqNum[%u] RTPSeqNum[%u]", irMimeType.get_cstr(), aSeqNum, it->seqNum));
+                iLatestPurgedRTPInfoParams.isPlayAfterPause = it->isPlayAfterPause;
+                iLatestPurgedRTPInfoParams.nptTimeBaseSet = it->nptTimeBaseSet;
+                iLatestPurgedRTPInfoParams.nptTimeInMS = it->nptTimeInMS;
+                iLatestPurgedRTPInfoParams.nptTimeInRTPTimeScale = it->nptTimeInRTPTimeScale;
+                iLatestPurgedRTPInfoParams.rtpTime = it->rtpTime;
+                iLatestPurgedRTPInfoParams.rtpTimeBaseSet = it->rtpTimeBaseSet;
+                iLatestPurgedRTPInfoParams.rtpTimeScale = it->rtpTimeScale;
+                iLatestPurgedRTPInfoParams.seqNum = it->seqNum;
+                iLatestPurgedRTPInfoParams.seqNumBaseSet = it->seqNumBaseSet;
+                iRTPInfoParamsVec.erase(it);
+            }
+            else
+            {
+                continuePurging = false;
+            }
+            break;
+        }
+        continuePurging = ((iRTPInfoParamsVec.size() > 1) && continuePurging);
+    }
+
+    /////////////////////Look for correct RTPInfo///////////////////
+    PVMFRTPInfoParams* retVal = NULL;
+    Oscl_Vector<PVMFRTPInfoParams, OsclMemAllocator>::iterator it;
+
+    for (it = iRTPInfoParamsVec.end() - 1;
+            it >= iRTPInfoParamsVec.begin();
+            it--)
+    {
+        uint16 diff = 0;
+        bool seqEarlier = IsSequenceNumEarlier(it->seqNum, aSeqNum, diff);
+        if (seqEarlier || (0 == diff))
+        {
+            retVal = it;
+            break;
+        }
+    }
+
+    PVMF_JB_LOGRTPINFO_I((0, "PVMFRTPJitterBufferImpl::FindRTPInfoParams Mime [%s] SeqNum[%u] RTPSeqNum[%u]", irMimeType.get_cstr(), aSeqNum, retVal ? (retVal->seqNum) : 0xFFFFFFFF));
+    if ((NULL == retVal) && (iLatestPurgedRTPInfoParams.seqNumBaseSet))
+    {
+        //It is possible not to get the RTPInfo under the following use-case.
+        //RTP-Info's received for the session 0, 42000
+        //On receving the packet with seqnum >=42000. RTPInfo with seqnum 0 will be purged.
+        //Now, suppose after purging we get the packet with the sequence num <42000 say 39999
+        //Now, even tho packet is not that late as per the JB logic, and is just OOO
+        //packet. We should still could be able to get the correct RTP_Info for it.
+        //So, we better persist the latest purged RTPInfo.
+        retVal = &iLatestPurgedRTPInfoParams;
+    }
+
+    if (!retVal)
+    {
+        PVMF_JB_LOGRTPINFO_I((0, "PVMFRTPJitterBufferImpl::FindRTPInfoParams Critical ERROR -- Mime [%s] SeqNum[%u] RTPInfoVectSz[%d] PurgedRTPInfoSet[%d]", irMimeType.get_cstr(), aSeqNum, iRTPInfoParamsVec.size(), (iLatestPurgedRTPInfoParams.seqNumBaseSet ? true : false)));
+    }
+
+    return retVal;
+}
+

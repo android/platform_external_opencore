@@ -51,7 +51,8 @@ TrackAtom::TrackAtom(MP4_FF_FILE *fp,
                      uint32 type,
                      bool oPVContent,
                      bool oPVContentDownloadable,
-                     uint32 parsingMode)
+                     uint32 parsingMode,
+                     bool aOpenFileOncePerTrack)
         : Atom(fp, size, type)
 {
 
@@ -200,14 +201,15 @@ TrackAtom::TrackAtom(MP4_FF_FILE *fp,
                 count -= _ptrackHeader->getSize();
             }
             else if (atomType == MEDIA_ATOM)
-            {	// mdia
+            {   // mdia
                 if (_pmediaAtom != NULL)
                 {
                     _success = false;
                     _mp4ErrorCode = DUPLICATE_MEDIA_ATOMS;
                     break;
                 }
-                PV_MP4_FF_NEW(fp->auditCB, MediaAtom, (fp, filename, atomSize, atomType, oPVContentDownloadable, parsingMode), _pmediaAtom);
+                PV_MP4_FF_NEW(fp->auditCB, MediaAtom, (fp, filename, atomSize, atomType,
+                                                       oPVContentDownloadable, parsingMode, aOpenFileOncePerTrack), _pmediaAtom);
 
                 if (!_pmediaAtom->MP4Success())
                 {

@@ -82,9 +82,14 @@ class PVH324MessageQueryInterface : public CPVH324InterfaceCmdMessage
                 iUuid(aUuid),
                 iInterfacePtr(aInterfacePtr)
         {
-            somenumber = 101;
+            iInterfacePtr->addRef();
         }
-        int somenumber;
+
+        virtual ~PVH324MessageQueryInterface()
+        {
+            iInterfacePtr->removeRef();
+        }
+
         PVUuid iUuid;
         PVInterface*& iInterfacePtr;
 };
@@ -448,7 +453,7 @@ class PVH324MessageSendUserInput: public CPVCmnInterfaceCmdMessage
         {
             if (iUserInput)
             {
-                delete iUserInput;
+                OSCL_DELETE(iUserInput);
                 iUserInput = NULL;
             }
             if (input)
@@ -566,14 +571,18 @@ class PVH324MessageUtils
 H324MConfig::H324MConfig(TSC_324m *aH324M, bool aUseAO) :
         OsclActiveObject(OsclActiveObject::EPriorityNominal, "H324MConfig"),
         iH324M(aH324M),
-        iReferenceCount(0),
+        iReferenceCount(1),
         iLogger(NULL),
         iCommandId(1),
         iObserver(NULL),
         iUseAO(aUseAO)
 {
     iLogger = PVLogger::GetLoggerObject("3g324m.h324mconfig");
-    addRef();
+    if (iUseAO)
+    {
+        AddToScheduler();
+    }
+
     iH324M->SetTSC_324mObserver((TSC_324mObserver*)this);
 }
 
@@ -591,13 +600,13 @@ void H324MConfig::SetObserver(H324MConfigObserver* aObserver)
 void H324MConfig::Run()
 {
     unsigned i = 0;
-    for (i = 0;i < iPendingResponses.size();i++)
+    for (i = 0; i < iPendingResponses.size(); i++)
     {
         iObserver->H324MConfigCommandCompletedL(iPendingResponses[i]);
     }
     iPendingResponses.clear();
 
-    for (i = 0;i < iPendingEvents.size();i++)
+    for (i = 0; i < iPendingEvents.size(); i++)
     {
         iObserver->H324MConfigHandleInformationalEventL(iPendingEvents[i]);
     }
@@ -725,11 +734,12 @@ PVMFCommandId H324MConfig::SetVendor(uint8 aCc, uint8 aExt, uint32 aMc,
 {
     OSCL_UNUSED_ARG(aContextData);
 
-    TPVH245Vendor* h245vendor = new TPVVendorH221NonStandard(aCc, aExt, aMc);
+    TPVH245Vendor* h245vendor = OSCL_NEW(TPVVendorH221NonStandard,
+                                         (aCc, aExt, aMc));
     iH324M->SetVendorIdInfo(h245vendor,
                             aProduct, aProductLen,
                             aVersion, aVersionLen);
-    delete h245vendor;
+    OSCL_DELETE(h245vendor);
     SendCmdResponse(iCommandId, aContextData, PVMFSuccess);
     return iCommandId++;
 };
@@ -870,14 +880,12 @@ PVMFCommandId H324MConfig::SetWnsrp(const bool aEnableWnsrp,
 ////////////////////////////////////
 void H324MConfig::addRef()
 {
-    if (iReferenceCount == 0 && iUseAO)
-        AddToScheduler();
     iReferenceCount++;
 }
 
 void H324MConfig::removeRef()
 {
-    if (--iReferenceCount == 0)
+    if (--iReferenceCount <= 0)
     {
         OSCL_DELETE(this);
     }
@@ -1348,7 +1356,7 @@ void H324MConfigProxied::CleanupNotification(TPVProxyMsgId aId, OsclAny *aMsg)
     OSCL_UNUSED_ARG(aId);
     PVMFEventBase* event = OSCL_STATIC_CAST(PVMFEventBase*, aMsg);
     if (event)
-        delete event;
+        OSCL_DELETE(event);
 }
 
 void H324MConfigProxied::HandleCommand(TPVProxyMsgId aMsgId, OsclAny *aMsg)
@@ -1866,7 +1874,7 @@ void H324MConfigProxied::CleanupCommand(TPVProxyMsgId aId, OsclAny *aMsg)
 ///////////////////////////////////////
 // H324MProxiedInterface
 ///////////////////////////////////////
-H324MProxiedInterface::H324MProxiedInterface() : iH324M(NULL), iMainProxy(NULL), iReferenceCount(0) {}
+H324MProxiedInterface::H324MProxiedInterface() : iH324M(NULL), iMainProxy(NULL), iReferenceCount(1) {}
 H324MProxiedInterface::~H324MProxiedInterface() {}
 
 void H324MProxiedInterface::QueryProxiedInterface(const TPVProxyUUID &aUuid,

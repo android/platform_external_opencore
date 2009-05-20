@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: ps_bstr_decoding.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: ps_bstr_decoding.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

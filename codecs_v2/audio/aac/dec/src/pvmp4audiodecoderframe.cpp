@@ -17,157 +17,7 @@
  */
 /*
 
- Pathname: pvmp4audiodecodeframe
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Pulled in loop structure from console.c, so that this function
-               now decodes all frames in the file.
-
-               Original program used several global variables.  These have been
-               eliminated, except for situations in which the global variables
-               could be converted into const types.  Otherwise, they are passed
-               by reference through the functions.
-
- Description:  Begin mods for file I/O removal
-
- Description:  Merged trans4m_freq_2_time, trans4m_time_2_freq, etc.
-
- Description:  Removing commented out sections of code.  This includes the
-               removal of unneeded functions init_lt_pred, reset_mc_info,
-
- Description: Copied from aac_decode_frame.c and renamed file,
-              Made many changes.
-
- Description: Prepare for code review
-
- Description: Update per review comments:
-              1) Add comment about leaveGetLoop
-              2) Remove inverseTNSCoef array
-              3) fix wnd_shape_this_bk to wnd_shape_prev_bk in F to T
-              4) Clean up comments
-              5) Change call to long_term_synthesis
-
- Description: Remove division for calculation of bitrate.
-
- Description: Remove update of LTP buffers if not LTP audio object type.
-
- Description: Add hasmask to call to right_ch_sfb_tools_ms
-
- Description:
- Modified to call ltp related routines on the left channel
- before intensity is called on the right channel.  The previous version
- was causing a problem when IS was used on the right channel and LTP
- on the left channel for the same scalefactor band.
-
- This fix required creating a new function, apply_ms_synt, deleting another
- function (right_ch_sfb_tools_noms.c), and modifying the calling order of
- the other functions.
-
- Description: Made changes per review comments.
-
- Description: Changed name of right_ch_sfb_tools_ms to pns_intensity_right
-
- Description: Added cast, since pVars->inputStream.usedBits is UInt, and
- pExt->remainderBits is Int.
-
- pExt->remainderBits =
-    (Int)(pVars->inputStream.usedBits & INBUF_BIT_MODULO_MASK);
-
- Description: Modified to pass a pointer to scratch memory into
- tns_setup_filter.c
-
- Description: Removed include of "s_TNSInfo.h"
-
- Description: Removed call to "tns_setup_filter" which has been eliminated
- by merging its functionality into "get_tns"
-
- Description:  Passing in a pointer to a q-format array, rather than
- the address of a single q-format, for the inverse filter case for
- apply_tns.
-
- Description:
- (1) Added #include of "e_ElementId.h"
-     Previously, this function was relying on another include file
-     to include "e_ElementId.h"
-
- (2) Updated the copyright header.
-
- Description:
- Per review comments, declared two temporary variables
-
-    pChLeftShare  = pChVars[LEFT]->pShareWfxpCoef;
-    pChRightShare = pChVars[RIGHT]->pShareWfxpCoef;
-
- Description:
-    long_term_synthesis should have been invoked with max_sfb
-    as the 2nd parameter, rather than pFrameInfo->sfb_per_win[0].
-
-    Old
-                long_term_synthesis(
-                    pChVars[ch]->wnd,
-                    pFrameInfo->sfb_per_win[0] ...
-
-    Correction
-                long_term_synthesis(
-                    pChVars[ch]->wnd,
-                    pChVars[ch]->pShareWfxpCoef->max_sfb ...
-
-    This problem caused long_term_synthesis to read memory which
-    was not initialized in get_ics_info.c
-
- Description:
- (1) Utilize scratch memory for the scratch Prog_Config.
-
- Description: (1) Modified to decode ID_END syntactic element after header
-
- Description:
- (1) Reconfigured LTP buffer as a circular buffer.  This saves
-     2048 Int16->Int16 copies per frame.
-
- Description: Updated so ltp buffers are not used as a wasteful
- intermediate buffer for LC streams.  Data is transferred directly
- from the filterbank to the output stream.
-
- Description: Decode ADIF header if frame count is zero.
-              The AudioSpecificConfig is decoded by a separate API.
-
- Description: Added comments explaining how the ltp_buffer_state
- variable is updated.
-
-
- Description: Modified code to take advantage of new trans4m_freq_2_time_fxp,
- which writes the output directly into a 16-bit output buffer.  This
- improvement allows faster operation by reducing the amount of memory
- transfers.  Speed can be further improved on most platforms via use of a
- DMA transfer in the function write_output.c
-
- Description: perChan[] is an array of structures in tDec_Int_File. Made
-              corresponding changes.
-
- Description: Included changes in interface for q_normalize() and
-              trans4m_freq_2_time_fxp.
-
- Description: Included changes in interface for long_term_prediction.
-
- Description: Added support for DSE (Data Streaming Channel). Added
-              function get_dse() and included file get_dse.h
-
- Description: Added support for the ill-case when a raw data block contains
-              only a terminator <ID_END>. This is illegal but is added
-              for convinience
-
- Description: Added support for empty audio frames, such the one containing
-              only DSE or FILL elements. A trap was added to stop processing
-              when no audio information was sent.
-
- Description: Added support for adts format files. Added saturation to
-              floating point version of aac+ decoding
-
- Description:
+ Filename: pvmp4audiodecoderframe.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -388,28 +238,6 @@
    Copyright(c)1996.
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
-
-------------------------------------------------------------------------------
 */
 
 
@@ -445,8 +273,6 @@
 #include "apply_tns.h"
 
 #include "window_block_fxp.h"
-
-#include "write_output.h"
 
 #include "pvmp4audiodecoder_api.h"   /* Where this function is declared */
 #include "get_dse.h"

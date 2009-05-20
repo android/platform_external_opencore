@@ -62,6 +62,7 @@ LOCAL_COPY_HEADERS := \
  	src/oscl_file_find.h \
  	src/oscl_file_handle.h \
  	src/oscl_file_io.h \
+ 	src/oscl_file_cache.h \
  	src/oscl_file_server.h \
  	src/oscl_socket.h \
  	src/oscl_socket_types.h \

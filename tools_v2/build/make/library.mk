@@ -73,6 +73,7 @@ ifeq ($($(TARGET)_libtype),shared-archive)
   LIB_EXT:=$(SHARED_ARCHIVE_LIB_EXT)
   OBJSUBDIR:=shared
   XCXXFLAGS+=$(SHARED_CXXFLAGS)
+  XCPPFLAGS+=$(SHARED_CPPFLAGS)
   TMPDEPS = $(patsubst %,$$(%_fullname),$(LIBS))
   $(eval $(TARGET)_LIBDEPS = $(TMPDEPS))
 else 
@@ -80,12 +81,14 @@ else
     LIB_EXT:=$(SHARED_LIB_EXT)
     OBJSUBDIR:=shared
     XCXXFLAGS+=$(SHARED_CXXFLAGS)
+    XCPPFLAGS+=$(SHARED_CPPFLAGS)
     TMPDEPS = $(patsubst %,$$(%_fullname),$(LIBS))
     $(eval $(TARGET)_LIBDEPS = $(TMPDEPS))
   else
     LIB_EXT:=$(STAT_LIB_EXT)
     OBJSUBDIR:=static
     $(TARGET)_LIBDEPS =
+    XCPPFLAGS+=$(STATIC_CPPFLAGS)
   endif
 endif
 
@@ -154,7 +157,8 @@ LOCAL_TOTAL_INCDIRS := $(LOCAL_SRCDIR) $(LOCAL_INCSRCDIR) $(LOCAL_XINCDIRS)
 
 # $(info  LOCAL_TOTAL_INCDIRS = $(LOCAL_TOTAL_INCDIRS), XCXXFLAGS = $(XCXXFLAGS))
 
-$(COMPILED_OBJS): XFLAGS := $(XCPPFLAGS) $(patsubst %,-I%,$(LOCAL_TOTAL_INCDIRS)) $(XCXXFLAGS)
+$(COMPILED_OBJS): XPFLAGS := $(XCPPFLAGS) $(patsubst %,-I%,$(LOCAL_TOTAL_INCDIRS))
+$(COMPILED_OBJS): XXFLAGS := $(XCXXFLAGS)
 
 #$(info remote_dirs = $(REMOTE_DIRS))
 
@@ -165,10 +169,10 @@ endif
 
 
 $(OBJDIR)/%.$(OBJ_EXT): $(LOCAL_SRCDIR)/%.cpp 
-	$(call make-cpp-obj-and-depend,$<,$@,$(subst .$(OBJ_EXT),.d,$@),$(XFLAGS))
+	$(call make-cpp-obj-and-depend,$<,$@,$(subst .$(OBJ_EXT),.d,$@),$(XPFLAGS),$(XXFLAGS))
 
 $(OBJDIR)/%.$(OBJ_EXT): $(LOCAL_SRCDIR)/%.c
-	$(call make-c-obj-and-depend,$<,$@,$(subst .$(OBJ_EXT),.d,$@),$(XFLAGS))
+	$(call make-c-obj-and-depend,$<,$@,$(subst .$(OBJ_EXT),.d,$@),$(XPFLAGS),$(XXFLAGS))
 
 # $(info target = $(TARGET), LIBDEPS = $($(TARGET)_LIBDEPS))
 

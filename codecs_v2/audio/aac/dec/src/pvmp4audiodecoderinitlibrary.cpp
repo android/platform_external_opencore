@@ -17,42 +17,7 @@
  */
 /*
 
- Pathname: PVMP4AudioDecoderInitLibrary.c
-
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Copied from aac_decode_frame
-
- Description:  Clean up.
-
- Description:  Update per review comments
-
- Description:  Add frame_length, fix mistake in pseudo-code.
-               Change frame_length to frameLength, to matcht the API,
-               look more professional, etc.
-
- Description:
- (1) Added #include of "e_ProgConfigConst.h"
-     Previously, this function was relying on another include file
-     to include "e_ProgConfigConst.h"
-
- (2) Updated the copyright header.
-
- Description:
- (1) Modified to initialize pointers for shared memory techniques.
-
- Description: Since memory will be allocated continuously, it is initialized
-              in one spot
-
- Description: Added field aacPlusUpsamplingFactor (default == 1) to have a
-              common interface for all AAC variations
-
- Description: Added PVMP4AudioDecoderDisableAacPlus to disable sbr decoding
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: pvmp4audiodecoderinitlibrary.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -163,28 +128,6 @@
     MODIFY(pExt)
     MODIFY(pMem)
     RETURN(SUCCESS)
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

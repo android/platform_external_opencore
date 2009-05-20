@@ -129,7 +129,7 @@ bool CPVInterfaceProxy_OMX::ConstructL(uint32 nreserve1, uint32 nreserve2, int32
     if (nreserve2 > 0)
     {
         iCommandQueue.reserve(nreserve2);
-//		iNotificationQueue.reserve(nreserve2);
+//      iNotificationQueue.reserve(nreserve2);
     }
 
     //create handler
@@ -205,7 +205,10 @@ OSCL_EXPORT_REF bool CPVInterfaceProxy_OMX::StartPVThread()
     OsclProcStatus::eOsclProcError err;
     err = iPVThread.Create((TOsclThreadFuncPtr)pvproxythreadmain_omx,
                            iStacksize,
-                           (TOsclThreadFuncArg)this);
+                           (TOsclThreadFuncArg)this,
+                           Start_on_creation,
+                           true
+                          );
 
 
     if (err == OSCL_ERR_NONE)
@@ -249,7 +252,7 @@ OSCL_EXPORT_REF void CPVInterfaceProxy_OMX::StopPVThread()
     //if called under the PV thread, we'll get deadlock..
     //so don't allow it.
     if (iPVThreadContext.IsSameThreadContext())
-    {	//Commented to remove oscl tls dependency (OsclError::Panic)
+    {   //Commented to remove oscl tls dependency (OsclError::Panic)
         return;
     }
 
@@ -276,7 +279,7 @@ OSCL_EXPORT_REF void CPVInterfaceProxy_OMX::StopPVThread()
     //Wait for PV thread to finish up, then it's safe
     //to delete the remaining stuff.
     if (iExitedSem.Wait() != OsclProcStatus::SUCCESS_ERROR)
-    {	//Commented to remove oscl tls dependency (OsclError::Panic)
+    {   //Commented to remove oscl tls dependency (OsclError::Panic)
         return;
     }
 
@@ -296,7 +299,7 @@ OSCL_EXPORT_REF void CPVInterfaceProxy_OMX::DeliverNotifications(int32 aTargetCo
     if (iPVThreadContext.IsSameThreadContext())
         OsclError::Leave(OsclErrThreadContextIncorrect);
 
-    for (int32 count = 0;count < aTargetCount;)
+    for (int32 count = 0; count < aTargetCount;)
     {
         //get next notification or cleanup message.
         iNotifierQueueCrit.Lock();
@@ -317,7 +320,7 @@ OSCL_EXPORT_REF void CPVInterfaceProxy_OMX::DeliverNotifications(int32 aTargetCo
             if (ext)
                 ext->iClient->HandleNotification(notice.iMsgId, notice.iMsg);
             else
-            {	//since messages are cleaned up when interfaces
+            {   //since messages are cleaned up when interfaces
                 //get unregistered, we should not get here.
                 OSCL_ASSERT(NULL != ext);//debug error.
             }
@@ -387,7 +390,7 @@ void CPVInterfaceProxy_OMX::CleanupCommands(CPVProxyInterface_OMX *aExt, bool aA
     if (!aExt)
         return ;
     iHandlerQueueCrit.Lock();
-    for (uint32 i = 0;i < iCommandQueue.size();i++)
+    for (uint32 i = 0; i < iCommandQueue.size(); i++)
     {
         CPVProxyMsg_OMX *msg = &iCommandQueue[i];
         if (msg->iProxyId == aExt->iProxyId
@@ -421,7 +424,7 @@ void CPVInterfaceProxy_OMX::CleanupNotifications(CPVProxyInterface_OMX *aExt, bo
     if (!aExt)
         return ;
     iNotifierQueueCrit.Lock();
-    for (uint i = 0;i < iNotificationQueue.size();i++)
+    for (uint i = 0; i < iNotificationQueue.size(); i++)
     {
         CPVProxyMsg_OMX *msg = &iNotificationQueue[i];
         if (msg->iProxyId == aExt->iProxyId
@@ -533,7 +536,7 @@ CPVProxyInterface_OMX * CPVInterfaceProxy_OMX::FindInterface(TPVProxyId aId, boo
 {
     if (!locked)
         iProxyListCrit.Lock();
-    for (uint32 i = 0;i < iProxyList.size();i++)
+    for (uint32 i = 0; i < iProxyList.size(); i++)
     {
         if (iProxyList[i].iProxyId == aId)
         {

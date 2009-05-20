@@ -17,19 +17,7 @@
  */
 /*
 
- Pathname: tns_inv_filter.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Per request of JT, the lpc coefficients q-format will now
- be transmitted to the function.
-
- Description: The scratch memory was mistakenly declared here as type "Int32"
- It should have been "Int"
-
- Who:                       Date:
- Description:
+ Filename: tns_inv_filter.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

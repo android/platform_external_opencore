@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ps_all_pass_filter_coeff.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                   Date:
- Description:
+ Filename: ps_all_pass_filter_coeff.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

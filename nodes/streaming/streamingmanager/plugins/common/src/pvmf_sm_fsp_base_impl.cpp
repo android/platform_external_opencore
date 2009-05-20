@@ -2489,14 +2489,14 @@ void PVMFSMFSPBaseNode::ResetCPMParams(bool aReleaseMem)
     }
     iCPMMetadataKeys.clear();
     iPreviewMode = false;
-    iUseCPMPluginRegistry =	false;
+    iUseCPMPluginRegistry = false;
     iDRMResetPending = false;
     iCPMInitPending = false;
     maxPacketSize = 0;
     iPVMFStreamingManagerNodeMetadataValueCount = 0;
 
     iCPMSourceData.iRefCounter = 0;
-    iCPMSourceData.iFileHandle	= NULL;
+    iCPMSourceData.iFileHandle  = NULL;
     iCPMSourceData.iStreamStatsLoggingURL = _STRLIT("");
     iCPMSourceData.iPreviewMode = false;
     iCPMSourceData.iIntent = BITMASK_PVMF_SOURCE_INTENT_PLAY;
@@ -4745,10 +4745,10 @@ PVMFStatus PVMFSMFSPBaseNode::DoGetMetadataValuesBase(PVMFSMFSPBaseNodeCommand& 
     if ((iCPMMetaDataExtensionInterface != NULL) &&
             (iSessionSourceInfo->iDRMProtected  == true))
     {
-        if (OSCL_STATIC_CAST(int32, iNoOfValuesPushedInValueVect) < max_entries)
+        if ((OSCL_STATIC_CAST(int32, iNoOfValuesPushedInValueVect) < max_entries) || (-1 == max_entries))
         {
             uint32 cpmStartingIndex = 0;
-            uint32 cpmMaxEntries = max_entries - iNoOfValuesPushedInValueVect;
+            int32 cpmMaxEntries = (max_entries > 0) ? (max_entries - (OSCL_STATIC_CAST(int32, iNoOfValuesPushedInValueVect))) : max_entries;
 
             if (iNoOfValuesIteratedForValueVect >= starting_index)
             {
@@ -4768,8 +4768,6 @@ PVMFStatus PVMFSMFSPBaseNode::DoGetMetadataValuesBase(PVMFSMFSPBaseNodeCommand& 
             return PVMFPending;
         }
     }
-
-
 
     return PVMFSuccess;
 }
@@ -4856,7 +4854,7 @@ void PVMFSMFSPBaseNode::HandleError(const PVMFCmdResp& aResponse)
         OSCL_REINTERPRET_CAST(PVMFSMFSPCommandContext*, aResponse.GetContext());
     if (EPVMFNodeError != iInterfaceState)
     {
-        if (cmdContextData)	//It may be possible that cmdContextData == NULL for internal commands
+        if (cmdContextData) //It may be possible that cmdContextData == NULL for internal commands
         {
             OSCL_ASSERT(cmdContextData->parentCmd != PVMF_SMFSP_NODE_RESET);
         }
@@ -4969,8 +4967,23 @@ void PVMFSMFSPBaseNode::ErrHandlingComplete(const PVMFSMFSPBaseNodeCommand* aErr
                 if (IsInternalCmd(iCurrentCommand.front().iCmd))
                 {
                     //aErroneousCmd
-                    //We do not use the event data of cmd response and asyn event , becuas ewe cache the response/event and hence data may be dangling when we attempt to use it after caching.
+                    //We do not use the event data of cmd response and asyn event , because we cache the response/event and hence data may be dangling when we attempt to use it after caching.
                     InternalCommandComplete(iCurrentCommand, iCurrentCommand.front(), cmdResponse->GetCmdStatus(), NULL, NULL, NULL, cmdResponse->GetEventExtensionInterface());
+                    //Internal command are excecuted in two scenarios.
+                    //One: When the external command executed on the SM node by its owner (engine), requires decomposition
+                    //Two: Command queued internally in the SM node as per the streaming state (AutoPause/AutoResume etc as per the occupancy of JB node)
+                    //As of now, error info due to 2 only will be persisted and will be provided to the engine as error event.
+                    if (iCurrentCommand.front().iCmd != PVMF_SMFSP_NODE_CONSTRUCT_SESSION)
+                    {
+                        PVMFAsyncEvent *event = OSCL_NEW(PVMFAsyncEvent, (PVMFErrorEvent, cmdResponse->GetCmdStatus(), (OsclAny*)cmdResponse->GetContext(), cmdResponse->GetEventExtensionInterface(), cmdResponse->GetEventData()));
+                        if (event->GetEventExtensionInterface())
+                            event->GetEventExtensionInterface()->addRef();
+                        PVMFAsyncEvent eventP = OSCL_CONST_CAST(PVMFAsyncEvent, *event);
+                        PVMFNodeInterface::ReportErrorEvent(eventP);
+                        if (event->GetEventExtensionInterface())
+                            event->GetEventExtensionInterface()->removeRef();
+                        OSCL_DELETE(event);
+                    }
                 }
                 else
                 {
@@ -4985,8 +4998,23 @@ void PVMFSMFSPBaseNode::ErrHandlingComplete(const PVMFSMFSPBaseNodeCommand* aErr
                 if (IsInternalCmd(iInputCommands.front().iCmd))
                 {
                     //aErroneousCmd
-                    //We do not use the event data of cmd response and asyn event , becuas ewe cache the response/event and hence data may be dangling when we attempt to use it after caching.
+                    //We do not use the event data of cmd response and asyn event , because we cache the response/event and hence data may be dangling when we attempt to use it after caching.
                     InternalCommandComplete(iInputCommands, iInputCommands.front(), cmdResponse->GetCmdStatus(), NULL, NULL, NULL, cmdResponse->GetEventExtensionInterface());
+                    //Internal command are excecuted in two scenarios.
+                    //One: When the external command executed on the SM node by its owner (engine), requires decomposition
+                    //Two: Command queued internally in the SM node as per the streaming state (AutoPause/AutoResume etc as per the occupancy of JB node)
+                    //As of now, error info due to 2 only will be persisted and will be provided to the engine as error event.
+                    if (iInputCommands.front().iCmd != PVMF_SMFSP_NODE_CONSTRUCT_SESSION)
+                    {
+                        PVMFAsyncEvent *event = OSCL_NEW(PVMFAsyncEvent, (PVMFErrorEvent, cmdResponse->GetCmdStatus(), (OsclAny*)cmdResponse->GetContext(), cmdResponse->GetEventExtensionInterface(), cmdResponse->GetEventData()));
+                        if (event->GetEventExtensionInterface())
+                            event->GetEventExtensionInterface()->addRef();
+                        PVMFAsyncEvent eventP = OSCL_CONST_CAST(PVMFAsyncEvent, *event);
+                        PVMFNodeInterface::ReportErrorEvent(eventP);
+                        if (event->GetEventExtensionInterface())
+                            event->GetEventExtensionInterface()->removeRef();
+                        OSCL_DELETE(event);
+                    }
                 }
                 else
                 {
@@ -5012,7 +5040,7 @@ void PVMFSMFSPBaseNode::ErrHandlingComplete(const PVMFSMFSPBaseNodeCommand* aErr
     iChildNodeErrHandler->Reset();
     //remove commands from the input command Q
     const int32 inputCmndsSz = iInputCommands.size();
-    if (inputCmndsSz > 0 && (!iInputCommands[0].hipri()))	//For command at index 0 is hipri, let the command complete asynchronously in next AO cycles.
+    if (inputCmndsSz > 0 && (!iInputCommands[0].hipri()))   //For command at index 0 is hipri, let the command complete asynchronously in next AO cycles.
     {
         for (int ii = 0; ii < inputCmndsSz ; ii++)
         {
@@ -5085,7 +5113,7 @@ void PVMFSMFSPChildNodeErrorHandler::InitiateErrorHandling(const PVMFAsyncEvent&
     PerformErrorHandling();
 }
 
-void PVMFSMFSPChildNodeErrorHandler::CompleteErrorHandling(const PVMFCmdResp& aResponse)	//called by NodeCommandCompleted
+void PVMFSMFSPChildNodeErrorHandler::CompleteErrorHandling(const PVMFCmdResp& aResponse)    //called by NodeCommandCompleted
 {
     PVMF_SM_ERRHANDLER_LOGSTACKTRACE((0, "PVMFSMFSPChildNodeErrorHandler::CompleteErrorHandling In CmdId [%d] ErrHandlerState [%d]", aResponse.GetCmdId(), iState));
     OSCL_UNUSED_ARG(aResponse);
@@ -5177,7 +5205,7 @@ void PVMFSMFSPChildNodeErrorHandler::SaveErrorInfo(const PVMFCmdResp& aCmdRespon
 {
     PVMF_SM_ERRHANDLER_LOGSTACKTRACE((0, "PVMFSMFSPChildNodeErrorHandler::SaveErrorInfo - ErrSource is Command Completion"));
     iErrSource = SMFSP_ERR_SOURCE_NODE_CMD_COMPLETION;
-    if (!iCmdResponse)	//make deep copy of aCmdResponse, may be we can use the response info to persist event data too
+    if (!iCmdResponse)  //make deep copy of aCmdResponse, may be we can use the response info to persist event data too
     {
         bool eventDataLenAvailable = false;
         uint32 eventDataLen = 0;
@@ -5430,7 +5458,7 @@ void PVMFSMFSPChildNodeErrorHandler::ErrHandlingCommandComplete(PVMFFSPNodeCmdQ&
             PVMF_SM_ERRHANDLER_LOGDEBUG((0, "PVMFSMFSPChildNodeErrorHandler::ErrHandlingCommandComplete - Reset Due To Err completed"));
 
             //Do command completion or notify err event
-            iState = SMFSP_ERRHANDLER_IDLE;	//error handling complete
+            iState = SMFSP_ERRHANDLER_IDLE; //error handling complete
             iSMFSPNode->CompleteResetDueToErr();
             iSMFSPNode->ErrHandlingComplete(iErrCmd);
         }

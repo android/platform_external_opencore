@@ -93,12 +93,13 @@ class MovieAtom : public Atom
                                   uint32 type,
                                   bool oPVContent = false,
                                   bool oPVContentDownloadable = false,
-                                  uint32 parsingMode = 0);
+                                  uint32 parsingMode = 0,
+                                  bool aOpenFileOncePerTrack = true);
 
         OSCL_IMPORT_REF virtual ~MovieAtom();
 
 
-        int32 updateFileSize(uint32	filesize);
+        int32 updateFileSize(uint32 filesize);
 
         int32 getNextMediaSample(uint32 id, uint8 *buf, uint32 &size, uint32 &index, uint32 &SampleOffset);
         int32 getMediaSample(uint32 sampleNumber, uint32 id, uint8 *buf, int32 &size, uint32 &index, uint32 &SampleOffset);
@@ -782,10 +783,10 @@ class MovieAtom : public Atom
 
         MovieHeaderAtom       *_pmovieHeaderAtom;
         ObjectDescriptorAtom  *_pobjectDescriptorAtom;
-        UserDataAtom		  *_pUserDataAtom;
+        UserDataAtom          *_pUserDataAtom;
 
 
-        MovieExtendsAtom	  *_pMovieExtendsAtom;
+        MovieExtendsAtom      *_pMovieExtendsAtom;
 
         int32 _scalability;
         int32 _fileType;

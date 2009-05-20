@@ -19,8 +19,8 @@
 #define PV_OMXDEFS_H_INCLUDED
 
 /** Maximum number of base_component component instances */
-//#define MAX_SUPPORTED_COMPONENTS 10 		// e.g. 10 = PV -MP4, PV-H263, PV-AVC, PV-WMV, PV-AAC, PV-AMR, PV-MP3, ...
-#define MAX_SUPPORTED_COMPONENTS 15 		// e.g. 10 = PV -MP4, PV-H263, PV-AVC, PV-WMV, PV-AAC, PV-AMR, PV-MP3, ...
+//#define MAX_SUPPORTED_COMPONENTS 10       // e.g. 10 = PV -MP4, PV-H263, PV-AVC, PV-WMV, PV-AAC, PV-AMR, PV-MP3, ...
+#define MAX_SUPPORTED_COMPONENTS 15         // e.g. 10 = PV -MP4, PV-H263, PV-AVC, PV-WMV, PV-AAC, PV-AMR, PV-MP3, ...
 #define MAX_INSTANTIATED_COMPONENTS 7
 
 //#define INSERT_NAL_START_CODE
@@ -40,6 +40,15 @@
 // 1 - Enable,  0 - disable
 // 1 - Multithreaded, 0 - AO
 #define PROXY_INTERFACE 1
+
+
+#if (PROXY_INTERFACE) && (PVLOGGER_INST_LEVEL>0)
+// Logging in pv omx components that run in separate threads can only be done by sending a log into
+// a separate file. The file is created and logging works unless built for release mode
+// By default - logging for multi-threaded components is ON in dbg build
+// TO DISABLE LOGGING IN OMX COMPONENTS - SET THE #define below to 0
+#define PV_OMX_LOGGER_OUTPUT 0
+#endif
 
 // The following is needed for dll linking of APIs
 #define __OMX_EXPORTS
@@ -71,9 +80,9 @@
 */
 #define BUFFER_FREE 0
 
-#define PORT_IS_BEING_FLUSHED(port)				(port->IsPortFlushed == OMX_FALSE)
-#define PORT_IS_ENABLED(port)					(port->PortParam.bEnabled == OMX_TRUE)
-#define PORT_IS_POPULATED(port)					(port->PortParam.bPopulated == OMX_TRUE)
+#define PORT_IS_BEING_FLUSHED(port)             (port->IsPortFlushed == OMX_FALSE)
+#define PORT_IS_ENABLED(port)                   (port->PortParam.bEnabled == OMX_TRUE)
+#define PORT_IS_POPULATED(port)                 (port->PortParam.bPopulated == OMX_TRUE)
 
 
 /** this flag specifies that the message send is a command */

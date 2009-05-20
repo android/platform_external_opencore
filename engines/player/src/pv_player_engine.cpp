@@ -19,9 +19,6 @@
 
 #include "pv_player_config.h"
 
-#ifndef USE_CML2_CONFIG
-#include "pv_player_engine_tunables.h"
-#endif
 
 #include "pv_player_sdkinfo.h"
 
@@ -771,7 +768,17 @@ void PVPlayerEngine::createContext(PvmiMIOSession aSession, PvmiCapabilityContex
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::createContext()"));
     OSCL_UNUSED_ARG(aSession);
     // Context is not really supported so just return some member variable pointer
+    // If this function is changed, do not forget to change DeleteContext() below
     aContext = (PvmiCapabilityContext) & iCapConfigContext;
+}
+
+
+void PVPlayerEngine::DeleteContext(PvmiMIOSession aSession, PvmiCapabilityContext& aContext)
+{
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DeleteContext()"));
+    OSCL_UNUSED_ARG(aSession);
+    OSCL_UNUSED_ARG(aContext);
+    // Do nothing since the context is just the a member variable of the engine
 }
 
 
@@ -785,15 +792,6 @@ void PVPlayerEngine::setContextParameters(PvmiMIOSession aSession, PvmiCapabilit
     // This method is not supported so leave
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::setContextParameters() is not supported!"));
     OSCL_LEAVE(OsclErrNotSupported);
-}
-
-
-void PVPlayerEngine::DeleteContext(PvmiMIOSession aSession, PvmiCapabilityContext& aContext)
-{
-    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DeleteContext()"));
-    OSCL_UNUSED_ARG(aSession);
-    OSCL_UNUSED_ARG(aContext);
-    // Do nothing since the context is just the a member variable of the engine
 }
 
 
@@ -947,7 +945,9 @@ PVMFStatus PVPlayerEngine::GetLicenseStatus(PVMFCPMLicenseStatus& aStatus)
     if (iThreadSafeQueue.IsInThread())
     {
         if (iSourceNodeCPMLicenseIF)
+        {
             return iSourceNodeCPMLicenseIF->GetLicenseStatus(aStatus);
+        }
         return PVMFFailure;
     }
     else
@@ -966,19 +966,16 @@ PVMFStatus PVPlayerEngine::DoGetLicenseStatusSync(PVPlayerEngineCommand& aCmd)
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoGetLicenseStatusSync() In"));
 
-    PVMFStatus status;
-    PVMFCPMLicenseStatus* licstatus = (PVMFCPMLicenseStatus*)(aCmd.GetParam(0).pOsclAny_value);
-    if (!licstatus)
-    {
-        return PVMFFailure;
-    }
-
+    PVMFStatus status = PVMFFailure;
     if (iSourceNodeCPMLicenseIF)
-        status = iSourceNodeCPMLicenseIF->GetLicenseStatus(*licstatus);
-    else
-        status = PVMFFailure;
-
-    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoGetLicenseStatusSync() Out"));
+    {
+        PVMFCPMLicenseStatus* licstatus = (PVMFCPMLicenseStatus*)(aCmd.GetParam(0).pOsclAny_value);
+        if (licstatus)
+        {
+            status = iSourceNodeCPMLicenseIF->GetLicenseStatus(*licstatus);
+        }
+    }
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoGetLicenseStatusSync() Out - status = %d", status));
     return status;
 }
 
@@ -994,6 +991,8 @@ void PVPlayerEngine::removeRef()
 
 bool PVPlayerEngine::queryInterface(const PVUuid& uuid, PVInterface*& iface)
 {
+    bool status = true;
+
     if (uuid == PVMI_CAPABILITY_AND_CONFIG_PVUUID)
     {
         PvmiCapabilityAndConfig* capconfigiface = OSCL_STATIC_CAST(PvmiCapabilityAndConfig*, this);
@@ -1018,10 +1017,10 @@ bool PVPlayerEngine::queryInterface(const PVUuid& uuid, PVInterface*& iface)
     else
     {
         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::queryInterface() Unsupported interface UUID."));
-        return false;
+        status = false;
     }
 
-    return true;
+    return status;
 }
 
 
@@ -1208,30 +1207,30 @@ void PVPlayerEngine::Run()
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::Run() In"));
     int32 leavecode = 0;
 
-    /* Engine AO will execute commands in the following sequence
+    /* Engine AO will execute commands in the following sequence:
      * 1) If Engine state is Resetting, which will happen when Engine does ErrorHandling,
-     * processing Reset or CancelAllCommands
-     * issued by the app, engine will not try to execute any other command during this state.
-     * 2) If Engine is not in Resetting state then it will process commands in the following order, which ever is true:
-     *    (i) If Engine needs to do Error handling because of some error from Source Node or Datapath.
-     *    Either start error handling or complete it.
-     *    (ii) If Engine has Reset or CancelAllCommands in CurrentCommandQueue,
-     *    engine will do CommandComplete for the CurrentCommand.
-     *	  (iii) If Engine has Prepare in CurrentCommandQueue, engine will call DoPrepare again
-     *    as a part of track selection logic
-     *    (iv) If Engine has CancelAllCommands or CancelAcquireLicense in Pending CommandQueue,
-     *    engine will start Cancel commands.
-     *    (v) Go for Rollover if in Init State and Roll-over is ongoing.
-     *    (vi) Process which ever command is pushed in Pending queue.
+     *    or is processing Reset or CancelAllCommands issued by the app, engine will NOT execute
+     *    any other command during this state.
+     * 2) If Engine is not in Resetting state, then it will process commands in the following order,
+     *    which ever is true:
+     *      (i) If Engine needs to do Error handling because of some error from Source Node or Datapath,
+     *          either start error handling or complete it.
+     *     (ii) If Engine has Reset or CancelAllCommands in CurrentCommandQueue,
+     *          Engine will do CommandComplete for the CurrentCommand.
+     *    (iii) If Engine has Prepare in CurrentCommandQueue, Engine will call DoPrepare again
+     *          as a part of track selection logic.
+     *     (iv) If Engine has CancelAllCommands or CancelAcquireLicense in Pending CommandQueue,
+     *          Engine will start Cancel commands.
+     *      (v) Go for Rollover if in Init State and Roll-over is ongoing.
+     *     (vi) Process which ever command is pushed in Pending queue.
      * Engine will process any one of the command as listed above in the same order.
-     * Every time engine AO is scheduled, engine will go through
-     * these steps.
+     * Every time engine AO is scheduled, engine will go through these steps.
      */
 
     if (iState == PVP_ENGINE_STATE_RESETTING)
     {
-        //this means error handling, reset or cancelall is still in progress
-        //pls note that the state will be set to idle
+        //This means error handling, reset or cancelall is still in progress.
+        //Please note that the state will be set to idle
         //in either HandleSourceNodeReset or HandleDataPathReset
         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
                         (0, "PVPlayerEngine::Run() Return engine in resetting state, No processing until engine is in Idle state"));
@@ -1368,7 +1367,8 @@ void PVPlayerEngine::Run()
             {
                 if (CheckForSourceRollOver())
                 {
-                    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::Run() DoSourceNodeRollOver Failed, alternate source node for rollover is available"));
+                    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                    (0, "PVPlayerEngine::Run() DoSourceNodeRollOver Failed, alternate source node for rollover is available"));
                     RunIfNotReady();
                     return;
                 }
@@ -1741,13 +1741,6 @@ bool PVPlayerEngine::FindTrackForDatapathUsingMimeString(bool& aVideoTrack, bool
             aTextTrack = false;
             return true;
         }
-        else
-        {
-            aVideoTrack = false;
-            aAudioTrack = false;
-            aTextTrack = false;
-            return false;
-        }
     }
 
     aVideoTrack = false;
@@ -1828,9 +1821,7 @@ bool PVPlayerEngine::FindDatapathForTrackUsingMimeString(bool aVideoTrack, bool 
             }
             else
             {
-                // Unknown track
-                aDatapathListIndex = -1;
-                return false;
+                break;
             }
         }
     }
@@ -1851,7 +1842,8 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
     uint32* context_uint32 = (uint32*)(aResponse.GetContext());
     if (context_uint32 == &iNumberCancelCmdPending)
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::NodeCommandCompleted() Cancel in node completed for cancel command. Pending %d", iNumberCancelCmdPending));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                        (0, "PVPlayerEngine::NodeCommandCompleted() Cancel in node completed for cancel command. Pending %d", iNumberCancelCmdPending));
         --iNumberCancelCmdPending;
 
         // If cmd to cancel was GetMetadataKeys() or GetMetadataValues() and if these commands return with
@@ -1889,7 +1881,8 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
 
         if (iNumberCancelCmdPending == 0)
         {
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::NodeCommandCompleted() Cancelling of all node/datapath commands complete, now reset all nodes"));
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                            (0, "PVPlayerEngine::NodeCommandCompleted() Cancelling of all node/datapath commands complete, now reset all nodes"));
             // Clear the CancelCmd queue as the cmd has been cancelled.
             iCmdToCancel.clear();
 
@@ -1901,7 +1894,6 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
             int32 leavecode = 0;
             OSCL_TRY(leavecode, cmdid = iSourceNode->Reset(iSourceNodeSessionId, (OsclAny*)context));
             OSCL_FIRST_CATCH_ANY(leavecode,
-
                                  PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::NodeCommandCompleted() Reset on iSourceNode did a leave!"));
                                  FreeEngineContext(context);
                                  OSCL_ASSERT(false);
@@ -1918,7 +1910,8 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
     // Ignore other node completion if cancelling
     if (!iCmdToCancel.empty() || (CheckForPendingErrorHandlingCmd() && aResponse.GetCmdStatus() == PVMFErrCancelled))
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::NodeCommandCompleted() Node command completion ignored due to cancel process, id=%d", aResponse.GetCmdId()));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                        (0, "PVPlayerEngine::NodeCommandCompleted() Node command completion ignored due to cancel process, id=%d", aResponse.GetCmdId()));
         // Remove the context from the list
         FreeEngineContext(nodecontext);
         return;
@@ -2028,7 +2021,9 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                 {
                     int32 leavecode = 0;
                     PVMFCommandId cmdid = -1;
-                    PVPlayerEngineContext* newcontext = AllocateEngineContext(iMetadataIFList[iGetMetadataKeysParam.iCurrentInterfaceIndex].iEngineDatapath, iMetadataIFList[iGetMetadataKeysParam.iCurrentInterfaceIndex].iNode, NULL, nodecontext->iCmdId, nodecontext->iCmdContext, PVP_CMD_GetNodeMetadataKey);
+                    PVPlayerEngineContext* newcontext = AllocateEngineContext(iMetadataIFList[iGetMetadataKeysParam.iCurrentInterfaceIndex].iEngineDatapath,
+                                                        iMetadataIFList[iGetMetadataKeysParam.iCurrentInterfaceIndex].iNode,
+                                                        NULL, nodecontext->iCmdId, nodecontext->iCmdContext, PVP_CMD_GetNodeMetadataKey);
                     OSCL_TRY(leavecode, cmdid = mdif->GetNodeMetadataKeys(sessionid,
                                                 *(iGetMetadataKeysParam.iKeyList),
                                                 0,
@@ -2166,7 +2161,9 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                 {
                     int32 leavecode = 0;
                     PVMFCommandId cmdid = -1;
-                    PVPlayerEngineContext* newcontext = AllocateEngineContext(iMetadataIFList[iGetMetadataValuesParam.iCurrentInterfaceIndex].iEngineDatapath, iMetadataIFList[iGetMetadataValuesParam.iCurrentInterfaceIndex].iNode, NULL, nodecontext->iCmdId, nodecontext->iCmdContext, PVP_CMD_GetNodeMetadataValue);
+                    PVPlayerEngineContext* newcontext = AllocateEngineContext(iMetadataIFList[iGetMetadataValuesParam.iCurrentInterfaceIndex].iEngineDatapath,
+                                                        iMetadataIFList[iGetMetadataValuesParam.iCurrentInterfaceIndex].iNode,
+                                                        NULL, nodecontext->iCmdId, nodecontext->iCmdContext, PVP_CMD_GetNodeMetadataValue);
                     OSCL_TRY(leavecode, cmdid = mdif->GetNodeMetadataValues(sessionid,
                                                 *(iGetMetadataValuesParam.iKeyList),
                                                 *(iGetMetadataValuesParam.iValueList),
@@ -2195,7 +2192,9 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                         {
                             mdif = iMetadataIFList[iMetadataValueReleaseList[0].iMetadataIFListIndex].iInterface;
                             OSCL_ASSERT(mdif != NULL);
-                            mdif->ReleaseNodeMetadataValues(*(iGetMetadataValuesParam.iValueList), iMetadataValueReleaseList[0].iStartIndex, iMetadataValueReleaseList[0].iEndIndex);
+                            mdif->ReleaseNodeMetadataValues(*(iGetMetadataValuesParam.iValueList),
+                                                            iMetadataValueReleaseList[0].iStartIndex,
+                                                            iMetadataValueReleaseList[0].iEndIndex);
                             iMetadataValueReleaseList.erase(iMetadataValueReleaseList.begin());
                         }
                     }
@@ -2220,7 +2219,9 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                     {
                         PVMFMetadataExtensionInterface* mdif = iMetadataIFList[iMetadataValueReleaseList[0].iMetadataIFListIndex].iInterface;
                         OSCL_ASSERT(mdif != NULL);
-                        mdif->ReleaseNodeMetadataValues(*(iGetMetadataValuesParam.iValueList), iMetadataValueReleaseList[0].iStartIndex, iMetadataValueReleaseList[0].iEndIndex);
+                        mdif->ReleaseNodeMetadataValues(*(iGetMetadataValuesParam.iValueList),
+                                                        iMetadataValueReleaseList[0].iStartIndex,
+                                                        iMetadataValueReleaseList[0].iEndIndex);
                         iMetadataValueReleaseList.erase(iMetadataValueReleaseList.begin());
                     }
                 }
@@ -2286,7 +2287,8 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                             break;
 
                         default:
-                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_IDLE. Asserting"));
+                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                            (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_IDLE. Asserting"));
                             OSCL_ASSERT(false);
                             break;
                     }
@@ -2299,7 +2301,8 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                             HandleSourceNodeGetLicense(*nodecontext, aResponse);
                             break;
                         default:
-                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_IDLE. Asserting"));
+                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                            (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_IDLE. Asserting"));
                             OSCL_ASSERT(false);
                             break;
                     }
@@ -2317,7 +2320,8 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                             break;
 
                         default:
-                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_INITIALIZING. Asserting"));
+                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                            (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_INITIALIZING. Asserting"));
                             OSCL_ASSERT(false);
                             break;
                     }
@@ -2347,7 +2351,8 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                             break;
 
                         default:
-                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_PREPARING. Asserting"));
+                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                            (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_PREPARING. Asserting"));
                             OSCL_ASSERT(false);
                             break;
                     }
@@ -2377,7 +2382,8 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                             break;
 
                         default:
-                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_RESUMING. Asserting"));
+                            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                            (0, "PVPlayerEngine::NodeCommandCompleted() Invalid source node command type in PVP_ENGINE_STATE_RESUMING. Asserting"));
                             OSCL_ASSERT(false);
                             break;
                     }
@@ -2430,7 +2436,8 @@ void PVPlayerEngine::NodeCommandCompleted(const PVMFCmdResp& aResponse)
                 break;
 
             default:
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::NodeCommandCompleted() Invalid node command type in PVP_ENGINE_STATE_PREPARING. Asserting"));
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                (0, "PVPlayerEngine::NodeCommandCompleted() Invalid node command type in PVP_ENGINE_STATE_PREPARING. Asserting"));
                 OSCL_ASSERT(false);
                 break;
         }
@@ -2469,22 +2476,18 @@ void PVPlayerEngine::HandleNodeInformationalEvent(const PVMFAsyncEvent& aEvent)
         {
             HandleSinkNodeInfoEvent(aEvent, datapathindex);
         }
-        else if (nodetype == PVP_NODETYPE_DECODER)
+        else // FindNodeTypeByNode when returning true, can point to only SINK or DECODER.
+            // So, if not SINK, it is PVP_NODETYPE_DECODER
         {
             HandleDecNodeInfoEvent(aEvent, datapathindex);
-        }
-        else
-        {
-            // Event from unknown node or component. Do nothing but log it
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::HandleNodeInformationalEvent() Info event from unknown node type Event type 0x%x Context 0x%x Data 0x%x",
-                            aEvent.GetEventType(), aEvent.GetContext(), aEvent.GetEventData()));
         }
     }
     else
     {
         // Event from unknown node or component. Do nothing but log it
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::HandleNodeInformationalEvent() Info event from unknown node Event type 0x%x Context 0x%x Data 0x%x",
-                        aEvent.GetEventType(), aEvent.GetContext(), aEvent.GetEventData()));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                        (0, "PVPlayerEngine::HandleNodeInformationalEvent() Info event from unknown node Event type 0x%x Context 0x%x Data 0x%x",
+                         aEvent.GetEventType(), aEvent.GetContext(), aEvent.GetEventData()));
     }
 
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::HandleNodeInformationalEvent() Out"));
@@ -2511,22 +2514,18 @@ void PVPlayerEngine::HandleNodeErrorEvent(const PVMFAsyncEvent& aEvent)
         {
             HandleSinkNodeErrorEvent(aEvent, datapathindex);
         }
-        else if (nodetype == PVP_NODETYPE_DECODER)
+        else // FindNodeTypeByNode when returning true, can point to only SINK or DECODER.
+            // So, if not SINK, it is PVP_NODETYPE_DECODER
         {
             HandleDecNodeErrorEvent(aEvent, datapathindex);
-        }
-        else
-        {
-            // Event from unknown node or component. Do nothing but log it
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::HandleNodeErrorEvent() Error event from unknown node type Event type 0x%x Context 0x%x Data 0x%x",
-                            aEvent.GetEventType(), aEvent.GetContext(), aEvent.GetEventData()));
         }
     }
     else
     {
         // Event from unknown node or component. Do nothing but log it
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::HandleNodeErrorEvent() Error event from unknown node Event type 0x%x Context 0x%x Data 0x%x",
-                        aEvent.GetEventType(), aEvent.GetContext(), aEvent.GetEventData()));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                        (0, "PVPlayerEngine::HandleNodeErrorEvent() Error event from unknown node Event type 0x%x Context 0x%x Data 0x%x",
+                         aEvent.GetEventType(), aEvent.GetContext(), aEvent.GetEventData()));
     }
 
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::HandleNodeErrorEvent() Out"));
@@ -2534,17 +2533,20 @@ void PVPlayerEngine::HandleNodeErrorEvent(const PVMFAsyncEvent& aEvent)
 
 void PVPlayerEngine::RemoveDatapathContextFromList()
 {
-    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::RemoveDatapathContextFromList(): Erasing from ContextList iCurrentContextList.size() in : %d",
-                    iCurrentContextList.size()));
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                    (0, "PVPlayerEngine::RemoveDatapathContextFromList(): Erasing from ContextList iCurrentContextList.size() in : %d",
+                     iCurrentContextList.size()));
     for (int32 i = iCurrentContextList.size() - 1; i >= 0; --i)
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::RemoveDatapathContextFromList(): iCurrentContextList[i]->iCmdType %d",
-                        iCurrentContextList[i]->iCmdType));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                        (0, "PVPlayerEngine::RemoveDatapathContextFromList(): iCurrentContextList[i]->iCmdType %d",
+                         iCurrentContextList[i]->iCmdType));
 
         switch (iCurrentContextList[i]->iCmdType)
         {
             case PVP_CMD_DPPrepare:
             case PVP_CMD_DPStart:
+            case PVP_CMD_DPPause:
             case PVP_CMD_DPStop:
             case PVP_CMD_DPTeardown:
             case PVP_CMD_DPReset:
@@ -2567,11 +2569,13 @@ void PVPlayerEngine::HandlePlayerDatapathEvent(int32 /*aDatapathEvent*/, PVMFSta
     uint32* context_uint32 = (uint32*)aContext;
     if (context_uint32 == &iNumberCancelCmdPending)
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Cancel in datapath completed for cancel command. Pending %d", iNumberCancelCmdPending));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                        (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Cancel in datapath completed for cancel command. Pending %d", iNumberCancelCmdPending));
         --iNumberCancelCmdPending;
         if (iNumberCancelCmdPending == 0)
         {
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Cancelling of all node/datapath commands complete, now reset all nodes"));
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                            (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Cancelling of all node/datapath commands complete, now reset all nodes"));
             // Clear the CancelCmd queue as the cmd has been cancelled.
             iCmdToCancel.clear();
 
@@ -2583,7 +2587,6 @@ void PVPlayerEngine::HandlePlayerDatapathEvent(int32 /*aDatapathEvent*/, PVMFSta
             int32 leavecode = 0;
             OSCL_TRY(leavecode, cmdid = iSourceNode->Reset(iSourceNodeSessionId, (OsclAny*)context));
             OSCL_FIRST_CATCH_ANY(leavecode,
-
                                  PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Reset on iSourceNode did a leave!"));
                                  FreeEngineContext(context);
                                  OSCL_ASSERT(false);
@@ -2620,7 +2623,8 @@ void PVPlayerEngine::HandlePlayerDatapathEvent(int32 /*aDatapathEvent*/, PVMFSta
                 break;
 
             default:
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Invalid datapath command type in PVP_ENGINE_STATE_PREPARING."));
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Invalid datapath command type in PVP_ENGINE_STATE_PREPARING."));
                 break;
         }
     }
@@ -2649,7 +2653,8 @@ void PVPlayerEngine::HandlePlayerDatapathEvent(int32 /*aDatapathEvent*/, PVMFSta
                 break;
 
             default:
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Invalid datapath command type in PVP_ENGINE_STATE_STOPPING."));
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Invalid datapath command type in PVP_ENGINE_STATE_STOPPING."));
                 break;
         }
     }
@@ -2662,7 +2667,8 @@ void PVPlayerEngine::HandlePlayerDatapathEvent(int32 /*aDatapathEvent*/, PVMFSta
                 break;
 
             default:
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Invalid datapath command type in PVP_ENGINE_STATE_RESETTING"));
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                (0, "PVPlayerEngine::HandlePlayerDatapathEvent() Invalid datapath command type in PVP_ENGINE_STATE_RESETTING"));
                 break;
         }
     }
@@ -2791,7 +2797,8 @@ void PVPlayerEngine::RecognizeCompleted(PVMFFormatType aSourceFormatType, OsclAn
         --iNumberCancelCmdPending;
         if (iNumberCancelCmdPending == 0)
         {
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::RecognizeCompleted() Cancelling of all node/datapath commands complete, now reset all nodes"));
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                            (0, "PVPlayerEngine::RecognizeCompleted() Cancelling of all node/datapath commands complete, now reset all nodes"));
             // Clear the CancelCmd queue as the cmd has been cancelled.
             iCmdToCancel.clear();
 
@@ -2803,7 +2810,6 @@ void PVPlayerEngine::RecognizeCompleted(PVMFFormatType aSourceFormatType, OsclAn
             int32 leavecode = 0;
             OSCL_TRY(leavecode, cmdid = iSourceNode->Reset(iSourceNodeSessionId, (OsclAny*)context));
             OSCL_FIRST_CATCH_ANY(leavecode,
-
                                  PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::RecognizeCompleted() Reset on iSourceNode did a leave!"));
                                  FreeEngineContext(context);
                                  OSCL_ASSERT(false);
@@ -2864,7 +2870,7 @@ void PVPlayerEngine::ThreadSafeQueueDataAvailable(ThreadSafeQueue* aQueue)
 
     //pull all available data off the thread-safe queue and transfer
     //it to the internal queue.
-    for (uint32 ndata = 1;ndata;)
+    for (uint32 ndata = 1; ndata;)
     {
         ThreadSafeQueueId id;
         OsclAny* data;
@@ -2900,7 +2906,9 @@ PVMFStatus PVPlayerEngine::DoOOTSyncCommand(int32 aCmdType,
     PVCommandId id = 0;
     PVPlayerEngineCommand* cmd = OSCL_NEW(PVPlayerEngineCommand, (aCmdType, id, NULL, aParamVector));
     if (aUuid)
+    {
         cmd->SetUuid(*aUuid);
+    }
     iThreadSafeQueue.AddToQueue(cmd);
 
     //block and wait for completion by engine thread.
@@ -2955,7 +2963,9 @@ PVCommandId PVPlayerEngine::AddCommandToQueue(int32 aCmdType, OsclAny* aContextD
         {
             PVPlayerEngineCommand* cmd = OSCL_NEW(PVPlayerEngineCommand, (aCmdType, commandId, aContextData, aParamVector, aAPICommand));
             if (aUuid)
+            {
                 cmd->SetUuid(*aUuid);
+            }
             iThreadSafeQueue.AddToQueue(cmd, (ThreadSafeQueueId*)&commandId);
             return commandId;
         }
@@ -3185,7 +3195,7 @@ PVMFStatus PVPlayerEngine::ConvertToMillisec(PVPPlaybackPosition& aPBPos, uint32
             int32 datapathIndex = -1;
 
             // Search from the datapath list.
-            // 1) Try for video track
+            // First look for video track
             bool retVal = FindDatapathForTrackUsingMimeString(true, false, false, datapathIndex);
             if (retVal == false)
             {
@@ -3257,7 +3267,8 @@ PVMFStatus PVPlayerEngine::ConvertToMillisec(PVPPlaybackPosition& aPBPos, uint32
             if (mintsvalid == false)
             {
                 // Conversion on all active tracks failed
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::ConvertToMillisec() Data position to time conversion could not be done on any active track"));
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR,
+                                (0, "PVPlayerEngine::ConvertToMillisec() Data position to time conversion could not be done on any active track"));
                 return PVMFErrArgument;
             }
 
@@ -3412,7 +3423,7 @@ PVMFStatus PVPlayerEngine::ConvertFromMillisec(uint32 aTimeMS, PVPPlaybackPositi
             int32 datapathIndex = -1;
 
             // Search from the datapath list.
-            // 1) Try for video track
+            // First look for video track
             bool retVal = FindDatapathForTrackUsingMimeString(true, false, false, datapathIndex);
             if (retVal == false)
             {
@@ -3453,7 +3464,8 @@ PVMFStatus PVPlayerEngine::ConvertFromMillisec(uint32 aTimeMS, PVPPlaybackPositi
             if (iSourceNodeTrackLevelInfoIF == NULL)
             {
                 // The source node doesn't have the ext IF to convert time to data position
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::ConvertFromMillisec() Time to data position conversion not available in source node"));
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR,
+                                (0, "PVPlayerEngine::ConvertFromMillisec() Time to data position conversion not available in source node"));
                 return PVMFErrArgument;
             }
 
@@ -3497,7 +3509,7 @@ PVMFStatus PVPlayerEngine::ConvertFromMillisec(uint32 aTimeMS, PVPPlaybackPositi
             // Save the data position to return
             aPBPos.iPosValue.datapos_value = maxdatapos;
         }
-        break;;
+        break;
 
         default:
             // Don't support the other units for now
@@ -3569,13 +3581,15 @@ void PVPlayerEngine::EngineCommandCompleted(PVCommandId aId, OsclAny* aContext, 
     {
         if (aId != -1 && completedcmd.IsAPICommand())
         {
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::EngineCommandCompleted() Notifying engine command as completed. CmdId %d Status %d", aId, aStatus));
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                            (0, "PVPlayerEngine::EngineCommandCompleted() Notifying engine command as completed. CmdId %d Status %d", aId, aStatus));
             PVCmdResponse cmdcompleted(aId, aContext, aStatus, aExtInterface, aEventData, aEventDataSize);
             iCmdStatusObserver->CommandCompleted(cmdcompleted);
         }
         else
         {
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::EngineCommandCompleted() aId is -1 or not an API command. CmdType %d", completedcmd.GetCmdType()));
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                            (0, "PVPlayerEngine::EngineCommandCompleted() aId is -1 or not an API command. CmdType %d", completedcmd.GetCmdType()));
         }
     }
     else
@@ -3706,7 +3720,9 @@ void PVPlayerEngine::DoCancelAllCommands(PVPlayerEngineCommand& aCmd)
               iCurrentCmd[0].GetCmdType() == PVP_ENGINE_COMMAND_ACQUIRE_LICENSE_WCHAR ||
               iCurrentCmd[0].GetCmdType() == PVP_ENGINE_COMMAND_ACQUIRE_LICENSE_CHAR)))
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::DoCancelAllCommands() Error due to processing AcquireLicense or CancelAcquireLicense,CmdType=%d", iCurrentCmd[0].GetCmdType()));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                        (0, "PVPlayerEngine::DoCancelAllCommands() Error due to processing AcquireLicense or CancelAcquireLicense,CmdType=%d",
+                         iCurrentCmd[0].GetCmdType()));
         PVPlayerEngineCommand currentcmd(iCurrentCmd[0]);
         iCurrentCmd.erase(iCurrentCmd.begin());
         iCurrentCmd.push_front(aCmd);
@@ -3751,14 +3767,12 @@ void PVPlayerEngine::DoCancelAllCommands(PVPlayerEngineCommand& aCmd)
         iTempPendingCmds.pop();
     }
 
-
     // Make the CancelAll() command the current command
     iCurrentCmd.push_front(aCmd);
 
     // Check if there was an ongoing command that needs to be properly cancelled
     if (!iCmdToCancel.empty())
     {
-
         // Properly cancel a command being currently processed
         DoCancelCommandBeingProcessed();
     }
@@ -3782,7 +3796,6 @@ void PVPlayerEngine::DoCancelAllCommands(PVPlayerEngineCommand& aCmd)
                 leavecode = 0;
                 OSCL_TRY(leavecode, cmdid = iSourceNode->Reset(iSourceNodeSessionId, (OsclAny*)context));
                 OSCL_FIRST_CATCH_ANY(leavecode,
-
                                      PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
                                                      (0, "PVPlayerEngine::DoCancelAllCommands() Reset on iSourceNode did a leave!"));
                                      FreeEngineContext(context);
@@ -3880,8 +3893,8 @@ void PVPlayerEngine::DoCancelCommandBeingProcessed(void)
             int32 leavecode = 0;
             OSCL_TRY(leavecode, cmdid = iSourceNode->Reset(iSourceNodeSessionId, (OsclAny*)context));
             OSCL_FIRST_CATCH_ANY(leavecode,
-
-                                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::DoCancelCommandBeingProcessed() Reset on iSourceNode did a leave!"));
+                                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                                 (0, "PVPlayerEngine::DoCancelCommandBeingProcessed() Reset on iSourceNode did a leave!"));
                                  FreeEngineContext(context);
                                  OSCL_ASSERT(false);
                                  return);
@@ -3934,7 +3947,8 @@ PVMFStatus PVPlayerEngine::DoCancelPendingNodeDatapathCommand()
         {
             if (iCurrentContextList[i]->iNode == iSourceNode)
             {
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on source node"));
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                                (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on source node"));
                 leavecode = IssueNodeCancelCommand(iCurrentContextList[i], iSourceNodeSessionId, (OsclAny*) & iNumberCancelCmdPending);
                 if (leavecode == 0)
                 {
@@ -3951,8 +3965,10 @@ PVMFStatus PVPlayerEngine::DoCancelPendingNodeDatapathCommand()
             {
                 if (iCurrentContextList[i]->iNode == iCurrentContextList[i]->iEngineDatapath->iSinkNode)
                 {
-                    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on sink node"));
-                    leavecode = IssueNodeCancelCommand(iCurrentContextList[i], iCurrentContextList[i]->iEngineDatapath->iSinkNodeSessionId, (OsclAny*) & iNumberCancelCmdPending);
+                    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                                    (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on sink node"));
+                    leavecode = IssueNodeCancelCommand(iCurrentContextList[i], iCurrentContextList[i]->iEngineDatapath->iSinkNodeSessionId,
+                                                       (OsclAny*) & iNumberCancelCmdPending);
                     if (leavecode == 0)
                     {
                         ++iNumberCancelCmdPending;
@@ -3966,8 +3982,10 @@ PVMFStatus PVPlayerEngine::DoCancelPendingNodeDatapathCommand()
                 }
                 else if (iCurrentContextList[i]->iNode == iCurrentContextList[i]->iEngineDatapath->iDecNode)
                 {
-                    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on dec node"));
-                    leavecode = IssueNodeCancelCommand(iCurrentContextList[i], iCurrentContextList[i]->iEngineDatapath->iDecNodeSessionId, (OsclAny*) & iNumberCancelCmdPending);
+                    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                                    (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on dec node"));
+                    leavecode = IssueNodeCancelCommand(iCurrentContextList[i], iCurrentContextList[i]->iEngineDatapath->iDecNodeSessionId,
+                                                       (OsclAny*) & iNumberCancelCmdPending);
                     if (leavecode == 0)
                     {
                         ++iNumberCancelCmdPending;
@@ -3995,7 +4013,8 @@ PVMFStatus PVPlayerEngine::DoCancelPendingNodeDatapathCommand()
         {
             if (iCurrentContextList[i]->iEngineDatapath != NULL)
             {
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on datapath"));
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                                (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on datapath"));
                 leavecode = IssueDatapathCancelCommand(iCurrentContextList[i], (OsclAny*) & iNumberCancelCmdPending);
                 if (leavecode == 0)
                 {
@@ -4010,7 +4029,8 @@ PVMFStatus PVPlayerEngine::DoCancelPendingNodeDatapathCommand()
         }
         else if (iCurrentContextList[i]->iCmdType == PVP_CMD_QUERYSOURCEFORMATTYPE)
         {
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on recognizer"));
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                            (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Calling CancelAllCommands() on recognizer"));
             leavecode = IssueRecognizerRegistryCancel((OsclAny*) & iNumberCancelCmdPending);
             if (leavecode == 0)
             {
@@ -4042,7 +4062,8 @@ PVMFStatus PVPlayerEngine::DoCancelPendingNodeDatapathCommand()
     }
     else
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() %d CancelAllCommands are pending", iNumberCancelCmdPending));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                        (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() %d CancelAllCommands are pending", iNumberCancelCmdPending));
     }
 
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoCancelPendingNodeDatapathCommand() Out"));
@@ -4236,8 +4257,7 @@ PVMFStatus PVPlayerEngine::DoQueryUUID(PVPlayerEngineCommand& aCmd)
              if (iSourceNodeTrackLevelInfoIF)
 {
     uuidvec->push_back(PVMF_TRACK_LEVEL_INFO_INTERFACE_UUID);
-    }
-            );
+    });
     OSCL_FIRST_CATCH_ANY(leavecode,
                          PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::DoQueryUUID() Leaved"));
                          EngineCommandCompleted(aCmd.GetCmdId(), aCmd.GetContext(), PVMFErrNoMemory);
@@ -4410,17 +4430,47 @@ PVMFStatus PVPlayerEngine::DoQuerySourceFormatType(PVCommandId aCmdId, OsclAny* 
     {
         OSCL_TRY(leavecode, retval = iPlayerRecognizerRegistry.QueryFormatType(DataStreamDataFactory, *this, (OsclAny*) context));
         OSCL_FIRST_CATCH_ANY(leavecode,
-                             FreeEngineContext(context);
-                             return PVMFErrNotSupported;
+                             retval = PVMFErrNotSupported;
                             );
     }
     else
     {
-        OSCL_TRY(leavecode, retval = iPlayerRecognizerRegistry.QueryFormatType(iDataSource->GetDataSourceURL(), *this, (OsclAny*) context));
-        OSCL_FIRST_CATCH_ANY(leavecode,
-                             FreeEngineContext(context);
-                             return PVMFErrNotSupported;
-                            );
+        OsclFileHandle* fileHandle = NULL;
+
+        OsclAny* sourceData = iDataSource->GetDataSourceContextData();
+        PVInterface* localDataSrc = NULL;
+        PVUuid localDataSrcUuid(PVMF_LOCAL_DATASOURCE_UUID);
+        PVInterface* pvInterface = OSCL_STATIC_CAST(PVInterface*, sourceData);
+
+        if (pvInterface != NULL)
+        {
+            if (pvInterface->queryInterface(localDataSrcUuid, localDataSrc))
+            {
+                PVMFLocalDataSource* opaqueData = OSCL_STATIC_CAST(PVMFLocalDataSource*, localDataSrc);
+                fileHandle = opaqueData->iFileHandle;
+            }
+            else
+            {
+                PVInterface* sourceDataContext = NULL;
+                PVInterface* commonDataContext = NULL;
+                PVUuid sourceContextUuid(PVMF_SOURCE_CONTEXT_DATA_UUID);
+                PVUuid commonContextUuid(PVMF_SOURCE_CONTEXT_DATA_COMMON_UUID);
+
+                if (pvInterface->queryInterface(sourceContextUuid, sourceDataContext) &&
+                        sourceDataContext->queryInterface(commonContextUuid, commonDataContext))
+                {
+                    PVMFSourceContextDataCommon* context =
+                        OSCL_STATIC_CAST(PVMFSourceContextDataCommon*, commonDataContext);
+
+                    if (context->iFileHandle)
+                    {
+                        fileHandle = context->iFileHandle;
+                    }
+                }
+            }
+        }
+
+        retval = DoSourceURLQueryFormatType(context, fileHandle);
     }
 
     if (retval != PVMFSuccess)
@@ -4428,7 +4478,7 @@ PVMFStatus PVPlayerEngine::DoQuerySourceFormatType(PVCommandId aCmdId, OsclAny* 
         FreeEngineContext(context);
     }
 
-    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoQuerySourceFormatType() Out"));
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoQuerySourceFormatType() Out - retval = %d", retval));
     return retval;
 }
 
@@ -5350,11 +5400,11 @@ PVMFStatus PVPlayerEngine::DoSourceNodeGetLicense(PVCommandId aCmdId, OsclAny* a
 
     if (iNumPendingNodeCmd <= 0)
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,	(0, "PVPlayerEngine::DoSourceNodeGetLicense() Out No pending QueryInterface() on source node"));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoSourceNodeGetLicense() Out No pending QueryInterface() on source node"));
         return PVMFFailure;
     }
 
-    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,	(0, "PVPlayerEngine::DoSourceNodeGetLicense() Out"));
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoSourceNodeGetLicense() Out"));
     return PVMFSuccess;
 }
 
@@ -5942,6 +5992,12 @@ PVMFStatus PVPlayerEngine::DoGetCurrentPosition(PVPlayerEngineCommand& aCmd, boo
         return PVMFErrArgument;
     }
 
+    if (pbpos->iPosUnit != PVPPBPOSUNIT_MILLISEC)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::DoGetCurrentPosition() Passed in parameter invalid."));
+        return PVMFErrArgument;
+    }
+
     // Query playback clock for current playback position
     GetPlaybackClockPosition(*pbpos);
 
@@ -6483,7 +6539,7 @@ PVMFStatus PVPlayerEngine::DoSinkNodeQueryCapConfigIF(PVCommandId aCmdId, OsclAn
         iTrackSelectionList.push_back(trackSelection);
     }
 
-    for (i = 0;i < iDatapathList.size(); ++i)
+    for (i = 0; i < iDatapathList.size(); ++i)
     {
         // Destroy the track info if present
         if (iDatapathList[i].iTrackInfo)
@@ -7911,9 +7967,12 @@ PVMFStatus PVPlayerEngine::DoSourceNodeQueryDataSourcePosition(PVCommandId aCmdI
     }
 
     PVMFCommandId cmdid = -1;
+    iCurrentBeginPosition.iPosValue.millisec_value = timems;
+    iCurrentBeginPosition.iPosUnit = PVPPBPOSUNIT_MILLISEC;
 
     if (iSeekToSyncPoint && iSyncPointSeekWindow > 0)
     {
+        iTargetNPT = iCurrentBeginPosition.iPosValue.millisec_value;
         PVPlayerEngineContext* context = AllocateEngineContext(NULL, iSourceNode, NULL, aCmdId, aCmdContext, PVP_CMD_SourceNodeQueryDataSourcePosition);
 
         PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoSourceNodeQueryDataSourcePosition() Calling QueryDataSourcePosition() Starting pos %d ms, SeekToSyncPt %d", iTargetNPT, iSeekToSyncPoint));
@@ -8555,7 +8614,7 @@ PVMFStatus PVPlayerEngine::DoDatapathPause(PVPlayerEngineDatapath& aDatapath, PV
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::DoDatapathPause() In %s", aDatapath.iTrackInfo->getTrackMimeType().get_cstr()));
 
     // Pause the datapath
-    PVPlayerEngineContext* context = AllocateEngineContext(&aDatapath, NULL, aDatapath.iDatapath, aCmdId, aCmdContext, -1);
+    PVPlayerEngineContext* context = AllocateEngineContext(&aDatapath, NULL, aDatapath.iDatapath, aCmdId, aCmdContext, PVP_CMD_DPPause);
 
     PVMFStatus retval = aDatapath.iDatapath->Pause((OsclAny*)context, aSinkPaused);
     if (retval != PVMFSuccess)
@@ -9325,10 +9384,11 @@ PVMFStatus PVPlayerEngine::DoSourceDataReadyAutoResume(PVPlayerEngineCommand& aC
         {
             // Usecase for this scenario:
             // Prepare->Underflow->DataReady->Started
-            // Change state to STARTED
+            // Change state back to PREPARED, since Underflow and DataReady cancels each other out.
+            // Wait for Start command from App to Start the clock and change state to STARTED.
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                             (0, "PVPlayerEngine::DoSourceDataReadyAutoResume: DataReady rcvd, Prepare->Underflow->DataReady->Started, datapaths already started"));
-            SetEngineState(PVP_ENGINE_STATE_STARTED);
+            SetEngineState(PVP_ENGINE_STATE_PREPARED);
         }
         else
         {
@@ -9359,7 +9419,7 @@ PVMFStatus PVPlayerEngine::DoSourceDataReadyAutoResume(PVPlayerEngineCommand& aC
                 iWatchDogTimer->Start();
             }
         }
-        else if (iNumPVMFInfoStartOfDataPending == 0)
+        else if ((iNumPVMFInfoStartOfDataPending == 0) && (iState == PVP_ENGINE_STATE_STARTED))
         {
             StartPlaybackClock();
 
@@ -10560,7 +10620,7 @@ PVMFStatus PVPlayerEngine::DoGetPlayerParameter(PvmiKvp*& aParameters, int& aNum
             }
             break;
 
-        case PBPOS_INTERVAL:	// "pbpos_interval"
+        case PBPOS_INTERVAL:    // "pbpos_interval"
             if (reqattr == PVMI_KVPATTR_CUR)
             {
                 // Return current value
@@ -10588,7 +10648,7 @@ PVMFStatus PVPlayerEngine::DoGetPlayerParameter(PvmiKvp*& aParameters, int& aNum
             }
             break;
 
-        case ENDTIMECHECK_INTERVAL:	// "endtimecheck_interval"
+        case ENDTIMECHECK_INTERVAL: // "endtimecheck_interval"
             if (reqattr == PVMI_KVPATTR_CUR)
             {
                 // Return current value
@@ -10616,7 +10676,7 @@ PVMFStatus PVPlayerEngine::DoGetPlayerParameter(PvmiKvp*& aParameters, int& aNum
             }
             break;
 
-        case SEEKTOSYNCPOINT:	// "seektosyncpoint"
+        case SEEKTOSYNCPOINT:   // "seektosyncpoint"
             if (reqattr == PVMI_KVPATTR_CUR)
             {
                 // Return current value
@@ -10634,7 +10694,7 @@ PVMFStatus PVPlayerEngine::DoGetPlayerParameter(PvmiKvp*& aParameters, int& aNum
             }
             break;
 
-        case SKIPTOREQUESTEDPOSITION:	// "skiptorequestedpos"
+        case SKIPTOREQUESTEDPOSITION:   // "skiptorequestedpos"
             if (reqattr == PVMI_KVPATTR_CUR)
             {
                 // Return current value
@@ -10652,7 +10712,7 @@ PVMFStatus PVPlayerEngine::DoGetPlayerParameter(PvmiKvp*& aParameters, int& aNum
             }
             break;
 
-        case SYNCPOINTSEEKWINDOW:	// "syncpointseekwindow"
+        case SYNCPOINTSEEKWINDOW:   // "syncpointseekwindow"
             if (reqattr == PVMI_KVPATTR_CUR)
             {
                 // Return current value
@@ -10680,9 +10740,9 @@ PVMFStatus PVPlayerEngine::DoGetPlayerParameter(PvmiKvp*& aParameters, int& aNum
             }
             break;
 
-        case SYNCMARGIN_VIDEO:	// "syncmargin_video"
-        case SYNCMARGIN_AUDIO:	// "syncmargin_audio"
-        case SYNCMARGIN_TEXT:	// "syncmargin_text"
+        case SYNCMARGIN_VIDEO:  // "syncmargin_video"
+        case SYNCMARGIN_AUDIO:  // "syncmargin_audio"
+        case SYNCMARGIN_TEXT:   // "syncmargin_text"
         {
             range_int32* ri32 = (range_int32*)oscl_malloc(sizeof(range_int32));
             if (ri32 == NULL)
@@ -10733,7 +10793,7 @@ PVMFStatus PVPlayerEngine::DoGetPlayerParameter(PvmiKvp*& aParameters, int& aNum
         }
         break;
 
-        case NODECMD_TIMEOUT:	// "nodecmd_timeout"
+        case NODECMD_TIMEOUT:   // "nodecmd_timeout"
             if (reqattr == PVMI_KVPATTR_CUR)
             {
                 // Return current value
@@ -10761,7 +10821,7 @@ PVMFStatus PVPlayerEngine::DoGetPlayerParameter(PvmiKvp*& aParameters, int& aNum
             }
             break;
 
-        case NODEDATAQUEIUING_TIMEOUT:	// "nodedataqueuing_timeout"
+        case NODEDATAQUEIUING_TIMEOUT:  // "nodedataqueuing_timeout"
             if (reqattr == PVMI_KVPATTR_CUR)
             {
                 // Return current value
@@ -10789,7 +10849,7 @@ PVMFStatus PVPlayerEngine::DoGetPlayerParameter(PvmiKvp*& aParameters, int& aNum
             }
             break;
 
-        case PBPOS_ENABLE:	// "pbpos_enable"
+        case PBPOS_ENABLE:  // "pbpos_enable"
             if (reqattr == PVMI_KVPATTR_CUR)
             {
                 // Return current value
@@ -14090,7 +14150,7 @@ void PVPlayerEngine::HandleSourceNodeSetDataSourcePositionDuringPlayback(PVPlaye
             {
                 // Can't adjust the skip time back so use the returned values to skip to
                 iSkipMediaDataTS = iActualMediaDataTS;
-                iActualNPT = iTargetNPT;
+                iTargetNPT = iActualNPT;
                 iWatchDogTimerInterval = 0;
             }
             else
@@ -15662,6 +15722,7 @@ void PVPlayerEngine::HandleSourceNodeErrorEvent(const PVMFAsyncEvent& aEvent)
         case PVMFErrResourceConfiguration:
         case PVMFErrTimeout:
         case PVMFErrNoMemory:
+        case PVMFFailure:
         {
             PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
                             (0, "PVPlayerEngine::HandleSourceNodeErrorEvent() Sending PVPlayerErrSourceFatal for error event %d, Add EH command if not present", event));
@@ -16122,11 +16183,13 @@ void PVPlayerEngine::HandleSourceNodeInfoEvent(const PVMFAsyncEvent& aEvent)
             PVUuid infomsguuid = PVMFMetadataInfoMessageInterfaceUUID;
             PVMFMetadataInfoMessageInterface* eventMsg = NULL;
             PVInterface* infoExtInterface = aEvent.GetEventExtensionInterface();
+            PVInterface* temp = NULL;
             if (infoExtInterface &&
-                    infoExtInterface->queryInterface(infomsguuid, (PVInterface*&)eventMsg))
+                    infoExtInterface->queryInterface(infomsguuid, temp))
             {
                 PVUuid eventuuid;
                 int32 infoCode;
+                eventMsg = OSCL_STATIC_CAST(PVMFMetadataInfoMessageInterface*, temp);
                 eventMsg->GetCodeUUID(infoCode, eventuuid);
                 if (eventuuid == infomsguuid)
                 {
@@ -16522,10 +16585,10 @@ PVMFStatus PVPlayerEngine::SetupDataSourceForUnknownURLAccess()
          *  1) First Alternate source format would be PVMF_DATA_SOURCE_RTSP_URL,
          *  implying that we would attempt a RTSP streaming session
          *
-         *	2) Primary source format would be set to PVMF_DATA_SOURCE_HTTP_URL,
+         *  2) Primary source format would be set to PVMF_DATA_SOURCE_HTTP_URL,
          *  implying that we would attempt a progressive download first.
          *
-         *	3) Second Alternate source format would be PVMF_DATA_SOURCE_REAL_HTTP_CLOAKING_URL,
+         *  3) Second Alternate source format would be PVMF_DATA_SOURCE_REAL_HTTP_CLOAKING_URL,
          *  implying that we would attempt a real media cloaking session
          *
          *  4) Third alternate source format would be PVMF_DATA_SOURCE_MS_HTTP_STREAMING_URL,
@@ -16918,6 +16981,10 @@ void PVPlayerEngine::ResetReposVariables(bool aResetAll)
     if (aResetAll)
     {
         iStreamID = 0;
+        iCurrentBeginPosition.iIndeterminate = true;
+        iCurrentEndPosition.iIndeterminate = true;
+        iQueuedBeginPosition.iIndeterminate = true;
+        iQueuedEndPosition.iIndeterminate = true;
     }
     if (iWatchDogTimer != NULL)
     {
@@ -16942,6 +17009,7 @@ PVMFStatus PVPlayerEngine::DoErrorHandling()
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::DoErrorHandling() In"));
     // Stop the playback clock
     iPlaybackClock.Stop();
+    StopPlaybackStatusTimer();
 
     // 1st check if anything needs to be cancelled on Source Node or Datapaths
     if (!iCurrentContextList.empty())
@@ -17016,6 +17084,8 @@ PVMFStatus PVPlayerEngine::DoErrorHandling()
     {
         RemoveDataSourceSync(*iDataSource);
     }
+    // reset all repos related variables
+    ResetReposVariables(true);
 
     SetEngineState(PVP_ENGINE_STATE_IDLE);
 
@@ -17044,7 +17114,7 @@ PVMFStatus PVPlayerEngine::DoErrorHandling()
     // just send the error handling complete event
     SendInformationalEvent(PVMFInfoErrorHandlingComplete, NULL);
 
-    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,	(0, "PVPlayerEngine::DoErrorHandling() Out"));
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerEngine::DoErrorHandling() Out"));
 
     return PVMFSuccess;
 }
@@ -17169,6 +17239,15 @@ PVMFStatus PVPlayerEngine::IssueQueryInterface(PVMFNodeInterface* aNode, PVMFSes
     OSCL_TRY(leavecode, aCmdId = aNode->QueryInterface(aSessionId, aUuid, aInterfacePtr, aCmdContext));
     OSCL_FIRST_CATCH_ANY(leavecode,;);
     return leavecode;
+}
+
+PVMFStatus PVPlayerEngine::DoSourceURLQueryFormatType(PVPlayerEngineContext* context, OsclFileHandle* fileHandle)
+{
+    PVMFStatus retval = PVMFErrNotSupported;
+    int32 leavecode = 0;
+    OSCL_TRY(leavecode, retval = iPlayerRecognizerRegistry.QueryFormatType(iDataSource->GetDataSourceURL(), *this, (OsclAny*) context, fileHandle));
+    OSCL_FIRST_CATCH_ANY(leavecode,;);
+    return retval;
 }
 
 OSCL_EXPORT_REF void

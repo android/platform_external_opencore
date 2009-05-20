@@ -83,13 +83,6 @@
 #include "pvmf_local_data_source.h"
 #endif
 
-#ifndef PVMF_CPMPLUGIN_PASSTHRU_OMA1_FACTORY_H_INCLUDED
-#include "pvmf_cpmplugin_passthru_oma1_factory.h"
-#endif
-
-#ifndef PVMF_CPMPLUGIN_PASSTHRU_OMA1_TYPES_H_INCLUDED
-#include "pvmf_cpmplugin_passthru_oma1_types.h"
-#endif
 
 #include "pvmi_media_io_fileoutput.h"
 #include "pv_media_output_node_factory.h"
@@ -102,102 +95,14 @@
 #define DEFAULT_FASTTRACK_DL_FILE "test.pvx"
 #undef USE_NEW_PVMF_COMMONSOURCE_CONTEXT_DATA
 #define USE_NEW_PVMF_COMMONSOURCE_CONTEXT_DATA 1
-#define USE_NEW_PVMF_SOURCE_CONTEXT_DATA	1
+#undef USE_NEW_PVMF_SOURCE_CONTEXT_DATA
+#define USE_NEW_PVMF_SOURCE_CONTEXT_DATA    1
 #define DLA_TIMEOUT_MSEC (30*1000)
 //
 // pvplayer_async_test_cpmdlapassthru section
 //
 void pvplayer_async_test_cpmdlapassthru::CreateDownloadDataSource()
 {
-#if RUN_FASTTRACK_TESTCASES
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        //fasttrack download using PVX.
-        //read the pvx file into a memory fragment.
-        OsclMemoryFragment pvxmemfrag;
-        {
-            Oscl_FileServer fs;
-            fs.Connect();
-            Oscl_File file;
-            OSCL_StackString<64> filename;
-
-            if (oscl_strstr(iFileName, DEFAULTSOURCEFILENAME) != NULL)
-            {
-                filename = SOURCENAME_PREPEND_STRING;
-                filename += DEFAULT_FASTTRACK_DL_FILE;
-            }
-            else
-            {
-                filename = iFileName;
-            }
-
-            if (file.Open(filename.get_str(), Oscl_File::MODE_READ | Oscl_File::MODE_TEXT, fs))
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-
-            int32 size = file.Read(iPVXFileBuf, 1, 4096);
-            pvxmemfrag.len = size;
-            pvxmemfrag.ptr = iPVXFileBuf;
-            file.Close();
-            fs.Close();
-        }
-
-        //Parse, extracting iDownloadPvxInfo and url8.
-        OSCL_HeapString<OsclMemAllocator> url8;
-        {
-            CPVXParser* parser = NULL;
-            parser = new CPVXParser;
-            if (parser == NULL)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            CPVXParser::CPVXParserStatus status = parser->ParsePVX(pvxmemfrag, url8, iDownloadPvxInfo);
-            delete parser;
-            if (status != CPVXParser::CPVXParser_Success)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            //set the playback mode in the test case base class to match
-            //the PVX setting.
-            switch (iDownloadPvxInfo.iPlaybackControl)
-            {
-                case CPVXInfo::ENoPlayback:
-                    iDownloadOnly = true;
-                    break;
-                case CPVXInfo::EAfterDownload:
-                    iDownloadThenPlay = true;
-                    break;
-                case CPVXInfo::EAsap:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //convert the url8 to unicode iDownloadURL
-        {
-            oscl_wchar* wtemp = new oscl_wchar[url8.get_size()+1];
-            if (wtemp == NULL)
-            {
-                // Memory allocation failure
-                PVPATB_TEST_IS_TRUE(false);
-                iObserver->TestCompleted(*iTestCase);
-                return;
-            }
-            int32 wtemplen = oscl_UTF8ToUnicode(url8.get_cstr(), url8.get_size(), wtemp, url8.get_size() + 1);
-            //iDownloadURL.set(wtemp, wtemplen);
-            wFileName.set(wtemp, wtemplen);
-            delete [] wtemp;
-        }
-    }
-#endif
 
     //create the opaque data
     iDownloadProxy = _STRLIT_CHAR("");
@@ -211,19 +116,6 @@ void pvplayer_async_test_cpmdlapassthru::CreateDownloadDataSource()
     iDownloadFilename += _STRLIT_WCHAR("test_ftdownload.dl");
     iContentTooLarge = false;
 
-#if RUN_FASTTRACK_TESTCASES
-    int32 iDownloadProxyPort = 0;
-    bool aIsNewSession = true;
-
-    if (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE)
-    {
-        iDownloadContextDataPVX = new PVMFDownloadDataSourcePVX(aIsNewSession, iDownloadConfigFilename, iDownloadFilename, \
-                iDownloadMaxfilesize,
-                iDownloadProxy,
-                iDownloadProxyPort,
-                iDownloadPvxInfo);
-    }
-#endif
 }
 
 void pvplayer_async_test_cpmdlapassthru::StartTest()
@@ -375,9 +267,6 @@ void pvplayer_async_test_cpmdlapassthru::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -388,90 +277,6 @@ void pvplayer_async_test_cpmdlapassthru::Run()
             else if (iProtocolRollOverWithUnknownURLType)
             {
                 fileType = PVMF_MIME_DATA_SOURCE_UNKNOWN_URL;
-            }
-
-            //This illustrates the use of CPM with a file source.
-
-            //Connect to plugin registry
-            PVMFStatus status;
-            status = iPluginRegistryClient.Connect();
-            if (status != PVMFSuccess)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iState = STATE_CLEANUPANDCOMPLETE;
-                RunIfNotReady();
-                break;
-            }
-            bool aAuthorizeFail = false;
-            bool aCancelAcquireLicense = false;
-            bool aSourceInitDataNotSupported = false;
-            PVMFCPMContentType aCPMContentType = PVMF_CPM_FORMAT_AUTHORIZE_BEFORE_ACCESS;
-            switch (iTestMode)
-            {
-                case OMA1_DLA_FAIL:
-                {
-                    aAuthorizeFail = true;
-                }
-                break;
-
-                case OMA1_DLA_NORMAL:
-                {
-                    aAuthorizeFail = false;
-                }
-                break;
-
-                case OMA1_DLA_UNKNOWN_CPM_CONTENTTYPE:
-                {
-                    //not relevant as we do not do RequestUsage
-                    aAuthorizeFail = false;
-                    aCPMContentType = PVMF_CPM_CONTENT_FORMAT_UNKNOWN;
-                }
-                break;
-
-                case OMA1_DLA_CANCEL_ACQUIRE_LICENSE_FAILS:
-                {
-                    aAuthorizeFail = true;
-                }
-                break;
-
-                case OMA1_DLA_CANCEL_ACQUIRE_LICENSE_SUCCEEDS:
-                {
-                    aAuthorizeFail = true;
-                    aCancelAcquireLicense = true;
-                }
-                break;
-
-                case OMA1_DLA_CONTENT_NOTSUPPORTED:
-                {
-                    aSourceInitDataNotSupported = true;
-                }
-                break;
-                //Default case shud not arise so error out
-                default:
-                {
-                    PVPATB_TEST_IS_TRUE(false);
-                    iState = STATE_CLEANUPANDCOMPLETE;
-                    return;
-                }
-            }
-
-            iPluginFactory = new PVMFOma1PassthruPluginFactory(aAuthorizeFail, aCancelAcquireLicense,
-                    aSourceInitDataNotSupported, aCPMContentType);
-            if (!iPluginFactory)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iState = STATE_CLEANUPANDCOMPLETE;
-                RunIfNotReady();
-                break;
-            }
-            //Register the passthru plugin factory.
-            iPluginMimeType = PVMF_CPM_MIME_PASSTHRU_OMA1;
-            if (iPluginRegistryClient.RegisterPlugin(iPluginMimeType, *iPluginFactory) != PVMFSuccess)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iState = STATE_CLEANUPANDCOMPLETE;
-                RunIfNotReady();
-                break;
             }
 
             iDataSource->SetDataSourceURL(wFileName);
@@ -611,7 +416,7 @@ void pvplayer_async_test_cpmdlapassthru::Run()
                                                        NULL , 0 //DLA data
                                                        , (oscl_wchar*)wFileName.get_cstr() //content name
                                                        , DLA_TIMEOUT_MSEC););
-            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); fprintf(iTestMsgOutputFile, "... Failed\n");iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); fprintf(iTestMsgOutputFile, "... Failed\n"); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
             //Fire CancelAcquireLic only for this testcase
             if (iTestMode == OMA1_DLA_CANCEL_ACQUIRE_LICENSE_SUCCEEDS)
             {
@@ -625,7 +430,7 @@ void pvplayer_async_test_cpmdlapassthru::Run()
         {
             fprintf(iTestMsgOutputFile, "\nCancel Acquiring License...");
             OSCL_TRY(error, iCancelCmdId = iLicenseIF->CancelAcquireLicense(iAcquireLicenseCmdId););
-            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); fprintf(iTestMsgOutputFile, "... Failed\n");iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); fprintf(iTestMsgOutputFile, "... Failed\n"); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
         }
         break;
 
@@ -913,13 +718,6 @@ void pvplayer_async_test_cpmdlapassthru::Run()
 
             //close and cleanup the CPM plugin registry.
             iPluginRegistryClient.Close();
-
-            //delete the plugin factory.
-            if (iPluginFactory)
-            {
-                delete iPluginFactory;
-                iPluginFactory = NULL;
-            }
 
             delete iLocalDataSource;
             iLocalDataSource = NULL;
@@ -2212,7 +2010,7 @@ void pvplayer_async_test_cpmdlapassthru::HandleInformationalEvent(const PVAsyncI
                 if (localBuf != NULL)
                 {
                     uint32 bufPercent = 0;
-                    oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+                    oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
                     fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
                 }
             }

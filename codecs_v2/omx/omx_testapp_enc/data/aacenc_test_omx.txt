@@ -1,0 +1,12 @@
+test_adts_x.pcm		//Aac Input File Name
+test_adts.aac		//Aac Output File Name
+2			//Input number of channels
+2			//Output number of channels
+44100			//Sampling rate
+256000			//Bit rate
+0			//Audio bandwidth
+Stereo			//Channel mode, Mono, Dual, Stereo, JointStereo
+LC			//Aac Profile, Main, LC, SSR, LTP, HE, Scalable, LD, HE_PS, ERLC
+MP2ADTS			//Aac Stream Format, MP2ADTS, MP4ADTS, MP4LOAS, MP4LATM, ADIF, MP4FF, RAW
+All			//Aac Tools, MS, IS, TNS, PNS, LTP, All
+

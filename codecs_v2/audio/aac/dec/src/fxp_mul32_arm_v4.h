@@ -17,14 +17,9 @@
  */
 /*
 
- Pathname: fxp_mul32_c_equivalent.h
+ Filename: fxp_mul32_arm_v4.h
 
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

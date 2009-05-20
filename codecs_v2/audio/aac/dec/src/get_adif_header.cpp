@@ -17,33 +17,7 @@
  */
 /*
 
- Pathname: get_adif_header.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  Change to PV template, remove default config parameter,
-               move some functionality into get_prog_config().
-
- Description: Update per code review
-              1) Add parameter pScratchPCE
-              2) Change way ADIF_ID is read in.
-              3) Fix comments
-              4) ADD a test for status != SUCCESS in loop.
-
- Description: The ADIF_Header has now been delegated to the "scratch memory"
- union.  This change inside s_tDec_Int_File.h had to be reflected here also.
-
- Description: Updated the SW template to include the full pathname to the
- source file and a slightly modified copyright header.
-
- Who:                                   Date:
- Description:
+ Filename: get_adif_header.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -206,28 +180,6 @@
     END IF
 
     RETURN (status)
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

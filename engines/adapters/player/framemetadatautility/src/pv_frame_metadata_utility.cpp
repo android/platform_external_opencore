@@ -22,6 +22,7 @@
 #include "pv_media_output_node_factory.h"
 #include "pv_mime_string_utils.h"
 #include "oscl_mem_mempool.h"
+#include "pvmf_source_context_data.h"
 
 #define PVFMUTIL_TIMERID_PLAYERERRORTIMEOUT 1
 #define PVFMUTIL_ERRORHANDLINGTIMEOUT_VALUE 30
@@ -982,6 +983,22 @@ void PVFrameAndMetadataUtility::HandleInformationalEvent(const PVAsyncInformatio
             iAPICmdErrMsg = NULL;
         }
     }
+    else if (aEvent.GetEventType() == PVMFInfoEndOfData)
+    {
+        iInfoEventObserver->HandleInformationalEvent(aEvent);
+
+        if (!iCurrentCmd.empty() &&
+                (iCurrentCmd[0].GetCmdType() == PVFM_UTILITY_COMMAND_GET_FRAME_USER_BUFFER ||
+                 iCurrentCmd[0].GetCmdType() == PVFM_UTILITY_COMMAND_GET_FRAME_UTILITY_BUFFER))
+        {
+            // End of Data is received, before frame could be fetched
+            // Need to send command completion for GetFrame
+            if (!iFrameReceived)
+            {
+                HandleFrameReadyEvent(PVMFErrMaxReached);
+            }
+        }
+    }
     else
     {
         // Just pass up other info events up to app
@@ -1685,6 +1702,7 @@ PVMFStatus PVFrameAndMetadataUtility::DoAddDataSource(PVFMUtilityCommand& aCmd)
 
     // Save the data source
     iDataSource = (PVPlayerDataSource*)(aCmd.GetParam(0).pOsclAny_value);
+    iLocalDataSource = (PVMFLocalDataSource*)(iDataSource->GetDataSourceContextData());
 
     // Initiate the player setup sequence
     PVMFStatus cmdstatus = DoADSPlayerAddDataSource(aCmd.GetCmdId(), aCmd.GetContext());
@@ -2342,6 +2360,7 @@ PVMFStatus PVFrameAndMetadataUtility::DoGFPlayerStart(PVCommandId aCmdId, OsclAn
 
 PVMFStatus PVFrameAndMetadataUtility::DoGFPlayerPause(PVCommandId aCmdId, OsclAny* aCmdContext)
 {
+
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVFrameAndMetadataUtility::DoGFPlayerPause() In"));
 
     PVPlayerState playerstate;
@@ -2775,6 +2794,7 @@ void PVFrameAndMetadataUtility::HandleADSPlayerInit(PVFMUtilityContext& aUtilCon
         {
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iPerfLogger, PVLOGMSG_NOTICE,
                             (0, "PVFrameAndMetadataUtility::PlayerInit completed successfully Tick=%d", OsclTickCount::TickCount()));
+
             if (iMode == PV_FRAME_METADATA_INTERFACE_MODE_SOURCE_METADATA_ONLY)
             {
                 PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_INFO, (0, "PVFrameAndMetadataUtility::HandleADSPlayerInit - ADS Complete"));
@@ -2784,6 +2804,39 @@ void PVFrameAndMetadataUtility::HandleADSPlayerInit(PVFMUtilityContext& aUtilCon
                                 (0, "PVFrameAndMetadataUtility::AddDataSource completed sucessfully Tick=%d", OsclTickCount::TickCount()));
 
                 UtilityCommandCompleted(aUtilContext.iCmdId, aUtilContext.iCmdContext, PVMFSuccess);
+            }
+            else if (iLocalDataSource != NULL)
+            {
+                if (iLocalDataSource->iIntent == BITMASK_PVMF_SOURCE_INTENT_GETMETADATA)
+                {
+                    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_INFO, (0, "PVFrameAndMetadataUtility::HandleADSPlayerInit - ADS Complete"));
+                    // Utility's AddDataSource() successfully completed
+                    SetUtilityState(PVFM_UTILITY_STATE_INITIALIZED);
+                    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iPerfLogger, PVLOGMSG_NOTICE,
+                                    (0, "PVFrameAndMetadataUtility::AddDataSource completed sucessfully Tick=%d", OsclTickCount::TickCount()));
+
+                    UtilityCommandCompleted(aUtilContext.iCmdId, aUtilContext.iCmdContext, PVMFSuccess);
+                }
+                else
+                {
+                    // Call AddDataSink() on player
+                    cmdstatus = DoADSPlayerAddVideoDataSink(aUtilContext.iCmdId, aUtilContext.iCmdContext);
+                    if (cmdstatus != PVMFSuccess)
+                    {
+                        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVFrameAndMetadataUtility::HandleADSPlayerInit() AddDataSink on player failed. Report command as failed"));
+                        iAPICmdStatus = aCmdResp.GetCmdStatus();
+                        if (iAPICmdErrMsg)
+                        {
+                            iAPICmdErrMsg->removeRef();
+                            iAPICmdErrMsg = NULL;
+                        }
+                        // Need to shutdown/restart player and cleanup in utility's AO
+                        OSCL_ASSERT(iErrorHandlingInUtilityAO == false);
+                        iErrorHandlingInUtilityAO = true;
+                        RunIfNotReady();
+                    }
+                }
+
             }
             else
             {
@@ -2804,6 +2857,7 @@ void PVFrameAndMetadataUtility::HandleADSPlayerInit(PVFMUtilityContext& aUtilCon
                     RunIfNotReady();
                 }
             }
+
         }
         break;
 
@@ -3413,6 +3467,9 @@ void PVFrameAndMetadataUtility::HandleGFPlayerStopFromPaused(PVFMUtilityContext&
         {
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iPerfLogger, PVLOGMSG_NOTICE,
                             (0, "PVFrameAndMetadataUtility::GFPlayerStopFromPaused completed successfully Tick=%d", OsclTickCount::TickCount()));
+
+            iPlayerStartCompleted = false;
+
             // Call DoPrepare() on player
             PVMFStatus cmdstatus = DoGFPlayerPrepare(aUtilContext.iCmdId, aUtilContext.iCmdContext);
             if (cmdstatus != PVMFSuccess)

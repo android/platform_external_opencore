@@ -17,13 +17,8 @@
  */
 /*
 
- Pathname: .fxp_mul32_msc_evc_armv5.h
+ Filename: fxp_mul32_c_msc_evc_armv5.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -93,7 +88,7 @@ extern "C"
         return (sum);
     }
 
-#define fxp_mul32_Q31( a,  b)	_MulHigh( b, a)
+#define fxp_mul32_Q31( a,  b)   _MulHigh( b, a)
 
 
     __inline Int32 fxp_mac32_Q31(Int32 L_add, const Int32 a, const Int32 b)

@@ -171,6 +171,18 @@ bool PVFirewallPacketExchanger::ComposeFirewallPacket(PVMFJitterBufferFireWallPa
     return true;
 }
 
+void PVFirewallPacketExchanger::GetRTPSessionInfo(RTPSessionInfoForFirewallExchange& aRTPSessionInfo) const
+{
+    aRTPSessionInfo.ipRTPDataJitterBufferPort = iRTPSessionInfoForFirewallExchange.ipRTPDataJitterBufferPort;
+    aRTPSessionInfo.iSSRC = iRTPSessionInfoForFirewallExchange.iSSRC;
+}
+
+void PVFirewallPacketExchanger::SetRTPSessionInfo(const RTPSessionInfoForFirewallExchange& aRTPSessionInfo)
+{
+    iRTPSessionInfoForFirewallExchange.ipRTPDataJitterBufferPort = aRTPSessionInfo.ipRTPDataJitterBufferPort;
+    iRTPSessionInfoForFirewallExchange.iSSRC = aRTPSessionInfo.iSSRC;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //PVFirewallPacketExchangeImpl
 ///////////////////////////////////////////////////////////////////////////////
@@ -206,6 +218,19 @@ OSCL_EXPORT_REF PVFirewallPacketExchangeImpl::~PVFirewallPacketExchangeImpl()
 
 OSCL_EXPORT_REF void PVFirewallPacketExchangeImpl::SetRTPSessionInfoForFirewallExchange(const RTPSessionInfoForFirewallExchange& aRTPSessionInfo)
 {
+    Oscl_Vector<PVFirewallPacketExchanger*, OsclMemAllocator>::iterator firewallPacketExchangersIter;
+    for (firewallPacketExchangersIter = iFirewallPacketExchangers.begin(); firewallPacketExchangersIter != iFirewallPacketExchangers.end(); firewallPacketExchangersIter++)
+    {
+        PVFirewallPacketExchanger* firewallPktExchanger = *firewallPacketExchangersIter;
+        RTPSessionInfoForFirewallExchange exchangeInfo;
+        firewallPktExchanger->GetRTPSessionInfo(exchangeInfo);
+        if (exchangeInfo.ipRTPDataJitterBufferPort == aRTPSessionInfo.ipRTPDataJitterBufferPort)
+        {
+            firewallPktExchanger->SetRTPSessionInfo(aRTPSessionInfo);
+            return;
+        }
+    }
+
     PVFirewallPacketExchanger* pFirewallPacketExchanger = PVFirewallPacketExchanger::New(aRTPSessionInfo);
     if (pFirewallPacketExchanger)
         iFirewallPacketExchangers.push_back(pFirewallPacketExchanger);

@@ -66,7 +66,7 @@ AVCStatus InitDPB(AVCHandle *avcHandle, AVCCommonObj *video, int FrameHeightInMb
     }
 
     dpb->dpb_size = dpb->num_fs * (framesize + video->padded_size);
-//	dpb->dpb_size = (uint32)MaxDPBX2[mapLev2Idx[level]]*512 + framesize;
+//  dpb->dpb_size = (uint32)MaxDPBX2[mapLev2Idx[level]]*512 + framesize;
 
 #ifndef PV_MEMORY_POOL
     dpb->decoded_picture_buffer = (uint8*) avcHandle->CBAVC_Malloc(userData, dpb->dpb_size, 100/*DPB_MEM_ATTR*/);
@@ -105,7 +105,7 @@ AVCStatus InitDPB(AVCHandle *avcHandle, AVCCommonObj *video, int FrameHeightInMb
     return AVC_SUCCESS;
 }
 
-AVCStatus AVCConfigureSequence(AVCHandle *avcHandle, AVCCommonObj *video, bool padding)
+OSCL_EXPORT_REF AVCStatus AVCConfigureSequence(AVCHandle *avcHandle, AVCCommonObj *video, bool padding)
 {
     void *userData = avcHandle->userData;
     AVCDecPicBuffer *dpb = video->decPicBuf;
@@ -148,7 +148,7 @@ AVCStatus AVCConfigureSequence(AVCHandle *avcHandle, AVCCommonObj *video, bool p
         {
             return AVC_FAIL;
         }
-        /*  Allocate video->mblock upto PicSizeInMbs and populate the structure  such as the neighboring MB pointers.	*/
+        /*  Allocate video->mblock upto PicSizeInMbs and populate the structure  such as the neighboring MB pointers.   */
         framesize = (FrameHeightInMbs * PicWidthInMbs);
         if (video->mblock)
         {
@@ -202,7 +202,7 @@ AVCStatus AVCConfigureSequence(AVCHandle *avcHandle, AVCCommonObj *video, bool p
     return AVC_SUCCESS;
 }
 
-AVCStatus CleanUpDPB(AVCHandle *avcHandle, AVCCommonObj *video)
+OSCL_EXPORT_REF AVCStatus CleanUpDPB(AVCHandle *avcHandle, AVCCommonObj *video)
 {
     AVCDecPicBuffer *dpb = video->decPicBuf;
     int ii;
@@ -229,7 +229,7 @@ AVCStatus CleanUpDPB(AVCHandle *avcHandle, AVCCommonObj *video)
     return AVC_SUCCESS;
 }
 
-AVCStatus DPBInitBuffer(AVCHandle *avcHandle, AVCCommonObj *video)
+OSCL_EXPORT_REF AVCStatus DPBInitBuffer(AVCHandle *avcHandle, AVCCommonObj *video)
 {
     AVCDecPicBuffer *dpb = video->decPicBuf;
     int ii, status;
@@ -263,7 +263,7 @@ AVCStatus DPBInitBuffer(AVCHandle *avcHandle, AVCCommonObj *video)
     return AVC_SUCCESS;
 }
 
-void DPBInitPic(AVCCommonObj *video, int CurrPicNum)
+OSCL_EXPORT_REF void DPBInitPic(AVCCommonObj *video, int CurrPicNum)
 {
     int offset = 0;
     int offsetc = 0;
@@ -295,7 +295,7 @@ void DPBInitPic(AVCCommonObj *video, int CurrPicNum)
     {
         offset = ((video->PicWidthInSamplesL + 32) << 4) + 16; // offset to the origin
         offsetc = (offset >> 2) + 4;
-        luma_framesize =	(int)((((video->FrameHeightInMbs + 2) * (video->PicWidthInMbs + 2)) << 8));
+        luma_framesize = (int)((((video->FrameHeightInMbs + 2) * (video->PicWidthInMbs + 2)) << 8));
     }
     else
         luma_framesize = video->PicSizeInMbs << 8;
@@ -313,7 +313,7 @@ void DPBInitPic(AVCCommonObj *video, int CurrPicNum)
 }
 
 /* to release skipped frame after encoding */
-void DPBReleaseCurrentFrame(AVCHandle *avcHandle, AVCCommonObj *video)
+OSCL_EXPORT_REF void DPBReleaseCurrentFrame(AVCHandle *avcHandle, AVCCommonObj *video)
 {
     AVCDecPicBuffer *dpb = video->decPicBuf;
     int ii;
@@ -338,7 +338,7 @@ void DPBReleaseCurrentFrame(AVCHandle *avcHandle, AVCCommonObj *video)
 }
 
 /* see subclause 8.2.5.1 */
-AVCStatus StorePictureInDPB(AVCHandle *avcHandle, AVCCommonObj *video)
+OSCL_EXPORT_REF AVCStatus StorePictureInDPB(AVCHandle *avcHandle, AVCCommonObj *video)
 {
     AVCStatus status;
     AVCDecPicBuffer *dpb = video->decPicBuf;
@@ -459,7 +459,7 @@ AVCStatus sliding_window_process(AVCHandle *avcHandle, AVCCommonObj *video, AVCD
 {
     int ii, numShortTerm, numLongTerm;
     int32 MinFrameNumWrap;
-    int	MinIdx;
+    int MinIdx;
 
 
     numShortTerm = 0;
@@ -536,7 +536,7 @@ AVCStatus adaptive_memory_marking(AVCHandle *avcHandle, AVCCommonObj *video, AVC
         {
             case 1:
                 MemMgrCtrlOp1(avcHandle, video, dpb, sliceHdr->difference_of_pic_nums_minus1[ii]);
-                //		update_ref_list(dpb);
+                //      update_ref_list(dpb);
                 break;
             case 2:
                 MemMgrCtrlOp2(avcHandle, dpb, sliceHdr->long_term_pic_num[ii]);

@@ -17,24 +17,17 @@
  */
 /*
 
- Filename: check_crc.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: check_crc.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
-	INPUT
+    INPUT
 
 
-	OUTPUT
+    OUTPUT
 
-	errorCode, noError if successful
+    errorCode, noError if successful
 
 ------------------------------------------------------------------------------
  FUNCTION DESCRIPTION

@@ -1,8 +1,8 @@
 #
 # Automatically generated, don't edit
 #
-# At: Thu, 26 Feb 2009 19:56:21 +0000
-# Linux version 2.6.22-16-generic (buildd@rothera) (gcc version 4.1.3 20070929 (prerelease) (Ubuntu 4.1.2-16ubuntu2)) #1 SMP Mon Nov 24 18:28:27 GMT 2008
+# At: Fri, 08 May 2009 15:19:39 +0000
+# Linux version 2.6.22-14-generic (buildd@terranova) (gcc version 4.1.3 20070929 (prerelease) (Ubuntu 4.1.2-16ubuntu2)) #1 SMP Tue Feb 12 07:42:25 UTC 2008
 
 #
 # PV Code Base Configuration System
@@ -12,7 +12,7 @@
 # Menu for selecting supported features
 #
 module_support=y
-shoutcast_support=n
+shoutcast_support=y
 
 
 #
@@ -31,12 +31,16 @@ asf_streaming_support=n
 download_support=y
 fasttrack_download_support=n
 mp4local_support=y
+divxlocal_support=n
 asflocal_support=n
 janus_support=n
+oma1_passthru_support=y
 wmdrmplat_support=n
 wmdrmdev_support=n
 wmdrmsysclk_support=n
 mtp_db_support=n
+pvdb_config_support=n
+mtp_config_support=n
 
 
 #
@@ -75,6 +79,8 @@ pvavifileparser_lib=m
 pvpvrff_lib=n
 asfrecognizer_utility_lib=n
 pv_divxfile_parser_lib=n
+scsp_lib=m
+divxrecognizer_utility_lib=n
 
 
 #
@@ -101,6 +107,7 @@ omx_wma_component_lib=n
 omx_amrenc_component_lib=m
 omx_m4venc_component_lib=m
 omx_avcenc_component_lib=m
+omx_aacenc_component_lib=n
 omx_baseclass_lib=m
 
 
@@ -108,6 +115,7 @@ omx_baseclass_lib=m
 # Menu for configuring audio codecs
 #
 pv_aac_dec_lib=m
+pv_aac_enc_lib=n
 getactualaacconfig_lib=m
 pv_amr_nb_common_lib=m
 pvdecoder_gsmamr_lib=m
@@ -117,6 +125,7 @@ gsm_amr_headers_lib=m
 pvmp3_lib=m
 pvra8decoder_lib=n
 wmadecoder_lib=n
+pvg726decoder_lib=n
 
 
 #
@@ -158,10 +167,7 @@ unicastpvr_support=n
 broadcastpvr_support=n
 pvrfileplayback_support=n
 
-pvstreamingmanagernode_lib=n
-pvstreamingmanagernode_3gpp_lib=n
 pvmedialayernode_lib=m
-pvmedialayernode_opencore_lib=n
 pvjitterbuffernode_lib=m
 
 #
@@ -207,11 +213,11 @@ pvavcencnode_lib=n
 #
 pvprotocolenginenode_segments_lib=m
 pvprotocolenginenode_lib=n
-pvprotocolenginenode_pdl_plugin_lib=n
-pvprotocolenginenode_ps_plugin_lib=n
+pvprotocolenginenode_pdl_plugin_lib=m
+pvprotocolenginenode_ps_plugin_lib=m
 pvprotocolenginenode_ftdl_plugin_lib=n
 pvprotocolenginenode_wmhttpstreaming_plugin_lib=n
-pvprotocolenginenode_shoutcast_plugin_lib=n
+pvprotocolenginenode_shoutcast_plugin_lib=m
 
 #
 # Menu for configuring protocol engine node plugin registry
@@ -220,7 +226,7 @@ BUILD_PROGRESSIVE_DOWNLOAD_PLUGIN=y
 BUILD_PROGRESSIVE_STREAMING_PLUGIN=y
 BUILD_FASTTRACK_DOWNLOAD_PLUGIN=n
 BUILD_WMHTTPSTREAMING_PLUGIN=n
-BUILD_SHOUTCAST_PLUGIN=n
+BUILD_SHOUTCAST_PLUGIN=y
 
 
 pvfileoutputnode_lib=m
@@ -254,6 +260,8 @@ pvvideoparsernode_lib=m
 pvdummyinputnode_lib=m
 pvdummyoutputnode_lib=m
 pvdivxffparsernode_lib=n
+pvstillimagenode_lib=n
+g726decnode_lib=n
 
 
 #
@@ -274,6 +282,7 @@ twoway_value_add_config=y
 PV_2WAY_VALUE_ADD_NONE=y
 
 pv_http_parcom_lib=m
+pv_http_retriever_lib=n
 pvlatmpayloadparser_lib=m
 sdp_common=m
 
@@ -330,7 +339,7 @@ pvdivxffrecognizer_lib=n
 # Menu for configuring Content Policy Manager
 #
 cpm_lib=m
-passthru_oma1_lib=m
+oma1_passthru_plugin_lib=m
 pvjanusplugin_lib=n
 cpm_headers_lib=m
 pvoma1lockstream_lib=n
@@ -428,6 +437,7 @@ pvauthorengine_lib=m
 # Menu for configuring pv2way
 #
 pv2wayengine_lib=m
+pv2waysample_lib=m
 
 engines_common_headers_lib=m
 pvframemetadatautility_lib=m

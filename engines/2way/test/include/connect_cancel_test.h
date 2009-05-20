@@ -24,7 +24,8 @@
 class connect_cancel_test : public test_base
 {
     public:
-        connect_cancel_test(bool aUseProxy) : test_base(PVMF_MIME_AMR_IF2, PVMF_MIME_AMR_IF2, PVMF_MIME_YUV420, PVMF_MIME_YUV420, aUseProxy) {};
+        connect_cancel_test(bool aUseProxy) :
+                test_base(aUseProxy) {};
 
         ~connect_cancel_test()
         {
@@ -35,9 +36,6 @@ class connect_cancel_test : public test_base
         void Run();
 
         void DoCancel();
-
-        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
-
 
 
     private:

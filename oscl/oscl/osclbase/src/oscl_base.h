@@ -40,9 +40,7 @@
 #include "oscl_types.h"
 #include "osclconfig_check.h"
 
-#ifdef USE_CML2_CONFIG
 #include "pv_config.h"
-#endif
 
 //singleton support derives from global var support.
 #define OSCL_HAS_SINGLETON_SUPPORT 1

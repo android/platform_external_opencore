@@ -43,7 +43,7 @@ OSCL_EXPORT_REF PVCodecType_t CPVMediaParam::GetCodecType()
 /* CPVAudioParam */
 OSCL_EXPORT_REF CPVParam* CPVAudioParam::Copy()
 {
-    return new CPVAudioParam(GetCodecType());
+    return OSCL_NEW(CPVAudioParam, (GetCodecType()));
 }
 
 OSCL_EXPORT_REF PV2WayMediaType CPVAudioParam::GetMediaType()
@@ -67,7 +67,7 @@ OSCL_EXPORT_REF PV2WayMediaType CPVVideoParam::GetMediaType()
 
 OSCL_EXPORT_REF CPVParam* CPVVideoParam::Copy()
 {
-    return new CPVVideoParam(iWidth, iHeight, GetCodecType());
+    return OSCL_NEW(CPVVideoParam, (iWidth, iHeight, GetCodecType()));
 }
 
 OSCL_EXPORT_REF uint16 CPVVideoParam::GetWidth()
@@ -133,7 +133,7 @@ OSCL_EXPORT_REF OsclAny CPVM4vVideoParam::Set(uint16 config_sz, uint8* cfg)
 
 OSCL_EXPORT_REF CPVParam* CPVM4vVideoParam::Copy()
 {
-    return new CPVM4vVideoParam(GetWidth(), GetHeight(), iSz, iCfg);
+    return OSCL_NEW(CPVM4vVideoParam, (GetWidth(), GetHeight(), iSz, iCfg));
 }
 
 /* CPVAMRAudioParam */
@@ -202,7 +202,7 @@ OSCL_EXPORT_REF uint16 CPVUserInputDtmf::GetDuration()
 }
 OSCL_EXPORT_REF CPVUserInput* CPVUserInputDtmf::Copy()
 {
-    return new CPVUserInputDtmf(iInput, iIsUpdate, iDuration);
+    return OSCL_NEW(CPVUserInputDtmf, (iInput, iIsUpdate, iDuration));
 }
 
 /* CPVUserInputAlphanumeric */
@@ -239,7 +239,7 @@ OSCL_EXPORT_REF uint16 CPVUserInputAlphanumeric::GetLength()
 }
 OSCL_EXPORT_REF CPVUserInput* CPVUserInputAlphanumeric::Copy()
 {
-    return new CPVUserInputAlphanumeric(iInput, iLength);
+    return OSCL_NEW(CPVUserInputAlphanumeric, (iInput, iLength));
 }
 
 /* TPVH245VendorObjectIdentifier */
@@ -355,165 +355,20 @@ OSCL_EXPORT_REF TPVVendorIdentification::~TPVVendorIdentification()
 }
 
 
-/* CPvtDiagnosticIndication */
-OSCL_EXPORT_REF CPvtDiagnosticIndication::CPvtDiagnosticIndication(TPVTerminalEvent aEvent, int aParam1, int aParam2, int aParam3)
-        : iEvent(aEvent), iParam1(aParam1), iParam2(aParam2), iParam3(aParam3)
+OSCL_EXPORT_REF CPVTerminalParam::CPVTerminalParam(CPVTerminalParam& that): CPVParam(that)
 {
 }
 
-OSCL_EXPORT_REF CPvtDiagnosticIndication::~CPvtDiagnosticIndication()
+OSCL_EXPORT_REF CPVTerminalParam::CPVTerminalParam()
 {
-}
-
-/* CPVGenericMuxParam */
-OSCL_EXPORT_REF CPVGenericMuxParam::CPVGenericMuxParam(TPVMuxType aMuxType):
-        discard_corrupt_video(PARAM_DEFAULT),
-        max_discard_video_sdu_size(0),
-        err_rate_threshold_to_req_I_frame(0),
-        audio_err_rate_update_interval(0),
-        audio_encode_frame_delay(0),
-        audio_decode_frame_delay(0),
-        iMuxType(aMuxType)
-{
-}
-
-OSCL_EXPORT_REF TPVMuxType CPVGenericMuxParam::GetMuxType()
-{
-    return iMuxType;
-}
-
-OSCL_EXPORT_REF CPVParam* CPVGenericMuxParam::Copy()
-{
-    CPVGenericMuxParam* ret = new CPVGenericMuxParam(iMuxType);
-    ret->discard_corrupt_video = discard_corrupt_video;
-    ret->max_discard_video_sdu_size = max_discard_video_sdu_size;
-    ret->err_rate_threshold_to_req_I_frame = err_rate_threshold_to_req_I_frame;
-    ret->audio_err_rate_update_interval = audio_err_rate_update_interval;
-    ret->audio_encode_frame_delay = audio_encode_frame_delay;
-    ret->audio_decode_frame_delay = audio_decode_frame_delay;
-    return ret;
-}
-
-OSCL_EXPORT_REF OsclAny CPVGenericMuxParam::Copy(CPVGenericMuxParam* param)
-{
-    param->discard_corrupt_video = discard_corrupt_video;
-    param->max_discard_video_sdu_size = max_discard_video_sdu_size;
-    param->err_rate_threshold_to_req_I_frame = err_rate_threshold_to_req_I_frame;
-    param->audio_err_rate_update_interval = audio_err_rate_update_interval;
-    param->audio_encode_frame_delay = audio_encode_frame_delay;
-    param->audio_decode_frame_delay = audio_decode_frame_delay;
-    return;
-}
-
-
-/* CPVH223MuxParam */
-OSCL_EXPORT_REF CPVH223MuxParam::CPVH223MuxParam() : CPVGenericMuxParam(MUX_H223),
-        iBitrate(PVT_NOT_SET),
-        iLevel(H223_LEVEL_UNKNOWN),
-        iMaxAl1SduSize(PVT_NOT_SET),
-        iMaxAl2SduSize(PVT_NOT_SET),
-        iMaxAl3SduSize(PVT_NOT_SET),
-        iMaxAl1SduSizeR(PVT_NOT_SET),
-        iMaxAl2SduSizeR(PVT_NOT_SET),
-        iMaxAl3SduSizeR(PVT_NOT_SET),
-        iParseOnResyncMarkers(false),
-        iOutgoingPduType(H223_PDU_COMBINED),
-        iMaxPduSize(0),
-        iIdleSyncType(H223_IDLE_SYNC_NONE),
-        iIdleSyncByte(0x00)
-{
-}
-
-OSCL_EXPORT_REF CPVH223MuxParam::~CPVH223MuxParam()
-{
-}
-
-OSCL_EXPORT_REF CPVParam* CPVH223MuxParam::Copy()
-{
-    CPVH223MuxParam* ret = new CPVH223MuxParam();
-    CPVGenericMuxParam::Copy(ret);
-    ret->iBitrate = iBitrate;
-    ret->iLevel = iLevel;
-    ret->iMaxAl1SduSize = iMaxAl1SduSize;
-    ret->iMaxAl2SduSize = iMaxAl2SduSize;
-    ret->iMaxAl3SduSize = iMaxAl3SduSize;
-    ret->iMaxAl1SduSizeR = iMaxAl1SduSizeR;
-    ret->iMaxAl2SduSizeR = iMaxAl2SduSizeR;
-    ret->iMaxAl3SduSizeR = iMaxAl3SduSizeR;
-    ret->iParseOnResyncMarkers = iParseOnResyncMarkers;
-    ret->iOutgoingPduType = iOutgoingPduType;
-    ret->iMaxPduSize = iMaxPduSize;
-    ret->iIdleSyncType = iIdleSyncType;
-    ret->iIdleSyncByte = iIdleSyncByte;
-    return ret;
-}
-
-/* CPVH245Param */
-OSCL_EXPORT_REF CPVH245Param::CPVH245Param()
-{
-}
-
-OSCL_EXPORT_REF CPVParam* CPVH245Param::Copy()
-{
-    CPVH245Param* ret = new CPVH245Param();
-    return ret;
-}
-
-/* CPVSrpParam */
-OSCL_EXPORT_REF CPVSrpParam::CPVSrpParam()
-{
-
-}
-
-OSCL_EXPORT_REF CPVParam* CPVSrpParam::Copy()
-{
-    CPVSrpParam* ret = new CPVSrpParam();
-    return ret;
-}
-
-/* CPVTerminalParam */
-OSCL_EXPORT_REF CPVTerminalParam::CPVTerminalParam(CPVGenericMuxParam* muxParam): iMuxParam(NULL)
-{
-    if (muxParam)
-    {
-        iMuxParam = (CPVGenericMuxParam*)muxParam->Copy();
-    }
-}
-
-OSCL_EXPORT_REF CPVTerminalParam::CPVTerminalParam(CPVTerminalParam& that): CPVParam(that), iMuxParam(NULL)
-{
-    if (that.iMuxParam)
-    {
-        iMuxParam = (CPVGenericMuxParam*)that.iMuxParam->Copy();
-    }
 }
 
 
 CPVTerminalParam::~CPVTerminalParam()
 {
-    if (iMuxParam)
-    {
-        delete iMuxParam;
-    }
 }
 
-
-OSCL_EXPORT_REF OsclAny CPVTerminalParam::SetMuxParam(CPVGenericMuxParam* muxParam)
-{
-    if (iMuxParam)
-    {
-        delete iMuxParam;
-    }
-    iMuxParam = (CPVGenericMuxParam*)muxParam->Copy();
-}
-
-OSCL_EXPORT_REF CPVGenericMuxParam* CPVTerminalParam::GetMuxParam()
-{
-    return iMuxParam;
-}
-
-/* CPVH324MParam */
-OSCL_EXPORT_REF CPVH324MParam::CPVH324MParam(CPVH223MuxParam* h223param) : CPVTerminalParam(h223param), iH245Param(NULL), iSrpParam(NULL)
+OSCL_EXPORT_REF CPVH324MParam::CPVH324MParam() : CPVTerminalParam()
 {
     iAllowAl1Video = false;
     iAllowAl2Video = true;
@@ -547,12 +402,6 @@ OSCL_EXPORT_REF CPVH324MParam::CPVH324MParam(const CPVH324MParam& that) : CPVTer
     iSendRme = that.iSendRme;
     iSkipMsd = that.iSkipMsd;
     iRequestMaxMuxPduSize = that.iRequestMaxMuxPduSize;
-    iH245Param = NULL;
-    if (that.iH245Param)
-        iH245Param = (CPVH245Param*)that.iH245Param->Copy();
-    iSrpParam = NULL;
-    if (that.iSrpParam)
-        iSrpParam = (CPVSrpParam*)that.iSrpParam->Copy();
 }
 
 OSCL_EXPORT_REF CPVH324MParam::~CPVH324MParam()
@@ -567,66 +416,8 @@ OSCL_EXPORT_REF TPVTerminalType CPVH324MParam::GetTerminalType()
 
 OSCL_EXPORT_REF CPVParam* CPVH324MParam::Copy()
 {
-    return new CPVH324MParam(*this);
+    return OSCL_NEW(CPVH324MParam, (*this));
 }
-
-OSCL_EXPORT_REF OsclAny CPVH324MParam::SetH223Param(CPVH223MuxParam* h223Param)
-{
-    SetMuxParam(h223Param);
-}
-
-OSCL_EXPORT_REF CPVH223MuxParam* CPVH324MParam::GetH223Param()
-{
-    return (CPVH223MuxParam*)GetMuxParam();
-}
-
-OSCL_EXPORT_REF OsclAny CPVH324MParam::SetSRPParam(CPVSrpParam* srpParam)
-{
-    iSrpParam = (CPVSrpParam*)srpParam->Copy();
-}
-
-OSCL_EXPORT_REF OsclAny CPVH324MParam::SetH245Param(CPVH245Param* h245Param)
-{
-    iH245Param = (CPVH245Param*)h245Param->Copy();
-}
-
-OSCL_EXPORT_REF TPVVideoEncoderParam::TPVVideoEncoderParam():
-        video_bitrate(KPVDefaultVideoBitRate),
-        codec(PV_VID_TYPE_MPEG4),
-        video_frame_rate(KPVDefaultFrameRate),
-        air(0),
-        intra_refresh(1),
-        data_partitioning(1),
-        advanced(0),
-        use_gov(0),
-        rvlc(0),
-        use_resync(480),
-        use_hec(0),
-        use_gobsync(0),
-        vos(0),
-        ref_frame_rate(15),
-        orig_frameskip(1),
-        chosen_frame_skip(3),
-        qp(10),
-        qpi(10),
-        cam_low_light_mode(1),
-        cam_saturation_level(55),
-        cam_contrast_level(90),
-        cam_edge_enhance(85),
-        cam_brightness(100),
-        deblocking_filter(0),
-        prefilter(0),
-        prefilter_coeff1(0),
-        prefilter_coeff2(0),
-        prefilter_coeff3(0),
-        buffer_backlog(-55000),
-        qp_max(31),
-        qp_min(1),
-        qp_delta_frame(30),
-        qp_delta_slice(30),
-        iframe_interval(KPVDefaultIFrameInterval),
-        iframe_request_interval(KPVDefaultIFrameRequestInterval)
-{};
 
 
 OSCL_EXPORT_REF PVMFFormatType PVCodecTypeToPVMFFormatType(PVCodecType_t aCodecType)
@@ -796,12 +587,12 @@ OSCL_EXPORT_REF PV2WayMediaType GetMediaType(PVCodecType_t codec)
     return media_type;
 }
 
-OSCL_EXPORT_REF H324ChannelParameters::H324ChannelParameters(TPVDirection dir, PVMFFormatType mediaType, unsigned bandwidth)
+OSCL_EXPORT_REF H324ChannelParameters::H324ChannelParameters(TPVDirection dir, unsigned bandwidth)
         : iCodecs(NULL)
 {
-    OSCL_UNUSED_ARG(mediaType);
     iBandwidth = bandwidth;
-    iCodecs = new Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator>();
+    typedef Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator> codecsType;
+    iCodecs = OSCL_NEW(codecsType, ());
     FormatCapabilityInfo codec_info;
     codec_info.dir = dir;
 }
@@ -813,7 +604,8 @@ OSCL_EXPORT_REF H324ChannelParameters::H324ChannelParameters(const H324ChannelPa
 
     if (that.iCodecs)
     {
-        iCodecs = new Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator>(*that.iCodecs);
+        typedef Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator> codecsType;
+        iCodecs = OSCL_NEW(codecsType, (*that.iCodecs));
     }
 }
 
@@ -847,7 +639,8 @@ OSCL_EXPORT_REF void H324ChannelParameters::SetCodecs(Oscl_Vector<FormatCapabili
     if (!codecs.size())
         return;
 
-    iCodecs = new Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator>(codecs);
+    typedef Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator> codecsType;
+    iCodecs = OSCL_NEW(codecsType, (codecs));
 }
 
 OSCL_EXPORT_REF Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator>* H324ChannelParameters::GetCodecs()
@@ -866,7 +659,7 @@ OSCL_EXPORT_REF CodecCapabilityInfo::CodecCapabilityInfo()
 
 OSCL_EXPORT_REF CodecCapabilityInfo* CodecCapabilityInfo::Copy()
 {
-    CodecCapabilityInfo* ret = new CodecCapabilityInfo();
+    CodecCapabilityInfo* ret = OSCL_NEW(CodecCapabilityInfo, ());
     ret->codec = codec;
     ret->dir = dir;
     ret->max_bitrate = max_bitrate;
@@ -881,7 +674,7 @@ OSCL_EXPORT_REF VideoCodecCapabilityInfo::VideoCodecCapabilityInfo()
 
 OSCL_EXPORT_REF CodecCapabilityInfo* VideoCodecCapabilityInfo::Copy()
 {
-    VideoCodecCapabilityInfo* ret = new VideoCodecCapabilityInfo();
+    VideoCodecCapabilityInfo* ret = OSCL_NEW(VideoCodecCapabilityInfo, ());
     ret->codec = codec;
     ret->dir = dir;
     ret->max_bitrate = max_bitrate;

@@ -49,7 +49,17 @@
 class TSC_statemanager
 {
     public:
-        ~TSC_statemanager() {};
+        TSC_statemanager()
+        {
+            for (uint ii = 0; ii <= MAX_TSC_STATES; ++ii)
+            {
+                iTerminalState[ii] = 0;
+            }
+        }
+
+        ~TSC_statemanager()
+        {
+        };
 
         void InitVarsSession();
         void InitVarsLocal();

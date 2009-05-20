@@ -475,7 +475,7 @@ bool av_rec_v_preview_test::start_async_test()
         return false;
     }
 
-    create_sink_source();
+
 
     OSCL_TRY(error, terminal->InitL(iSdkInitInfo, iCommServer));
     if (error)

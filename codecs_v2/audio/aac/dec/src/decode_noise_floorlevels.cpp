@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: decode_noise_floorlevels.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: decode_noise_floorlevels.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

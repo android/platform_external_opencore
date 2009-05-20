@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: ps_pwr_transient_detection.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: ps_pwr_transient_detection.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

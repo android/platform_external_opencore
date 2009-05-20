@@ -19,8 +19,6 @@ LOCAL_SHARED_LIBRARIES :=
 LOCAL_C_INCLUDES := \
 	$(PV_TOP)/pvmi/recognizer/plugins/pvmp3ffrecognizer/src \
  	$(PV_TOP)/pvmi/recognizer/plugins/pvmp3ffrecognizer/include \
- 	/fileformats/mp3/parser/include \
- 	/pvmi/recognizer/include \
  	$(PV_INCLUDES)
 
 LOCAL_COPY_HEADERS_TO := $(PV_COPY_HEADERS_TO)

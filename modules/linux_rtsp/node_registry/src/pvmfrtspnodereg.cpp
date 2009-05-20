@@ -45,7 +45,7 @@
 
 #define NODE_REGISTRY_LIB_NAME_MAX_LENGTH 64
 
-#define RTSP_LIB_NAME "libopencore_rtsp.so"
+#define RTSP_LIB_NAME "libopencore_rtsp"
 
 typedef PVMFNodeInterface*(* LPFN_NODE_CREATE_FUNC)(int32);
 
@@ -147,8 +147,8 @@ bool StreamingNodesCoreLibraryLoader::DeleteStreamingManagerNode(PVMFNodeInterfa
 
 
 class StreamingNodesRegistryInterface: public OsclSharedLibraryInterface,
-            public NodeRegistryPopulatorInterface,
-            public RecognizerPopulatorInterface
+        public NodeRegistryPopulatorInterface,
+        public RecognizerPopulatorInterface
 {
     public:
         StreamingNodesRegistryInterface() {};
@@ -226,7 +226,7 @@ class StreamingNodesRegistryInterface: public OsclSharedLibraryInterface,
 
 extern "C"
 {
-    OsclSharedLibraryInterface* PVGetInterface(void)
+    OSCL_EXPORT_REF OsclSharedLibraryInterface* PVGetInterface(void)
     {
         return OSCL_NEW(StreamingNodesRegistryInterface, ());
     }

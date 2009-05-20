@@ -46,7 +46,7 @@ class PVMFLocalDataSource : public PVInterface
         PVMFLocalDataSource(OsclFileHandle*aFileHandle = NULL)
                 : iFileHandle(aFileHandle)
                 , iPreviewMode(false)
-                , iIntent(BITMASK_PVMF_SOURCE_INTENT_PLAY)
+                , iIntent(BITMASK_PVMF_SOURCE_INTENT_PLAY + BITMASK_PVMF_SOURCE_INTENT_GETMETADATA)
                 , iContentAccessFactory(NULL)
         {
         }

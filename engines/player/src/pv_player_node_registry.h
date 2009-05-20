@@ -70,11 +70,10 @@
 #include "pvlogger.h"
 #endif
 
-#ifndef USE_CML2_CONFIG
-#ifndef PV_PLAYER_ENGINE_TUNABLES_H_INCLUDED
-#include "pv_player_engine_tunables.h"
+#ifndef OSCL_FILE_HANDLE_H_INCLUDED
+#include "oscl_file_handle.h"
 #endif
-#endif
+
 
 class OsclSharedLibrary;
 class NodeRegistryPopulatorInterface;
@@ -198,8 +197,8 @@ class PVPlayerRecognizerRegistryObserver
  * can determine the file type
  **/
 class PVPlayerRecognizerRegistry : public OsclTimerObject,
-            public PVMFRecognizerCommmandHandler
-            , public PVPlayerRecognizerRegistryInterface
+        public PVMFRecognizerCommmandHandler
+        , public PVPlayerRecognizerRegistryInterface
 {
     public:
         PVPlayerRecognizerRegistry();
@@ -214,10 +213,11 @@ class PVPlayerRecognizerRegistry : public OsclTimerObject,
          * @param aSourceURL The source file to determine the format
          * @param aObserver The callback handler to call when recognize operation completes
          * @param aContext Optional opaque data that would be returned in callback
+         * @param aFileHandle Optional file handle to determine the format
          *
          * @returns Status of query
          **/
-        PVMFStatus QueryFormatType(OSCL_wString& aSourceURL, PVPlayerRecognizerRegistryObserver& aObserver, OsclAny* aContext = NULL);
+        PVMFStatus QueryFormatType(OSCL_wString& aSourceURL, PVPlayerRecognizerRegistryObserver& aObserver, OsclAny* aContext = NULL, OsclFileHandle* aFileHandle = NULL);
 
         /**
          * Determines the format type of the specified source file using the PVMF recognizer
@@ -316,7 +316,7 @@ class PVPlayerRecognizerRegistry : public OsclTimerObject,
 ** the registries.
 */
 class PVPlayerRegistryPopulator: public NodeRegistryPopulatorInterface
-            , public RecognizerPopulatorInterface
+        , public RecognizerPopulatorInterface
 {
     public:
         /*

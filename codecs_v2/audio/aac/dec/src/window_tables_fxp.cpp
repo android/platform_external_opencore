@@ -17,32 +17,8 @@
  */
 /*
 
- Pathname: window_tables_fxp.c
- Funtions:
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-    changed table content definition from UInt to UInt16.
-
- Description:
-    changed Long_Window_fxp and Short _Window_fxp tables definition, from
-    "const UInt16 *"  to "const UInt16 * const" to avoid global variable
-    definition.
-
- Description:
-    Improved rounding on table elements.
-
- Description: Eliminated structure to avoid assigning addresses to constant
-              tables. This solve linking problem when using the
-              /ropi option (Read-only position independent) for some
-              compilers
-              - Eliminated Long_Window_fxp and Short_Window_fxp as global
-                contants vectors
-
- Who:                       Date:
- Description:
+ Filename: window_tables_fxp.cpp
+ Functions:
 
   ------------------------------------------------------------------------------
  MODULE DESCRIPTION

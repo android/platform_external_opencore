@@ -18,7 +18,8 @@ LOCAL_SRC_FILES := \
  	src/pvmf_mempool.cpp \
  	src/pvmf_media_clock.cpp \
  	src/pvmf_duration_infomessage.cpp \
- 	src/pvmf_metadata_infomessage.cpp
+ 	src/pvmf_metadata_infomessage.cpp \
+ 	src/pvmf_return_codes.cpp
 
 
 LOCAL_MODULE := libpvmf

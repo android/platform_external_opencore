@@ -17,7 +17,7 @@
  */
 #include "pvmf_protocol_engine_progressive_download.h"
 
-//////	ProgressiveDownloadState_HEAD implementation ////////////////////////////
+//////  ProgressiveDownloadState_HEAD implementation ////////////////////////////
 OSCL_EXPORT_REF void ProgressiveDownloadState_HEAD::setRequestBasics()
 {
     iComposer->setMethod(HTTP_METHOD_HEAD);
@@ -57,7 +57,7 @@ OSCL_EXPORT_REF int32 ProgressiveDownloadState_HEAD::OutputDataAvailable(OUTPUT_
     return HttpParsingBasicObject::PARSE_SUCCESS;
 }
 
-//////	ProgressiveDownloadState_GET implementation ////////////////////////////
+//////  ProgressiveDownloadState_GET implementation ////////////////////////////
 OSCL_EXPORT_REF int32 ProgressiveDownloadState_GET::processMicroStateGetResponsePreCheck()
 {
     int32 status = DownloadState::processMicroStateGetResponsePreCheck();
@@ -73,6 +73,8 @@ OSCL_EXPORT_REF bool ProgressiveDownloadState_GET::setHeaderFields()
 {
     // check range header
     if (!setRangeHeaderFields()) return false;
+    // check If-UnmodifiedSince header
+    if (!setIfUnmodifiedSinceHeaderFields()) return false;
 
     // set authentication header and common headers
     if (!ProtocolState::constructAuthenHeader(iCfgFile->GetUserId(), iCfgFile->GetUserAuth())) return false;
@@ -106,6 +108,23 @@ OSCL_EXPORT_REF bool ProgressiveDownloadState_GET::setRangeHeaderFields()
             oscl_snprintf(buffer, 64, "bytes=%d-%d", iCfgFile->GetCurrentFileSize(), iCfgFile->GetOverallFileSize());
             LOGINFODATAPATH((0, "ProgressiveDownloadState_GET::setHeaderFields(), Range: bytes=%d-", iCfgFile->GetCurrentFileSize()));
             if (!iComposer->setField(rangeKey, buffer)) return false;
+        }
+    }
+    return true;
+}
+
+OSCL_EXPORT_REF bool ProgressiveDownloadState_GET::setIfUnmodifiedSinceHeaderFields()
+{
+    if (iRangeHeaderSupported)
+    {
+        // only send If-Unmodified-Since header for previous non-zero bytes position and for HTTP1.1 version
+        if (iCfgFile->GetCurrentFileSize() > 0 && iCfgFile->GetOverallFileSize() > 0 && iCfgFile->getHttpVersion() == HTTP_V1_1)
+        {
+            StrCSumPtrLen ifUnSince = "If-Unmodified-Since";
+            char ifUnSinceVal[128];
+            TimeValue current_time;
+            oscl_snprintf(ifUnSinceVal, 128, "%s", (iCfgFile->GetUnmodifiedDateStart()).get_str());
+            if (!iComposer->setField(ifUnSince, ifUnSinceVal)) return false;
         }
     }
     return true;
@@ -159,13 +178,17 @@ OSCL_EXPORT_REF int32 ProgressiveDownloadState_GET::OutputDataAvailable(OUTPUT_D
         iDataSideInfo.set(ProtocolEngineOutputDataType_HttpHeader);
         iObserver->OutputDataAvailable(*aOutputQueue, iDataSideInfo);
     }
-    else  	// output data to data stream object
+    else    // output data to data stream object
     {
         if (iParser->getDownloadSize() > iCfgFile->GetCurrentFileSize())
         {
             updateOutputDataQueue(aOutputQueue); // aOutputQueue could have the partial valid data for resume download and trucated content case
             iDataSideInfo.set(ProtocolEngineOutputDataType_NormalData);
             iObserver->OutputDataAvailable(*aOutputQueue, iDataSideInfo);
+            if (iCfgFile->GetUnmodifiedDateStart().get_size() <= 0)
+            {
+                UpdateUnmodifiedSinceDate();
+            }
             return updateDownloadStatistics(); // could return PROCESS_SUCCESS_END_OF_MESSAGE_TRUNCATED
         }
     }
@@ -217,7 +240,7 @@ OSCL_EXPORT_REF void ProgressiveDownloadState_GET::updateOutputDataQueue(OUTPUT_
         }
         if (memFrag.len > 0) aOutputQueue->push_front(refCountMemFrag);
 
-        LOGINFODATAPATH((0, "ProgressiveDownloadState_GET::updateOutputDataQueue() after processing start fragment: aOutputQueue->size=%d",	aOutputQueue->size()));
+        LOGINFODATAPATH((0, "ProgressiveDownloadState_GET::updateOutputDataQueue() after processing start fragment: aOutputQueue->size=%d", aOutputQueue->size()));
     }
 
     // get end fragment especially for truncated content case
@@ -307,8 +330,32 @@ OSCL_EXPORT_REF void ProgressiveDownloadState_GET::getEndFragmentInNewDownloadDa
     }
 }
 
+OSCL_EXPORT_REF bool ProgressiveDownloadState_GET::UpdateUnmodifiedSinceDate()
+{
+    StrCSumPtrLen aDateKey = "Last-Modified";
+    StrPtrLen aDateValue;
+    iParser->getHttpParser()->getField(aDateKey, aDateValue);
+    if (aDateValue.size() <= 0)
+    {
+        aDateKey = "Date";
+        aDateValue = "\0";
+        iParser->getHttpParser()->getField(aDateKey, aDateValue);
+        if (aDateValue.size() <= 0)
+        {
+            char ifUnSinceVal[128];
+            TimeValue current_time;
+            oscl_snprintf(ifUnSinceVal, 128, "%s", current_time.get_rfc822_gmtime_str(128, ifUnSinceVal));
+            aDateValue = ifUnSinceVal;
+        }
+    }
+    OSCL_HeapString<OsclMemAllocator> creationDate(aDateValue.c_str());
+    iCfgFile->SetUnmodifiedDateStart(creationDate);
+    return true;
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
-//////	ProgressiveStreamingState implementation
+//////  ProgressiveStreamingState implementation
 ////////////////////////////////////////////////////////////////////////////////////
 
 OSCL_EXPORT_REF int32 ProgressiveStreamingState_GET::checkParsingStatus(int32 parsingStatus)

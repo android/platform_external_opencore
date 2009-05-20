@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ./include/get_ics_info.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: get_ics_info.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

@@ -17,57 +17,7 @@
  */
 /*
 
- Pathname: getics.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables
-
- Description: Remove pass-in parameter global_gain, define it on stack.
-
- Description: (1) Modified to bring in-line with PV standards
-              (2) Modified pass in parameters
-              (3) Removed multiple returns, removed some if branch
-              (4) Replace for loop with pv_memset
-
- Description: Remove prstflag, fix copyright.
-
- Description: Fix pseudo-code
-
- Description: Remove lpflag from get_ics_info
-
- Description: (1) Removed widx, therefore, pChVarsWin is eliminated from
-                  pass in parameter
-
- Description: merged the above changes from Michael and Wen
-
- Description: Removed initialization of "pTnsFrameInfo->num_subblocks" since
- this element was removed from that structure, as a part of
- rearchitecting the TNS routines to use memory more efficiently.
-
- Description:
- (1) Added #include of "e_HuffmanConst.h"
-     Previously, this function was relying on another include file
-     to include "e_HuffmanConst.h"
-
- (2) Updated the copyright header.
-
- (3) Added #include of <stdlib.h> for NULL macro definition.
-
- Description:
- (1) Removed the first parameter to getics.c  This extra
-     FrameInfo was not needed, the contents of winmap can be used.
- (2) Removed the memcpy of the data from winmap to the temporary
-     FrameInfo.
-
- Description: Replace some instances of getbits to get1bits
-			  when only 1 bit is read.
-
- Description:
+ Filename: getics.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

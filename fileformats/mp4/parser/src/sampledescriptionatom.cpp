@@ -67,12 +67,11 @@ SampleDescriptionAtom::SampleDescriptionAtom(MP4_FF_FILE *fp,
     _o3GPPH263 = false;
     _o3GPPWBAMR = false;
     _oAVC = false;
-
+    _pProtectionSchemeInformationBox = NULL;
+    _p3GPP2SpeechSampleEntry = NULL;
 
     uint32 count = size - DEFAULT_ATOM_SIZE;
     count -= 4; //for 4-byte handle_type
-
-    _pProtectionSchemeInformationBox = NULL;
 
     if (_success)
     {
@@ -204,6 +203,38 @@ SampleDescriptionAtom::SampleDescriptionAtom(MP4_FF_FILE *fp,
                             }
                         }
 
+                        else if ((atomType == EVRC_SAMPLE_ENTRY) ||
+                                 (atomType == EVRCB_SAMPLE_ENTRY) ||
+                                 (atomType == EVRCWB_SAMPLE_ENTRY) ||
+                                 (atomType == QCELP_SAMPLE_ENTRY) ||
+                                 (atomType == SMV_SAMPLE_ENTRY) ||
+                                 (atomType == VMR_SAMPLE_ENTRY))
+                        {
+                            if (_p3GPP2SpeechSampleEntry == NULL)
+                            {
+                                PV_MP4_FF_NEW(fp->auditCB, SpeechSampleEntry3GPP2, (fp, atomSize, atomType), _p3GPP2SpeechSampleEntry);
+
+                                if (!_p3GPP2SpeechSampleEntry->MP4Success())
+                                {
+                                    _success = false;
+                                    _mp4ErrorCode = _p3GPP2SpeechSampleEntry->GetMP4Error();
+                                    PV_MP4_FF_DELETE(NULL, SpeechSampleEntry3GPP2, _p3GPP2SpeechSampleEntry);
+                                    _p3GPP2SpeechSampleEntry = NULL;
+                                    return;
+                                }
+                                else
+                                {
+                                    _p3GPP2SpeechSampleEntry->setParent(this);
+                                }
+                            }
+                            else
+                            {
+                                // Multiple Sample Entries are illegal
+                                _success = false;
+                                _mp4ErrorCode = READ_SAMPLE_DESCRIPTION_ATOM_FAILED;
+                                return;
+                            }
+                        }
                         else
                         {
                             atomSize -= DEFAULT_ATOM_SIZE;
@@ -464,6 +495,12 @@ SampleDescriptionAtom::~SampleDescriptionAtom()
         }
         PV_MP4_FF_TEMPLATED_DELETE(NULL, AVCSampleEntryVecType, Oscl_Vector, _pAVCSampleEntryVec);
     }
+
+    if (_p3GPP2SpeechSampleEntry != NULL)
+    {
+        PV_MP4_FF_DELETE(NULL, SpeechSampleEntry3GPP2, _p3GPP2SpeechSampleEntry);
+        _p3GPP2SpeechSampleEntry = NULL;
+    }
 }
 
 // Returns the ESID of the first ESdescriptor of the track - which is the ONLY
@@ -612,7 +649,7 @@ int32 SampleDescriptionAtom::getAverageBitrate()
         }
     }
     const SampleEntry* entry = getSampleEntryAt(i);
-    if (!entry)		// will also pick off size() == 0
+    if (!entry)     // will also pick off size() == 0
         return 0;
 
     averageBitrate = entry->getAverageBitrate();
@@ -642,7 +679,7 @@ int32 SampleDescriptionAtom::getWidth()
     }
 
     const SampleEntry* entry = getSampleEntryAt(i);
-    if (!entry)		// will also pick off size() == 0
+    if (!entry)     // will also pick off size() == 0
         return 0;
 
     width = entry->getWidth();
@@ -671,7 +708,7 @@ int32 SampleDescriptionAtom::getHeight()
     }
 
     const SampleEntry* entry = getSampleEntryAt(i);
-    if (!entry)		// also catch size() == 0
+    if (!entry)     // also catch size() == 0
         return 0;
     return (uint32)entry->getHeight();
 }
@@ -743,7 +780,7 @@ SampleDescriptionAtom::getSampleProtocol(uint32 index)
 
     // Return the atom type of the sampleEntryAtom - for the first one in the vector
     const SampleEntry* entry = getSampleEntryAt(index);
-    if (!entry)		// will also pick off size() == 0
+    if (!entry)     // will also pick off size() == 0
         return 0;
 
     return entry->getType();
@@ -825,14 +862,12 @@ void SampleDescriptionAtom::getMIMEType(OSCL_String& aMimeType)
     objectType = getObjectTypeIndication();
 
     OSCL_HeapString<OsclMemAllocator> mimeType;
-
     mimeType.set(PVMF_MIME_FORMAT_UNKNOWN, oscl_strlen(PVMF_MIME_FORMAT_UNKNOWN));
-
     if (objectType == AMR_AUDIO)
     {
         mimeType.set(PVMF_MIME_AMR, oscl_strlen(PVMF_MIME_AMR));
     }
-    else if	(objectType == AMR_AUDIO_3GPP)
+    else if (objectType == AMR_AUDIO_3GPP)
     {
         mimeType.set(PVMF_MIME_AMR_IETF, oscl_strlen(PVMF_MIME_AMR_IETF));
     }
@@ -860,14 +895,14 @@ void SampleDescriptionAtom::getMIMEType(OSCL_String& aMimeType)
     {
         mimeType.set(PVMF_MIME_H264_VIDEO_MP4, oscl_strlen(PVMF_MIME_H264_VIDEO_MP4));
     }
-    else
+    else if (_pMediaType == MEDIA_TYPE_TEXT)
     {
-        if (_pMediaType == MEDIA_TYPE_TEXT)
-        {
-            mimeType.set(PVMF_MIME_3GPP_TIMEDTEXT, oscl_strlen(PVMF_MIME_3GPP_TIMEDTEXT));
-        }
+        mimeType.set(PVMF_MIME_3GPP_TIMEDTEXT, oscl_strlen(PVMF_MIME_3GPP_TIMEDTEXT));
     }
-
+    else if (_p3GPP2SpeechSampleEntry != NULL)
+    {
+        _p3GPP2SpeechSampleEntry->GetMimeType(mimeType);
+    }
     aMimeType = mimeType;
 }
 

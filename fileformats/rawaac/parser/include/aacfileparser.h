@@ -70,6 +70,8 @@
 #include "pvlogger.h"
 #endif
 
+#include "aacfileio.h"
+
 //----------------------------------------------------------------------------
 // CONSTANTS
 //----------------------------------------------------------------------------
@@ -82,6 +84,9 @@
 #define MAX_AAC_FRAME_SIZE              8192 // 8192 = 2^13, 13bit AAC frame size (in bytes)
 #define MAX_ADTS_PACKET_LENGTH          MAX_AAC_FRAME_SIZE
 #define AAC_DECODER_INPUT_BUFF_SIZE     1536 // 6144 (bits) * 2 (channels) / 8 (bits per byte)
+#define AAC_ADIF_IDENTIFIER_LEN     4
+#define AAC_ADIF_IDENTIFIER         "ADIF"
+
 
 //  ADTS sync  parameters
 
@@ -95,6 +100,7 @@
 
 #define PVMF_AACPARSER_LOGDIAGNOSTICS(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_MLDBG,iDiagnosticLogger,PVLOGMSG_INFO,m);
 #define PVMF_AACPARSER_LOGERROR(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iLogger,PVLOGMSG_ERR,m);
+#define PVMF_AACPARSER_LOGDEBUG(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iLogger,PVLOGMSG_DEBUG,m);
 
 
 #define PV_AAC_FF_NEW(auditCB,T,params,ptr)\
@@ -133,15 +139,6 @@ OSCL_DELETE(ptr);\
 {\
     OSCL_ARRAY_DELETE(ptr);\
 }
-
-enum ParserErrorCode
-{
-    GENERIC_ERROR     = -4,
-    INSUFFICIENT_DATA = -3,
-    FILE_OPEN_ERROR = -2,
-    MEMORY_ERROR    = -1,
-    OK              = 1
-};
 
 /*
  * AAC format types supported
@@ -198,6 +195,7 @@ typedef struct
     int32       iBitrate;
     TAACFormat  iFormat;
     int32       iFileSize;
+    int32       iHeaderLength;
 } TPVAacFileInfo;
 
 
@@ -233,21 +231,27 @@ class AACBitstreamObject
         * @param pFile Pointer to file pointer containing bitstream
         * @returns None
         */
-        AACBitstreamObject(PVFile* file)
+        AACBitstreamObject(PVFile* file, ParserErrorCode& aErrCode)
         {
-            iLogger = PVLogger::GetLoggerObject("pvBitstream object");
+            aErrCode = AAC_SUCCESS;
             oscl_memset(this, 0, sizeof(AACBitstreamObject));
+            iLogger = PVLogger::GetLoggerObject("aac_bso");
+
             init(file);
             iBuffer = OSCL_ARRAY_NEW(uint8, AACBitstreamObject::MAIN_BUFF_SIZE);
+
             if (!iBuffer)
             {
-                iStatus = true;
+                aErrCode = AAC_ERR_NO_MEMORY;
+                return;
             }
-            else
+
+            iID3Parser = OSCL_NEW(PVID3ParCom, ());
+            if (!iID3Parser)
             {
-                iStatus = false;
+                aErrCode = AAC_ERR_NO_MEMORY;
+                return;
             }
-            id3Parser = OSCL_NEW(PVID3ParCom, ());
         }
 
         /**
@@ -261,19 +265,19 @@ class AACBitstreamObject
             /*init();*/
             if (ipAACFile != NULL)
             {
-                ipAACFile->Close();
                 ipAACFile = NULL;
             }
+
             if (iBuffer)
             {
                 OSCL_ARRAY_DELETE(iBuffer);
                 iBuffer = NULL;
             }
 
-            if (id3Parser)
+            if (iID3Parser)
             {
-                OSCL_DELETE(id3Parser);
-                id3Parser = NULL;
+                OSCL_DELETE(iID3Parser);
+                iID3Parser = NULL;
             }
 
 
@@ -384,10 +388,19 @@ class AACBitstreamObject
         * @param PVFile&
         * @returns Result of operation: EVERYTHING_OK, READ_ERROR etc.
         */
-        int32 isAACFile();
+        int32 isAACFile(PVFile* aFilePtr = NULL);
+
+        int32 GetADTSFrameLength(uint8* aBuffer);
+
+        bool isValidSyncWord(uint8* aBuffer);
+
+        void SetDownloadFileSize(uint32 aDownloadFileSize);
+
+        int32 GetMetadataSize();
+
+        uint32 GetAvgFrameSize();
 
     private:
-
         /**
         * @brief Initialization
         *
@@ -396,11 +409,16 @@ class AACBitstreamObject
         */
         inline void init(PVFile* pFile = NULL)
         {
+            iID3Parser = NULL;
+            iBuffer = NULL;
+            iMetadataSize = 0;
+
             iFileSize = iBytesRead = iBytesProcessed = 0;
             ipAACFile = pFile;
             iActual_size = iMax_size = AACBitstreamObject::MAIN_BUFF_SIZE;
             iPos = AACBitstreamObject::MAIN_BUFF_SIZE;
             iAACFormat = EAACUnrecognized;
+
             if (ipAACFile)
             {
                 ipAACFile->Seek(0, Oscl_File::SEEKSET);
@@ -415,13 +433,28 @@ class AACBitstreamObject
         */
         int32 refill();
 
+        /**
+        * @brief Gets the updated file size
+        *
+        * @param None
+        * @returns Result of operation: true/false.
+        */
+        bool UpdateFileSize();
+
+
     private:
-        int32 iPos;             // pointer for buffer[]
-        int32 iActual_size;     // number of bytes read from a file once <= max_size
+        uint32 iMetadataSize;   // metadatasize
+        uint32 iDownloadFileSize; // download file size
+        uint32 iAvgFrameSize;
+        int32  iAudioStartOffset;
+        TPVAacFileInfo iAACFileInfo;
+
+        uint32 iPos;             // pointer for buffer[]
+        uint32 iActual_size;     // number of bytes read from a file once <= max_size
         int32 iMax_size;        // max_size = bitstreamStruc::MAIN_BUFF_SIZE
         int32 iBytesRead;       // (cumulative) number of bytes read from a file so far
         int32 iBytesProcessed;  // (cumulative) number of bytes processed so far.
-        int32 iFileSize;        // file size of the ipAACFile
+        uint32 iFileSize;        // file size of the ipAACFile
         TAACFormat iAACFormat;  // 0 : ADTS  1: ADIF  2 : Raw
         bool ibCRC_Check;       // CRC check flag
         bool iStatus;           // 1: ok for memory allocation in constructor
@@ -439,35 +472,35 @@ class AACBitstreamObject
         uint32 iADIFHeaderLen;  // variable length
         uint32 iRawAACHeaderLen; // Audio specific config size in bytes for raw AAC bitstream files
         uint32 iBitrate;        // max bitrate for variable rate bitstream
-        PVID3ParCom* id3Parser;
+        PVID3ParCom* iID3Parser;
         PVLogger  *iLogger;
 
     public:
         uint32 GetByteOffsetToStartOfAudioFrames()
         {
-            return id3Parser->GetByteOffsetToStartOfAudioFrames();
+            return iID3Parser->GetByteOffsetToStartOfAudioFrames();
 
         }
 
         void ID3MetaData(PvmiKvpSharedPtrVector &id3Frames)
         {
-            id3Parser->GetID3Frames(id3Frames);
+            iID3Parser->GetID3Frames(id3Frames);
 
         }
 
         bool IsID3Frame(const OSCL_String& frameType)
         {
-            return id3Parser->IsID3FrameAvailable(frameType);
+            return iID3Parser->IsID3FrameAvailable(frameType);
         }
 
         void GetID3Frame(const OSCL_String& aFrameType, PvmiKvpSharedPtrVector& aFrame)
         {
-            id3Parser->GetID3Frame(aFrameType, aFrame);
+            iID3Parser->GetID3Frame(aFrameType, aFrame);
         }
 
         PVID3Version GetID3Version() const
         {
-            return id3Parser->GetID3Version();
+            return iID3Parser->GetID3Version();
         }
 
 };
@@ -614,6 +647,10 @@ class CAACFileParser
 
         OSCL_IMPORT_REF  PVID3Version GetID3Version() const;
 
+        OSCL_IMPORT_REF void SetDownloadFileSize(uint32 aDownloadFileSize);
+
+        OSCL_IMPORT_REF int32 GetMetadataSize();
+
         /**
         * @brief Returns if file is AAC
         *
@@ -623,13 +660,17 @@ class CAACFileParser
         OSCL_IMPORT_REF ParserErrorCode IsAACFile(OSCL_wString& aClip, Oscl_FileServer* aFileSession, PVMFCPMPluginAccessInterfaceFactory* aCPMAccess, OsclFileHandle* aHandle = NULL);
 
     private:
+        uint32     iMetadataSize;
+        uint32     iDownloadFileSize;
+        uint8      iSampleFreqTableIndex;
+
         PVFile     iAACFile;
 
         int32       iAACDuration;
         int32       iAACSampleFrequency;
 
-        int32       iAACBitRate;
-        int32       iAACHeaderLen;
+        uint32      iAACBitRate;
+        uint32      iAACHeaderLen;
         bool        iFirstTime;
 
         int32       iAACFileSize;

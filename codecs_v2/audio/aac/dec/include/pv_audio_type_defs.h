@@ -17,23 +17,8 @@
  */
 /*
 ------------------------------------------------------------------------------
- Pathname: ./c/include/pv_audio_type_defs.h
+ Filename: pv_audio_type_defs.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Removed errant semicolons from #define statements
-
- Description:
-	    1. Modified ifndef STD_TYPE_DEFS_H with
-	       #ifndef PV_AUDIO_TYPE_DEFS_H to avoid double definition
-               if file was already included
-	    2. Merged cai if-def structures and C++ definition
-            3. Updated copyright notice
-
- Description:  Added dependency on OSCL libraries
-
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

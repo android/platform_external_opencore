@@ -46,8 +46,6 @@ void avi_test::test()
 
     this->AddToScheduler();
 
-    init_mime_strings();
-
     if (start_async_test())
     {
         OSCL_TRY(error, scheduler->StartScheduler());
@@ -78,7 +76,7 @@ void avi_test::Run()
 
     if (timer)
     {
-        delete timer;
+        OSCL_DELETE(timer);
         timer = NULL;
     }
 
@@ -87,89 +85,6 @@ void avi_test::Run()
 
 void avi_test::DoCancel()
 {
-}
-
-void avi_test::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
-{
-    int error = 0;
-    switch (aEvent.GetEventType())
-    {
-        case PVT_INDICATION_OUTGOING_TRACK:
-        {
-            TPVChannelId *channel_id = (TPVChannelId *)(&aEvent.GetLocalBuffer()[4]);
-            printf("Indication with logical channel #%d ", *channel_id);
-            if (aEvent.GetLocalBuffer()[0] == PV_AUDIO && !iSelAudioSource)
-            {
-                iSelAudioSource = PvmfMediaInputNodeFactory::Create(iAudioMediaInput);
-                if (iSelAudioSource != NULL)
-                {
-                    OSCL_TRY(error, iAudioAddSourceId = terminal->AddDataSource(*channel_id, *iSelAudioSource));
-                    printf("Audio");
-                }
-            }
-            else if (aEvent.GetLocalBuffer()[0] == PV_VIDEO && !iSelVideoSource)
-            {
-                iSelVideoSource = PvmfMediaInputNodeFactory::Create(iVideoMediaInput);
-                if (iSelVideoSource != NULL)
-                {
-                    OSCL_TRY(error, iVideoAddSourceId = terminal->AddDataSource(*channel_id, *iSelVideoSource));
-                    printf("Video");
-                }
-            }
-            else
-            {
-                printf("unknown");
-            }
-            printf(" outgoing Track\n");
-            break;
-        }
-
-        case PVT_INDICATION_INCOMING_TRACK:
-        {
-            TPVChannelId *channel_id = (TPVChannelId *)(&aEvent.GetLocalBuffer()[4]);
-            printf("Indication with logical channel #%d ", *channel_id);
-            if (aEvent.GetLocalBuffer()[0] == PV_AUDIO && !iSelAudioSink)
-            {
-                iSelAudioSink = get_audio_sink(iAudSinkFormatType);
-                if (iSelAudioSink != NULL)
-                {
-                    OSCL_TRY(error, iAudioAddSinkId = terminal->AddDataSink(*channel_id, *iSelAudioSink));
-                    printf("Audio");
-                }
-            }
-            else if (aEvent.GetLocalBuffer()[0] == PV_VIDEO && !iSelVideoSink)
-            {
-                iSelVideoSink = get_video_sink(iVidSinkFormatType);
-                if (iSelVideoSink != NULL)
-                {
-                    OSCL_TRY(error, iVideoAddSinkId = terminal->AddDataSink(*channel_id, *iSelVideoSink));
-                    printf("Video");
-                }
-            }
-            else
-            {
-                printf("unknown");
-            }
-            printf(" incoming Track\n");
-            break;
-        }
-
-        case PVT_INDICATION_DISCONNECT:
-            iAudioSourceAdded = false;
-            iVideoSourceAdded = false;
-            iAudioSinkAdded = false;
-            iVideoSinkAdded = false;
-            break;
-
-        case PVT_INDICATION_CLOSE_TRACK:
-            break;
-
-        case PVT_INDICATION_INTERNAL_ERROR:
-            break;
-
-        default:
-            break;
-    }
 }
 
 void avi_test::CommandCompleted(const PVCmdResponse& aResponse)
@@ -221,7 +136,7 @@ void avi_test::CommandCompleted(const PVCmdResponse& aResponse)
     else if (iDisCmdId == cmdId)
     {
         printf("Finished disconnecting \n");
-        //	destroy_sink_source();
+        //  destroy_sink_source();
         reset();
     }
     else if (iRstCmdId == cmdId)
@@ -246,7 +161,7 @@ bool avi_test::start_async_test()
 {
     int error = 0;
 
-    timer = new engine_timer(this);
+    timer = OSCL_NEW(engine_timer, (this));
     if (timer == NULL)
     {
         test_is_true(false);
@@ -277,7 +192,7 @@ bool avi_test::start_async_test()
         return false;
     }
 
-    create_sink_source();
+
     HandleAvi();
     OSCL_TRY(error, iInitCmdId = terminal->Init(iSdkInitInfo));
     if (error)

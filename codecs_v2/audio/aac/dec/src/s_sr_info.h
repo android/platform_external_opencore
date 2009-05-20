@@ -17,16 +17,7 @@
  */
 /*
 
- Pathname: s_SR_info.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Modified the declaration of the structure so no pointers are
-              used in the structure.
-
- Who:                       Date:
- Description:
+ Filename: s_sr_info.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

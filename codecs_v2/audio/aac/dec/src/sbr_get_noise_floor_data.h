@@ -18,16 +18,6 @@
 /*
 
  Filename: sbr_get_noise_floor_data.h
- Funtions:
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
-
 
 ----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
@@ -80,7 +70,7 @@ extern "C"
 #endif
 
     void sbr_get_noise_floor_data(SBR_FRAME_DATA * h_frame_data,
-                                  BIT_BUFFER * hBitBuf);
+    BIT_BUFFER * hBitBuf);
 
 #ifdef __cplusplus
 }

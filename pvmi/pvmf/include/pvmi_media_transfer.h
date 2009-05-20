@@ -72,6 +72,8 @@ between the peers */
 #define PVMI_MEDIAXFER_MEDIA_DATA_FLAG_MARKER_BIT 0x00000001
 #define PVMI_MEDIAXFER_MEDIA_DATA_FLAG_DURATION_AVAILABLE_BIT 0x00000002
 #define PVMI_MEDIAXFER_MEDIA_DATA_FLAG_NO_RENDER_BIT 0x00000004
+//(typically used by compressed media input comp viz. encoder to signal key frames)
+#define PVMI_MEDIAXFER_MEDIA_DATA_RANDOM_ACCESS_POINT_BIT 0x00000008
 
 /* Data structure to hold info associated with media transfer */
 typedef struct __PvmiMediaXferHeader

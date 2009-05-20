@@ -50,7 +50,7 @@ PVAACFFRecognizerPlugin::Recognize(PVMFDataStreamFactory& aSourceDataStreamFacto
     OSCL_DELETE(aacfile);
     aacfile = NULL;
 
-    if (OK == retVal)
+    if (AAC_SUCCESS == retVal)
     {
         // It is an aac file so add positive result
         PVMFRecognizerResult result;

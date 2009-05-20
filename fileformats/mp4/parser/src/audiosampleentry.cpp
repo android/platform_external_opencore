@@ -103,3 +103,148 @@ AudioSampleEntry::~AudioSampleEntry()
     }
 }
 
+SpeechSampleEntry3GPP2::SpeechSampleEntry3GPP2(MP4_FF_FILE *fp, uint32 size, uint32 type)
+        : Atom(fp, size, type)
+{
+    iMimeType = PVMF_MIME_FORMAT_UNKNOWN;
+    _data_reference_index = 0;
+    _timeScale = 0;
+    _vendor = 0;
+    _decoder_version = 0;
+    _frames_per_sample = 0;
+    _mode_set = 0;
+    _media_sampling_frequency = 0;
+
+    if (_success)
+    {
+        SetMimeType(type);
+
+        //calculate this in case we need to recover from some parsing errors
+        uint32 end_of_atom = AtomUtils::getCurrentFilePosition(fp) + (size - DEFAULT_ATOM_SIZE);
+
+        uint32 count = DEFAULT_ATOM_SIZE;
+        //skip Reserved_6
+        AtomUtils::seekFromCurrPos(fp, 6);
+        count += 6;
+        _success = false;
+        if (AtomUtils::read16(fp, _data_reference_index))
+        {
+            count += 2;
+            //skip Reserved_8, Reserved_2, Reserved_2, Reserved_4 (total 16 bytes)
+            AtomUtils::seekFromCurrPos(fp, 16);
+            count += 16;
+            if (AtomUtils::read16(fp, _timeScale))
+            {
+                count += 2;
+                _success = true;
+            }
+        }
+        if ((_success) && (count < size))
+        {
+            uint32 atomType = UNKNOWN_ATOM;
+            uint32 atomSize = 0;
+            AtomUtils::getNextAtomType(fp, atomSize, atomType);
+            if ((atomType == EVRC_SPECIFIC_BOX) ||
+                    (atomType == EVRCB_SPECIFIC_BOX) ||
+                    (atomType == EVRCWB_SPECIFIC_BOX) ||
+                    (atomType == SMV_SPECIFIC_BOX))
+            {
+                _success = false;
+                if (AtomUtils::read32(fp, _vendor))
+                {
+                    if (AtomUtils::read8(fp, _decoder_version))
+                    {
+                        if (AtomUtils::read8(fp, _frames_per_sample))
+                        {
+                            _success = true;
+                        }
+                    }
+                }
+            }
+            else if (atomType == VMR_SPECIFIC_BOX)
+            {
+                _success = false;
+                if (AtomUtils::read32(fp, _vendor))
+                {
+                    if (AtomUtils::read8(fp, _decoder_version))
+                    {
+                        if (AtomUtils::read16(fp, _mode_set))
+                        {
+                            if (AtomUtils::read8(fp, _media_sampling_frequency))
+                            {
+                                if (AtomUtils::read8(fp, _frames_per_sample))
+                                {
+                                    _success = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //skip unknown atom
+                if (atomSize < DEFAULT_ATOM_SIZE)
+                {
+                    _success = false;
+                }
+                else
+                {
+                    atomSize -= DEFAULT_ATOM_SIZE;
+                    AtomUtils::seekFromCurrPos(fp, atomSize);
+                }
+            }
+            //if we were not able to parse the decoder specific box
+            //or if there is still data at the end of the atom (there should not be)
+            //just get to the end of the atom so that we can continue parsing the file.
+            //we really do not need anything from decoder specific box as far as play
+            //back goes
+            if ((_success == false) || (count < size))
+            {
+                _success = true;
+                AtomUtils::seekFromStart(fp, end_of_atom);
+            }
+        }
+    }
+    if (!_success)
+    {
+        _mp4ErrorCode = READ_3GPP2_SPEECH_SAMPLE_ENTRY_FAILED;
+    }
+}
+
+void SpeechSampleEntry3GPP2::SetMimeType(uint32 aBoxType)
+{
+    if (aBoxType == EVRC_SAMPLE_ENTRY)
+    {
+        iMimeType = PVMF_MIME_EVRC;
+    }
+    else if (aBoxType == EVRCB_SAMPLE_ENTRY)
+    {
+        iMimeType = PVMF_MIME_EVRCB;
+    }
+    else if (aBoxType == EVRCWB_SAMPLE_ENTRY)
+    {
+        iMimeType = PVMF_MIME_EVRCWB;
+    }
+    else if (aBoxType == QCELP_SAMPLE_ENTRY)
+    {
+        iMimeType = PVMF_MIME_QCELP;
+    }
+    else if (aBoxType == SMV_SAMPLE_ENTRY)
+    {
+        iMimeType = PVMF_MIME_SMV;
+    }
+    else if (aBoxType == VMR_SAMPLE_ENTRY)
+    {
+        iMimeType = PVMF_MIME_VMRWB;
+    }
+    else
+    {
+        iMimeType = PVMF_MIME_FORMAT_UNKNOWN;
+    }
+}
+
+
+
+
+

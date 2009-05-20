@@ -41,12 +41,12 @@ public:
     virtual void setParametersSync(PvmiMIOSession aSession, PvmiKvp* aParameters,
             int num_elements, PvmiKvp * & aRet_kvp);
 
-	virtual PVMFCommandId DiscardData(PVMFTimestamp aTimestamp=0, const OsclAny* aContext=NULL);
+    virtual PVMFCommandId DiscardData(PVMFTimestamp aTimestamp=0, const OsclAny* aContext=NULL);
 
     virtual void cancelCommand(PVMFCommandId aCmdId);
 
     virtual PVMFCommandId Stop(const OsclAny* aContext=NULL);
-	virtual PVMFCommandId Reset(const OsclAny* aContext=NULL);
+    virtual PVMFCommandId Reset(const OsclAny* aContext=NULL);
     
 
 private:

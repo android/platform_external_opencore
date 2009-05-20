@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_envelope_unmapping.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_envelope_unmapping.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

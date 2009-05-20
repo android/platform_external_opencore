@@ -25,6 +25,8 @@ INCDIRS += \
     -I $(ANDROID_BASE)/headers/system/bionic/libc/kernel/common \
     -I $(ANDROID_BASE)/headers/system/bionic/libc/kernel/arch-arm \
     -I $(ANDROID_BASE)/headers/system/bionic/libm/include \
+    -I $(ANDROID_BASE)/headers/system/bionic/libm/arch/arm \
+    -I $(ANDROID_BASE)/headers/system/bionic/libthread_db/include \
 	-I $(ANDROID_BASE)/headers/system/core/include \
 	-I $(ANDROID_BASE)/headers/libhardware/include \
 	-I $(ANDROID_BASE)/headers/skia/include
@@ -37,7 +39,7 @@ OPTIMIZE_FOR_SIZE := -mthumb
 
 CXXFLAGS = -W -Wall -Wno-unused -Wno-non-virtual-dtor -Wno-multichar
 
-override SYSLIBS = -lc -lm -ldl -lstdc++
+override SYSLIBS = -lc -lm -ldl -lstdc++ -landroid_runtime -lcutils -lutils
 
 SONAME_ARG := -Wl,-T,$(ANDROID_BASE)/config/armelf.xsc -Wl,--gc-sections -L$(ANDROID_BASE)/prebuilt/obj/lib -Wl,--whole-archive -Wl,-h,
 SHARED_PRE_LDFLAGS := -nostdlib -Wl,-shared,-Bsymbolic 
@@ -60,7 +62,7 @@ POST_LDFLAGS += \
 
 export BINDING = -nostdlib -Bdynamic -Wl,-T,$(ANDROID_BASE)/config/armelf.x \
         -Wl,-dynamic-linker,/system/bin/linker -Wl,--gc-sections -Wl,-z,nocopyreloc \
-        -Wl,-rpath-link=$(ANDROID_BASE)/prebuilt/obj/lib
+        -Wl,-rpath-link=$(ANDROID_BASE)/prebuilt/obj/lib:$(BUILD_ROOT)/installed_lib/$(ARCHITECTURE)
 
 
 define prelink

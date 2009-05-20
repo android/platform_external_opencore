@@ -18,16 +18,7 @@
 /*
 
  Filename: sbr_extract_extended_data.h
- Funtions:
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
-
+ Functions:
 
 ----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED

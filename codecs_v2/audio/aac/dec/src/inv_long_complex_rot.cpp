@@ -17,29 +17,10 @@
  */
 /*
 
- Pathname: .inv_long_complex_rot.c
+ Filename: inv_long_complex_rot.cpp
  Funtions:  inv_long_complex_rot
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Change the input argument, no shifts information from long fft_rx4
-			   , do not have to check for shifts.
-
- Date: 10/18/2002
- Description:
-            (1) Change the input argument, only a single max is passed.
-            (2) Eliminate search for max, a fixed shift has replaced the
-                search for max with minimal loss of precision.
-            (3) Eliminated unused variables
-
- Date: 10/28/2002
- Description:
-            (1) Added comments per code review
-
- Description:
-
- ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
  Inputs:
@@ -91,28 +72,6 @@
 
 ------------------------------------------------------------------------------
  REFERENCES
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

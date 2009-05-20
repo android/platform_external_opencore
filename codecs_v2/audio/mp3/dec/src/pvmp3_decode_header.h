@@ -25,11 +25,6 @@
    Date: 09/21/2007
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
-------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
 ------------------------------------------------------------------------------
@@ -87,8 +82,8 @@ extern "C"
 #endif
 
     ERROR_CODE pvmp3_decode_header(tmp3Bits  *inputStream,
-                                   mp3Header  *info,
-                                   uint32 *crc);
+    mp3Header  *info,
+    uint32 *crc);
 
 #ifdef __cplusplus
 }

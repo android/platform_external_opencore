@@ -22,13 +22,6 @@
 
    Filename: pvmp3_getbits.h
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -85,7 +78,7 @@ extern "C"
 #endif
 
     uint32 getNbits(tmp3Bits *pMainData,
-                    int32 neededBits);
+    int32 neededBits);
 
     uint16 getUpTo9bits(tmp3Bits *pMainData,
                         int32 neededBits);

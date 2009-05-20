@@ -104,19 +104,19 @@ class SDPInfoContainer;
 class AutoCleanup;
 
 class PVMFProtocolEngineNode :  public PVMFNodeInterface,
-            public OsclTimerObject,
-            public PVMFDataSourceInitializationExtensionInterface,
-            public PVMIDatastreamuserInterface,
-            public PVMFProtocolEngineNodeExtensionInterface,
-            public PVMFDownloadProgressInterface,
-            public PVMFTrackSelectionExtensionInterface,
-            public PVMFProtocolEngineNodeMSHTTPStreamingExtensionInterface,
-            public ProtocolObserver,
-            public PVMFProtocolEngineNodeOutputObserver,
-            public OsclTimerObserver,
-            public PvmiDataStreamRequestObserver,
-            public EventReporterObserver,
-            public ProtocolContainerObserver
+        public OsclTimerObject,
+        public PVMFDataSourceInitializationExtensionInterface,
+        public PVMIDatastreamuserInterface,
+        public PVMFProtocolEngineNodeExtensionInterface,
+        public PVMFDownloadProgressInterface,
+        public PVMFTrackSelectionExtensionInterface,
+        public PVMFProtocolEngineNodeMSHTTPStreamingExtensionInterface,
+        public ProtocolObserver,
+        public PVMFProtocolEngineNodeOutputObserver,
+        public OsclTimerObserver,
+        public PvmiDataStreamRequestObserver,
+        public EventReporterObserver,
+        public ProtocolContainerObserver
 
 {
     public:
@@ -285,15 +285,22 @@ class PVMFProtocolEngineNode :  public PVMFNodeInterface,
 
         // Port processing
         bool ProcessPortActivity();
-        void QueuePortActivity(const PVMFPortActivity& aActivity);
-        void QueueActivityIncomingMessage(const PVMFStatus aStatus, const PVMFPortActivity &aActivity); // called by ProcessPortActivity()
-        void QueueActivityOutgoingMessage(const PVMFStatus aStatus, const PVMFPortActivity &aActivity); // called by ProcessPortActivity()
         PVMFStatus ProcessIncomingMsg(PVMFPortInterface* aPort);
         PVMFStatus ProcessOutgoingMsg(PVMFPortInterface* aPort);
         PVMFStatus PostProcessForMsgSentSuccess(PVMFPortInterface* aPort, PVMFSharedMediaMsgPtr &aMsg);
-        void SendOutgoingQueueReadyEvent(PVMFPortInterface* aPort);
-        bool SearchPortActivityInQueue(const PVMFPortActivityType aType);
-        void ProcessOutgoingQueueReady();
+        bool ReadyToProcessOutputPort()
+        {
+            return (iPortOut && !iPortOut->IsConnectedPortBusy() && iPortOut->OutgoingMsgQueueSize() > 0);
+        }
+        bool ReadyToProcessInputDataPort()
+        {
+            return (iPortInForData && iPortInForData->IncomingMsgQueueSize() > 0);
+        }
+        bool ReadyToProcessInputLoggingPort()
+        {
+            return (iPortInForLogging && iPortInForData->IncomingMsgQueueSize() > 0);
+        }
+        inline bool ReadyToProcessInputData();
         void UpdateTimersInProcessIncomingMsg(const bool aEOSMsg, PVMFPortInterface* aPort);
         void UpdateTimersInProcessOutgoingMsg(const bool isMediaData, PVMFPortInterface* aPort);
 
@@ -334,7 +341,6 @@ class PVMFProtocolEngineNode :  public PVMFNodeInterface,
         void PassInObjects(); // called by DoInit()
 
         // Run decomposition
-        bool HandleRunPortActivityProcessing();
         void HandleRunFlush();
 
         // Event reporting
@@ -349,7 +355,7 @@ class PVMFProtocolEngineNode :  public PVMFNodeInterface,
         void ProtocolStateComplete(const ProtocolStateCompleteInfo &aInfo);
         void OutputDataAvailable(OUTPUT_DATA_QUEUE &aOutputQueue, ProtocolEngineOutputDataSideInfo &aSideInfo);
         void ProtocolStateError(int32 aErrorCode); // server response error or other internal fatal error
-        bool GetBufferForRequest(PVMFSharedMediaDataPtr &aMediaData);	// to contruct HTTP request
+        bool GetBufferForRequest(PVMFSharedMediaDataPtr &aMediaData);   // to contruct HTTP request
         void ProtocolRequestAvailable(uint32 aRequestType = ProtocolRequestType_Normaldata); // need to send to port
 
         // From PVMFProtocolEngineNodeOutputObserver
@@ -420,9 +426,9 @@ class PVMFProtocolEngineNode :  public PVMFNodeInterface,
         friend class ProtocolStateErrorHandler;
         friend class HttpHeaderAvailableHandler;
         friend class FirstPacketAvailableHandler;
-        friend class NormalDataAvailableHandler;
+        friend class ProtocolEngineDataAvailableHandler;
         friend class ProtocolStateCompleteHandler;
-        friend class NormalDataFlowHandler;
+        friend class MainDataFlowHandler;
         friend class EndOfDataProcessingHandler;
         friend class ServerResponseErrorBypassingHandler;
         friend class CheckResumeNotificationHandler;
@@ -474,7 +480,6 @@ class PVMFProtocolEngineNode :  public PVMFNodeInterface,
         PVMFPortVector<PVMFProtocolEnginePort, PVMFProtocolEngineNodeAllocator> iPortVector;
         PVMFProtocolEnginePort *iPortInForData, *iPortInForLogging, *iPortOut;
         friend class PVMFProtocolEnginePort;
-        Oscl_Vector<PVMFPortActivity, PVMFProtocolEngineNodeAllocator> iPortActivityQueue;
 
         PVMFProtocolEngineNodeCmdQ iInputCommands;
         PVMFProtocolEngineNodeCmdQ iCurrentCommand;

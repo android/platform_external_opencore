@@ -31,8 +31,10 @@
 /**
  *  @file oscl_stdstring.h
  *  @brief This file provides standard string operations such as strlen,
- *  strncpy, etc
- *
+ *  strncpy, etc. ANSI defines undefined behavior when the destination
+ *  pointer is null for operations such as strncpy, strncat, etc. But,
+ *  we chose to define one. In such cases, we return the destination
+ *  as null.
  */
 
 

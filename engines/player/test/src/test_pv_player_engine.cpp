@@ -31,13 +31,10 @@
 #include "test_pv_player_engine_testset8.h"
 #endif
 
-#if (RUN_HTTPDOWNLOAD_TESTCASES || RUN_FASTTRACK_TESTCASES)
 #ifndef TEST_PV_PLAYER_ENGINE_TESTSET5_H_INCLUDED
 #include "test_pv_player_engine_testset5.h"
 #endif
-#endif
 
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
 #ifndef TEST_PV_PLAYER_ENGINE_TESTSET3_H_INCLUDED
 #include "test_pv_player_engine_testset3.h"
@@ -45,7 +42,6 @@
 #endif
 #ifndef TEST_PV_PLAYER_ENGINE_TESTSET6_H_INCLUDED
 #include "test_pv_player_engine_testset6.h"
-#endif
 #endif
 
 #ifndef TEST_PV_PLAYER_ENGINE_TESTSET9_H_INCLUDED
@@ -66,18 +62,7 @@
 #include "test_pv_player_engine_testset13.h"
 #endif
 
-#if RUN_APP_TRACK_SELECTION_TESTCASES
-#ifndef TEST_PV_PLAYER_ENGINE_TESTSET_APPTRACKSELECTION_H_INCLUDED
-#include "test_pv_player_engine_testset_apptrackselection.h"
-#endif
-#endif //RUN_APP_TRACK_SELECTION_TESTCASES
 
-#if RUN_CPMJANUS_TESTCASES
-#ifndef TEST_PV_PLAYER_ENGINE_TESTSET_CPMJANUS_H_INCLUDED
-#include "test_pv_player_engine_testset_cpmjanus.h"
-#endif
-
-#endif
 
 #if RUN_CPMJUPITER_TESTCASES
 #ifndef TEST_PV_PLAYER_ENGINE_TESTSET_CPMJUPITER_H_INCLUDED
@@ -85,10 +70,8 @@
 #endif
 #endif
 
-#if RUN_CPMOMA1_DLAPASSTHRU_TESTCASES
 #ifndef TEST_PV_PLAYER_ENGINE_TESTSET_CPMDLAPASSTHRU_H_INCLUDED
 #include "test_pv_player_engine_testset_cpmdlapassthru.h"
-#endif
 #endif
 
 #if RUN_CPMACCESS_TESTCASES
@@ -97,11 +80,6 @@
 #endif
 #endif
 
-#if ((RUN_CPMOMA1_DLAPASSTHRU_TESTCASES) && (RUN_CPMJANUS_TESTCASES))
-#ifndef TEST_PV_PLAYER_ENGINE_TESTSET_MULTICPM_H_INCLUDED
-#include "test_pv_player_engine_testset_multicpm.h"
-#endif
-#endif
 
 #ifndef OSCL_MEM_H_INCLUDED
 #include "oscl_mem.h"
@@ -167,20 +145,20 @@ FILE *file;
 class PVLoggerConfigFile
 {
         /*  To change the logging settings without the need to compile the test application
-        	Let us read the logging settings from the file instead of hard coding them over here
-        	The name of the config file is pvlogger.ini
-        	The format of entries in it is like
-        	First entry will decide if the file appender has to be used or error appender will be used.
-        	0 -> ErrAppender will be used
-        	1 -> File Appender will be used
-        	2 -> Mem Appender will be used
-        	Entries after this will decide the module whose logging has to be taken.For example, contents of one sample config file could be
-        	1
-        	1,PVPlayerEngine
-        	8,PVSocketNode
-        	(pls note that no space is allowed between loglevel and logger tag)
-        	This means, we intend to have logging of level 1 for the module PVPlayerEngine
-        	and of level 8 for the PVSocketNode on file.
+            Let us read the logging settings from the file instead of hard coding them over here
+            The name of the config file is pvlogger.ini
+            The format of entries in it is like
+            First entry will decide if the file appender has to be used or error appender will be used.
+            0 -> ErrAppender will be used
+            1 -> File Appender will be used
+            2 -> Mem Appender will be used
+            Entries after this will decide the module whose logging has to be taken.For example, contents of one sample config file could be
+            1
+            1,PVPlayerEngine
+            8,PVSocketNode
+            (pls note that no space is allowed between loglevel and logger tag)
+            This means, we intend to have logging of level 1 for the module PVPlayerEngine
+            and of level 8 for the PVSocketNode on file.
         */
     public:
 
@@ -381,7 +359,7 @@ class CmdLinePopulator
         }
         ~CmdLinePopulator()
         {
-            for (int ii = 0; ii < MAXNUMARGS ;ii++)
+            for (int ii = 0; ii < MAXNUMARGS ; ii++)
             {
                 if (iArgArr[ii] != NULL)
                 {
@@ -564,12 +542,12 @@ template <typename T> bool CmdLinePopulator<T>::PopulateCmdLine(oscl_wchar* apFi
 
 /** Name: ConvertToLowerCase
   * Description: Utility function to convert a string in lower case
-  *				 convert upper case ASCII String to lower case.
-  *				 behaviour of this function for non-ASCII characters
-  * 			 is not defined.
+  *              convert upper case ASCII String to lower case.
+  *              behaviour of this function for non-ASCII characters
+  *              is not defined.
   *
   * @param char    input string.
-  * @return		   lower case String.
+  * @return        lower case String.
   */
 void ConvertToLowerCase(char *aString)
 {
@@ -642,7 +620,6 @@ void FindSourceType(cmd_line* command_line, OSCL_HeapString<OsclMemAllocator> &a
             aFileNameInfo = LOCAL_TEST_FILE_MP3_CBR;
             aTemp_Flag = MP3_ENABLED;
             break;
-
         }
         else if (oscl_strcmp(argstr, "aac") == 0)
         {
@@ -650,7 +627,6 @@ void FindSourceType(cmd_line* command_line, OSCL_HeapString<OsclMemAllocator> &a
             aFileNameInfo = LOCAL_TEST_FILE_AAC_ADTS;
             aTemp_Flag = AAC_ENABLED;
             break;
-
         }
         else if (oscl_strcmp(argstr, "amr") == 0)
         {
@@ -658,7 +634,6 @@ void FindSourceType(cmd_line* command_line, OSCL_HeapString<OsclMemAllocator> &a
             aFileNameInfo = LOCAL_TEST_FILE_AMR_IETF;
             aTemp_Flag = AMR_ENABLED;
             break;
-
         }
         else if (oscl_strcmp(argstr, "mp4") == 0)
         {
@@ -666,7 +641,6 @@ void FindSourceType(cmd_line* command_line, OSCL_HeapString<OsclMemAllocator> &a
             aFileNameInfo = LOCAL_TEST_FILE_MP4_M4V_AMR;
             aTemp_Flag = MP4_ENABLED;
             break;
-
         }
         else if (oscl_strcmp(argstr, "3gp") == 0)
         {
@@ -674,24 +648,8 @@ void FindSourceType(cmd_line* command_line, OSCL_HeapString<OsclMemAllocator> &a
             aFileNameInfo = LOCAL_TEST_FILE_3GP;
             aTemp_Flag = THREE_GP_ENABLED;
             break;
-
         }
-        else if (oscl_strcmp(argstr, "asf") == 0)
-        {
-            aInputFileFormatType = LOCAL_TEST_FILE_ASF_FORMAT_TYPE ;
-            aFileNameInfo = LOCAL_TEST_FILE_ASF;
-            aTemp_Flag = ASF_ENABLED;
-            break;
 
-        }
-        else if (oscl_strcmp(argstr, "rm") == 0)
-        {
-            aInputFileFormatType = LOCAL_TEST_FILE_REALAUDIO_FORMAT_TYPE;
-            aFileNameInfo = LOCAL_TEST_FILE_REALAUDIO;
-            aTemp_Flag = RM_ENABLED;
-            break;
-
-        }
         else if (oscl_strcmp(argstr, "wav") == 0)
         {
             aInputFileFormatType =  LOCAL_TEST_FILE_WAV_FORMAT_TYPE;
@@ -713,13 +671,12 @@ void FindSourceType(cmd_line* command_line, OSCL_HeapString<OsclMemAllocator> &a
             aTemp_Flag = WMA_ENABLED;
             break;
         }
-
     }
 
 }
 
 // Pull out source file name from arguments
-//	-source sometestfile.mp4
+//  -source sometestfile.mp4
 
 void FindSourceFile(cmd_line* command_line, OSCL_HeapString<OsclMemAllocator> &aFileNameInfo, PVMFFormatType &aInputFileFormatType, FILE *aFile)
 {
@@ -881,14 +838,14 @@ void FindSourceFile(cmd_line* command_line, OSCL_HeapString<OsclMemAllocator> &a
 
 //Find test range args:
 //To run a range of tests by enum ID:
-//	-test 17 29
+//  -test 17 29
 //To run all Local play tests>
-//	-test L
+//  -test L
 //To run all Download tests
-//	-test D
+//  -test D
 //To run all Streaming tests:
-//	-test S
-void FindTestRange(cmd_line *command_line,	int32 &iFirstTest, int32 &iLastTest, FILE *aFile)
+//  -test S
+void FindTestRange(cmd_line *command_line,  int32 &iFirstTest, int32 &iLastTest, FILE *aFile)
 {
     //default is to run all tests.
     iFirstTest = 0;
@@ -1403,79 +1360,77 @@ void FindLoggerNode(cmd_line* command_line, int32& lognode, FILE* aFile)
         }
         else if (oscl_strcmp(iSourceFind, "-logall") == 0)
         {
-            lognode = 1;		//log everything
+            lognode = 1;        //log everything
         }
         else if (oscl_strcmp(iSourceFind, "-logdatapath") == 0)
         {
-            lognode = 2;		//datapath only
+            lognode = 2;        //datapath only
         }
         else if (oscl_strcmp(iSourceFind, "-logclock") == 0)
         {
-            lognode = 3;		//clock only
+            lognode = 3;        //clock only
         }
         else if (oscl_strcmp(iSourceFind, "-logoscl") == 0)
         {
-            lognode = 4;		//oscl only
+            lognode = 4;        //oscl only
         }
         else if (oscl_strcmp(iSourceFind, "-logperf") == 0)
         {
-            lognode = 5;		//scheduler perf logging
+            lognode = 5;        //scheduler perf logging
         }
         else if (oscl_strcmp(iSourceFind, "-logdatapathsrc") == 0)
         {
-            lognode = 6;		//source node data path only
+            lognode = 6;        //source node data path only
         }
         else if (oscl_strcmp(iSourceFind, "-logdatapathdec") == 0)
         {
-            lognode = 7;		//source node data path only
+            lognode = 7;        //source node data path only
         }
         else if (oscl_strcmp(iSourceFind, "-logsync") == 0)
         {
-            lognode = 8;		//media output node datapath only
+            lognode = 8;        //media output node datapath only
         }
         else if (oscl_strcmp(iSourceFind, "-logdiagnostics") == 0)
         {
-            lognode = 9;		//diagnostics log only
+            lognode = 9;        //diagnostics log only
         }
         else if (oscl_strcmp(iSourceFind, "-logosclfileio") == 0)
         {
-            lognode = 10; 	//hds access log only
+            lognode = 10;   //hds access log only
         }
         else if (oscl_strcmp(iSourceFind, "-loghds") == 0)
         {
-            lognode = 11; 	//oscl file-io access log only
+            lognode = 11;   //oscl file-io access log only
         }
         else if (oscl_strcmp(iSourceFind, "-loghdsandosclfileio") == 0)
         {
-            lognode = 12; 	//file-io and hds access log only
+            lognode = 12;   //file-io and hds access log only
         }
+#if RUN_CPMJUPITER_TESTCASES
         else if (oscl_strcmp(iSourceFind, "-logjupiter") == 0)
         {
-            lognode = 13; 	//jupiter DRM only
+            lognode = 13;   //jupiter DRM only
         }
-        else if (oscl_strcmp(iSourceFind, "-logjanus") == 0)
-        {
-            lognode = 14; 	//janus DRM only
-        }
+#endif
         else if (oscl_strcmp(iSourceFind, "-logperfmin") == 0)
         {
             lognode = 15;   //scheduler perf logging
         }
         else if (oscl_strcmp(iSourceFind, "-logppb") == 0)
         {
-            lognode = 16;	//progressive playback log only
+            lognode = 16;   //progressive playback log only
         }
         else if (oscl_strcmp(iSourceFind, "-logrepos") == 0)
         {
-            lognode = 17; 	//repos related
+            lognode = 17;   //repos related
         }
         else if (oscl_strcmp(iSourceFind, "-logsnode") == 0)
         {
-            lognode = 18; 	//socket node related
+            lognode = 18;   //socket node related
         }
         else if (oscl_strcmp(iSourceFind, "-logshout") == 0)
         {
-            lognode = 19;	//shoutcast playback log only
+            lognode = 19;   //shoutcast playback log only
         }
     }
 
@@ -1634,11 +1589,14 @@ void FindLogMem(cmd_line* command_line, int32& logmem, FILE* aFile)
     }
 }
 
-//Find if -proxy present in cmd line params
-void FindProxyEnabled(cmd_line* command_line, bool& aProxyEnabled, FILE *aFile)
+//Find if -proxy and -downloadrate present in cmd line params
+void FindProxyEnabled(cmd_line* command_line, bool& aProxyEnabled, FILE *aFile, uint32& aDownloadRateInKbps)
 {
     //default is not enabled
     aProxyEnabled = false;
+
+    //default is 32 kbps
+    aDownloadRateInKbps = PV_EXTERNAL_DOWNLOAD_SIM_DEFAULT_DOWNLOAD_RATE_IN_KBPS;
 
     bool cmdline_iswchar = command_line->is_wchar();
 
@@ -1673,10 +1631,40 @@ void FindProxyEnabled(cmd_line* command_line, bool& aProxyEnabled, FILE *aFile)
             fprintf(aFile, "   proxy enabled ON or OFF, default is OFF\n");
             fprintf(aFile, "  -proxy\n");
             fprintf(aFile, "   For test cases where proxy support is reqd\n");
+            fprintf(aFile, "   Downloadrate for external download simulator testcase in Kbps - Default 32Kbps\n");
+            fprintf(aFile, "  -downloadrate\n");
+            fprintf(aFile, "   Applicable only to external download simulator testcases\n");
         }
         else if (oscl_strcmp(iSourceFind, "-proxy") == 0)
         {
             aProxyEnabled = true;
+        }
+        else if (oscl_strcmp(iSourceFind, "-downloadrate") == 0)
+        {
+            uint32 rate = 0;
+            int index = iTestSearch;
+            index++;
+            //next arg is sposed to be downloadrate in kbps
+            if (index < count)
+            {
+                // Convert to UTF8 if necessary
+                if (cmdline_iswchar)
+                {
+                    OSCL_TCHAR* cmd = NULL;
+                    command_line->get_arg(index, cmd);
+                    oscl_UnicodeToUTF8(cmd, oscl_strlen(cmd), iSourceFind, 256);
+                }
+                else
+                {
+                    iSourceFind = NULL;
+                    command_line->get_arg(index, iSourceFind);
+                }
+                PV_atoi(iSourceFind, '0', rate);
+                if (rate > 0)
+                {
+                    aDownloadRateInKbps = rate;
+                }
+            }
         }
     }
 
@@ -1756,7 +1744,7 @@ int local_main(FILE *filehandle, cmd_line* command_line)
                 {
                     fprintf(file, "ERROR: Leak info is incomplete.\n");
                 }
-                for (uint32 i = 0;i < leakinfo;i++)
+                for (uint32 i = 0; i < leakinfo; i++)
                 {
                     fprintf(file, "Leak Info:\n");
                     fprintf(file, "  allocNum %d\n", info[i].allocNum);
@@ -1845,7 +1833,8 @@ int _local_main(FILE *filehandle, cmd_line *command_line, bool& aPrintDetailedMe
     FindLogMem(command_line, logmem, file);
 
     bool proxyenabled;
-    FindProxyEnabled(command_line, proxyenabled, file);
+    uint32 downloadrateinkbps = 0;
+    FindProxyEnabled(command_line, proxyenabled, file, downloadrateinkbps);
     fprintf(file, "  Input file name '%s'\n", filenameinfo.get_cstr());
     fprintf(file, "  Test case range %d to %d\n", firsttest, lasttest);
     fprintf(file, "  Compressed output ");
@@ -1868,7 +1857,21 @@ int _local_main(FILE *filehandle, cmd_line *command_line, bool& aPrintDetailedMe
     fprintf(file, "  Log level %d; Log node %d Log Text %d Log Mem %d\n", loglevel, lognode, logtext, logmem);
 
     pvplayer_engine_test_suite *engine_tests = NULL;
-    engine_tests = new pvplayer_engine_test_suite(filenameinfo.get_str(), inputformattype, firsttest, lasttest, compV, compA, fileinput, bcs, loglevel, lognode, logtext, logmem, iFileFormatType , proxyenabled);
+    engine_tests = new pvplayer_engine_test_suite(filenameinfo.get_str(),
+            inputformattype,
+            firsttest,
+            lasttest,
+            compV,
+            compA,
+            fileinput,
+            bcs,
+            loglevel,
+            lognode,
+            logtext,
+            logmem,
+            iFileFormatType,
+            proxyenabled,
+            downloadrateinkbps);
     if (engine_tests)
     {
 
@@ -1923,15 +1926,56 @@ int _local_main(FILE *filehandle, cmd_line *command_line, bool& aPrintDetailedMe
 }
 
 
-pvplayer_engine_test_suite::pvplayer_engine_test_suite(char *aFileName, PVMFFormatType aFileType, int32 aFirstTest, int32 aLastTest, bool aCompV, bool aCompA, bool aFileInput, bool aBCS, int32 aLogLevel, int32 aLogNode, int32 aLogText, int32 aLogMem, int32 aFileFormatType, bool aProxyEnabled): test_case()
+pvplayer_engine_test_suite::pvplayer_engine_test_suite(char *aFileName,
+        PVMFFormatType aFileType,
+        int32 aFirstTest,
+        int32 aLastTest,
+        bool aCompV,
+        bool aCompA,
+        bool aFileInput,
+        bool aBCS,
+        int32 aLogLevel,
+        int32 aLogNode,
+        int32 aLogText,
+        int32 aLogMem,
+        int32 aFileFormatType,
+        bool aProxyEnabled,
+        uint32 aDownloadRateInKbps): test_case()
 {
-    adopt_test_case(new pvplayer_engine_test(aFileName, aFileType, aFirstTest, aLastTest, aCompV, aCompA, aFileInput, aBCS, aLogLevel, aLogNode, aLogText, aLogMem, aFileFormatType, aProxyEnabled));
+    adopt_test_case(new pvplayer_engine_test(aFileName,
+                    aFileType,
+                    aFirstTest,
+                    aLastTest,
+                    aCompV,
+                    aCompA,
+                    aFileInput,
+                    aBCS,
+                    aLogLevel,
+                    aLogNode,
+                    aLogText,
+                    aLogMem,
+                    aFileFormatType,
+                    aProxyEnabled,
+                    aDownloadRateInKbps));
 }
 
 
 
-pvplayer_engine_test::pvplayer_engine_test(char *aFileName, PVMFFormatType aFileType, int32 aFirstTest, int32 aLastTest,
-        bool aCompV, bool aCompA, bool aFileInput, bool aBCS, int32 aLogLevel, int32 aLogNode, int32 aLogFile, int32 aLogMem, int32 aFileFormatType, bool aProxyEnabled)
+pvplayer_engine_test::pvplayer_engine_test(char *aFileName,
+        PVMFFormatType aFileType,
+        int32 aFirstTest,
+        int32 aLastTest,
+        bool aCompV,
+        bool aCompA,
+        bool aFileInput,
+        bool aBCS,
+        int32 aLogLevel,
+        int32 aLogNode,
+        int32 aLogFile,
+        int32 aLogMem,
+        int32 aFileFormatType,
+        bool aProxyEnabled,
+        uint32 aDownloadRateInKbps)
 {
     iFileName = aFileName;
     iFileType = aFileType;
@@ -1953,6 +1997,7 @@ pvplayer_engine_test::pvplayer_engine_test(char *aFileName, PVMFFormatType aFile
     iNumAllocs = 0;
     iProxyEnabled = aProxyEnabled;
     iFileFormatType = aFileFormatType;
+    iDownloadRateInKbps = aDownloadRateInKbps;
 
 #ifdef BUILD_N_ARM
     OMX_Init(CONFIG_FILE_NAME);
@@ -1973,7 +2018,7 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
     int testCaseNumber = 0;
     if (iFileFormatType == MP3_ENABLED) //For MP3
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_MP3_INVALID_TESTCASES ;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_MP3_INVALID_TESTCASES ; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < MP3_INVALID_TEST_ARRAY[testCaseNumber])
                 return true;//aCurrentTestCaseNumber;
@@ -1988,9 +2033,9 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
         if (aCurrentTestCaseNumber > MP3_INVALID_TEST_ARRAY[NO_OF_MP3_INVALID_TESTCASES -1])
             return  true; //aCurrentTestCaseNumber ; //Sending when CurrentCount is more than all the element of array
     }
-    else if (iFileFormatType == AMR_ENABLED) 	//For AMR
+    else if (iFileFormatType == AMR_ENABLED)    //For AMR
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_AMR_INVALID_TESTCASES;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_AMR_INVALID_TESTCASES; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < AMR_INVALID_TEST_ARRAY[testCaseNumber])
                 return true; //aCurrentTestCaseNumber;
@@ -2007,7 +2052,7 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
     }
     else if (iFileFormatType == MP4_ENABLED) // MP4 Enabled
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_3GP_OR_MP4_INVALID_TESTCASES;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_3GP_OR_MP4_INVALID_TESTCASES; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < FILE_3GP_OR_MP4_INVALID_TEST_ARRAY[testCaseNumber])
                 return true; //aCurrentTestCaseNumber;
@@ -2024,7 +2069,7 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
     }
     else if (iFileFormatType == THREE_GP_ENABLED)// 3GP Enabled
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_3GP_OR_MP4_INVALID_TESTCASES;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_3GP_OR_MP4_INVALID_TESTCASES; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < FILE_3GP_OR_MP4_INVALID_TEST_ARRAY[testCaseNumber])
                 return true;//aCurrentTestCaseNumber;
@@ -2039,9 +2084,9 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
         if (aCurrentTestCaseNumber > FILE_3GP_OR_MP4_INVALID_TEST_ARRAY[NO_OF_3GP_OR_MP4_INVALID_TESTCASES -1])
             return true; //aCurrentTestCaseNumber ; //Sending when CurrentCount is more than all the element of array
     }
-    else if (iFileFormatType == ASF_ENABLED) 	//ASF Enabled
+    else if (iFileFormatType == ASF_ENABLED)    //ASF Enabled
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_ASF_INVALID_TESTCASES ;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_ASF_INVALID_TESTCASES ; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < ASF_INVALID_TEST_ARRAY[testCaseNumber])
                 return true; //aCurrentTestCaseNumber;
@@ -2058,9 +2103,9 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
         if (aCurrentTestCaseNumber > ASF_INVALID_TEST_ARRAY[NO_OF_ASF_INVALID_TESTCASES -1])
             return true; //aCurrentTestCaseNumber ; //Sending when CurrentCount is more than all the element of array
     }
-    else if (iFileFormatType == WMV_ENABLED)	//WMV Enabled
+    else if (iFileFormatType == WMV_ENABLED)    //WMV Enabled
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_WMV_INVALID_TESTCASES;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_WMV_INVALID_TESTCASES; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < WMV_INVALID_TEST_ARRAY[testCaseNumber])
                 return true; //aCurrentTestCaseNumber;
@@ -2075,9 +2120,9 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
         if (aCurrentTestCaseNumber > WMV_INVALID_TEST_ARRAY[NO_OF_WMV_INVALID_TESTCASES-1])
             return true; //aCurrentTestCaseNumber ; //Sending when CurrentCount is more than all the element of array
     }
-    else if (iFileFormatType == WMA_ENABLED)	//WMA Enabled
+    else if (iFileFormatType == WMA_ENABLED)    //WMA Enabled
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_WMA_INVALID_TESTCASES ;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_WMA_INVALID_TESTCASES ; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < WMA_INVALID_TEST_ARRAY[testCaseNumber])
                 return true; //aCurrentTestCaseNumber;
@@ -2092,9 +2137,9 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
         if (aCurrentTestCaseNumber > WMA_INVALID_TEST_ARRAY[NO_OF_WMA_INVALID_TESTCASES -1])
             return true; //aCurrentTestCaseNumber ; //Sending when CurrentCount is more than all the element of array
     }
-    else if (iFileFormatType == WAV_ENABLED) 	//WAV Enabled
+    else if (iFileFormatType == WAV_ENABLED)    //WAV Enabled
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_WAV_INVALID_TESTCASES ;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_WAV_INVALID_TESTCASES ; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < WAV_INVALID_TEST_ARRAY[testCaseNumber])
                 return true; //aCurrentTestCaseNumber;
@@ -2111,7 +2156,7 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
     }
     else if (iFileFormatType == RM_ENABLED) //RM Enabled
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_REAL_INVALID_TESTCASES ;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_REAL_INVALID_TESTCASES ; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < REAL_INVALID_TEST_ARRAY[testCaseNumber])
                 return true; //aCurrentTestCaseNumber;
@@ -2126,9 +2171,9 @@ bool pvplayer_engine_test::ValidateTestCase(int& aCurrentTestCaseNumber)
         if (aCurrentTestCaseNumber > REAL_INVALID_TEST_ARRAY[NO_OF_REAL_INVALID_TESTCASES -1])
             return true;//Sending when CurrentCount is more than all the element of array
     }
-    else if (iFileFormatType == AAC_ENABLED) 	//For AAC
+    else if (iFileFormatType == AAC_ENABLED)    //For AAC
     {
-        for (testCaseNumber = 0;testCaseNumber < NO_OF_AAC_INVALID_TESTCASES;testCaseNumber++)
+        for (testCaseNumber = 0; testCaseNumber < NO_OF_AAC_INVALID_TESTCASES; testCaseNumber++)
         {
             if (aCurrentTestCaseNumber < AAC_INVALID_TEST_ARRAY[testCaseNumber])
                 return true; //aCurrentTestCaseNumber;
@@ -2339,7 +2384,6 @@ void pvplayer_engine_test::test()
                 break;
 
             case CPM_DLA_OMA1PASSTRHU_OpenFailAuthPlayStopResetTest:
-#if RUN_CPMOMA1_DLAPASSTHRU_TESTCASES
                 iCurrentTest = new pvplayer_async_test_cpmdlapassthru(testparam,
                         PVMF_MIME_YUV420,
                         PVMF_MIME_PCM16,
@@ -2350,13 +2394,9 @@ void pvplayer_engine_test::test()
                         OMA1_DLA_FAIL,
                         false);
                 ((pvplayer_async_test_cpmdlapassthru*)iCurrentTest)->setProtocolRollOverMode();
-#else
-                fprintf(file, "CPM OMA1 DLA PassThru tests not enabled\n");
-#endif
                 break;
 
             case CPM_DLA_OMA1PASSTRHU_OpenPlayStopResetTest:
-#if RUN_CPMOMA1_DLAPASSTHRU_TESTCASES
                 iCurrentTest = new pvplayer_async_test_cpmdlapassthru(testparam,
                         PVMF_MIME_YUV420,
                         PVMF_MIME_PCM16,
@@ -2367,13 +2407,9 @@ void pvplayer_engine_test::test()
                         OMA1_DLA_NORMAL,
                         false);
                 ((pvplayer_async_test_cpmdlapassthru*)iCurrentTest)->setProtocolRollOverMode();
-#else
-                fprintf(file, "CPM OMA1 DLA PassThru tests not enabled\n");
-#endif
                 break;
 
             case CPM_DLA_OMA1PASSTRHU_UnknownContentOpenPlayStopResetTest:
-#if RUN_CPMOMA1_DLAPASSTHRU_TESTCASES
                 iCurrentTest = new pvplayer_async_test_cpmdlapassthru(testparam,
                         PVMF_MIME_YUV420,
                         PVMF_MIME_PCM16,
@@ -2384,13 +2420,9 @@ void pvplayer_engine_test::test()
                         OMA1_DLA_UNKNOWN_CPM_CONTENTTYPE,
                         false);
                 ((pvplayer_async_test_cpmdlapassthru*)iCurrentTest)->setProtocolRollOverMode();
-#else
-                fprintf(file, "CPM OMA1 DLA PassThru tests not enabled\n");
-#endif
                 break;
 
             case CPM_DLA_OMA1PASSTRHU_CancelAcquireLicenseTooLate_CancelFails:
-#if RUN_CPMOMA1_DLAPASSTHRU_TESTCASES
                 iCurrentTest = new pvplayer_async_test_cpmdlapassthru(testparam,
                         PVMF_MIME_YUV420,
                         PVMF_MIME_PCM16,
@@ -2401,13 +2433,9 @@ void pvplayer_engine_test::test()
                         OMA1_DLA_CANCEL_ACQUIRE_LICENSE_FAILS,
                         true);
                 ((pvplayer_async_test_cpmdlapassthru*)iCurrentTest)->setProtocolRollOverMode();
-#else
-                fprintf(file, "CPM OMA1 DLA PassThru tests not enabled\n");
-#endif
                 break;
 
             case CPM_DLA_OMA1PASSTRHU_CancelAcquireLicense_CancelSucceeds:
-#if RUN_CPMOMA1_DLAPASSTHRU_TESTCASES
                 iCurrentTest = new pvplayer_async_test_cpmdlapassthru(testparam,
                         PVMF_MIME_YUV420,
                         PVMF_MIME_PCM16,
@@ -2418,13 +2446,9 @@ void pvplayer_engine_test::test()
                         OMA1_DLA_CANCEL_ACQUIRE_LICENSE_SUCCEEDS,
                         true);
                 ((pvplayer_async_test_cpmdlapassthru*)iCurrentTest)->setProtocolRollOverMode();
-#else
-                fprintf(file, "CPM OMA1 DLA PassThru tests not enabled\n");
-#endif
                 break;
 
             case CPM_DLA_OMA1PASSTRHU_ContentNotSupported:
-#if RUN_CPMOMA1_DLAPASSTHRU_TESTCASES
                 iCurrentTest = new pvplayer_async_test_cpmdlapassthru(testparam,
                         PVMF_MIME_YUV420,
                         PVMF_MIME_PCM16,
@@ -2435,9 +2459,6 @@ void pvplayer_engine_test::test()
                         OMA1_DLA_CONTENT_NOTSUPPORTED,
                         false);
                 ((pvplayer_async_test_cpmdlapassthru*)iCurrentTest)->setProtocolRollOverMode();
-#else
-                fprintf(file, "CPM OMA1 DLA PassThru tests not enabled\n");
-#endif
                 break;
 
 
@@ -2647,384 +2668,231 @@ void pvplayer_engine_test::test()
                 break;
 
             case MediaIONodeBackwardTest:
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                iCurrentTest = new pvplayer_async_test_mediaionode_backwardplayback(testparam);
-#else
                 fprintf(file, "Backward playback tests not enabled\n");
-#endif
                 break;
 
             case MediaIONodeBackwardForwardTest:
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                iCurrentTest = new pvplayer_async_test_mediaionode_backwardforwardplayback(testparam);
-#else
                 fprintf(file, "Backward/Forward playback tests not enabled\n");
-#endif
                 break;
 
             case MediaIONodePauseNearEOSBackwardResumeTest:
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                iCurrentTest = new pvplayer_async_test_mediaionode_pauseneareosbackwardresume(testparam);
-#else
                 fprintf(file, "Backward/Forward playback tests not enabled\n");
-#endif
                 break;
 
             case MediaIONodeMultiplePauseSetPlaybackRateResumeTest:
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                iCurrentTest = new pvplayer_async_test_mediaionode_multiplepausesetplaybackrateresume(testparam);
-#else
                 fprintf(file, "Backward/Forward playback tests not enabled\n");
-#endif
                 break;
 
             case MediaIONodeBackwardNearEOSForwardNearStartTest:
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                iCurrentTest = new pvplayer_async_test_mediaionode_backwardneareosforwardnearbos(testparam);
-#else
                 fprintf(file, "Backward/Forward playback tests not enabled\n");
-#endif
                 break;
 
             case MP4M4VAMRFileOpenPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_M4V_AMR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "MP4 M4v/AMR ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4M4VAMRFilePlayStopPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_M4V_AMR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "MP4 M4v/AMR ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4H263AMRFileOpenPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_H263_AMR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "MP4 H.263/AMR ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4H263AMRFilePlayStopPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_H263_AMR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "MP4 H.263/AMR ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4AVCAMRFileOpenPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_AVC_AMR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "MP4 AVC/AMR ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4AVCAMRFilePlayStopPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_AVC_AMR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "MP4 AVC/AMR ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4AMRFileOpenPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_AMR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "MP4 AMR-only ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4AMRFilePlayStopPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_AMR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "MP4 AMR-only ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4AACFileOpenPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_AAC;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "MP4 AAC-only ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4AACFilePlayStopPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_AAC;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "MP4 AAC-only ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4M4VAMRTextFileOpenPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_M4V_AMR_TEXT;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "MP4 M4v/AMR/Text ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case MP4M4VAMRTextFilePlayStopPlayStopTest:
-#if RUN_MP4FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP4_M4V_AMR_TEXT;
                 testparam.iFileType = LOCAL_TEST_FILE_MP4_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "MP4 M4v/AMR/Text ");
-#else
-                fprintf(file, "MP4 file tests not enabled\n");
-#endif
                 break;
 
             case AMRIETFFileOpenPlayStopTest:
-#if RUN_AMRFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AMR_IETF;
                 testparam.iFileType = LOCAL_TEST_FILE_AMR_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "AMR IETF ");
-#else
-                fprintf(file, "AMR file tests not enabled\n");
-#endif
                 break;
 
             case AMRIETFFilePlayStopPlayStopTest:
-#if RUN_AMRFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AMR_IETF;
                 testparam.iFileType = LOCAL_TEST_FILE_AMR_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "AMR IETF ");
-#else
-                fprintf(file, "AMR file tests not enabled\n");
-#endif
                 break;
 
             case AMRIF2FileOpenPlayStopTest:
-#if RUN_AMRFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AMR_IF2;
                 testparam.iFileType = LOCAL_TEST_FILE_AMR_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "AMR IF2 ");
-#else
-                fprintf(file, "AMR file tests not enabled\n");
-#endif
                 break;
 
             case AMRIF2FilePlayStopPlayStopTest:
-#if RUN_AMRFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AMR_IF2;
                 testparam.iFileType = LOCAL_TEST_FILE_AMR_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "AMR IF2 ");
-#else
-                fprintf(file, "AMR file tests not enabled\n");
-#endif
                 break;
 
             case AACADTSFileOpenPlayStopTest:
-#if RUN_AACFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AAC_ADTS;
                 testparam.iFileType = LOCAL_TEST_FILE_AAC_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "AAC ADTS ");
-#else
-                fprintf(file, "AAC file tests not enabled\n");
-#endif
                 break;
 
             case AACADTSFilePlayStopPlayStopTest:
-#if RUN_AACFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AAC_ADTS;
                 testparam.iFileType = LOCAL_TEST_FILE_AAC_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "AAC ADTS ");
-#else
-                fprintf(file, "AAC file tests not enabled\n");
-#endif
                 break;
 
             case AACADIFFileOpenPlayStopTest:
-#if RUN_AACFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AAC_ADIF;
                 testparam.iFileType = LOCAL_TEST_FILE_AAC_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "AAC ADIF ");
-#else
-                fprintf(file, "AAC file tests not enabled\n");
-#endif
                 break;
 
             case AACADIFFilePlayStopPlayStopTest:
-#if RUN_AACFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AAC_ADIF;
                 testparam.iFileType = LOCAL_TEST_FILE_AAC_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "AAC ADIF ");
-#else
-                fprintf(file, "AAC file tests not enabled\n");
-#endif
                 break;
 
             case AACRawFileOpenPlayStopTest:
-#if RUN_AACFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AAC_RAW;
                 testparam.iFileType = LOCAL_TEST_FILE_AAC_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "AAC Raw ");
-#else
-                fprintf(file, "AAC file tests not enabled\n");
-#endif
                 break;
 
             case AACRawFilePlayStopPlayStopTest:
-#if RUN_AACFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_AAC_RAW;
                 testparam.iFileType = LOCAL_TEST_FILE_AAC_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "AAC Raw ");
-#else
-                fprintf(file, "AAC file tests not enabled\n");
-#endif
                 break;
 
             case MP3CBRFileOpenPlayStopTest:
-#if RUN_MP3FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP3_CBR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP3_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "MP3 CBR ");
-#else
-                fprintf(file, "MP3 file tests not enabled\n");
-#endif
                 break;
 
             case MP3CBRFilePlayStopPlayStopTest:
-#if RUN_MP3FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP3_CBR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP3_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "MP3 CBR ");
-#else
-                fprintf(file, "MP3 file tests not enabled\n");
-#endif
                 break;
 
             case MP3VBRFileOpenPlayStopTest:
-#if RUN_MP3FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP3_VBR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP3_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "MP3 VBR ");
-#else
-                fprintf(file, "MP3 file tests not enabled\n");
-#endif
                 break;
 
             case MP3VBRFilePlayStopPlayStopTest:
-#if RUN_MP3FILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_MP3_VBR;
                 testparam.iFileType = LOCAL_TEST_FILE_MP3_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "MP3 VBR ");
-#else
-                fprintf(file, "MP3 file tests not enabled\n");
-#endif
                 break;
 
             case WAVFileOpenPlayStopTest:
-#if RUN_WAVFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_WAV;
                 testparam.iFileType = LOCAL_TEST_FILE_WAV_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
                 fprintf(file, "WAV ");
-#else
-                fprintf(file, "WAV file tests not enabled\n");
-#endif
                 break;
 
             case WAVFilePlayStopPlayStopTest:
-#if RUN_WAVFILE_TESTCASES
                 testparam.iFileName = LOCAL_TEST_FILE_WAV;
                 testparam.iFileType = LOCAL_TEST_FILE_WAV_FORMAT_TYPE;
                 iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
                 fprintf(file, "WAV ");
-#else
-                fprintf(file, "WAV file tests not enabled\n");
-#endif
                 break;
 
             case ASFFileOpenPlayStopTest:
-#if RUN_ASFFILE_TESTCASES
-                testparam.iFileName = LOCAL_TEST_FILE_ASF;
-                testparam.iFileType = LOCAL_TEST_FILE_ASF_FORMAT_TYPE;
-                iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
-                fprintf(file, "ASF ");
-#else
                 fprintf(file, "ASF file tests not enabled\n");
-#endif
                 break;
 
             case ASFFilePlayStopPlayStopTest:
-#if RUN_ASFFILE_TESTCASES
-                testparam.iFileName = LOCAL_TEST_FILE_ASF;
-                testparam.iFileType = LOCAL_TEST_FILE_ASF_FORMAT_TYPE;
-                iCurrentTest = new pvplayer_async_test_mediaionode_playstopplay(testparam);
-                fprintf(file, "ASF ");
-#else
                 fprintf(file, "ASF file tests not enabled\n");
-#endif
                 break;
 
             case RealAudioFileOpenPlayStopTest:
-#if RUN_REALAUDIO_FILE_TESTCASES
-                testparam.iFileName = LOCAL_TEST_FILE_REALAUDIO;
-                testparam.iFileType = LOCAL_TEST_FILE_REALAUDIO_FORMAT_TYPE;
-                iCurrentTest = new pvplayer_async_test_mediaionode_openplaystop(testparam);
-                fprintf(file, "Real Audio ");
-#else
                 fprintf(file, "Real Audio file tests not enabled\n");
-#endif
                 break;
 
             case SetPlaybackAfterPrepare:
@@ -3033,351 +2901,209 @@ void pvplayer_engine_test::test()
                 break;
 
             case FTDownloadOpenPlayStopTest:
-#if RUN_FASTTRACK_TESTCASES
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                iCurrentTest = new pvplayer_async_test_ftdlnormal(testparam);
-#else
-                fprintf(file, "PV Fast track download tests not enabled\n");
-#endif
-#else
                 fprintf(file, "Download tests not enabled\n");
-#endif
                 break;
 
             case FTDownloadPlayStopPlayTest:
-#if RUN_FASTTRACK_TESTCASES
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                iCurrentTest = new pvplayer_async_test_ftdlnormal(testparam);
-                ((pvplayer_async_test_ftdlnormal*)iCurrentTest)->enablePlayStopPlay();
-
-#else
-                fprintf(file, "PV Fast track download tests not enabled\n");
-#endif
-#else
                 fprintf(file, "Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadPlayAsapTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlnormal(testparam);
-#else
-                fprintf(file, "Prog download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadPlayStopPlayTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlnormal(testparam);
                 ((pvplayer_async_test_3gppdlnormal*)iCurrentTest)->enablePlayStopPlay();
-#else
-                fprintf(file, "Prog download tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackPlayStopPlayTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppbnormal(testparam);
                 ((pvplayer_async_test_ppbnormal*)iCurrentTest)->enablePlayStopPlay();
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadDownloadThenPlayTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlnormal_dlthenplay(testparam);
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadDownloadThenPlayPauseTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlnormal_dlthenplay(testparam);
                 ((pvplayer_async_test_3gppdlnormal_dlthenplay*)iCurrentTest)->enablePauseAfterDownloadComplete();
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadDownloadThenPlayRepositionTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlnormal_dlthenplay(testparam);
                 ((pvplayer_async_test_3gppdlnormal_dlthenplay*)iCurrentTest)->enableReposAfterDownloadComplete();
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadDownloadOnlyTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlnormal_dlonly(testparam);
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadCancelDuringInitTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlcancelduringinit(testparam);
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadCancelDuringInitDelayTest: //114
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlcancelduringinitdelay(testparam);
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
             case ProgDownloadPauseResumeAfterUnderflowTest: //115
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_PDLPauseResumeAfterUnderFlow(testparam);
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadContentTooLarge:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlcontenttoolarge(testparam);
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadTruncated:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                testparam.iFileType = PVMF_MIME_MPEG4FF;
-                iCurrentTest = new pvplayer_async_test_3gppdlContentTruncated(testparam);
-#else
                 fprintf(file, "Prog Truncated download tests not enabled\n");
-#endif
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadProtocolRolloverTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlnormal(testparam);
                 ((pvplayer_async_test_3gppdlnormal*)iCurrentTest)->setProtocolRollOverMode();
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadSetPlayBackRangeTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlnormal(testparam);
                 ((pvplayer_async_test_3gppdlnormal*)iCurrentTest)->enableReposAfterDownloadComplete();
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgDownloadPlayUtilEOSTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_3gppdlnormal(testparam);
                 ((pvplayer_async_test_3gppdlnormal*)iCurrentTest)->enablePlayUntilEOS();
-#else
-                fprintf(file, "Prog Download tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4UntilEOSTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enablePlayUntilEOS();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback Until EOS");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4ShortTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
+                ((pvplayer_async_test_ppb_normal*)iCurrentTest)->useLongClip();
                 break;
 
             case ProgPlaybackMP4ShortPauseResumeTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableShortPauseResume();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback Short Pause Resume");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4LongPauseResumeTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableLongPauseResume();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enablePlayUntilEOS();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback Long Pause Resume Until EOS");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4StartPauseSeekResumeTwiceTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableShortPauseResume();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableSeekAfterStart();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableTwice();
+                ((pvplayer_async_test_ppb_normal*)iCurrentTest)->useLongClip();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback Start Pause Seek Resume Twice");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4SeekStartTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableSeekBeforeStart();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enablePlayUntilEOS();
+                ((pvplayer_async_test_ppb_normal*)iCurrentTest)->useLongClip();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback Seek Start Until EOS");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4StartPauseSeekResumeLoopTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableShortPauseResume();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableSeekAfterStart();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableLoop();
+                ((pvplayer_async_test_ppb_normal*)iCurrentTest)->useLongClip();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback Start Pause Seek Resume Loop");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4SeekForwardStepLoopTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableShortPauseResume();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableSeekAfterStart();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableLoop();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableForwardStep();
+                ((pvplayer_async_test_ppb_normal*)iCurrentTest)->useLongClip();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback Seek Forward Step Loop");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4SeekToBOCAfterDownloadCompleteTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableSeekToBOC();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableSeekAfterDownloadComplete();
+                ((pvplayer_async_test_ppb_normal*)iCurrentTest)->useLongClip();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback Seek To Beginning Of Clip After Download Complete");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4SeekInCacheAfterDownloadCompleteTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableSeekInCache();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableSeekAfterDownloadComplete();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback Seek To Position In Cache After Download Complete");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ProgPlaybackMP4EOSStopPlayAgainTest:
-#if RUN_HTTPDOWNLOAD_TESTCASES && RUN_MP4FILE_TESTCASES
                 testparam.iFileType = PVMF_MIME_MPEG4FF;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enablePlayUntilEOS();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableEOSStopPlay();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("MP4 Progressive Playback To EOS Stop and Play Again");
-#else
-                fprintf(file, "MP4 progressive playback tests not enabled\n");
-#endif
                 break;
 
             case ShoutcastPlayback5MinuteTest:
-#if RUN_SHOUTCAST_TESTCASES
                 testparam.iFileType = PVMF_MIME_DATA_SOURCE_SHOUTCAST_URL;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->setShoutcastSessionDuration();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("Shoutcast Playback For 5 Minutes");
-#else
-                fprintf(file, "Shoutcast playback tests not enabled\n");
-#endif
                 break;
 
             case ShoutcastPlaybackPauseResumeTest:
-#if RUN_SHOUTCAST_TESTCASES
                 testparam.iFileType = PVMF_MIME_DATA_SOURCE_SHOUTCAST_URL;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableShoutcastPauseResume();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("Shoutcast Playback Pause Resume");
-#else
-                fprintf(file, "Shoutcast playback tests not enabled\n");
-#endif
                 break;
 
             case ShoutcastPlaybackPlayStopPlayTest:
-#if RUN_SHOUTCAST_TESTCASES
                 testparam.iFileType = PVMF_MIME_DATA_SOURCE_SHOUTCAST_URL;
                 iCurrentTest = new pvplayer_async_test_ppb_normal(testparam);
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->enableShoutcastPlayStopPlay();
                 ((pvplayer_async_test_ppb_normal*)iCurrentTest)->iTestCaseName = _STRLIT_CHAR("Shoutcast Playback Play Stop Play");
-#else
-                fprintf(file, "Shoutcast playback tests not enabled\n");
-#endif
                 break;
 
             case FTDownloadOpenPlayUntilEOSTest:
-#if RUN_FASTTRACK_TESTCASES
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                iCurrentTest = new pvplayer_async_test_ftdlnormal(testparam);
-                ((pvplayer_async_test_ftdlnormal*)iCurrentTest)->enablePlayUntilEOS();
-#else
-                fprintf(file, "PV Fast track download tests not enabled\n");
-#endif
-#else
                 fprintf(file, "Download tests not enabled\n");
-#endif
                 break;
 
             case MultipleInstanceOpenPlayStopTest:
@@ -3394,7 +3120,6 @@ void pvplayer_engine_test::test()
 
             case StreamingOpenPlayStopTest:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlayStopTest");
                 iCurrentTest =
                     new pvplayer_async_test_streamingopenplaystop(testparam,
@@ -3407,15 +3132,11 @@ void pvplayer_engine_test::test()
                             false,
                             false,
                             false);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingOpenPlayPausePlayStopTest:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlayPausePlayStopTest");
                 iCurrentTest =
                     new pvplayer_async_test_streamingopenplaystop(testparam,
@@ -3428,15 +3149,11 @@ void pvplayer_engine_test::test()
                             false,
                             false,
                             false);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingOpenPlaySeekStopTest:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlaySeekStopTest");
                 iCurrentTest =
                     new pvplayer_async_test_streamingopenplaystop(testparam,
@@ -3449,15 +3166,11 @@ void pvplayer_engine_test::test()
                             false,
                             false,
                             false);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingCancelDuringPrepareTest:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingCancelDuringPrepareTest");
                 iCurrentTest =
                     new pvplayer_async_test_streamingopenplaystop(testparam,
@@ -3470,9 +3183,6 @@ void pvplayer_engine_test::test()
                             false,
                             true,
                             false);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
@@ -3488,88 +3198,69 @@ void pvplayer_engine_test::test()
                 iCurrentTest = new pvplayer_async_test_playuntileos(testparam);
                 break;
 
+            case PlayUntilEOSUsingExternalFileHandleTest:
+                iCurrentTest = new pvplayer_async_test_playuntileos_using_external_file_handle(testparam);
+                break;
+
             case ReleaseMetadataTest:
                 iCurrentTest = new pvplayer_async_test_printmetadata(testparam, true);
                 break;
 
-            case CleanDrmData_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_cleandata(testparam);
+            case ExternalDownloadPlayUntilEOSTest:
+            {
+                iCurrentTest = new pvplayer_async_test_playuntileos(testparam);
+                ((pvplayer_async_test_playuntileos*)iCurrentTest)->EnableExternalDownload(iDownloadRateInKbps);
+            }
+            break;
+
+            case MultiProcessExternalDownloadPlayUntilEOSTest:
+            {
+#if RUN_PVNETWORK_DOWNLOAD_TESTCASES
+                iCurrentTest = new pvplayer_async_test_playuntileos(testparam);
+                ((pvplayer_async_test_playuntileos*)iCurrentTest)->EnableMultiProcessExternalDownload();
 #else
-                fprintf(file, "Janus CPM tests not enabled\n");
+                fprintf(file, "MultiProcessExternalDownloadPlayUntilEOSTest not enabled\n");
 #endif
+            }
+            break;
+            case CleanDrmData_JanusCPMTest:
+                fprintf(file, "Janus CPM tests not enabled\n");
                 break;
 
             case LoadLicense_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_loadlicense(testparam);
-#else
                 fprintf(file, "Janus CPM tests not enabled\n");
-#endif
                 break;
 
             case OpenPlayStop_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_openplaystop(testparam);
-#else
                 fprintf(file, "Janus CPM tests not enabled\n");
-#endif
                 break;
 
             case PlayStopPlayStop_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_playstopplay(testparam);
-#else
                 fprintf(file, "Janus CPM tests not enabled\n");
-#endif
                 break;
 
             case QueryEngine_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_query(testparam);
-#else
                 fprintf(file, "Janus CPM tests not enabled\n");
-#endif
                 break;
 
             case DLA_CleanDrmData_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_dla_cleandata(testparam);
-#else
                 fprintf(file, "Janus CPM tests not enabled\n");
-#endif
                 break;
 
             case DLA_OpenPlayStop_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_dla_openplaystop(testparam);
-#else
                 fprintf(file, "Janus CPM tests not enabled\n");
-#endif
                 break;
 
             case DLA_LicenseCapture_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_dla_licensecapture(testparam);
-#else
                 fprintf(file, "Janus CPM tests not enabled\n");
-#endif
                 break;
 
             case DLA_CancelAcquireLicense_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_dla_cancelacquirelicense(testparam);
-#else
                 fprintf(file, "Janus CPM tests not enabled\n");
-#endif
                 break;
 
             case StartupMeasurement_JanusCPMTest:
-#if RUN_CPMJANUS_TESTCASES
-                iCurrentTest = new pvplayer_async_test_januscpm_startupmeasurement(testparam);
-#else
                 fprintf(file, "Janus CPM tests not enabled\n");
-#endif
                 break;
 
             case DLA_QueryEngine_JupiterCPMTest_v2_WMA:
@@ -3926,16 +3617,10 @@ void pvplayer_engine_test::test()
                 break;
 
             case DLA_PDL_OpenPlayUntilEOS_JanusCPMTest:
-#if (RUN_HTTPDOWNLOAD_TESTCASES && RUN_CPMJANUS_TESTCASES)
-                iCurrentTest = new pvplayer_async_test_januscpm_pdl_openplaystop(testparam);
-                ((pvplayer_async_test_januscpm_pdl_openplaystop*)iCurrentTest)->enablePlayUntilEOS();
-#else
                 fprintf(file, "Janus CPM + PDL tests not enabled\n");
-#endif
                 break;
 
             case StreamingOpenPlayUntilEOSTest:
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlayUntilEOSTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -3947,33 +3632,11 @@ void pvplayer_engine_test::test()
                         false,
                         false,
                         false);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
             case StreamingCloakingOpenPlayUntilEOSTest:
-#if RUN_STREAMING_TESTCASES
-#if RUN_RTSP_CLOAKING_TESTCASES
-                fprintf(file, "StreamingCloakingOpenPlayUntilEOSTest");
-                iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
-                        PVMF_MIME_YUV420,
-                        PVMF_MIME_PCM16,
-                        iCurrentTestNumber,
-                        false,
-                        false,
-                        true,
-                        true,
-                        false,
-                        false);
-#else
                 fprintf(file, "Streaming: cloaking tests not enabled\n");
-#endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
             case StreamingOpenPlayPausePlayUntilEOSTest:
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlayPausePlayUntilEOSTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -3985,14 +3648,10 @@ void pvplayer_engine_test::test()
                         false,
                         false,
                         false);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case StreamingOpenPlayMultiplePausePlayUntilEOSTest:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlayPausePlayUntilEOSTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4009,15 +3668,11 @@ void pvplayer_engine_test::test()
                     (pvplayer_async_test_streamingopenplaystop*)iCurrentTest;
                 ptr->setMultiplePauseMode(1);
 
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case StreamingOpenPlaySeekPlayUntilEOSTest:
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlaySeekPlayUntilEOSTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4029,13 +3684,9 @@ void pvplayer_engine_test::test()
                         false,
                         false,
                         false);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case StreamingOpenPlayForwardPlayUntilEOSTest:
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlayForwardPlayUntilEOSTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4047,13 +3698,9 @@ void pvplayer_engine_test::test()
                         false,
                         false,
                         true);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case StreamingJitterBufferAdjustUntilEOSTest:
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingJitterBufferAdjustUntilEOSTest");
                 iCurrentTest = new pvplayer_async_test_streamingJBadjust(testparam,
                         PVMF_MIME_YUV420,
@@ -4062,39 +3709,14 @@ void pvplayer_engine_test::test()
                         false,
                         false,
                         true);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case StreamingPlayBitStreamSwitchPlayUntilEOSTest:
-#if RUN_STREAMING_TESTCASES
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                fprintf(file, "StreamingPlayBitStreamSwitchPlayUntilEOSTest");
-                if ((NULL == (oscl_strstr(testparam.iFileName, "rtsp://"))) &&
-                        (NULL == (oscl_strstr(testparam.iFileName, ".sdp"))))
-                {
-                    iCurrentTest = new pvplayer_async_test_streaming_bitstream_switch(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true);
-                }
-                else
-                {
-                    fprintf(file, "\nBitStreamSwitching Can't be initiated by client for a RTSP url\n");
-                }
-#else
                 fprintf(file, "Streaming: bitstream switching tests not enabled\n");
-#endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case StreamingMultiplePlayUntilEOSTest:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingMultiplePlayUntilEOSTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4110,43 +3732,17 @@ void pvplayer_engine_test::test()
                 pvplayer_async_test_streamingopenplaystop* ptr =
                     (pvplayer_async_test_streamingopenplaystop*)iCurrentTest;
                 ptr->setMultiplePlayMode(2);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingMultipleCloakingPlayUntilEOSTest:
             {
-#if RUN_STREAMING_TESTCASES
-#if RUN_RTSP_CLOAKING_TESTCASES
-                fprintf(file, "StreamingMultipleCloakingPlayUntilEOSTest");
-                iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
-                        PVMF_MIME_YUV420,
-                        PVMF_MIME_PCM16,
-                        iCurrentTestNumber,
-                        false,
-                        false,
-                        true,
-                        true,
-                        false,
-                        false);
-
-                pvplayer_async_test_streamingopenplaystop* ptr =
-                    (pvplayer_async_test_streamingopenplaystop*)iCurrentTest;
-                ptr->setMultiplePlayMode(2);
-#else
                 fprintf(file, "Streaming: cloaking tests not enabled\n");
-#endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingProtocolRollOverTest:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingProtocolRollOverTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4160,14 +3756,10 @@ void pvplayer_engine_test::test()
                         false);
 
                 ((pvplayer_async_test_streamingopenplaystop*)iCurrentTest)->setProtocolRollOverMode();
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingOpenPlayUntilEOSTestWithFileHandle:
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlayUntilEOSTestWithFileHandle");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4180,14 +3772,10 @@ void pvplayer_engine_test::test()
                         false,
                         false,
                         true);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case StreamingProtocolRollOverTestWithUnknownURLType:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingProtocolRollOverTestWithUnknownURLType");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4201,41 +3789,17 @@ void pvplayer_engine_test::test()
                         false);
 
                 ((pvplayer_async_test_streamingopenplaystop*)iCurrentTest)->setProtocolRollOverModeWithUnknownURL();
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingPlayListSeekTest:
             {
-#if RUN_STREAMING_TESTCASES
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                fprintf(file, "StreamingPlayListSeekTest");
-                iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
-                        PVMF_MIME_YUV420,
-                        PVMF_MIME_PCM16,
-                        iCurrentTestNumber,
-                        false,
-                        true,
-                        true,
-                        false,
-                        false,
-                        false);
-
-                ((pvplayer_async_test_streamingopenplaystop*)iCurrentTest)->setPlayListMode();
-#else
                 fprintf(file, "Streaming: playlist tests not enabled\n");
-#endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingSeekAfterEOSTest:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingSeekAfterEOSTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4251,42 +3815,17 @@ void pvplayer_engine_test::test()
                 pvplayer_async_test_streamingopenplaystop* ptr =
                     (pvplayer_async_test_streamingopenplaystop*)iCurrentTest;
                 ptr->setSeekAfterEOSMode();
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingPlayListErrorCodeTest:
             {
-#if RUN_STREAMING_TESTCASES
-#ifndef ONLY_3GPP_STREAMING_FORMAT
-                fprintf(file, "StreamingPlayListErrorCodeTest");
-                iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
-                        PVMF_MIME_YUV420,
-                        PVMF_MIME_PCM16,
-                        iCurrentTestNumber,
-                        false,
-                        true,
-                        true,
-                        false,
-                        false,
-                        false);
-
-                ((pvplayer_async_test_streamingopenplaystop*)iCurrentTest)->setPlayListMode();
-                ((pvplayer_async_test_streamingopenplaystop*)iCurrentTest)->setErrorCodeTest();
-#else
                 fprintf(file, "Streaming: playlist tests not enabled\n");
-#endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case StreamingOpenPlayMultipleSeekToEndOfClipUntilEOSTest:
             {
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingOpenPlayMultipleSeekToEndOfClipUntilEOSTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4300,15 +3839,11 @@ void pvplayer_engine_test::test()
                         false,
                         false,
                         true);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case StreamingLongPauseTest:
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "StreamingLongPauseTest");
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -4322,161 +3857,47 @@ void pvplayer_engine_test::test()
                         false);
 
                 ((pvplayer_async_test_streamingopenplaystop*)iCurrentTest)->setPauseDurationInMS(2*60*1000);
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case DLA_StreamingOpenPlayUntilEOST_JanusCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayUntilEOST_JanusCPMTest");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlayPausePlayUntilEOS_JanusCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayPausePlayUntilEOS_JanusCPMTest");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlaySeekPlayUntilEOS_JanusCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlaySeekPlayUntilEOS_JanusCPMTest");
-                iCurrentTest = new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                        PVMF_MIME_YUV420,
-                        PVMF_MIME_PCM16,
-                        iCurrentTestNumber,
-                        false,
-                        true,
-                        true,
-                        false,
-                        false,
-                        false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingMultiplePlayUntilEOS_JanusCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingMultiplePlayUntilEOS_JanusCPMTest");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false);
-
-                pvplayer_async_test_DLAstreamingopenplaystop* ptr =
-                    (pvplayer_async_test_DLAstreamingopenplaystop*)iCurrentTest;
-                ptr->setMultiplePlayMode(2);
-                fprintf(file, "\nsetMultiplePlayMode\n");
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingProtocolRollOverTest_JanusCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingProtocolRollOverTest_JanusCPMTest");
-                iCurrentTest = new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                        PVMF_MIME_YUV420,
-                        PVMF_MIME_PCM16,
-                        iCurrentTestNumber,
-                        false,
-                        false,
-                        true,
-                        false,
-                        false,
-                        false);
-
-                ((pvplayer_async_test_DLAstreamingopenplaystop*)iCurrentTest)->setProtocolRollOverMode();
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingProtocolRollOverTestWithUnknownURLType_JanusCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingProtocolRollOverTestWithUnknownURLType_JanusCPMTest");
-                iCurrentTest = new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                        PVMF_MIME_YUV420,
-                        PVMF_MIME_PCM16,
-                        iCurrentTestNumber,
-                        false,
-                        false,
-                        true,
-                        false,
-                        false,
-                        false);
-
-                ((pvplayer_async_test_DLAstreamingopenplaystop*)iCurrentTest)->setProtocolRollOverModeWithUnknownURL();
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAcquireLicense_JanusCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAcquireLicense_JanusCPMTest");
-                iCurrentTest = new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                        PVMF_MIME_YUV420,
-                        PVMF_MIME_PCM16,
-                        iCurrentTestNumber,
-                        false,
-                        false,
-                        true,
-                        false,
-                        false,
-                        true);
-
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
@@ -6544,16 +5965,7 @@ void pvplayer_engine_test::test()
 
             case GenericPVMFErrorCorruptReNotified:
             {
-                fprintf(file, "GenericPVMFErrorCorruptReNotified");
-                iCurrentTest =
-                    new pvplayer_async_test_genericpvmferrorcorruptrenotified(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false);
-                pvplayer_async_test_genericpvmferrorcorruptrenotified* ptr =
-                    (pvplayer_async_test_genericpvmferrorcorruptrenotified*)iCurrentTest;
-                OSCL_UNUSED_ARG(ptr);
+                fprintf(file, "GenericPVMFErrorCorruptReNotified test disabled\n");
             }
             break;
 
@@ -6592,7 +6004,7 @@ void pvplayer_engine_test::test()
 
             case DLA_StreamingOpenPlayUntilEOST_JupiterCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJUPITER_TESTCASES
+#if RUN_CPMJUPITER_TESTCASES
                 fprintf(file, "DLA_StreamingOpenPlayUntilEOST_JupiterCPMTest");
                 iCurrentTest =
                     new pvplayer_async_test_jupitercpm_DLAstreamingopenplaystop(testparam,
@@ -6613,7 +6025,7 @@ void pvplayer_engine_test::test()
 
             case DLA_StreamingOpenPlayPausePlayUntilEOS_JupiterCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJUPITER_TESTCASES
+#if RUN_CPMJUPITER_TESTCASES
                 fprintf(file, "DLA_StreamingOpenPlayPausePlayUntilEOS_JupiterCPMTest");
                 iCurrentTest =
                     new pvplayer_async_test_jupitercpm_DLAstreamingopenplaystop(testparam,
@@ -6634,7 +6046,7 @@ void pvplayer_engine_test::test()
 
             case DLA_StreamingOpenPlaySeekPlayUntilEOS_JupiterCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJUPITER_TESTCASES
+#if RUN_CPMJUPITER_TESTCASES
                 fprintf(file, "DLA_StreamingOpenPlaySeekPlayUntilEOS_JupiterCPMTest");
                 iCurrentTest = new pvplayer_async_test_jupitercpm_DLAstreamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -6654,7 +6066,7 @@ void pvplayer_engine_test::test()
 
             case DLA_StreamingMultiplePlayUntilEOS_JupiterCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJUPITER_TESTCASES
+#if RUN_CPMJUPITER_TESTCASES
                 fprintf(file, "DLA_StreamingMultiplePlayUntilEOS_JupiterCPMTest");
                 iCurrentTest =
                     new pvplayer_async_test_jupitercpm_DLAstreamingopenplaystop(testparam,
@@ -6680,7 +6092,7 @@ void pvplayer_engine_test::test()
 
             case DLA_StreamingProtocolRollOverTest_JupiterCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJUPITER_TESTCASES
+#if RUN_CPMJUPITER_TESTCASES
                 fprintf(file, "DLA_StreamingProtocolRollOverTest_JupiterCPMTest");
                 iCurrentTest = new pvplayer_async_test_jupitercpm_DLAstreamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -6702,7 +6114,7 @@ void pvplayer_engine_test::test()
 
             case DLA_StreamingProtocolRollOverTestWithUnknownURLType_JupiterCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJUPITER_TESTCASES
+#if RUN_CPMJUPITER_TESTCASES
                 fprintf(file, "DLA_StreamingProtocolRollOverTestWithUnknownURLType_JupiterCPMTest");
                 iCurrentTest = new pvplayer_async_test_jupitercpm_DLAstreamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -6724,2128 +6136,569 @@ void pvplayer_engine_test::test()
 
             case DLA_StreamingCancelAll_AddDataSource:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_AddDataSource");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ADDDATASOURCE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAll_Init:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_Init");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_INIT1,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAll_LicenseAcquired:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_LicenseAcquired");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ACQUIRELICENSE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAll_AddDataSinkVideo:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_AddDataSinkVideo");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ADDDATASINK_VIDEO,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingCancelAll_AddDataSinkAudio:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_AddDataSinkAudio");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ADDDATASINK_AUDIO,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingCancelAll_Prepare:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_Prepare");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_PREPARE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingCancelAll_Start:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_Start");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_START,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingCancelAll_Pause:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_Pause");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_PAUSE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAll_Resume:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_Resume");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_RESUME,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAll_Stop:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_Stop");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_STOP,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAll_SetPlaybackRange:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAll_SetPlaybackRange");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            true,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_SETPLAYBACKRANGE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAllWhileProc_AddDataSource:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_AddDataSource");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ADDDATASOURCE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAllWhileProc_Init:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_Init");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_INIT1,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingCancelAllWhileProc_LicenseAcquired:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_LicenseAcquired");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ACQUIRELICENSE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingCancelAllWhileProc_AddDataSinkVideo:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_AddDataSinkVideo");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ADDDATASINK_VIDEO,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAllWhileProc_AddDataSinkAudio:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_AddDataSinkAudio");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ADDDATASINK_AUDIO,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAllWhileProc_Prepare:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_Prepare");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_PREPARE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAllWhileProc_Start:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_Start");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_START,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAllWhileProc_Pause:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_Pause");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_PAUSE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAllWhileProc_Resume:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_Resume");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_RESUME,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAllWhileProc_Stop:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_Stop");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_STOP,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingCancelAllWhileProc_SetPlaybackRange:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingCancelAllWhileProc_SetPlaybackRange");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            true,
-                            true,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_SETPLAYBACKRANGE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnect_AddDataSource:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_AddDataSource");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_ADDDATASOURCE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnect_Init:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_Init");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_INIT1,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnect_LicenseAcquired:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_LicenseAcquired");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_ACQUIRELICENSE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnect_AddDataSinkVideo:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_AddDataSinkVideo");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_ADDDATASINK_VIDEO,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnect_AddDataSinkAudio:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_AddDataSinkAudio");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_ADDDATASINK_AUDIO,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnect_Prepare:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_Prepare");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_PREPARE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnect_Start:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_Start");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_START,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnect_Pause:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_Pause");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_PAUSE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnect_Resume:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_Resume");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_RESUME,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnect_Stop:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_Stop");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_STOP,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnect_SetPlaybackRange:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnect_SetPlaybackRange");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            true,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_SETPLAYBACKRANGE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_AddDataSource:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_AddDataSource");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_ADDDATASOURCE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_Init:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_Init");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_INIT1,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_LicenseAcquired:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_LicenseAcquired");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_ACQUIRELICENSE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_AddDataSinkVideo:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_AddDataSinkVideo");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_ADDDATASINK_VIDEO,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_AddDataSinkAudio:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_AddDataSinkAudio");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_ADDDATASINK_AUDIO,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_Prepare:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_Prepare");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_PREPARE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_Start:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_Start");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_START,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_Pause:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_Pause");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_PAUSE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_Resume:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_Resume");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_RESUME,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectWhileProc_Stop:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_Stop");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_STOP,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectWhileProc_SetPlaybackRange:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectWhileProc_SetPlaybackRange");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            true,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnect::STATE_SETPLAYBACKRANGE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectReconnect_AddDataSource:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_AddDataSource");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_ADDDATASOURCE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnect_Init:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_Init");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_INIT1,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnect_LicenseAcquired:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_LicenseAcquired");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_ACQUIRELICENSE, false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnect_AddDataSinkVideo:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_AddDataSinkVideo");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_ADDDATASINK_VIDEO, false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnect_AddDataSinkAudio:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_AddDataSinkAudio");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_ADDDATASINK_AUDIO, false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnect_Prepare:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_Prepare");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_PREPARE, false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnect_Start:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_Start");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_START, false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnect_Pause:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_Pause");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_PAUSE, false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnect_Resume:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_Resume");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_RESUME, false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnect_Stop:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_Stop");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_STOP, false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectReconnect_SetPlaybackRange:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnect_SetPlaybackRange");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            true,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_SETPLAYBACKRANGE, false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSource:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSource");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_ADDDATASOURCE, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_Init:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_Init");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_INIT1, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_LicenseAcquired:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_LicenseAcquired");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_ACQUIRELICENSE, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSinkVideo:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSinkVideo");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_ADDDATASINK_VIDEO, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSinkAudio:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSinkAudio");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_ADDDATASINK_AUDIO, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_Prepare:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_Prepare");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_PREPARE, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_Start:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_Start");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_START, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_Pause:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_Pause");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_PAUSE, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_Resume:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_Resume");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_RESUME, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_Stop:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_Stop");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_STOP, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectReconnectWhileProc_SetPlaybackRange:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectReconnectWhileProc_SetPlaybackRange");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            true,
-                            true,
-                            false,
-                            false, pvplayer_async_test_DLAstreamingnetworkdisconnectreconnect::STATE_SETPLAYBACKRANGE, true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAll_AddDataSource:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_AddDataSource");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_ADDDATASOURCE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAll_Init:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_Init");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_INIT1,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAll_LicenseAcquired:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_LicenseAcquired");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_ACQUIRELICENSE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAll_AddDataSinkVideo:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_AddDataSinkVideo");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_ADDDATASINK_VIDEO,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingNetworkDisconnectCancelAll_AddDataSinkAudio:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_AddDataSinkAudio");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_ADDDATASINK_AUDIO,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingNetworkDisconnectCancelAll_Prepare:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_Prepare");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_PREPARE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingNetworkDisconnectCancelAll_Start:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_Start");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_START,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingNetworkDisconnectCancelAll_Pause:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_Pause");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_PAUSE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAll_Resume:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_Resume");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_RESUME,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAll_Stop:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_Stop");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_STOP,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAll_SetPlaybackRange:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAll_SetPlaybackRange");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            true,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_SETPLAYBACKRANGE,
-                            false);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSource:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSource");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_ADDDATASOURCE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_Init:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_Init");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_INIT1,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_LicenseAcquired:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_LicenseAcquired");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_ACQUIRELICENSE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSinkVideo:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSinkVideo");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_ADDDATASINK_VIDEO,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSinkAudio:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSinkAudio");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_ADDDATASINK_AUDIO,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_Prepare:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_Prepare");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_PREPARE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_Start:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_Start");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_START,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_Pause:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_Pause");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_PAUSE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_Resume:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_Resume");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_RESUME,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_Stop:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_Stop");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_STOP,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
 
             case DLA_StreamingNetworkDisconnectCancelAllWhileProc_SetPlaybackRange:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingNetworkDisconnectCancelAllWhileProc_SetPlaybackRange");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            true,
-                            true,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingnetworkdisconnectcancelall::STATE_SETPLAYBACKRANGE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlayMultiplePauseResumeUntilEOSTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayMultiplePauseResumeUntilEOSTest");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            false);
-                pvplayer_async_test_DLAstreamingopenplaystop* ptr =
-                    (pvplayer_async_test_DLAstreamingopenplaystop*)iCurrentTest;
-                ptr->setMultiplePauseMode(5, 2, 2);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlayMultipleSeekUntilEOSTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayMultipleSeekUntilEOSTest");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            true,
-                            true,
-                            false,
-                            false,
-                            false);
-                pvplayer_async_test_DLAstreamingopenplaystop* ptr =
-                    (pvplayer_async_test_DLAstreamingopenplaystop*)iCurrentTest;
-                ptr->setMultipleSeekMode(SEQUENTIAL_SEEK_INTERVAL, FIRST_SEEK_AFTER_START);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlayStop_SleepAddDataSource:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayStop_SleepAddDataSource");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_CLEANUPANDCOMPLETE,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ADDDATASOURCE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlayStop_SleepInit:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayStop_SleepInit");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_CLEANUPANDCOMPLETE,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_INIT1,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
 
             break;
 
             case DLA_StreamingOpenPlayStop_SleepLicenseAcquired:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayStop_SleepLicenseAcquired");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_CLEANUPANDCOMPLETE,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ACQUIRELICENSE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlayStop_SleepAddDataSinkVideo:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayStop_SleepAddDataSinkVideo");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_CLEANUPANDCOMPLETE,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ADDDATASINK_VIDEO,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlayStop_SleepAddDataSinkAudio:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayStop_SleepAddDataSinkAudio");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_CLEANUPANDCOMPLETE,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_ADDDATASINK_AUDIO,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlayStop_SleepPrepare:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayStop_SleepPrepare");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_CLEANUPANDCOMPLETE,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_PREPARE,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingOpenPlayStop_SleepStop:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJANUS_TESTCASES
-                fprintf(file, "DLA_StreamingOpenPlayStop_SleepStop");
-                iCurrentTest =
-                    new pvplayer_async_test_DLAstreamingopenplaystop(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_CLEANUPANDCOMPLETE,
-                            false,
-                            pvplayer_async_test_DLAstreamingopenplaystop::STATE_STOP,
-                            true);
-#else
                 fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case DLA_StreamingCancelAcquireLicense_JupiterCPMTest:
             {
-#if RUN_STREAMING_TESTCASES && RUN_CPMJUPITER_TESTCASES
+#if RUN_CPMJUPITER_TESTCASES
                 fprintf(file, "DLA_StreamingCancelAcquireLicense_JupiterCPMTest");
                 iCurrentTest = new pvplayer_async_test_jupitercpm_DLAstreamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -8865,7 +6718,6 @@ void pvplayer_engine_test::test()
             break;
 
             case DVBH_StreamingOpenPlayStopTest:
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "DVBH_StreamingOpenPlayStopTest");
                 iCurrentTest = new pvplayer_async_test_dvbh_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -8876,13 +6728,9 @@ void pvplayer_engine_test::test()
                         false,
                         false,
                         false);
-#else
-                fprintf(file, "DVB Streaming tests not enabled\n");
-#endif
                 break;
 
             case DVBH_StreamingOpenPlayUntilEOSTest:
-#if RUN_STREAMING_TESTCASES
                 fprintf(file, "DVBH_StreamingOpenPlayUntilEOSTest");
                 iCurrentTest = new pvplayer_async_test_dvbh_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
@@ -8893,13 +6741,9 @@ void pvplayer_engine_test::test()
                         true,
                         false,
                         false);
-#else
-                fprintf(file, "DVB Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_FILEPLAYBACK_OpenPlayUntilEOFTest:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_FILEPLAYBACK_OpenPlayUntilEOFTest");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -8909,13 +6753,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_FILEPLAYBACK_OpenPlayRepositionPlayStopTest:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_FILEPLAYBACK_OpenPlayRepositionPlayStopTes");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -8925,13 +6765,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_FILEPLAYBACK_OpenPlayPauseRepositionTest:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_FILEPLAYBACK_OpenPlayPauseRepositionTest");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -8941,13 +6777,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_FILEPLAYBACK_OpenPlayVerifyDurationTest:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_FILEPLAYBACK_OpenPlayVerifyDurationTest");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -8957,13 +6789,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_Recorder_RecordOnStartUp:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_Recorder_RecordOnStartUp");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -8973,13 +6801,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_Recorder_RecordOnDemand:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_Recorder_RecordOnDemand");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -8989,13 +6813,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_Recorder_MultiplePause:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_Recorder_MultiplePause");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -9005,13 +6825,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_Recorder_MultiplePauseJTL:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_Recorder_MultiplePauseJTL");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -9021,13 +6837,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_Recorder_MultipleRepos:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_Recorder_MultipleRepos");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -9036,14 +6848,10 @@ void pvplayer_engine_test::test()
                         iCurrentTestNumber);
 #else
                 fprintf(file, "PVR tests not enabled\n");
-#endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
 #endif
                 break;
 
             case PVR_Recorder_MultipleRecord:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_Recorder_MultipleRepos");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -9052,15 +6860,11 @@ void pvplayer_engine_test::test()
                         iCurrentTestNumber);
 #else
                 fprintf(file, "PVR tests not enabled\n");
-#endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
 #endif
                 break;
 
 
             case PVR_MLB_StreamingOpenPlayLivePausePlayStopTest:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_MLB_StreamingOpenPlayLivePausePlayStopTest");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -9070,13 +6874,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_MLB_StreamingOpenPlayLivePausePlaySeekStopTest:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_MLB_StreamingOpenPlayLivePausePlaySeekStopTest");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -9086,13 +6886,9 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_MLB_StreamingOpenPlayLiveBufferBoundaryCheckTest:
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 fprintf(file, "PVR_MLB_StreamingOpenPlayLiveBufferBoundaryCheckTest");
                 iCurrentTest = new pvplayer_async_test_pvr_streamingopenplaystop(testparam,
@@ -9102,15 +6898,11 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case PVR_MLB_StreamingOpenPlayMultipleLivePausePlayTest:
             case PVR_FSLB_StreamingOpenPlayMultipleLivePausePlayTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingOpenPlayMultipleLivePausePlayTest == iCurrentTestNumber)
                 {
@@ -9131,16 +6923,12 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingOpenPlayMultipleLivePauseRandomDurationPlayTest:
             case PVR_FSLB_StreamingOpenPlayMultipleLivePauseRandomDurationPlayTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingOpenPlayMultipleLivePauseRandomDurationPlayTest == iCurrentTestNumber)
                 {
@@ -9162,16 +6950,12 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingOpenPlayLongLivePausePlayTest:
             case PVR_FSLB_StreamingOpenPlayLongLivePausePlayTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingOpenPlayLongLivePausePlayTest == iCurrentTestNumber)
                 {
@@ -9192,16 +6976,12 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingOpenPlayLivePauseStopTest:
             case PVR_FSLB_StreamingOpenPlayLivePauseStopTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingOpenPlayLivePauseStopTest == iCurrentTestNumber)
                 {
@@ -9221,16 +7001,12 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingOpenPauseJumpToLiveStopTest:
             case PVR_FSLB_StreamingOpenPauseJumpToLiveStopTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingOpenPauseJumpToLiveStopTest == iCurrentTestNumber)
                 {
@@ -9251,16 +7027,12 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingOpenPauseResumeJumpToLiveStopTest:
             case PVR_FSLB_StreamingOpenPauseResumeJumpToLiveStopTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingOpenPauseResumeJumpToLiveStopTest == iCurrentTestNumber)
                 {
@@ -9281,16 +7053,12 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingOpenPauseResumeStopTest:
             case PVR_FSLB_StreamingOpenPauseResumeStopTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingOpenPauseResumeStopTest == iCurrentTestNumber)
                 {
@@ -9310,15 +7078,11 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
             case PVR_MLB_StreamingRTSPUrlPauseResumeStopTest:
             case PVR_FSLB_StreamingRTSPUrlPauseResumeStopTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingRTSPUrlPauseResumeStopTest == iCurrentTestNumber)
                 {
@@ -9338,16 +7102,12 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingPauseResumeRepositionStopTest:
             case PVR_FSLB_StreamingPauseResumeRepositionStopTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingPauseResumeRepositionStopTest == iCurrentTestNumber)
                 {
@@ -9367,16 +7127,12 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingPauseRepositionResumeStopTest:
             case PVR_FSLB_StreamingPauseRepositionResumeStopTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingPauseRepositionResumeStopTest == iCurrentTestNumber)
                 {
@@ -9396,9 +7152,6 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
@@ -9406,7 +7159,6 @@ void pvplayer_engine_test::test()
             case PVR_MLB_StreamingOpenPauseJmpToLiveChannelSwitchTest:
             case PVR_FSLB_StreamingOpenPauseJmpToLiveChannelSwitchTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_FSLB_StreamingOpenPauseJmpToLiveChannelSwitchTest == iCurrentTestNumber)
                 {
@@ -9426,16 +7178,12 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingOpenPlayLivePauseWaitForRTSPEOSResumeTest:
             case PVR_FSLB_StreamingOpenPlayLivePauseWaitForRTSPEOSResumeTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingPauseRepositionResumeStopTest == iCurrentTestNumber)
                 {
@@ -9455,15 +7203,11 @@ void pvplayer_engine_test::test()
 #else
                 fprintf(file, "PVR tests not enabled\n");
 #endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
             }
             break;
 
             case PVR_MLB_StreamingBitrateEstimationTest:
             {
-#if RUN_STREAMING_TESTCASES
 #if PVR_SUPPORT
                 if (PVR_MLB_StreamingBitrateEstimationTest == iCurrentTestNumber)
                 {
@@ -9482,9 +7226,6 @@ void pvplayer_engine_test::test()
                 OSCL_UNUSED_ARG(ptr);
 #else
                 fprintf(file, "PVR tests not enabled\n");
-#endif
-#else
-                fprintf(file, "Streaming tests not enabled\n");
 #endif
             }
             break;
@@ -9520,23 +7261,10 @@ void pvplayer_engine_test::test()
                 break;
 
             case OpenPlayStop_MultiCPMTest:
-#if ((RUN_CPMOMA1_DLAPASSTHRU_TESTCASES) && (RUN_CPMJANUS_TESTCASES))
-                iCurrentTest = new pvplayer_async_test_multicpm(testparam,
-                        PVMF_MIME_YUV420,
-                        PVMF_MIME_PCM16,
-                        iCurrentTestNumber,
-                        false,
-                        false,
-                        true);
-
-                ((pvplayer_async_test_multicpm*)iCurrentTest)->setProtocolRollOverMode();
-#else
                 fprintf(file, "Multi CPM tests not enabled\n");
-#endif
                 break;
 
             case StreamingLongPauseSeekTest:
-#if RUN_STREAMING_TESTCASES
                 iCurrentTest = new pvplayer_async_test_streamingopenplaystop(testparam,
                         PVMF_MIME_YUV420,
                         PVMF_MIME_PCM16,
@@ -9550,140 +7278,41 @@ void pvplayer_engine_test::test()
                         false);
                 ((pvplayer_async_test_streamingopenplaystop*)iCurrentTest)->setPauseDurationInMS(2*60*1000);
                 ((pvplayer_async_test_streamingopenplaystop*)iCurrentTest)->setPauseSetPlayBackRangeResumeSequence();
-#else
-                fprintf(file, "Streaming tests not enabled\n");
-#endif
                 break;
 
             case ApplicationInvolvedTrackSelectionTestDefault:
             {
-#if RUN_APP_TRACK_SELECTION_TESTCASES
-                fprintf(file, "ApplicationInvolvedTrackSelectionTest");
-                iCurrentTest =
-                    new pvplayer_async_test_apptrackselection(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false);
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setProtocolRollOverMode();
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setTrackSelectionMode(PVPLAYER_TEST_TRACK_SELECTION_MODE_DEFAULT);
-#else
                 fprintf(file, "ApplicationInvolvedTrackSelectionTestDefault not enabled\n");
-#endif
             }
             break;
 
             case ApplicationInvolvedTrackSelectionTestPassthru:
             {
-#if RUN_APP_TRACK_SELECTION_TESTCASES
-                fprintf(file, "ApplicationInvolvedTrackSelectionTestPassthru");
-                iCurrentTest =
-                    new pvplayer_async_test_apptrackselection(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false);
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setProtocolRollOverMode();
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setTrackSelectionMode(PVPLAYER_TEST_TRACK_SELECTION_MODE_PASSTHRU);
-#else
                 fprintf(file, "ApplicationInvolvedTrackSelectionTestPassthru not enabled\n");
-#endif
             }
             break;
 
             case ApplicationInvolvedTrackSelectionTestAudioOnly:
             {
-#if RUN_APP_TRACK_SELECTION_TESTCASES
-                fprintf(file, "ApplicationInvolvedTrackSelectionTestAudioOnly");
-                iCurrentTest =
-                    new pvplayer_async_test_apptrackselection(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false);
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setProtocolRollOverMode();
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setTrackSelectionMode(PVPLAYER_TEST_TRACK_SELECTION_MODE_AUDIO_ONLY);
-#else
                 fprintf(file, "ApplicationInvolvedTrackSelectionTestAudioOnly not enabled\n");
-#endif
             }
             break;
 
             case ApplicationInvolvedTrackSelectionTestVideoOnly:
             {
-#if RUN_APP_TRACK_SELECTION_TESTCASES
-                fprintf(file, "ApplicationInvolvedTrackSelectionTestVideoOnly");
-                iCurrentTest =
-                    new pvplayer_async_test_apptrackselection(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false);
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setProtocolRollOverMode();
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setTrackSelectionMode(PVPLAYER_TEST_TRACK_SELECTION_MODE_VIDEO_ONLY);
-#else
                 fprintf(file, "ApplicationInvolvedTrackSelectionTestVideoOnly not enabled\n");
-#endif
             }
             break;
 
             case ApplicationInvolvedTrackSelectionTestTextOnly:
             {
-#if RUN_APP_TRACK_SELECTION_TESTCASES
-                fprintf(file, "ApplicationInvolvedTrackSelectionTestTextOnly");
-                iCurrentTest =
-                    new pvplayer_async_test_apptrackselection(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false);
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setProtocolRollOverMode();
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setTrackSelectionMode(PVPLAYER_TEST_TRACK_SELECTION_MODE_TEXT_ONLY);
-#else
                 fprintf(file, "ApplicationInvolvedTrackSelectionTestTextOnly not enabled\n");
-#endif
             }
             break;
 
             case ApplicationInvolvedTrackSelectionTestNoTracks:
             {
-#if RUN_APP_TRACK_SELECTION_TESTCASES
-                fprintf(file, "ApplicationInvolvedTrackSelectionTestNoTracks");
-                iCurrentTest =
-                    new pvplayer_async_test_apptrackselection(testparam,
-                            PVMF_MIME_YUV420,
-                            PVMF_MIME_PCM16,
-                            iCurrentTestNumber,
-                            false,
-                            false,
-                            true,
-                            false,
-                            false);
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setProtocolRollOverMode();
-                ((pvplayer_async_test_apptrackselection*)iCurrentTest)->setTrackSelectionMode(PVPLAYER_TEST_TRACK_SELECTION_MODE_NO_TRACKS);
-#else
                 fprintf(file, "ApplicationInvolvedTrackSelectionTestNoTracks not enabled\n");
-#endif
             }
             break;
 
@@ -9796,94 +7425,94 @@ void pvplayer_engine_test::SetupLoggerScheduler()
             node->AddAppender(appenderPtr);
             node->SetLogLevel(iLogLevel);
             /*
-            		node = PVLogger::GetLoggerObject("PVMFMP4FFParserNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFMP4FFParserNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFAMRFFParserNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFAMRFFParserNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFAACFFParserNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFAACFFParserNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFMP3FFParserNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFMP3FFParserNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFASFParserNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFASFParserNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFVideoDecNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFVideoDecNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFAVCDecNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFAVCDecNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFWmvDecNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFWmvDecNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFGSMAMRDecNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFGSMAMRDecNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFAACDecNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFAACDecNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFMP3DecNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFMP3DecNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFWMADecNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFWMADecNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMFFileOutputNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMFFileOutputNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMediaOutputNode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMediaOutputNode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PVMediaOutputNodePort");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PVMediaOutputNodePort");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PvmfSyncUtil");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PvmfSyncUtil");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("PvmfSyncUtilDataQueue");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("PvmfSyncUtilDataQueue");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
             /*
-            		node = PVLogger::GetLoggerObject("datapath.asfparsernode");
-            		node->AddAppender(appenderPtr);
-            		node->SetLogLevel(iLogLevel);
+                    node = PVLogger::GetLoggerObject("datapath.asfparsernode");
+                    node->AddAppender(appenderPtr);
+                    node->SetLogLevel(iLogLevel);
             */
         }
         break;
@@ -10052,6 +7681,9 @@ void pvplayer_engine_test::SetupLoggerScheduler()
             clocknode = PVLogger::GetLoggerObject("Oscl_File");
             clocknode->AddAppender(appenderPtr);
             clocknode->SetLogLevel(PVLOGMSG_DEBUG);
+            clocknode = PVLogger::GetLoggerObject("OsclFileCache");
+            clocknode->AddAppender(appenderPtr);
+            clocknode->SetLogLevel(PVLOGMSG_DEBUG);
             clocknode = PVLogger::GetLoggerObject("OsclNativeFile");
             clocknode->AddAppender(appenderPtr);
             clocknode->SetLogLevel(PVLOGMSG_DEBUG);
@@ -10067,6 +7699,7 @@ void pvplayer_engine_test::SetupLoggerScheduler()
             clocknode->SetLogLevel(PVLOGMSG_DEBUG + 1);
         }
         break;
+#if RUN_CPMJUPITER_TESTCASES
         case 13://-logjupiter
         {
             //jupiter debugging.
@@ -10111,44 +7744,7 @@ void pvplayer_engine_test::SetupLoggerScheduler()
             loggernode->SetLogLevel(PVLOGMSG_DEBUG);
         }
         break;
-        case 14://-logjanus
-        {
-            //janus debugging.
-            PVLogger *loggernode;
-            loggernode = PVLogger::GetLoggerObject("PVDrmManager");
-            loggernode->AddAppender(appenderPtr);
-            loggernode->SetLogLevel(PVLOGMSG_DEBUG);
-            loggernode = PVLogger::GetLoggerObject("PVWMDRM");
-            loggernode->AddAppender(appenderPtr);
-            loggernode->SetLogLevel(PVLOGMSG_DEBUG);
-            //loggernode->SetLogLevel(PVLOGMSG_DEBUG+1);//for ChkDR and Oem time logging
-            loggernode = PVLogger::GetLoggerObject("PVMFJanusPlugin");
-            loggernode->AddAppender(appenderPtr);
-            loggernode->SetLogLevel(PVLOGMSG_DEBUG);
-            /*
-            loggernode = PVLogger::GetLoggerObject("PVMFJanusPluginLocalSyncAccessInterfaceImpl");
-            loggernode->AddAppender(appenderPtr);
-            loggernode->SetLogLevel(PVLOGMSG_DEBUG);
-            */
-            loggernode = PVLogger::GetLoggerObject("HTTPRequest");
-            loggernode->AddAppender(appenderPtr);
-            loggernode->SetLogLevel(PVLOGMSG_DEBUG);
-            /*
-            loggernode = PVLogger::GetLoggerObject("oscldns");
-            loggernode->AddAppender(appenderPtr);
-            loggernode->SetLogLevel(PVLOGMSG_DEBUG);
-            loggernode = PVLogger::GetLoggerObject("osclsocket");
-            loggernode->AddAppender(appenderPtr);
-            loggernode->SetLogLevel(PVLOGMSG_DEBUG);
-            loggernode = PVLogger::GetLoggerObject("osclsocketserv");
-            loggernode->AddAppender(appenderPtr);
-            loggernode->SetLogLevel(PVLOGMSG_DEBUG);
-            loggernode = PVLogger::GetLoggerObject("osclsocket_serv");
-            loggernode->AddAppender(appenderPtr);
-            loggernode->SetLogLevel(PVLOGMSG_DEBUG);
-            */
-        }
-        break;
+#endif
         case 15://-logperfmin
         {
             //minimal scheduler perf logging

@@ -21,71 +21,69 @@
 00023 <span class="preprocessor">#include "<a class="code" href="oscl__types_8h.html">oscl_types.h</a>"</span>
 00024 <span class="preprocessor">#include "<a class="code" href="osclconfig__check_8h.html">osclconfig_check.h</a>"</span>
 00025 
-00026 <span class="preprocessor">#ifdef USE_CML2_CONFIG</span>
-00027 <span class="preprocessor"></span><span class="preprocessor">#include "pv_config.h"</span>
-00028 <span class="preprocessor">#endif</span>
-00029 <span class="preprocessor"></span>
-00030 <span class="comment">//singleton support derives from global var support.</span>
-<a name="l00031"></a><a class="code" href="group__osclbase.html#a79">00031</a> <span class="preprocessor">#define OSCL_HAS_SINGLETON_SUPPORT 1</span>
+00026 <span class="preprocessor">#include "pv_config.h"</span>
+00027 
+00028 <span class="comment">//singleton support derives from global var support.</span>
+<a name="l00029"></a><a class="code" href="group__osclbase.html#a79">00029</a> <span class="preprocessor">#define OSCL_HAS_SINGLETON_SUPPORT 1</span>
+00030 <span class="preprocessor"></span>
+00031 <span class="preprocessor">#ifdef __cplusplus</span>
 00032 <span class="preprocessor"></span>
-00033 <span class="preprocessor">#ifdef __cplusplus</span>
-00034 <span class="preprocessor"></span>
-00035 <span class="keyword">class </span><a class="code" href="classOsclLockBase.html">OsclLockBase</a>;
-00036 
-00037 <span class="keyword">class </span>OsclBase
-00038 {
-00039     <span class="keyword">public</span>:
-00054         OSCL_IMPORT_REF <span class="keyword">static</span> int32 Init();
-00055 
-00062         OSCL_IMPORT_REF <span class="keyword">static</span> int32 Cleanup();
-00063 };
-00064 
-00070 <span class="keyword">enum</span> TPVBaseErrorEnum
-00071 {
-00072     EPVErrorBaseNotInstalled = 1
-00073     , EPVErrorBaseAlreadyInstalled = 2
-00074     , EPVErrorBaseOutOfMemory = 3
-00075     , EPVErrorBaseSystemCallFailed = 4
-00076     , EPVErrorBaseTooManyThreads = 5
-00077 };
+00033 <span class="keyword">class </span><a class="code" href="classOsclLockBase.html">OsclLockBase</a>;
+00034 
+00035 <span class="keyword">class </span>OsclBase
+00036 {
+00037     <span class="keyword">public</span>:
+00052         OSCL_IMPORT_REF <span class="keyword">static</span> int32 Init();
+00053 
+00060         OSCL_IMPORT_REF <span class="keyword">static</span> int32 Cleanup();
+00061 };
+00062 
+00068 <span class="keyword">enum</span> TPVBaseErrorEnum
+00069 {
+00070     EPVErrorBaseNotInstalled = 1
+00071     , EPVErrorBaseAlreadyInstalled = 2
+00072     , EPVErrorBaseOutOfMemory = 3
+00073     , EPVErrorBaseSystemCallFailed = 4
+00074     , EPVErrorBaseTooManyThreads = 5
+00075 };
+00076 
+00077 <span class="preprocessor">#include "<a class="code" href="oscl__lock__base_8h.html">oscl_lock_base.h</a>"</span>
 00078 
-00079 <span class="preprocessor">#include "<a class="code" href="oscl__lock__base_8h.html">oscl_lock_base.h</a>"</span>
-00080 
-00086 <span class="preprocessor">#if (OSCL_HAS_BASIC_LOCK)</span>
-00087 <span class="preprocessor"></span><span class="keyword">class </span>_OsclBasicLock : <span class="keyword">public</span> <a class="code" href="classOsclLockBase.html">OsclLockBase</a>
-00088 {
-00089     <span class="keyword">public</span>:
-00090 
-00094         OSCL_IMPORT_REF _OsclBasicLock();
-00095 
-00099         OSCL_IMPORT_REF ~_OsclBasicLock();
-00100 
-00105         OSCL_IMPORT_REF <span class="keywordtype">void</span> <a class="code" href="classOsclLockBase.html#a0">Lock</a>();
-00106 
-00111         OSCL_IMPORT_REF <span class="keywordtype">void</span> <a class="code" href="classOsclLockBase.html#a1">Unlock</a>();
-00112 
-00113 
-00117         int32 iError;
-00118 
-00119     <span class="keyword">private</span>:
-00120         TOsclBasicLockObject    ObjLock;
-00121 
-00122 };
-00123 <span class="preprocessor">#else</span>
-00124 <span class="preprocessor"></span><span class="keyword">typedef</span> <a class="code" href="classOsclNullLock.html">OsclNullLock</a> _OsclBasicLock;
-00125 <span class="preprocessor">#endif</span>
+00084 <span class="preprocessor">#if (OSCL_HAS_BASIC_LOCK)</span>
+00085 <span class="preprocessor"></span><span class="keyword">class </span>_OsclBasicLock : <span class="keyword">public</span> <a class="code" href="classOsclLockBase.html">OsclLockBase</a>
+00086 {
+00087     <span class="keyword">public</span>:
+00088 
+00092         OSCL_IMPORT_REF _OsclBasicLock();
+00093 
+00097         OSCL_IMPORT_REF ~_OsclBasicLock();
+00098 
+00103         OSCL_IMPORT_REF <span class="keywordtype">void</span> <a class="code" href="classOsclLockBase.html#a0">Lock</a>();
+00104 
+00109         OSCL_IMPORT_REF <span class="keywordtype">void</span> <a class="code" href="classOsclLockBase.html#a1">Unlock</a>();
+00110 
+00111 
+00115         int32 iError;
+00116 
+00117     <span class="keyword">private</span>:
+00118         TOsclBasicLockObject    ObjLock;
+00119 
+00120 };
+00121 <span class="preprocessor">#else</span>
+00122 <span class="preprocessor"></span><span class="keyword">typedef</span> <a class="code" href="classOsclNullLock.html">OsclNullLock</a> _OsclBasicLock;
+00123 <span class="preprocessor">#endif</span>
+00124 <span class="preprocessor"></span>
+00125 <span class="preprocessor">#else</span>
 00126 <span class="preprocessor"></span>
-00127 <span class="preprocessor">#else</span>
-00128 <span class="preprocessor"></span>
-00136 <span class="keywordtype">void</span> <a class="code" href="group__osclbase.html#a36">PVOsclBase_Init</a>();
-00137 
-00143 <span class="keywordtype">void</span> <a class="code" href="group__osclbase.html#a37">PVOsclBase_Cleanup</a>();
-00144 
-00145 <span class="preprocessor">#endif</span>
-00146 <span class="preprocessor"></span>
-00149 <span class="preprocessor">#endif  // OSCL_BASE_H_INCLUDED</span>
+00134 <span class="keywordtype">void</span> <a class="code" href="group__osclbase.html#a36">PVOsclBase_Init</a>();
+00135 
+00141 <span class="keywordtype">void</span> <a class="code" href="group__osclbase.html#a37">PVOsclBase_Cleanup</a>();
+00142 
+00143 <span class="preprocessor">#endif</span>
+00144 <span class="preprocessor"></span>
+00147 <span class="preprocessor">#endif  // OSCL_BASE_H_INCLUDED</span>
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

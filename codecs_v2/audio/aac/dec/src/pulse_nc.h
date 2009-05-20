@@ -17,16 +17,7 @@
  */
 /*
 
- Pathname: pulse_nc.h
-
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Pass in max as input argument.
-
- Who:						Date:
- Description:
+ Filename: pulse_nc.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -39,8 +30,8 @@
 /*----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
-#ifndef	PULSE_NC_H
-#define	PULSE_NC_H
+#ifndef PULSE_NC_H
+#define PULSE_NC_H
 
 /*----------------------------------------------------------------------------
 ; INCLUDES
@@ -90,7 +81,7 @@ extern "C"
         Int16        coef[],
         const PulseInfo  *pPulseInfo,
         const FrameInfo  *pLongFrameInfo,
-        Int		 *max);
+        Int      *max);
 
 #ifdef __cplusplus
 }

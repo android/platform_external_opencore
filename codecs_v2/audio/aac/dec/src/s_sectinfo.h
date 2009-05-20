@@ -17,14 +17,7 @@
  */
 /*
 
- Pathname: ./include/s_SectInfo.h
-
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: s_sectinfo.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

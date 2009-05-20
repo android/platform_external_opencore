@@ -16,15 +16,7 @@
  * -------------------------------------------------------------------
  */
 /*
- Pathname: ./include/bit_reversal_swap.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Changed definitions from Int to Int32 for Data[]
-
- Who:                       Date:
- Description:
+ Filename: bit_reversal_swap.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -38,8 +30,8 @@
 /*----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
-#ifndef	BIT_REVERSAL_SWAP_H
-#define	BIT_REVERSAL_SWAP_H
+#ifndef BIT_REVERSAL_SWAP_H
+#define BIT_REVERSAL_SWAP_H
 
 /*----------------------------------------------------------------------------
 ; INCLUDES
@@ -90,4 +82,4 @@ void bit_reversal_swap(
 /*----------------------------------------------------------------------------
 ; END
 ----------------------------------------------------------------------------*/
-#endif	/* BIT_REVERSAL_SWAP_H */
+#endif  /* BIT_REVERSAL_SWAP_H */

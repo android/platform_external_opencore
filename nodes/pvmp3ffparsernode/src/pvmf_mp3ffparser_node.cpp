@@ -194,12 +194,6 @@ PVMFMP3FFParserNode::~PVMFMP3FFParserNode()
         RemoveFromScheduler();
     }
 
-    if (iDurationCalcAO)
-    {
-        OSCL_DELETE(iDurationCalcAO);
-        iDurationCalcAO = NULL;
-    }
-
     // Unbind the download progress clock
     iDownloadProgressClock.Unbind();
     // Release the download progress interface, if any
@@ -706,7 +700,7 @@ void PVMFMP3FFParserNode::CompleteInit(PVMFStatus aStatus)
     {
         if (!iSubNodeCmdVec.empty())
         {
-            iSubNodeCmdVec.front().iSubNodeContainer->CommandDone(PVMFSuccess, NULL, NULL);
+            iSubNodeCmdVec.front().iSubNodeContainer->CommandDone(aStatus, NULL, NULL);
         }
         else
         {
@@ -1137,7 +1131,7 @@ PVMFStatus PVMFMP3FFParserNode::DoInit(PVMFMP3FFParserNodeCommand& aCmd)
             }
 
             // enable the duration scanner for local playback only
-            if (!iDataStreamFactory)
+            if (!iDataStreamFactory && !iDurationCalcAO)
             {
                 int32 leavecode = 0;
                 OSCL_TRY(leavecode, iDurationCalcAO = OSCL_NEW(PVMp3DurationCalculator,
@@ -1325,7 +1319,7 @@ PVMFStatus PVMFMP3FFParserNode::DoFlush(PVMFMP3FFParserNodeCommand& aCmd)
             iInputCommands.Erase(&aCmd);
 
             // Notify all ports to suspend their input
-            for (uint32 index = 0;index < iPortVector.size();index++)
+            for (uint32 index = 0; index < iPortVector.size(); index++)
             {
                 iPortVector[index]->SuspendInput();
             }
@@ -1753,6 +1747,10 @@ void PVMFMP3FFParserNode::Run()
                 }
             }
             LOGINFO((0, "PVMFMP3FFParserNode::Run() CheckForMP3HeaderAvailability() failed %d", cmdStatus));
+        }
+        else if (PVMFFailure == cmdStatus)
+        {
+            CompleteInit(cmdStatus);
         }
         return;
     }
@@ -2460,14 +2458,14 @@ PVMFStatus PVMFMP3FFParserNode::ParseFile()
 
     if (mp3Err == MP3_INSUFFICIENT_DATA)
     {
-        return PVMFPending;
+        return PVMFErrUnderflow;
     }
     else if (mp3Err == MP3_END_OF_FILE ||
              mp3Err != MP3_SUCCESS)
     {
         SetState(EPVMFNodeError);
         ReportErrorEvent(PVMFErrResource);
-        return PVMFErrUnderflow;
+        return PVMFFailure;
     }
 
     // Find out what the largest frame in the file is. This information is used
@@ -2563,10 +2561,17 @@ void PVMFMP3FFParserNode::ReleaseTrack()
  */
 void PVMFMP3FFParserNode::CleanupFileSource()
 {
-    if (iDurationCalcAO && iDurationCalcAO->IsBusy())
+    if (iDurationCalcAO)
     {
-        iDurationCalcAO->Cancel();
+        if (iDurationCalcAO->IsBusy())
+        {
+            iDurationCalcAO->Cancel();
+        }
+
+        OSCL_DELETE(iDurationCalcAO);
+        iDurationCalcAO = NULL;
     }
+
     if (iMP3File)
     {
         OSCL_DELETE(iMP3File);
@@ -3895,6 +3900,10 @@ OSCL_EXPORT_REF void PVMFCPMContainerMp3::CPMCommandCompleted(const PVMFCmdResp&
                 //if CPM comes back as PVMFErrNotSupported then by pass rest of the CPM
                 //sequence. Fake success here so that node doesnt treat this as an error
                 status = iContainer->CheckForMP3HeaderAvailability();
+                if (status == PVMFPending)
+                {
+                    return;
+                }
             }
             else if (status == PVMFSuccess)
             {
@@ -4277,7 +4286,7 @@ PVMFStatus PVMFMP3FFParserNode::PushBackCPMMetadataKeys(PVMFMetadataList *&aKeyL
 {
     int32 leavecode = 0;
     OSCL_TRY(leavecode, aKeyListPtr->push_back(iCPMMetadataKeys[aLcv]));
-    OSCL_FIRST_CATCH_ANY(leavecode, PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFMP3FFParserNode::CompleteGetMetadataKeys() Memory allocation failure when copying metadata key"));return PVMFErrNoMemory);
+    OSCL_FIRST_CATCH_ANY(leavecode, PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFMP3FFParserNode::CompleteGetMetadataKeys() Memory allocation failure when copying metadata key")); return PVMFErrNoMemory);
     return PVMFSuccess;
 }
 

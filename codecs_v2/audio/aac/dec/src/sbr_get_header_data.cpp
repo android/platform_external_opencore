@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_get_header_data.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_get_header_data.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -92,7 +85,7 @@ Copyright (c) ISO/IEC 2002.
 
 
 #include    "sbr_get_header_data.h"
-#include	"sbr_constants.h"
+#include    "sbr_constants.h"
 #include    "buf_getbits.h"
 #include    "aac_mem_funcs.h"
 
@@ -133,7 +126,7 @@ Copyright (c) ISO/IEC 2002.
 ----------------------------------------------------------------------------*/
 
 SBR_HEADER_STATUS sbr_get_header_data(SBR_HEADER_DATA   * h_sbr_header,
-                                      BIT_BUFFER		  * hBitBuf,
+                                      BIT_BUFFER          * hBitBuf,
                                       SBR_SYNC_STATE     syncState)
 {
     SBR_HEADER_DATA lastHeader;

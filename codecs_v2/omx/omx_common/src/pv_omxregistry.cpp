@@ -31,9 +31,6 @@
 #include "pv_omxcore.h"
 
 // pv_omxregistry.h is only needed if NOT using CML2
-#ifndef USE_CML2_CONFIG
-#include "pv_omxregistry.h"
-#endif
 
 
 // Use default DLL entry point
@@ -111,7 +108,7 @@ OMX_ERRORTYPE Mpeg4Register()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_m4vdec_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_m4vdec_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -175,7 +172,7 @@ OMX_ERRORTYPE H263Register()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_m4vdec_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_m4vdec_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -236,7 +233,7 @@ OMX_ERRORTYPE AvcRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_avcdec_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_avcdec_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -296,7 +293,7 @@ OMX_ERRORTYPE WmvRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_wmvdec_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_wmvdec_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -356,7 +353,7 @@ OMX_ERRORTYPE AacRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_aacdec_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_aacdec_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -420,7 +417,7 @@ OMX_ERRORTYPE AmrRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_amrdec_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_amrdec_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -483,7 +480,7 @@ OMX_ERRORTYPE Mp3Register()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_mp3dec_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_mp3dec_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -545,7 +542,7 @@ OMX_ERRORTYPE WmaRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_wmadec_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_wmadec_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -607,7 +604,7 @@ OMX_ERRORTYPE AmrEncRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_amrenc_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_amrenc_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -670,7 +667,7 @@ OMX_ERRORTYPE Mpeg4EncRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_m4venc_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_m4venc_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -732,7 +729,7 @@ OMX_ERRORTYPE H263EncRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_m4venc_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_m4venc_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -796,7 +793,7 @@ OMX_ERRORTYPE AvcEncRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_avcenc_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_avcenc_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));
@@ -860,7 +857,7 @@ OMX_ERRORTYPE AacEncRegister()
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
         pCRT->FunctionPtrCreateComponent = &OmxComponentFactoryDynamicCreate;
         pCRT->FunctionPtrDestroyComponent = &OmxComponentFactoryDynamicDestructor;
-        pCRT->SharedLibraryName = (OMX_STRING)"libomx_aacenc_sharedlibrary.so";
+        pCRT->SharedLibraryName = (OMX_STRING)"libomx_aacenc_sharedlibrary";
         pCRT->SharedLibraryPtr = NULL;
 
         OsclUuid *temp = (OsclUuid *) oscl_malloc(sizeof(OsclUuid));

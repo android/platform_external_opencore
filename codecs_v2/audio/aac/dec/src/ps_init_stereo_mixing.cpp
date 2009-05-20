@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: ps_init_stereo_mixing.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: ps_init_stereo_mixing.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

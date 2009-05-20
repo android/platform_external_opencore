@@ -17,15 +17,8 @@
  */
 /*
 
- Pathname: pns_corr.h
+ Filename: pns_corr.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Made changes per review comments.
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

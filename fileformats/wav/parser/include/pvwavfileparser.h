@@ -64,8 +64,8 @@ typedef struct
     uint16 BytesPerSample;  // takes into account byte alignment
     uint32 SampleRate;
     uint32 ByteRate;
-    uint32 NumSamples;	// Total number of Samples
-    bool isLittleEndian;	// 1 if data is little endian and 0 if it is big endian
+    uint32 NumSamples;  // Total number of Samples
+    bool isLittleEndian;    // 1 if data is little endian and 0 if it is big endian
 } PVWAVFileInfo;
 
 enum PVWavParserReturnCode
@@ -105,7 +105,7 @@ class PV_Wav_Parser
         //}
 
         // Will parse WAVE File
-        OSCL_IMPORT_REF PVWavParserReturnCode InitWavParser(OSCL_wString& aClip, Oscl_FileServer* aFileSession);
+        OSCL_IMPORT_REF PVWavParserReturnCode InitWavParser(OSCL_wString& aClip, Oscl_FileServer* aFileSession, OsclFileHandle* aFileHandle = NULL);
 
         // Returns number of samples copied to the buffer
         OSCL_IMPORT_REF PVWavParserReturnCode GetPCMData(uint8* inBuff, uint32 inBufSize, uint32 NumberOfSamples, uint32& NumSamplesRead);
@@ -130,7 +130,7 @@ class PV_Wav_Parser
         uint16 BlockAlign;
         uint16 BitsPerSample;
         uint16 BytesPerSample;
-        bool isLittleEndian;	// 1 if data is little endian and 0 if it is big endian
+        bool isLittleEndian;    // 1 if data is little endian and 0 if it is big endian
 
         short *xLawTable;
 

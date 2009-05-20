@@ -54,6 +54,7 @@ HDRS := oscl_file_dir_utils.h \
 	oscl_file_find.h \
 	oscl_file_handle.h \
 	oscl_file_io.h \
+        oscl_file_cache.h \
 	oscl_file_server.h \
 	oscl_socket.h \
 	oscl_socket_types.h \

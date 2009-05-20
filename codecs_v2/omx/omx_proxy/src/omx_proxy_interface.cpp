@@ -51,6 +51,33 @@
 #define MAX_SIZE_OF_OMX_PROXY_MSG 256
 
 
+#if (PV_OMX_LOGGER_OUTPUT)
+
+#include "pvlogger_time_and_id_layout.h"
+#include "pvlogger_file_appender.h"
+#include "pvlogger_stderr_appender.h"
+
+#ifdef ANDROID
+#define OMXLOGPATHNAME_PREPEND_WSTRING _STRLIT_WCHAR("/sdcard/")
+#else
+#define OMXLOGPATHNAME_PREPEND_WSTRING _STRLIT_WCHAR("")
+#endif
+
+#define OMXLOGFILENAME_PREPEND_WSTRING _STRLIT_WCHAR("omxlog_");
+
+template<class DestructClass>
+class LogAppenderDestructDealloc : public OsclDestructDealloc
+{
+    public:
+        void destruct_and_dealloc(OsclAny *ptr)
+        {
+            delete((DestructClass*)ptr);
+        }
+};
+
+#endif  //PV_OMX_LOGGER_OUTPUT
+
+
 /**********************
 PROXY APP CLASS FUNCTIONS
 ***********************/
@@ -829,7 +856,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE OMX_APIENTRY GlobalProxyComponentGetHandle(
     OMX_IN  OMX_STRING cComponentName,
     OMX_IN  OMX_PTR pAppData,
     OMX_IN  OMX_CALLBACKTYPE* pCallBacks,
-    OMX_IN	OMX_PTR	pProxy)
+    OMX_IN  OMX_PTR pProxy)
 {
     OMX_ERRORTYPE ErrorType = OMX_ErrorNone;
     int32 error;
@@ -850,6 +877,45 @@ OSCL_EXPORT_REF OMX_ERRORTYPE OMX_APIENTRY GlobalProxyComponentGetHandle(
         {
             if (!oscl_strcmp(data->ipRegTemplateList[ii]->ComponentName, cComponentName))
             {
+#if (PV_OMX_LOGGER_OUTPUT)
+
+                OMX_U32 InstanceNumber = data->iNumBaseInstance;
+
+                char InstanceChar[2];
+                oscl_snprintf(InstanceChar, 2, "%d", InstanceNumber);
+
+                OMX_U8* CompRolePtr = (OMX_U8*) oscl_strchr((char*)data->ipRegTemplateList[ii]->RoleString[0], '.');
+                CompRolePtr++;
+
+                OSCL_wHeapString<OsclMemAllocator> logfilename;
+                logfilename = OMXLOGPATHNAME_PREPEND_WSTRING;
+                logfilename += OMXLOGFILENAME_PREPEND_WSTRING;
+
+                while (CompRolePtr[0] != '\0')
+                {
+                    logfilename += (oscl_wchar) CompRolePtr[0];
+                    CompRolePtr++;
+                }
+
+                logfilename += _STRLIT_WCHAR("_");
+                logfilename += (oscl_wchar) InstanceChar[0];
+                logfilename += _STRLIT_WCHAR(".txt");
+
+                PVLoggerAppender *appender = NULL;
+
+                //create appender using the selected filename.
+                appender = TextFileAppender<TimeAndIdLayout, 1024>::CreateAppender((OSCL_TCHAR*)logfilename.get_cstr());
+                OsclRefCounterSA<LogAppenderDestructDealloc<TextFileAppender<TimeAndIdLayout, 1024> > > *appenderRefCounter =
+                    new OsclRefCounterSA<LogAppenderDestructDealloc<TextFileAppender<TimeAndIdLayout, 1024> > >(appender);
+
+                //Set logging options.
+                OsclSharedPtr<PVLoggerAppender> appenderPtr(appender, appenderRefCounter);
+                PVLogger *rootnode = PVLogger::GetLoggerObject("");
+                rootnode->AddAppender(appenderPtr);
+                rootnode->SetLogLevel(PVLOGMSG_DEBUG);
+
+#endif  //PV_OMX_LOGGER_OUTPUT
+
                 // found a matching name
                 // call the factory for the component
                 OMX_STRING aOmxLibName = data->ipRegTemplateList[ii]->SharedLibraryName;

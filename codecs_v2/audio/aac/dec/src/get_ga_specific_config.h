@@ -17,16 +17,8 @@
  */
 /*
 
- Pathname: get_GA_specific_config.h
+ Filename: get_ga_specific_config.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: (1) use enum type for audioObjectType
-              (2) update revision history
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

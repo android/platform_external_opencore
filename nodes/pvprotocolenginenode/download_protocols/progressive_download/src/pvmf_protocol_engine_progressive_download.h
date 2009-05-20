@@ -77,6 +77,8 @@ class ProgressiveDownloadState_GET : public DownloadState
         OSCL_IMPORT_REF int32 processMicroStateGetResponsePreCheck();
         OSCL_IMPORT_REF virtual bool setHeaderFields();
         OSCL_IMPORT_REF bool setRangeHeaderFields();
+        OSCL_IMPORT_REF bool setIfUnmodifiedSinceHeaderFields();
+        OSCL_IMPORT_REF bool UpdateUnmodifiedSinceDate();
         // From HttpParsingBasicObjectObserver
         OSCL_IMPORT_REF int32 OutputDataAvailable(OUTPUT_DATA_QUEUE *aOutputQueue, const bool isHttpHeader);
         OSCL_IMPORT_REF void updateOutputDataQueue(OUTPUT_DATA_QUEUE *aOutputQueue);
@@ -98,6 +100,7 @@ class ProgressiveDownloadState_GET : public DownloadState
         OSCL_IMPORT_REF int32 checkContentInfoMatchingForResumeDownload();
         OSCL_IMPORT_REF virtual int32 checkParsingStatus(int32 parsingStatus);
         OSCL_IMPORT_REF int32 updateDownloadStatistics();
+
 
     protected:
         bool iSendEndOfMessageTruncate;

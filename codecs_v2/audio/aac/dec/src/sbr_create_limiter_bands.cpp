@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_create_limiter_bands.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_create_limiter_bands.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -87,7 +80,7 @@ Copyright (c) ISO/IEC 2002.
 
 #include    "sbr_create_limiter_bands.h"
 #include    "shellsort.h"
-#include	"s_patch.h"
+#include    "s_patch.h"
 #include    "pv_log2.h"
 
 #include "fxp_mul32.h"

@@ -5,11 +5,15 @@ LOCAL_SRC_FILES := \
 	src/alloc_dealloc_test.cpp \
  	src/av_duplicate_test.cpp \
  	src/test_engine.cpp \
+ 	src/test_engine_utility.cpp \
+ 	src/engine_test.cpp \
  	src/init_cancel_test.cpp \
  	src/init_test.cpp \
  	src/test_base.cpp \
+ 	src/pv_2way_unittest_source_and_sinks.cpp \
  	src/../../pvlogger/src/pv_logger_impl.cpp \
  	src/av_test.cpp \
+ 	src/acceptable_formats_test.cpp \
  	src/connect_cancel_test.cpp \
  	src/connect_test.cpp \
  	src/audio_only_test.cpp \
@@ -23,14 +27,17 @@ LOCAL_CFLAGS := -DPV_USE_AMR_CODECS $(PV_CFLAGS)
 
 
 
-LOCAL_STATIC_LIBRARIES :=               libunit_test 
+LOCAL_STATIC_LIBRARIES :=            libunit_test 
 
-LOCAL_SHARED_LIBRARIES := libopencore_2way               libopencore_common
+LOCAL_SHARED_LIBRARIES := libopencore_2way            libopencore_common
 
 LOCAL_C_INCLUDES := \
 	$(PV_TOP)/engines/2way/test/src \
  	$(PV_TOP)/engines/2way/test/include \
  	$(PV_TOP)/engines/2way/pvlogger/src \
+ 	$(PV_TOP)/engines/2way/sample_app/pv2waysample/include \
+ 	$(PV_TOP)/nodes/pvdummyinputnode/include \
+ 	$(PV_TOP)/engines/2way/include \
  	$(PV_INCLUDES)
 
 LOCAL_COPY_HEADERS_TO := $(PV_COPY_HEADERS_TO)

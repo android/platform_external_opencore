@@ -16,8 +16,8 @@
  * -------------------------------------------------------------------
  */
 /**
-	@file omx_mpeg4enc_component.h
-	OpenMax encoder_component component.
+    @file omx_mpeg4enc_component.h
+    OpenMax encoder_component component.
 
 */
 
@@ -33,7 +33,7 @@
 #endif
 
 
-#define INPUT_BUFFER_SIZE_MP4ENC 38016			//(176 * 144 * 1.5) for YUV 420 format.
+#define INPUT_BUFFER_SIZE_MP4ENC 38016          //(176 * 144 * 1.5) for YUV 420 format.
 #define OUTPUT_BUFFER_SIZE_MP4ENC 8192
 
 
@@ -55,7 +55,7 @@ class OmxComponentMpeg4EncAO : public OmxComponentVideo
         OMX_ERRORTYPE ComponentInit();
         OMX_ERRORTYPE ComponentDeInit();
 
-        static void ComponentGetRolesOfComponent(OMX_STRING* aRoleString);
+
 
         void SetEncoderMode(OMX_S32 aMode);
         void ProcessInBufferFlag();
@@ -72,13 +72,13 @@ class OmxComponentMpeg4EncAO : public OmxComponentVideo
         OMX_BOOL CopyDataToOutputBuffer();
 
         Mpeg4Encoder_OMX* ipMpegEncoderObject;
-        OMX_S32			  iEncMode;
+        OMX_S32           iEncMode;
 
-        OMX_BOOL		  iBufferOverRun;
-        OMX_U8*			  ipInternalOutBuffer;
-        OMX_U32			  iInternalOutBufFilledLen;
-        OMX_TICKS		  iOutputTimeStamp;
-        OMX_BOOL		  iSyncFlag;
+        OMX_BOOL          iBufferOverRun;
+        OMX_U8*           ipInternalOutBuffer;
+        OMX_U32           iInternalOutBufFilledLen;
+        OMX_TICKS         iOutputTimeStamp;
+        OMX_BOOL          iSyncFlag;
 };
 
 #endif // OMX_MPEG4ENC_COMPONENT_H_INCLUDED

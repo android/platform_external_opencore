@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: ps_hybrid_synthesis.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: ps_hybrid_synthesis.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

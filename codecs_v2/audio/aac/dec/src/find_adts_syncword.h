@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ./include/find_adts_syncword.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: find_adts_syncword.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

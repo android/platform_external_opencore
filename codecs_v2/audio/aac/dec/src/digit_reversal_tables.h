@@ -17,14 +17,7 @@
  */
 /*
 
- Pathname: ./include/DIGIT_REVERSAL_TABLES.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                   Date:
- Description:
+ Filename: digit_reversal_tables.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

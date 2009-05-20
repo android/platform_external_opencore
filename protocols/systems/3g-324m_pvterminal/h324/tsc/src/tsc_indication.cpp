@@ -162,8 +162,9 @@ uint32 TSC_324m::VendorIdRecv(PS_ControlMsgHeader  pReceiveInf)
                                 (0, "TSC_324m: Vendor Id - %s\n",
                                  pVendorIdentification->vendor.object->data));
             }
-            iVendorR = new TPVH245VendorObjectIdentifier((uint8*)pVendorIdentification->vendor.object->data,
-                    pVendorIdentification->vendor.object->size);
+            iVendorR = OSCL_NEW(TPVH245VendorObjectIdentifier,
+                                ((uint8*)pVendorIdentification->vendor.object->data,
+                                 pVendorIdentification->vendor.object->size));
         }
         else
         {
@@ -175,9 +176,10 @@ uint32 TSC_324m::VendorIdRecv(PS_ControlMsgHeader  pReceiveInf)
     }
     else if (pVendorIdentification->vendor.index == 1) // H221NonStandard
     {
-        iVendorR = new TPVVendorH221NonStandard(pVendorIdentification->vendor.h221NonStandard->t35CountryCode,
-                                                pVendorIdentification->vendor.h221NonStandard->t35Extension,
-                                                pVendorIdentification->vendor.h221NonStandard->manufacturerCode);
+        iVendorR = OSCL_NEW(TPVVendorH221NonStandard,
+                            (pVendorIdentification->vendor.h221NonStandard->t35CountryCode,
+                             pVendorIdentification->vendor.h221NonStandard->t35Extension,
+                             pVendorIdentification->vendor.h221NonStandard->manufacturerCode));
     }
     else
     {
@@ -237,7 +239,7 @@ uint32 TSC_324m::VendorIdRecv(PS_ControlMsgHeader  pReceiveInf)
 //-----------------------------------------------------------------------------
 void TSC_324m::Tsc_UII_DTMF(uint8 dtmf_value, uint16 dtmf_duration)
 {
-    S_ControlMsgHeader			 infHeader;
+    S_ControlMsgHeader           infHeader;
     PS_UserInputIndication       pUserInputIndication;
 
     // Allocate the UII structure
@@ -273,7 +275,7 @@ void TSC_324m::Tsc_UII_DTMF(uint8 dtmf_value, uint16 dtmf_duration)
 
 void TSC_324m::Tsc_UII_Alphanumeric(const uint8* str, uint16 str_len)
 {
-    S_ControlMsgHeader			 infHeader;
+    S_ControlMsgHeader           infHeader;
     PS_UserInputIndication       pUserInputIndication;
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "TSC_324m:Tsc_UII_Alphanumeric - len(%d)", str_len));

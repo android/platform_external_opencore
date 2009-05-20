@@ -544,9 +544,7 @@ PVLogger needs to be initialized once per thread. This creates the PVLogger sing
 
 <p>
 This method determines if a msg passed to the logging control point is active or not. Only messages that are deemed active are logged. Messages are considered not active if any of the following criteria are met:<ul>
-<li>All logging is disabled at this logging control point</ul>
-If all the log levels, leading upto the root log point are uninitialized<ul>
-<li>If the log level of the incoming message is LESS THAN that of the active log level of the logging control point.</ul>
+<li>All logging is disabled at this logging control point<li>If all the log levels, leading upto the root log point are uninitialized<li>If the log level of the incoming message is LESS THAN that of the active log level of the logging control point.</ul>
 <dl compact><dt><b>Returns: </b></dt><dd>
 BOOL </dl>    </td>
   </tr>
@@ -927,7 +925,7 @@ NONE </dl>    </td>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="pvlogger_8h-source.html">pvlogger.h</a></ul>
 <hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

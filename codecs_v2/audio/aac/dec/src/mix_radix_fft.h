@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: mix_radix_fft.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                   Date:
- Description:
+ Filename: mix_radix_fft.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

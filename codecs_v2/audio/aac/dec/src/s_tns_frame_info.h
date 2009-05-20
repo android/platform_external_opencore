@@ -17,39 +17,7 @@
  */
 /*
 
- Pathname: s_TNS_frame_info.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Modified to eliminate triple-nested structure, which wasted
- 2 KB of memory.
-
- Description:
- (1) Modified to include the lines...
-
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-
-    #ifdef __cplusplus
-    }
-    #endif
-
- (2) Updated the copyright header.
-
- Description:
- (1) Changed hard coded size of arrays from "8" to "TNS_MAX_WIN"
- (2) Moved elements from s_TNSinfo.h up to the level of TNS_frame_info
- (3) Added Bool "tns_data_present" for future use.
- (4) Moved lpc_coef up from s_TNSfilt.h (allowed for use of smaller array.)
-
- Description:
- (1) Removed the array "coef_res", which is now a local variable on the
- stack inside get_tns.c
-
- Who:                       Date:
- Description:
+ Filename: s_tns_frame_info.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

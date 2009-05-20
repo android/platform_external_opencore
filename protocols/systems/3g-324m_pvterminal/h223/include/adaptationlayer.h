@@ -254,22 +254,26 @@ class AdaptationLayerAlloc
             {
                 case 1:
                     ptr = OSCL_DEFAULT_MALLOC(sizeof(AdaptationLayer1));
-                    al = new(ptr)AdaptationLayer1(dir, sdu_size, max_num_sdus);
+                    al = OSCL_PLACEMENT_NEW(ptr, AdaptationLayer1(dir,
+                                            sdu_size, max_num_sdus));
                     break;
                 case 2:
                     ptr = OSCL_DEFAULT_MALLOC(sizeof(AdaptationLayer2));
-                    al = new(ptr)AdaptationLayer2(dir, sdu_size, max_num_sdus, (hint ? true : false));
+                    al = OSCL_PLACEMENT_NEW(ptr, AdaptationLayer2(dir,
+                                            sdu_size, max_num_sdus, (hint ? true : false)));
                     break;
                 case 3:
                     ptr = OSCL_DEFAULT_MALLOC(sizeof(AdaptationLayer3));
-                    al = new(ptr)AdaptationLayer3(dir, sdu_size, max_num_sdus, hint);
+                    al = OSCL_PLACEMENT_NEW(ptr, AdaptationLayer3(dir,
+                                            sdu_size, max_num_sdus, hint));
                     break;
                 default:
                     OSCL_LEAVE(OsclFailure);
             }
             al->Construct();
-            OsclRefCounterSA<Oscl_TAlloc<AdaptationLayer, BasicAlloc> > *alRefCounter =
-                new OsclRefCounterSA<Oscl_TAlloc<AdaptationLayer, BasicAlloc> >(ptr);
+            typedef OsclRefCounterSA<Oscl_TAlloc<AdaptationLayer, BasicAlloc> > RefCounterType;
+            RefCounterType *alRefCounter =
+                OSCL_NEW(RefCounterType, (ptr));
 
             OsclSharedPtr<AdaptationLayer> alPtr(al, alRefCounter);
 

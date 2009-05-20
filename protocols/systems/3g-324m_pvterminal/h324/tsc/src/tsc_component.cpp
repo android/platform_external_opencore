@@ -70,7 +70,7 @@ TSC_component::TSC_component(TSC_statemanager& aTSCStateManager,
         iIncomingChannelConfig(NULL),
         iTSCObserver(NULL),
         iTSCchannelcontrol(iOlcs, aTSCStateManager, aTSCblc,
-                           aTSCmt, aTSClc, aTSCcapability, aTSCclc, *this)
+                           aTSCmt, aTSClc, aTSCcapability, aTSCclc, this)
 {
     iLogger = PVLogger::GetLoggerObject("3g324m.h245user");
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
@@ -155,6 +155,7 @@ void TSC_component::ResetTsc()
         OSCL_DELETE(iWaitingForOblcTimer);
         iWaitingForOblcTimer = NULL;
     }
+    iTSCchannelcontrol.Reset();
 }
 
 void TSC_component::Disconnect()
@@ -174,7 +175,7 @@ CPVMultiplexEntryDescriptor* TSC_component::GenerateSingleDescriptor(uint8 entry
     h245_desc->elementList =
         (PS_MultiplexElement)OSCL_DEFAULT_MALLOC(sizeof(S_MultiplexElement));
 
-    PS_MultiplexElement elem = 	h245_desc->elementList;
+    PS_MultiplexElement elem =  h245_desc->elementList;
     elem->muxType.index = 0; // logical channel = 0, 1 = sub-elem list
     elem->muxType.logicalChannelNumber = (uint16)lcn1;
     elem->muxType.size = 1; // size of element list
@@ -327,7 +328,7 @@ bool TSC_component::CEStart()
     mux_cap_info.iMaximumAl3SDUSize = iH223->GetSduSize(INCOMING, E_EP_HIGH);
     Oscl_Vector<CodecCapabilityInfo*, OsclMemAllocator> outgoing_codecs;
     Oscl_Vector<CodecCapabilityInfo*, OsclMemAllocator> incoming_codecs;
-    for (unsigned n = 0;n < iIncomingChannelConfig->size();n++)
+    for (unsigned n = 0; n < iIncomingChannelConfig->size(); n++)
     {
         Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator>* codecs =
             (*iIncomingChannelConfig)[n].GetCodecs();
@@ -338,20 +339,20 @@ bool TSC_component::CEStart()
                              (*iIncomingChannelConfig)[n].GetMediaType()));
             continue;
         }
-        for (unsigned m = 0;m < codecs->size();m++)
+        for (unsigned m = 0; m < codecs->size(); m++)
         {
             CodecCapabilityInfo* info = NULL;
             PVCodecType_t codec_type = PVMFFormatTypeToPVCodecType((*codecs)[m].format);
             TPVDirection dir = (*codecs)[m].dir;
             if (GetMediaType(codec_type) == PV_VIDEO)
             {
-                info = new VideoCodecCapabilityInfo;
+                info = OSCL_NEW(VideoCodecCapabilityInfo, ());
                 ((VideoCodecCapabilityInfo*)info)->resolutions =
                     iTSCcapability.GetResolutions(dir);
             }
             else
             {
-                info = new CodecCapabilityInfo;
+                info = OSCL_NEW(CodecCapabilityInfo, ());
             }
             info->codec = codec_type;
             info->dir = dir;
@@ -370,9 +371,9 @@ bool TSC_component::CEStart()
     CE* Ce = iH245->GetCE();
     if (Ce) Ce->TransferRequest(iLocalTcs);
 
-    for (unsigned i = 0;i < incoming_codecs.size();i++)
+    for (unsigned i = 0; i < incoming_codecs.size(); i++)
     {
-        delete incoming_codecs[i];
+        OSCL_DELETE(incoming_codecs[i]);
     }
     return true;
 }
@@ -398,14 +399,6 @@ TPVStatusCode TSC_component::SetTerminalParam(CPVTerminalParam& params)
     return EPVT_Success;
 }
 
-void TSC_component::GetTerminalParam(CPVH324MParam& ah324param)
-{
-    ah324param.iAllowAl1Video = iAllowAl1Video ? true : false;
-    ah324param.iAllowAl2Video = iAllowAl2Video ? true : false;
-    ah324param.iAllowAl3Video = iAllowAl3Video ? true : false;
-    ah324param.iVideoLayer = iVideoLayer;
-}
-
 bool TSC_component::IsSupported(TPVDirection dir,
                                 PVCodecType_t codec,
                                 FormatCapabilityInfo& capability_info)
@@ -426,7 +419,7 @@ bool TSC_component::IsSupported(TPVDirection dir,
                         (0, "TSC_component::IsSupported No config available"));
         return false;
     }
-    for (unsigned n = 0;n < config->size();n++)
+    for (unsigned n = 0; n < config->size(); n++)
     {
         H324ChannelParameters& param = (*config)[n];
         if (param.GetMediaType() != GetMediaType(codec))
@@ -438,7 +431,7 @@ bool TSC_component::IsSupported(TPVDirection dir,
                             (0, "TSC_component::IsSupported No codecs specified"));
             return false;
         }
-        for (unsigned m = 0;m < codecs->size();m++)
+        for (unsigned m = 0; m < codecs->size(); m++)
         {
             if ((*codecs)[m].format == PVCodecTypeToPVMFFormatType(codec))
             {
@@ -474,7 +467,7 @@ bool TSC_component::IsSupported(TPVDirection dir,
                         (0, "TSC_component::IsSupported No config available"));
         return false;
     }
-    for (unsigned n = 0;n < config->size();n++)
+    for (unsigned n = 0; n < config->size(); n++)
     {
         H324ChannelParameters& param = (*config)[n];
         if (param.GetMediaType() != media_type)
@@ -495,7 +488,7 @@ bool TSC_component::IsSupported(TPVDirection dir,
     return false;
 }
 ////////////////////////////////////////////////////////////////////////////
-// ExtractTcsParameters()						(RAN-32K)
+// ExtractTcsParameters()                       (RAN-32K)
 //
 // This routine takes the incoming TerminalCapabilitySet
 //   and extracts the following useful parameters:
@@ -585,7 +578,7 @@ void TSC_component::CETransferIndication(OsclSharedPtr<S_TerminalCapabilitySet> 
 // SetAl2Al3VideoFlags()                              (RAN)
 //
 // New API from application layer.  Sets the flags as follows:
-//   INPUT		gAllowAl2Video		gAllowAl3Video
+//   INPUT      gAllowAl2Video      gAllowAl3Video
 //     0               ON                 OFF
 //     1               OFF                ON
 //     2               ON                 ON
@@ -1142,7 +1135,7 @@ PVMFStatus TSC_component::VerifyReverseParameters(PS_ForwardReverseParam forRevP
         ::GetFormatSpecificInfo(&forRevParams->reverseLogicalChannelParameters.dataType,
                                 decodeConfigInfoOblc);
     // get the outgoing FSI if any
-    for (unsigned n = 0;n < iOutgoingChannelConfig->size();n++)
+    for (unsigned n = 0; n < iOutgoingChannelConfig->size(); n++)
     {
         PV2WayMediaType channelMediaType = (*iOutgoingChannelConfig)[n].GetMediaType();
         if (channelMediaType != media_type)
@@ -1158,7 +1151,7 @@ PVMFStatus TSC_component::VerifyReverseParameters(PS_ForwardReverseParam forRevP
                              channelMediaType));
             continue;
         }
-        for (unsigned m = 0;m < formats->size();m++)
+        for (unsigned m = 0; m < formats->size(); m++)
         {
             PVCodecType_t codec_type_outgoing = PVMFFormatTypeToPVCodecType((*formats)[m].format);
             if (codec_type_outgoing != codec)
@@ -1191,7 +1184,7 @@ PVMFStatus TSC_component::ValidateOlcsWithTcs()
         return PVMFSuccess;
     /* Set symmetry info in the codecs */
     unsigned n = 0;
-    for (n = 0;n < incoming_codecs.size();n++)
+    for (n = 0; n < incoming_codecs.size(); n++)
     {
         PV2WayMediaType media_type = GetMediaType(incoming_codecs[n].iCodec);
         incoming_codecs[n].isSymmetric = iOlcs.IsSymmetric(media_type,
@@ -1212,7 +1205,7 @@ PVMFStatus TSC_component::ValidateOlcsWithTcs()
                           OLC_PENDING | OLC_ESTABLISHED, PV_DIRECTION_BOTH, outgoing_codecs))
         return PVMFSuccess;
     /* Set symmetry info in the codecs */
-    for (n = 0;n < outgoing_codecs.size();n++)
+    for (n = 0; n < outgoing_codecs.size(); n++)
     {
         PV2WayMediaType media_type = GetMediaType(outgoing_codecs[n].iCodec);
         outgoing_codecs[n].isSymmetric = iOlcs.IsSymmetric(media_type,
@@ -1323,7 +1316,8 @@ void TSC_component::SetOutgoingChannelConfig(Oscl_Vector<H324ChannelParameters, 
         OSCL_DELETE(iOutgoingChannelConfig);
         iOutgoingChannelConfig = NULL;
     }
-    iOutgoingChannelConfig = new Oscl_Vector<H324ChannelParameters, PVMFTscAlloc>(out_channel_config);
+    typedef Oscl_Vector<H324ChannelParameters, PVMFTscAlloc> channelConfigType;
+    iOutgoingChannelConfig = OSCL_NEW(channelConfigType, (out_channel_config));
 
 }
 
@@ -1336,7 +1330,8 @@ void TSC_component::SetIncomingChannelConfig(Oscl_Vector<H324ChannelParameters, 
         OSCL_DELETE(iIncomingChannelConfig);
         iIncomingChannelConfig = NULL;
     }
-    iIncomingChannelConfig = new Oscl_Vector<H324ChannelParameters, PVMFTscAlloc>(in_channel_config);
+    typedef Oscl_Vector<H324ChannelParameters, PVMFTscAlloc> channelConfigType;
+    iIncomingChannelConfig = OSCL_NEW(channelConfigType, (in_channel_config));
 }
 
 /*****************************************************************************/
@@ -1678,31 +1673,33 @@ uint32 TSC_component::BlcRlsIdc(PS_ControlMsgHeader  pReceiveInf)
     return(PhaseE_Comm);
 }
 
-OsclAny TSC_component::MuxTableSendComplete(uint32 sn, PVMFStatus status)
+OsclAny TSC_component::MuxTableSendComplete(uint32 sn, uint32 mux_number, PVMFStatus status)
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "TSC::MuxTableSendComplete sn(%d), status(%d)", sn, status));
-    if (!iTSCmt.MuxTableSendComplete(sn))
+    if (iTSCmt.PendingMuxTable() != sn)
     {
         return;
     }
     Oscl_Vector<OlcParam*, OsclMemAllocator> olc_list;
     unsigned num_pending = iOlcs.FindOutgoingOlcsByMtState(MT_PENDING, olc_list);
-    for (unsigned lcn = 0;lcn < num_pending;lcn++)
+    for (unsigned lcn = 0; lcn < num_pending; lcn++)
     {
-        //OSCL_ASSERT(olc_list[lcn]->GetMtSn()==sn);
-        olc_list[lcn]->SetMtState(status == PVMFSuccess ? MT_COMPLETE : MT_RELEASED);
-        if (olc_list[lcn]->GetState() == OLC_ESTABLISHED)
+        if (olc_list[lcn]->GetMtNum() == mux_number)
         {
-            CheckOutgoingChannel(olc_list[lcn], status);
-        }
-        else
-        {
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_WARNING,
-                            (0, "TSC_component::MuxTableSendComplete Mux table completed, but channel still pending. channel id=(%d)", olc_list[lcn]->GetChannelId()));
+            olc_list[lcn]->SetMtState(status == PVMFSuccess ? MT_COMPLETE : MT_RELEASED);
+            if (olc_list[lcn]->GetState() == OLC_ESTABLISHED)
+            {
+                CheckOutgoingChannel(olc_list[lcn], status);
+            }
+            break;
         }
     }
     iTSCmt.ReleaseMuxTables();
+    if (iOlcs.FindOutgoingOlcsByMtState(MT_PENDING, olc_list) == 0)
+    {
+        iTSCmt.ClearPendingMuxTable();
+    }
 }
 
 // ===============================================================
@@ -1759,12 +1756,11 @@ void TSC_component::Connect2()
 }
 
 // =======================================================
-// ClipCodecs()									(RAN-32K)
+// ClipCodecs()                                 (RAN-32K)
 //
 // This one reconciles the desired outgoing codecs with the
 //   capabilities of the remote terminal.  The outgoing
-//   codecs have been specified by the application via calls
-//   to pH324.SetVideoType(), pH324.SetAudioType().  The
+//   codecs have been specified by the application, stack, engine.  The
 //   remote terminal capabilities from the received
 //   TerminalCapabilitySet are passed in (pTcs).
 // If insufficient capabilities are found, the routine will
@@ -1790,7 +1786,7 @@ OsclAny TSC_component::ClipCodecs(PS_TerminalCapabilitySet pTcs)
     }
     PS_CapabilityDescriptor pCapDesc = NULL;
     PS_AlternativeCapabilitySet pAltCapSet = NULL;
-    for (unsigned i = 0;i < pTcs->size_of_capabilityDescriptors;++i)
+    for (unsigned i = 0; i < pTcs->size_of_capabilityDescriptors; ++i)
     {
         pCapDesc = pTcs->capabilityDescriptors + i;
         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
@@ -1807,7 +1803,7 @@ OsclAny TSC_component::ClipCodecs(PS_TerminalCapabilitySet pTcs)
                             (0, "TSC_component::ClipCodecs - descriptor(%d),size_of_simultaneousCapabilities does not match num channels(%d)", i, iOutgoingChannelConfig->size()));
         }
 
-        for (unsigned j = 0;j < pCapDesc->size_of_simultaneousCapabilities;++j)
+        for (unsigned j = 0; j < pCapDesc->size_of_simultaneousCapabilities; ++j)
         {
             bool txOnly = true;
             pAltCapSet = pCapDesc->simultaneousCapabilities + j;
@@ -1882,7 +1878,7 @@ OsclAny TSC_component::ClipCodecs(PS_TerminalCapabilitySet pTcs)
                              i, pCapDesc->size_of_simultaneousCapabilities));
             Deallocate(iOutCodecList);
             iOutCodecList = codec_list;
-            for (unsigned num = 0;num < iOutCodecList.size();num++)
+            for (unsigned num = 0; num < iOutCodecList.size(); num++)
             {
                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                                 (0, "TSC_component::ClipCodecs Selected codec(%d)=%d",
@@ -2137,7 +2133,7 @@ void TSC_component::RemoveOlc(TPVDirection dir, TPVChannelId lcn)
 
     if (iter != iOlcs.end())
     {
-        delete(*iter).second;
+        OSCL_DELETE((*iter).second);
         iOlcs.erase(iter);
     }
 }

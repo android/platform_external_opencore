@@ -9,10 +9,7 @@ TARGET := pvmp3ff
 
 XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 
-
-
-
-
+XINCDIRS:= ../../../../../common/parser/include
 
 SRCDIR := ../../src
 INCSRCDIR := ../../include
@@ -21,7 +18,7 @@ SRCS := \
 	imp3ff.cpp \
 	mp3fileio.cpp \
 	mp3parser.cpp \
-	mp3utils.cpp 
+	mp3utils.cpp
 
 HDRS := \
 	imp3ff.h \

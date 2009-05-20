@@ -16,8 +16,8 @@
  * -------------------------------------------------------------------
  */
 /**
-	@file omx_Avc_component.h
-	OpenMax decoder_component component.
+    @file omx_Avc_component.h
+    OpenMax decoder_component component.
 
 */
 
@@ -42,7 +42,8 @@
 
 #define NAL_START_CODE_SIZE 4
 
-#define OUTPUT_BUFFER_SIZE_AVC 65536
+//qcif - output 176*144*3/2
+#define OUTPUT_BUFFER_SIZE_AVC 38016
 
 #define NUMBER_INPUT_BUFFER_AVC  10
 #define NUMBER_OUTPUT_BUFFER_AVC  2
@@ -61,7 +62,7 @@ class OpenmaxAvcAO : public OmxComponentVideo
         OMX_ERRORTYPE ComponentInit();
         OMX_ERRORTYPE ComponentDeInit();
 
-        static void ComponentGetRolesOfComponent(OMX_STRING* aRoleString);
+
 
         void ComponentBufferMgmtWithoutMarker();
         OMX_BOOL ParseFullAVCFramesIntoNALs(OMX_BUFFERHEADERTYPE* aInputBuffer);
@@ -78,7 +79,7 @@ class OpenmaxAvcAO : public OmxComponentVideo
     private:
 
         AvcDecoder_OMX* ipAvcDec;
-        OMX_BOOL				iDecodeReturn;
+        OMX_BOOL                iDecodeReturn;
 
         // variables for "frame" mode i.e. iOMXComponentNeedsFullAVCFrames is turned on
         OMX_U32 iNALSizeArray[MAX_NAL_PER_FRAME]; // 100 should be more than enough NALs per frame

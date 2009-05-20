@@ -18,14 +18,7 @@
 /*
 
  Filename: sbr_generate_high_freq.h
- Funtions:
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 ------------------------------------------------------------------------------
 SC 29 Software Copyright Licencing Disclaimer:
 

@@ -33,6 +33,10 @@
 #include "pv_player_datasourceurl.h"
 #endif
 
+#ifndef PVMF_LOCAL_DAT_SOURCE_H_INCLUDED
+#include "pvmf_local_data_source.h"
+#endif
+
 #ifndef PVMF_NODE_INTERFACE_H_INCLUDED
 #include "pvmf_node_interface.h"
 #endif
@@ -61,6 +65,15 @@
 #include "pvmf_source_context_data.h"
 #endif
 
+#ifndef PVMI_EXTERNAL_DOWNLOAD_EXTENSION_INTERFACES_H_INCLUDED
+#include "pvmi_external_download_extension_interfaces.h"
+#endif
+
+#if RUN_PVNETWORK_DOWNLOAD_TESTCASES
+#include "http_download.h"
+#include "pvmi_external_download_file_monitor.h"
+#endif
+
 #define INDEX_CODEC_SPECIFIC_INFO_UNDEFINED -1
 #define INDEX_CODEC_SPECIFIC_INFO_AUDIO 1
 #define INDEX_CODEC_SPECIFIC_INFO_VIDEO 2
@@ -69,7 +82,7 @@
 
 /* Specifically added for ASF file format where we need to get the codec-specific-info which
    is defined in pvmf_asfffparser_defs.h
-   However, this file can be included but as these are common engine test cases	and some
+   However, this file can be included but as these are common engine test cases and some
    other parsernode\parser library may use these test cases and in that case it will give
    the error "asfparserdefs.h cannot be opened" as it is not in that parsernode\parserlibrary
    code.
@@ -100,7 +113,7 @@ class PvmiCapabilityAndConfig;
  *             -# GetMetadataKeys()
  *             -# GetMetadataValues()
  *             -# Print out the metadata list
- *			   -# ReleaseMetadataValues()
+ *             -# ReleaseMetadataValues()
  *             -# AddDataSink() (video)
  *             -# AddDataSink() (audio)
  *             -# AddDataSink() (text)
@@ -110,12 +123,12 @@ class PvmiCapabilityAndConfig;
  *             -# GetMetadataKeys()
  *             -# GetMetadataValues()
  *             -# Print out the metadata list
- *			   -# ReleaseMetadataValues()
+ *             -# ReleaseMetadataValues()
  *             -# Stop()
  *             -# GetMetadataKeys()
  *             -# GetMetadataValues()
  *             -# Print out the metadata list
- *			   -# ReleaseMetadataValues()
+ *             -# ReleaseMetadataValues()
  *             -# RemoveDataSink() (video)
  *             -# RemoveDataSink() (audio)
  *             -# RemoveDataSink() (text)
@@ -375,7 +388,12 @@ class pvplayer_async_test_printmemstats : public pvplayer_async_test_base
  *             -# DeletePlayer()
  *
  */
-class pvplayer_async_test_playuntileos : public pvplayer_async_test_base
+class PVMIExternalDownloadDataStreamInterfaceFactory;
+class PVMIExternalDownloadSimulator;
+#define PV_EXTERNAL_DOWNLOAD_SIM_DEFAULT_DOWNLOAD_RATE_IN_KBPS 32
+
+class pvplayer_async_test_playuntileos : public pvplayer_async_test_base,
+        public PVMIExternalDownloadSizeObserver
 {
     public:
         pvplayer_async_test_playuntileos(PVPlayerAsyncTestParam aTestParam):
@@ -393,8 +411,14 @@ class pvplayer_async_test_playuntileos : public pvplayer_async_test_base
                 , iMIOFileOutText(NULL)
                 , iCurrentCmdId(0)
                 , iSourceContextData(NULL)
+                , iExternalDownload(false)
+                , iDownloadComplete(false)
+                , iDownloadRateInKbps(0)
+                , iDSFactory(NULL)
+                , iDownloadSim(NULL)
         {
             iTestCaseName = _STRLIT_CHAR("Play Until EOS");
+            iSimulateMultiProcessDownload = false;
         }
 
         ~pvplayer_async_test_playuntileos() {}
@@ -405,6 +429,24 @@ class pvplayer_async_test_playuntileos : public pvplayer_async_test_base
         void CommandCompleted(const PVCmdResponse& aResponse);
         void HandleErrorEvent(const PVAsyncErrorEvent& aEvent);
         void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
+
+        void EnableExternalDownload(uint32 aRate)
+        {
+            iTestCaseName = _STRLIT_CHAR("External Download - Play Until EOS");
+            iExternalDownload = true;
+            iDownloadRateInKbps = aRate;
+            iDownloadComplete = false;
+        }
+
+        void EnableMultiProcessExternalDownload()
+        {
+            iTestCaseName = _STRLIT_CHAR("External Download (Using FileMonitor) - Play Until EOS");
+            iExternalDownload = true;
+            iSimulateMultiProcessDownload = true;
+            iDownloadComplete = false;
+        }
+
+        void DownloadUpdate(uint32 aLatestFileSizeInBytes, bool aDownloadComplete) {};
 
         enum PVTestState
         {
@@ -449,6 +491,23 @@ class pvplayer_async_test_playuntileos : public pvplayer_async_test_base
         OSCL_wHeapString<OsclMemAllocator> iDownloadFilename;
         OSCL_HeapString<OsclMemAllocator> iDownloadProxy;
         OSCL_wHeapString<OsclMemAllocator> iDownloadConfigFilename;
+
+        //external download
+        bool iExternalDownload;
+        bool iDownloadComplete;
+        //external download - using download sim
+        uint32 iDownloadRateInKbps;
+        PVMIExternalDownloadDataStreamInterfaceFactory* iDSFactory;
+        PVMIExternalDownloadSimulator* iDownloadSim;
+        bool iSimulateMultiProcessDownload;
+
+#if RUN_PVNETWORK_DOWNLOAD_TESTCASES
+        //external download - using pvnetwork
+        HTTPDownload iDownloadBackEnd;
+        //external download - for usecases where download is happenning
+        //in a different process space
+        PVMIExternalDownloadFileMonitor iPollingDownloadBackend;
+#endif
 };
 
 // Structure CodecSpecificInfo stores the codecSpecificInfoIndex,
@@ -459,6 +518,136 @@ struct CodecSpecificInfo
     int32 CodecSpecificInfoIndex;
     int32 MetadataKeyIndex;
     int32 ValueIndex;
+};
+
+
+/*!
+ *  A test case to test playback of specified source with file output media IO node till EOS. Prints out the playback position
+ *  player engine sends playback status events
+ *  - Data Source:  External FileHandle is passed as DataSource
+ *  - Data Sink(s): Video[File Output MediaIO Interface Node-test_player_playuntileos_%SOURCEFILENAME%_video.dat]\n
+ *                  Audio[File Output MediaIO Interface Node-test_player_playuntileos_%SOURCEFILENAME%_audio.dat]\n
+ *                  Text[File Output MediaIO Interface Node-test_player_playuntileos_%SOURCEFILENAME%_text.dat]
+ *  - Sequence:
+ *             -# CreatePlayer()
+ *             -# AddDataSource()
+ *             -# Init()
+ *             -# AddDataSink() (video)
+ *             -# AddDataSink() (audio)
+ *             -# AddDataSink() (text)
+ *             -# Prepare()
+ *             -# Start()
+ *             -# WAIT FOR EOS EVENT
+ *             -# Stop()
+ *             -# RemoveDataSink() (video)
+ *             -# RemoveDataSink() (audio)
+ *             -# RemoveDataSink() (text)
+ *             -# Reset()
+ *             -# RemoveDataSource()
+ *             -# DeletePlayer()
+ *
+ */
+class pvplayer_async_test_playuntileos_using_external_file_handle : public pvplayer_async_test_base
+{
+    public:
+        pvplayer_async_test_playuntileos_using_external_file_handle(PVPlayerAsyncTestParam aTestParam):
+                pvplayer_async_test_base(aTestParam)
+                , iPlayer(NULL)
+                , iDataSource(NULL)
+                , iLocalDataSource(NULL)
+                , iDataSinkVideo(NULL)
+                , iDataSinkAudio(NULL)
+                , iDataSinkText(NULL)
+                , iIONodeVideo(NULL)
+                , iIONodeAudio(NULL)
+                , iIONodeText(NULL)
+                , iMIOFileOutVideo(NULL)
+                , iMIOFileOutAudio(NULL)
+                , iMIOFileOutText(NULL)
+                , iCurrentCmdId(0)
+                , iSourceContextData(NULL)
+                , iFile(NULL)
+                , iPlayerCapConfigIF(NULL)
+                , iErrorKVP(NULL)
+        {
+            iTestCaseName = _STRLIT_CHAR("Play Until EOS Using External File Handle");
+            iFileServ.Connect();
+            iFile = OSCL_NEW(Oscl_File, ());
+        }
+
+        ~pvplayer_async_test_playuntileos_using_external_file_handle()
+        {
+            if (iFile)
+            {
+                OSCL_DELETE(iFile);
+                iFile = NULL;
+            }
+
+            if (iLocalDataSource)
+            {
+                OSCL_DELETE(iLocalDataSource);
+                iLocalDataSource = NULL;
+            }
+
+            iFileServ.Close();
+        }
+
+        void StartTest();
+        void Run();
+
+        void CommandCompleted(const PVCmdResponse& aResponse);
+        void HandleErrorEvent(const PVAsyncErrorEvent& aEvent);
+        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
+
+        enum PVTestState
+        {
+            STATE_CREATE,
+            STATE_QUERYINTERFACE,
+            STATE_ADDDATASOURCE,
+            STATE_INIT,
+            STATE_ADDDATASINK_VIDEO,
+            STATE_ADDDATASINK_AUDIO,
+            STATE_ADDDATASINK_TEXT,
+            STATE_PREPARE,
+            STATE_START,
+            STATE_EOSNOTREACHED,
+            STATE_STOP,
+            STATE_REMOVEDATASINK_VIDEO,
+            STATE_REMOVEDATASINK_AUDIO,
+            STATE_REMOVEDATASINK_TEXT,
+            STATE_RESET,
+            STATE_REMOVEDATASOURCE,
+            STATE_CLEANUPANDCOMPLETE
+        };
+
+        PVTestState iState;
+
+        PVPlayerInterface* iPlayer;
+        PVPlayerDataSourceURL* iDataSource;
+        PVMFLocalDataSource* iLocalDataSource;
+        PVPlayerDataSink* iDataSinkVideo;
+        PVPlayerDataSink* iDataSinkAudio;
+        PVPlayerDataSink* iDataSinkText;
+        PVMFNodeInterface* iIONodeVideo;
+        PVMFNodeInterface* iIONodeAudio;
+        PVMFNodeInterface* iIONodeText;
+        PvmiMIOControl* iMIOFileOutVideo;
+        PvmiMIOControl* iMIOFileOutAudio;
+        PvmiMIOControl* iMIOFileOutText;
+        PVCommandId iCurrentCmdId;
+        PVMFSourceContextData* iSourceContextData;
+        Oscl_File* iFile;
+        PvmiCapabilityAndConfig* iPlayerCapConfigIF;
+        PvmiKvp* iErrorKVP;
+
+        Oscl_FileServer iFileServ;
+        OSCL_wHeapString<OsclMemAllocator> iFileNameWStr;
+        oscl_wchar iTmpWCharBuffer[512];
+
+        int32 iDownloadMaxfilesize;
+        OSCL_wHeapString<OsclMemAllocator> iDownloadFilename;
+        OSCL_HeapString<OsclMemAllocator> iDownloadProxy;
+        OSCL_wHeapString<OsclMemAllocator> iDownloadConfigFilename;
 };
 
 #endif

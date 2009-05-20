@@ -21,15 +21,16 @@
 #include "test_base.h"
 #include "tsc_h324m_config_interface.h"
 
-class video_only_test : public test_base//,
-            //public H324MConfigObserver
+class video_only_test : public test_base
 {
     public:
-        video_only_test(PVMFFormatType video_src_format = PVMF_MIME_YUV420, PVMFFormatType video_sink_format = PVMF_MIME_YUV420, bool aUseProxy = false)
-                : test_base(PVMF_MIME_AMR_IF2, PVMF_MIME_AMR_IF2, video_src_format, video_sink_format, aUseProxy),
-                iSpatialTemporalIndsReceived(false)
+        video_only_test(bool aUseProxy = false)
+                : test_base(aUseProxy),
+                iTradeOffCmd(0),
+                iIncomingVideo(0)
+
         {
-            i324mConfigInterface = 0;
+            iUsingVideo = true;
         }
 
         ~video_only_test()
@@ -42,7 +43,6 @@ class video_only_test : public test_base//,
 
         void DoCancel();
 
-        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
 
         void TimerCallback();
 
@@ -51,6 +51,7 @@ class video_only_test : public test_base//,
         void H324MConfigHandleInformationalEventL(PVMFAsyncEvent& aNotification);
 
     private:
+        void VideoNodesAdded();
         void DoStuffWithH324MConfig();
         virtual void VideoAddSinkSucceeded();
         virtual void VideoAddSourceSucceeded();
@@ -63,9 +64,7 @@ class video_only_test : public test_base//,
         virtual void ConnectSucceeded();
         virtual void ConnectFailed();
         bool start_async_test();
-        PVInterface *i324mConfigInterface;
         PVInterface *iVidEncIFace;
-        bool iSpatialTemporalIndsReceived;
         PVCommandId i324mIFCommandId, iTradeOffCmd, iTradeOffInd, iEncIFCommandId;
         PVTrackId iIncomingVideo, iOutgoingVideo;
 };

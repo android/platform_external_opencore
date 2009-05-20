@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ps_allocate_decoder.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                   Date:
- Description:
+ Filename: ps_allocate_decoder.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -82,7 +76,7 @@ extern "C"
 #endif
 
     Int32 ps_allocate_decoder(SBRDECODER_DATA *self,
-                              UInt32  noSubSamples);
+    UInt32  noSubSamples);
 
 #ifdef __cplusplus
 }

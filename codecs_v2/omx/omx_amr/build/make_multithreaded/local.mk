@@ -17,7 +17,7 @@ XINCDIRS += \
         ../../../../audio/gsm_amr/amr_wb/dec/include \
         ../../../../audio/gsm_amr/amr_wb/dec/src
 
-XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
+
 
 OPTIMIZE_FOR_PERFORMANCE_OVER_SIZE := true
 
@@ -25,13 +25,11 @@ SRCDIR := ../../src
 INCSRCDIR := ../../include
 
 SRCS := amr_decode_frame.cpp \
-	omx_amr_component.cpp \
-	d_homing.cpp
+	omx_amr_component.cpp
 
 
 HDRS := amr_dec.h \
-	omx_amr_component.h \
-	d_homing.h
+	omx_amr_component.h
 
 
 include $(MK)/library.mk

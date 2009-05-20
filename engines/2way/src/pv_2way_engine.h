@@ -58,6 +58,13 @@
 #include "pvmp4h263encextension.h"
 #endif
 
+#ifndef PV_2WAY_TEST_EXTENSION_H_INCLUDED
+#include "pv_2way_test_extension_interface.h"
+#endif
+
+#include "pv_2way_codecspecifier_interface.h"
+
+
 // COMM and Stack related
 #ifndef NO_2WAY_324
 #ifndef TSCMAIN_H_INCLUDED // Gkl
@@ -575,7 +582,7 @@ class CPV2WayNodeContextData
         }
 
         CPV2WayNodeCommandObserver *iObserver;
-        PVMFNodeInterface	*iNode;
+        PVMFNodeInterface   *iNode;
         void *iContextData;
 };
 
@@ -703,16 +710,17 @@ class CPV2WayNodeConfigurationObserver
 };
 
 class CPV324m2Way : OsclActiveObject,
-            public CPV2WayInterface,
-            public PVMFNodeCmdStatusObserver,
-            public PVMFNodeInfoEventObserver,
-            public PVMFNodeErrorEventObserver,
-            public CPV2WayNodeCommandObserver,
-            public CPV2WayNodeConfigurationObserver,
+        public CPV2WayInterface,
+        public PVMFNodeCmdStatusObserver,
+        public PVMFNodeInfoEventObserver,
+        public PVMFNodeErrorEventObserver,
+        public CPV2WayNodeCommandObserver,
+        public CPV2WayNodeConfigurationObserver,
 #ifndef NO_2WAY_324
-            public TSCObserver,
+        public TSCObserver,
 #endif
-            public OsclTimerObserver
+        public OsclTimerObserver,
+        public PV2WayTestExtensionInterface
 {
     public:
         OSCL_IMPORT_REF static CPV324m2Way *NewL(PVMFNodeInterface* aTsc,
@@ -787,6 +795,18 @@ class CPV324m2Way : OsclActiveObject,
 #ifdef MEM_TRACK
         void MemStats();
 #endif
+
+
+        // test extension interface
+        bool AcceptableFormatsMatch(
+            Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator>& iInAudFormatCapability,
+            Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator>& iOutAudFormatCapability,
+            Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator>& iInVidFormatCapability,
+            Oscl_Vector<FormatCapabilityInfo, OsclMemAllocator>& iOutVidFormatCapability);
+        void addRef();
+        void removeRef();
+        bool queryInterface(const PVUuid& uuid, PVInterface*& iface);
+
     private:
         CPV324m2Way();
         ~CPV324m2Way();
@@ -857,23 +877,63 @@ class CPV324m2Way : OsclActiveObject,
 
         void SetPreferredCodecs(PV2WayInitInfo& aInitInfo);
 
-        void SetPreferredCodecs(TPVDirection aDir,
-                                Oscl_Vector<const char*, OsclMemAllocator>& aAudioFormats,
-                                Oscl_Vector<const char*, OsclMemAllocator>& aVideoFormats);
+        void SelectPreferredCodecs(TPVDirection aDir,
+                                   Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aAppAudioFormats,
+                                   Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aAppVideoFormats);
 
-        const char* FindFormatType(PVMFFormatType aFormatType,
-                                   Oscl_Vector<const char*, OsclMemAllocator>& aAudioFormats,
-                                   Oscl_Vector<const char*, OsclMemAllocator>& aVideoFormats);
 
-        bool IsSupported(const PVMFFormatType& aInputFmtType, const PVMFFormatType& aOutputFmtType);
+        CodecSpecifier* FindFormatType(PVMFFormatType aFormatType,
+                                       Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aAudioFormats,
+                                       Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aVideoFormats);
+        bool IsSupported(const PVMFFormatType& aInputFmtType,
+                         const PVMFFormatType& aOutputFmtType);
 
-        const char* CanConvertFormat(TPVDirection aDir, const PVMFFormatType& aThisFmtType, Oscl_Vector<const char*, OsclMemAllocator>& aThatFormatList);
+        const char* CanConvertFormat(TPVDirection aDir,
+                                     PVMFFormatType aThisFmtType,
+                                     Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aThatFormatList);
 
-        void DoSelectFormat(TPVDirection aDir, PVMFFormatType aFormatType, const char* aFormatStr, TPVPriority aPriority, PVMFFormatType aFormatApp = PVMF_MIME_FORMAT_UNKNOWN);
+        void DoSelectFormat(TPVDirection aDir,
+                            PVMFFormatType aFormatType,
+                            const char* aFormatStr,
+                            TPVPriority aPriority,
+                            PVMFFormatType aFormatApp = PVMF_MIME_FORMAT_UNKNOWN);
 
         void DoAddDataSource(TPV2WayNode& aNode, const PVMFCmdResp& aResponse);
 
+        void DoAddDataSourceTscNode(CPVDatapathNode& datapathnode,
+                                    CPV2WayEncDataChannelDatapath* datapath,
+                                    TPV2WayCmdInfo *cmd);
+        void DoAddDataSourceNode(TPV2WayNode& aNode,
+                                 CPVDatapathNode& datapathnode,
+                                 CPV2WayEncDataChannelDatapath* datapath);
+
+        void DoAddAudioEncNode(CPVDatapathNode& datapathnode,
+                               CPV2WayEncDataChannelDatapath* datapath);
+        void DoAddVideoEncNode(CPVDatapathNode& datapathnode,
+                               CPV2WayEncDataChannelDatapath* datapath);
+
+#if defined(PV_PLAY_FROM_FILE_SUPPORT)
+        void DoAddAudioSrcSplitterNode(CPVDatapathNode& datapathnode,
+                                       CPV2WayEncDataChannelDatapath* datapath);
+        void DoAddVideoSrcSplitterNode(CPVDatapathNode& datapathnode,
+                                       CPV2WayEncDataChannelDatapath* datapath);
+#endif
         void DoAddDataSink(TPV2WayNode& aNode, const PVMFCmdResp& aResponse);
+        void DoAddDataSinkTscNode(CPVDatapathNode& datapathnode,
+                                  CPV2WayDecDataChannelDatapath* datapath,
+                                  TPV2WayCmdInfo *cmd);
+        void DoAddVideoParserNode(CPVDatapathNode& datapathnode,
+                                  CPV2WayDecDataChannelDatapath* datapath);
+        void DoAddDataSinkNodeForH263_M4V(TPV2WayNode& aNode,
+                                          CPVDatapathNode& datapathnode,
+                                          CPV2WayDecDataChannelDatapath* datapath);
+        void DoAddDataSinkGeneric(TPV2WayNode& aNode,
+                                  CPVDatapathNode& datapathnode,
+                                  CPV2WayDecDataChannelDatapath* datapath);
+        void DoAddVideoDecNode(CPVDatapathNode& datapathnode,
+                               CPV2WayDecDataChannelDatapath* datapath);
+        void DoAddAudioDecNode(CPVDatapathNode& datapathnode,
+                               CPV2WayDecDataChannelDatapath* datapath);
 
         PVCommandId DoRemoveDataSourceSink(PVMFNodeInterface& aEndPt, OsclAny* aContextData);
 
@@ -882,7 +942,6 @@ class CPV324m2Way : OsclActiveObject,
         bool IsSourceNode(PVMFNodeInterface* aNode);
 
         bool IsSinkNode(PVMFNodeInterface* aNode);
-
 
         TPV2WayNode* GetTPV2WayNode(Oscl_Vector<TPV2WayNode*, OsclMemAllocator>& aList, PVMFNodeInterface* aNode);
 
@@ -903,6 +962,7 @@ class CPV324m2Way : OsclActiveObject,
         void RegisterMioLatency(const char* aMimeStr, bool aAudio, PVMFFormatType aFmtType);
         uint32 LookupMioLatency(PVMFFormatType aFmtType, bool aAudio);
 
+        bool AllocNodes();
 
         bool GetEventInfo(TPV2WayEventInfo*& event);
         static int32 Construct(CPV324m2Way* aRet,
@@ -1034,10 +1094,14 @@ class CPV324m2Way : OsclActiveObject,
 
 #ifndef NO_2WAY_324
         Oscl_Vector<H324ChannelParameters, PVMFTscAlloc> iIncomingChannelParams;
-        Oscl_Map<PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator, pvmf_format_type_key_compare_class> iIncomingAudioCodecs;
-        Oscl_Map<PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator, pvmf_format_type_key_compare_class> iIncomingVideoCodecs;
-        Oscl_Map<PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator, pvmf_format_type_key_compare_class> iOutgoingAudioCodecs;
-        Oscl_Map<PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator, pvmf_format_type_key_compare_class> iOutgoingVideoCodecs;
+        Oscl_Map < PVMFFormatType, FormatCapabilityInfo,
+        OsclMemAllocator, pvmf_format_type_key_compare_class > iIncomingAudioCodecs;
+        Oscl_Map < PVMFFormatType, FormatCapabilityInfo,
+        OsclMemAllocator, pvmf_format_type_key_compare_class > iIncomingVideoCodecs;
+        Oscl_Map < PVMFFormatType, FormatCapabilityInfo,
+        OsclMemAllocator, pvmf_format_type_key_compare_class > iOutgoingAudioCodecs;
+        Oscl_Map < PVMFFormatType, FormatCapabilityInfo,
+        OsclMemAllocator, pvmf_format_type_key_compare_class > iOutgoingVideoCodecs;
 
         Oscl_Map<char*, uint32, OsclMemAllocator> iAudioLatency;
         Oscl_Map<char*, uint32, OsclMemAllocator> iVideoLatency;
@@ -1177,6 +1241,8 @@ class CPV324m2Way : OsclActiveObject,
         /* The AddDataSource command for video will be pending untill the extension interface for the encoder is queried and the
             encoder is configured */
         TPV2WayCmdInfo *iAddDataSourceVideoCmd;
+
+        int32 iReferenceCount;
 };
 
 #endif

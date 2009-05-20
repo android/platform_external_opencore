@@ -74,10 +74,10 @@ bool PVAETestInput::IsTestInputTypeSupported(PVAETestInputType aType)
         case YUV_WRONG_FILE:
         case TEXT_FILE:
         case AMRWB_IETF_FILE:
-            return true;
-
+        case AAC_FILE:
         case M4V_FILE:
-            return false;
+        case AVC_FILE:
+            return true;
 
         default:
             return false;
@@ -100,10 +100,12 @@ int PVAETestInput::CreateInputNode(PVAETestInputType aType, const OSCL_wString& 
         case YUV_WRONG_FILE:
         case TEXT_FILE:
         case AMRWB_IETF_FILE:
+        case AAC_FILE:
+        case M4V_FILE:
+        case AVC_FILE:
             status = CreateMIOInputNode(aType, aFileName, iAVTConfig);
             break;
 
-        case M4V_FILE:
         default:
             status = -1;
             break;
@@ -131,11 +133,13 @@ bool PVAETestInput::DeleteInputNode()
         case YUV_WRONG_FILE:
         case TEXT_FILE:
         case AMRWB_IETF_FILE:
+        case AAC_FILE:
+        case M4V_FILE:
+        case AVC_FILE:
             if (iNode)
                 PvmfMediaInputNodeFactory::Delete(iNode);
             if (iMediaInput)
                 PvmiMIOFileInputFactory::Delete(iMediaInput);
-        case M4V_FILE:
         default:
             break;
     }
@@ -167,7 +171,7 @@ bool PVAETestInput::CreateMIOInputNode(PVAETestInputType aType, const OSCL_wStri
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_REL, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "PVAETestInput::CreateMIOInputNode: aType=%d", aType));
-
+    oscl_wchar output1[ARRAY_SIZE];
     iType = aType;
 
     if (aFileName.get_size() != 0)
@@ -262,6 +266,24 @@ bool PVAETestInput::CreateMIOInputNode(PVAETestInputType aType, const OSCL_wStri
             iSettings.iNumChannels = iAVTConfig.iNumChannels;// KAudioNumChannels;
             iSettings.iNum20msFramesPerChunk = KNum20msFramesPerChunk;
             break;
+        case AAC_FILE:
+            if (aFileName.get_size() == 0)
+            {
+                iSettings.iFileName = KAACTestInput;
+            }
+            iSettings.iMediaFormat = PVMF_MIME_MPEG4_AUDIO;
+            iSettings.iLoopInputFile = iAVTConfig.iLoopingEnable;
+            iSettings.iNumChannels = iAVTConfig.iNumChannels;// KAudioNumChannels;
+            iSettings.iNum20msFramesPerChunk = KNum20msFramesPerChunk;
+            iSettings.iTotalSamples = iAVTConfig.iTotalAudioSamples;
+            iSettings.iAverageBitRate = iAVTConfig.iAverageAudioBitRate;
+            iSettings.iTimescale = iAVTConfig.iAudioTimeScale;
+            iSettings.iSamplingFrequency = iAVTConfig.iAudioTimeScale;
+            oscl_UTF8ToUnicode(iAVTConfig.iAudioLogFile.get_cstr(), iAVTConfig.iAudioLogFile.get_size(), output1, ARRAY_SIZE);
+            iSettings.iAudioLogFileName.set(output1, oscl_strlen(output1));
+
+            break;
+
 
         case TEXT_FILE:
             if (aFileName.get_size() == 0)
@@ -302,6 +324,41 @@ bool PVAETestInput::CreateMIOInputNode(PVAETestInputType aType, const OSCL_wStri
             iSettings.iTimescale = KTextTimescale;
             iSettings.iFrameHeight = KTextFrameWidth;
             iSettings.iFrameWidth = KTextFrameHeight;
+            break;
+        case M4V_FILE:
+            if (aFileName.get_size() == 0)
+            {
+                iSettings.iFileName = KM4VTestInput;
+            }
+            iSettings.iMediaFormat = PVMF_MIME_M4V;
+            iSettings.iLoopInputFile = iAVTConfig.iLoopingEnable;
+            iSettings.iTimescale = iAVTConfig.iVideoTimeScale;
+            iSettings.iFrameHeight = iAVTConfig.iHeight;
+            iSettings.iFrameWidth = iAVTConfig.iWidth;
+            iSettings.iFrameRate = iAVTConfig.iFps;
+            iSettings.iTotalSamples = iAVTConfig.iTotalVideoSamples;
+            iSettings.iAverageBitRate = iAVTConfig.iAverageVideoBitRate;
+            oscl_UTF8ToUnicode(iAVTConfig.iVideoLogFile.get_cstr(), iAVTConfig.iVideoLogFile.get_size(), output1, ARRAY_SIZE);
+            iSettings.iVideoLogFileName.set(output1, oscl_strlen(output1));
+
+            break;
+        case AVC_FILE:
+            if (aFileName.get_size() == 0)
+            {
+                iSettings.iFileName = KAVCTestInput;
+            }
+            iSettings.iMediaFormat = PVMF_MIME_ISO_AVC_SAMPLE_FORMAT;
+            iSettings.iLoopInputFile = iAVTConfig.iLoopingEnable;
+            iSettings.iTimescale = iAVTConfig.iVideoTimeScale;
+            iSettings.iFrameHeight = iAVTConfig.iHeight;
+            iSettings.iFrameWidth = iAVTConfig.iWidth;
+            iSettings.iFrameRate = iAVTConfig.iFps;
+            iSettings.iTotalSamples = iAVTConfig.iTotalVideoSamples;
+            iSettings.iAverageBitRate = iAVTConfig.iAverageVideoBitRate;
+            oscl_UTF8ToUnicode(iAVTConfig.iVideoLogFile.get_cstr(), iAVTConfig.iVideoLogFile.get_size(), output1, ARRAY_SIZE);
+            iSettings.iVideoLogFileName.set(output1, oscl_strlen(output1));
+
+
             break;
         default:
             return false;

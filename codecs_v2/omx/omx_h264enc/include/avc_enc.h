@@ -43,6 +43,10 @@
 #include "ccyuv420semitoyuv420.h"
 #endif
 
+#ifndef OSCL_INT64_UTILS_H_INCLUDED
+#include "oscl_int64_utils.h"
+#endif
+
 class AvcEncoder_OMX
 {
     public:
@@ -84,9 +88,10 @@ class AvcEncoder_OMX
         OMX_BOOL GetSpsPpsHeaderFlag();
 
         /* for avc encoder lib callback functions */
-        int		AVC_DPBAlloc(uint frame_size_in_mbs, uint num_buffers);
-        int		AVC_FrameBind(int indx, uint8** yuv);
-        void	AVC_FrameUnbind(int indx);
+        int     AVC_DPBAlloc(uint frame_size_in_mbs, uint num_buffers);
+        int     AVC_FrameBind(int indx, uint8** yuv);
+        void    AVC_FrameUnbind(int indx);
+
 
 
     private:
@@ -96,26 +101,27 @@ class AvcEncoder_OMX
         /* RGB->YUV conversion */
         ColorConvertBase *ccRGBtoYUV;
 
-        int		iSrcWidth;
-        int		iSrcHeight;
-        int		iFrameOrientation;
+        int     iSrcWidth;
+        int     iSrcHeight;
+        int     iFrameOrientation;
 
-        OMX_COLOR_FORMATTYPE 	iVideoFormat;
+        OMX_COLOR_FORMATTYPE    iVideoFormat;
 
         /* variables needed in operation */
         AVCHandle iAvcHandle;
         AVCFrameIO iVidIn;
-        uint8*	iYUVIn;
-        uint8*	iVideoIn;
-        uint8*	iVideoOut;
-        uint32	iTimeStamp;
-        OMX_BOOL	iIDR;
-        int		iDispOrd;
+        uint8*  iYUVIn;
+        uint8*  iVideoIn;
+        uint8*  iVideoOut;
+        uint32  iTimeStamp;
+        OMX_TICKS iTimeStamp64;
+        OMX_BOOL    iIDR;
+        int     iDispOrd;
 
-        uint8*	iDPB;
-        bool*	iFrameUsed;
+        uint8*  iDPB;
+        bool*   iFrameUsed;
         uint8** iFramePtr;
-        int		iNumFrames;
+        int     iNumFrames;
 
         OMX_BOOL  iInitialized;
         OMX_BOOL  iSpsPpsHeaderFlag;

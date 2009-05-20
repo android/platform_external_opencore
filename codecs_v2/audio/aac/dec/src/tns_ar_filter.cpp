@@ -17,69 +17,7 @@
  */
 /*
 
- Pathname: tns_ar_filter.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Implemented 24-bit fixed point version
-               Optimized C code
-
- Description:
-            - Added OVERFLOW_SHIFT_DOWN to avoid overflow.
-            - Increased precision by using the Q format of the LPC coefficient.
-            - Modified interface to add LPC Q format and scratch memory
-              for the state variables.
-            - Added pv_memset to clear state filter
-            - Updated format for comments (to PV standard)
-            - Updated copyright notice
-
- Description:
-            - Changed multiplication scheme to increase precision. This
-              works better than older version.
-
- Description:
-            - Include log2(order) as a scaling down parameter.
-
- Description:
-            Modified to reflect code review comments
-                - misspelled words, extra comments and explicit requirements
-
- Description:
-            deleted comment about fix Q format (L 107)
-
- Description:  Implemented a more efficient version, which eliminated the use
- of "scratch memory" via introducing a pointer that references the actual
- output.
-
- Description: Removed the parameter "scratch_Int32_buffer" as this space
- in memory is no longer needed by this function.
-
- Description: Removed references to "scratch_Int32_buffer" in the Inputs
- section.
-
- Description:
-    Modified casting to ensure proper operations for different platforms
-
- Description:
-    Per code review comment:
-    Eliminated casting to UInt and Int in b_low and b_high, they are
-    redundant and may add unncessary extra cycles in some platforms
-
- Description: Updated the SW template to include the full pathname to the
- source file and a slightly modified copyright header.
-
- Description: Changed the order of the unsigned * signed multiply so the
- casting to Int32 is performed on the unsigned operand.
-
- Description:
-    Modified 32 by 16 bit multiplications to avoid unnecessary moves to
-    registers. Also split the code (based on flag direction) to simplify
-    pointer's updates
-
- Description:
+ Filename: tns_ar_filter.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -222,29 +160,6 @@
 
     ENDFOR
 
-
-------------------------------------------------------------------------------
- RESOURCES USED
-
-   When the code is written for a specific target processor
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

@@ -57,6 +57,7 @@ INCSRCDIR := ../../include
 
 SRCS := pv_2way_datapath.cpp \
 	pv_2way_engine.cpp \
+	pv_2way_engine_test_ext.cpp \
 	pv_2way_data_channel_datapath.cpp \
 	pv_2way_cmd_control_datapath.cpp \
 	pv_2way_dec_data_channel_datapath.cpp \
@@ -70,6 +71,7 @@ SRCS := pv_2way_datapath.cpp \
 
 HDRS := pv_2way_interface.h \
 	pv_2way_engine_factory.h \
+	pv_2way_test_extension_interface.h \
 	pv_2way_proxy_factory.h 
 
 ## This file is need by PLATFORM_EXTRAS in library.mk

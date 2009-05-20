@@ -17,20 +17,7 @@
  */
 /*
 
- Pathname: long_term_synthesis.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: 1. Changed protoype with array size passed in per review
-                 comments.
-              2. Moved #define NUM_RECONSTRUCTED_SFB to ltp_common_internal.h
-
- Description: Modified prototype based on review comments for new version
-	      long_term_synthesis.c.
-
- Who:                                   Date:
- Description:
+ Filename: long_term_synthesis.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

@@ -44,7 +44,8 @@ MediaInformationAtom::MediaInformationAtom(MP4_FF_FILE *fp,
         uint32 mediaType,
         OSCL_wString& filename,
         bool oPVContentDownloadable,
-        uint32 parsingMode)
+        uint32 parsingMode,
+        bool aOpenFileOncePerTrack)
         : Atom(fp)
 {
     _pmediaInformationHeader = NULL;
@@ -170,7 +171,7 @@ MediaInformationAtom::MediaInformationAtom(MP4_FF_FILE *fp,
                 PV_MP4_FF_NEW(fp->auditCB, SampleTableAtom,
                               (fp, mediaType, filename, atomSize,
                                atomType, oPVContentDownloadable,
-                               parsingMode), _psampleTableAtom);
+                               parsingMode, aOpenFileOncePerTrack), _psampleTableAtom);
 
                 if (!_psampleTableAtom->MP4Success())
                 {

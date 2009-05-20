@@ -17,12 +17,17 @@ derive pvprotocolenginewmhttpstreamingpluginreginterface_m_mk from asf_streaming
 
 derive pvmp4interface_m_mk from mp4local_support==y                       ? "/modules/linux_mp4/core/build/make" : ""
 derive pvmp4reginterface_m_mk from mp4local_support==y                 ? "/modules/linux_mp4/node_registry/build/make" : ""
+derive pvdivxinterface_m_mk from divxlocal_support==y                       ? "/modules/linux_divx/core/build/make" : ""
+derive pvdivxreginterface_m_mk from divxlocal_support==y                 ? "/modules/linux_divx/node_registry/build/make" : ""
 derive pvasflocalpbinterface_m_mk from asflocal_support==y                ? "/modules/linux_asf/asf_localpb/core/build/make" : ""
 derive pvasflocalpbreginterface_m_mk from asflocal_support==y          ? "/modules/linux_asf/asf_localpb/node_registry/build/make" : ""
 derive pvjanusplugininterface_m_mk from janus_support==y               ? "/modules/cpm_janus/build/make" : ""
+derive pvoma1passthruplugininterface_m_mk from oma1_passthru_support==y   ? "/modules/cpm_oma1_passthru/build/make" : ""
 derive pvwmdrmdevinterface_m_mk from wmdrmdev_support==y               ? "/modules/wmdrmpd_dev/build/make" : ""
 derive pvwmdrmplatinterface_m_mk from wmdrmplat_support==y             ? "/modules/wmdrmpd_plat/build/make" : ""
 derive pvwmdrmsysclkinterface_m_mk from wmdrmsysclk_support==y         ? "/modules/wmdrmpd_sysclk/build/make" : ""
+derive pvdbconfiginterface_m_mk from pvdb_config_support==y            ? "/modules/pvdb_config/build/make" : ""
+derive mtpconfiginterface_m_mk from mtp_config_support==y	       ? "/modules/mtp_config/build/make" : ""
 
 derive pvrtspinterface_m_lib from rtsp_support==y                         ? "-lpvrtspinterface" : ""
 derive pvrtspreginterface_m_lib from rtsp_support==y                   ? "-lpvrtspreginterface" : ""
@@ -37,16 +42,21 @@ derive pvprotocolenginefasttrackdownloadpluginreginterface_m_lib from fasttrack_
 derive pvprotocolenginewmhttpstreaminginterface_m_lib from asf_streaming_support==y ? "-lpvprotocolenginewmhttpstreaminginterface" : ""
 derive pvprotocolenginewmhttpstreamingpluginreginterface_m_lib from asf_streaming_support==y ? "-lpvprotocolenginewmhttpstreamingpluginreginterface" : ""
 
-derive pvmp4interface_m_lib from mp4local_support==y                      ? "-lpvmp4interface" : ""
+derive pvmp4interface_m_lib from mp4local_support==y                   ? "-lpvmp4interface" : ""
 derive pvmp4reginterface_m_lib from mp4local_support==y                ? "-lpvmp4reginterface" : ""
+derive pvdivxinterface_m_lib from divxlocal_support==y                      ? "-lpvdivxinterface" : ""
+derive pvdivxreginterface_m_lib from divxlocal_support==y                ? "-lpvdivxreginterface" : ""
 derive pvasflocalpbinterface_m_lib from asflocal_support==y               ? "-lpvasflocalpbinterface" : ""
 derive pvasflocalpbreginterface_m_lib from asflocal_support==y         ? "-lpvasflocalpbreginterface" : ""
 derive pvjanusplugininterface_m_lib from janus_support==y              ? "-lpvjanusplugininterface" : ""
+derive pvoma1passthruplugininterface_m_lib from oma1_passthru_support==y  ? "-lpvoma1passthruplugininterface" : ""
 derive pvwmdrmdevinterface_m_lib from wmdrmdev_support==y              ? "-lpvwmdrmdevinterface" : ""
 derive pvwmdrmplatinterface_m_lib from wmdrmplat_support==y            ? "-lpvwmdrmplatinterface" : ""
 derive pvwmdrmsysclkinterface_m_lib from wmdrmsysclk_support==y        ? "-lpvwmdrmsysclkinterface" : ""
+derive pvdbconfiginterface_m_lib from pvdb_config_support==y           ? "-lpvdbconfiginterface" : ""
+derive mtpconfiginterface_m_lib from mtp_config_support==y           ? "-lmtpconfiginterface" : ""
 
-derive LIBDIR_tools_v2_shared from pvrtspinterface_m_mk.pvrtspreginterface_m_mk.pvasfstreaminginterface_m_mk.pvasfstreamingreginterface_m_mk.pvdownloadinterface_m_mk.pvdownloadreginterface_m_mk.pvmp4interface_m_mk.pvmp4reginterface_m_mk.pvasflocalpbinterface_m_mk.pvasflocalpbreginterface_m_mk.pvjanusplugininterface_m_mk.pvwmdrmdevinterface_m_mk.pvwmdrmplatinterface_m_mk.pvwmdrmsysclkinterface_m_mk
+derive LIBDIR_tools_v2_shared from pvrtspinterface_m_mk.pvrtspreginterface_m_mk.pvasfstreaminginterface_m_mk.pvasfstreamingreginterface_m_mk.pvdownloadinterface_m_mk.pvdownloadreginterface_m_mk.pvmp4interface_m_mk.pvmp4reginterface_m_mk.pvasflocalpbinterface_m_mk.pvasflocalpbreginterface_m_mk.pvjanusplugininterface_m_mk.pvwmdrmdevinterface_m_mk.pvwmdrmplatinterface_m_mk.pvwmdrmsysclkinterface_m_mk.pvoma1passthruplugininterface_m_mk.pvdivxinterface_m_mk.pvdivxreginterface_m_mk.pvdbconfiginterface_m_mk.mtpconfiginterface_m_mk
 
-derive LIBS_tools_v2_shared from pvrtspinterface_m_lib.pvrtspreginterface_m_lib.pvasfstreaminginterface_m_lib.pvasfstreamingreginterface_m_lib.pvdownloadinterface_m_lib.pvdownloadreginterface_m_lib.pvmp4interface_m_lib.pvmp4reginterface_m_lib.pvasflocalpbinterface_m_lib.pvasflocalpbreginterface_m_lib.pvjanusplugininterface_m_lib.pvwmdrmdevinterface_m_lib.pvwmdrmplatinterface_m_lib.pvwmdrmsysclkinterface_m_lib
+derive LIBS_tools_v2_shared from pvrtspinterface_m_lib.pvrtspreginterface_m_lib.pvasfstreaminginterface_m_lib.pvasfstreamingreginterface_m_lib.pvdownloadinterface_m_lib.pvdownloadreginterface_m_lib.pvmp4interface_m_lib.pvmp4reginterface_m_lib.pvasflocalpbinterface_m_lib.pvasflocalpbreginterface_m_lib.pvjanusplugininterface_m_lib.pvwmdrmdevinterface_m_lib.pvwmdrmplatinterface_m_lib.pvwmdrmsysclkinterface_m_lib.pvoma1passthruplugininterface_m_lib.pvdivxinterface_m_lib.pvdivxreginterface_m_lib.pvdbconfiginterface_m_lib.mtpconfiginterface_m_lib
 

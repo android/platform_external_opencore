@@ -23,12 +23,6 @@
 
    Filename: s_huffcodetab.h
 
-   Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -60,7 +54,7 @@
 ; DEFINES
 ; Include all pre-processor statements here.
 ----------------------------------------------------------------------------*/
-#define HUFF_TBL	34
+#define HUFF_TBL    34
 
 /*----------------------------------------------------------------------------
 ; EXTERNAL VARIABLES REFERENCES

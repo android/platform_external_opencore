@@ -18,16 +18,7 @@
 /*
 
  Filename: sbr_aliasing_reduction.h
- Funtions:
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
-
+ Functions:
 
 ----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED

@@ -837,9 +837,23 @@ PVMFStatus PVMFDownloadManagerNode::SetSourceInitializationData(OSCL_wString& aS
             {
                 // TCP buffer size for shoutcast is 1564 (1500 data + 64 overhead)
                 // add 1 second margin
-                ((PVMFSocketNode*)iSocketNode.iNode)->SetMaxTCPRecvBufferCount((cacheSize + bitRate) / PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_SC);
+                PVMFStatus status = ((PVMFSocketNode*)iSocketNode.iNode)->SetMaxTCPRecvBufferCount((cacheSize + bitRate) / PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_SC);
+                if (PVMFSuccess != status)
+                {
+                    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0,
+                                    "PVMFDownloadManagerNode:SetSourceInitializationData() SetMaxTCPRecvBufferCount(%d) failed",
+                                    (cacheSize + bitRate) / PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_SC));
+                    return status;
+                }
 
-                ((PVMFSocketNode*)iSocketNode.iNode)->SetMaxTCPRecvBufferSize(PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_SC + PVMF_DOWNLOADMANAGER_TCP_BUFFER_OVERHEAD);
+                status = ((PVMFSocketNode*)iSocketNode.iNode)->SetMaxTCPRecvBufferSize(PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_SC + PVMF_DOWNLOADMANAGER_TCP_BUFFER_OVERHEAD);
+                if (PVMFSuccess != status)
+                {
+                    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0,
+                                    "PVMFDownloadManagerNode:SetSourceInitializationData() SetMaxTCPRecvBufferSize(%d) failed",
+                                    PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_SC + PVMF_DOWNLOADMANAGER_TCP_BUFFER_OVERHEAD));
+                    return status;
+                }
             }
 
             // Use Memory Buffer Data Stream for progressive playback and Shoutcast
@@ -850,7 +864,15 @@ PVMFStatus PVMFDownloadManagerNode::SetSourceInitializationData(OSCL_wString& aS
             uint32 bufSize = PVMF_DOWNLOADMANAGER_TCP_BUFFER_SIZE_FOR_PPB;
             if (iSocketNode.iNode)
             {
-                ((PVMFSocketNode*)iSocketNode.iNode)->SetMaxTCPRecvBufferCount(PVMF_DOWNLOADMANAGER_MIN_TCP_BUFFERS_FOR_PPB);
+                PVMFStatus status = ((PVMFSocketNode*)iSocketNode.iNode)->SetMaxTCPRecvBufferCount(PVMF_DOWNLOADMANAGER_MIN_TCP_BUFFERS_FOR_PPB);
+                if (PVMFSuccess != status)
+                {
+                    PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0,
+                                    "PVMFDownloadManagerNode:SetSourceInitializationData() SetMaxTCPRecvBufferCount(%d) failed",
+                                    PVMF_DOWNLOADMANAGER_MIN_TCP_BUFFERS_FOR_PPB));
+                    return status;
+                }
+
                 // get buffer size
                 ((PVMFSocketNode*)iSocketNode.iNode)->GetMaxTCPRecvBufferSize(bufSize);
             }
@@ -2805,7 +2827,7 @@ PVMFStatus PVMFDownloadManagerRecognizerContainer::IssueCommand(int32 aCmd)
             }
             return status;
         }
-        // break;	This statement was removed to avoid compiler warning for Unreachable Code
+        // break;   This statement was removed to avoid compiler warning for Unreachable Code
 
         case ERecognizerClose:
             //close the recognizer session.
@@ -3075,7 +3097,7 @@ void PVMFDownloadManagerSubNodeContainer::HandleNodeInformationalEvent(const PVM
     {
         switch (aEvent.GetEventType())
         {
-            case PVMFInfoRemoteSourceNotification:	//To let the socket node events propagate to pvengine
+            case PVMFInfoRemoteSourceNotification:  //To let the socket node events propagate to pvengine
                 filter = false;
                 break;
             default:

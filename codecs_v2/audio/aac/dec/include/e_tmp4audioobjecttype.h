@@ -17,7 +17,7 @@
  */
 /*
 
- Pathname: ./include/e_tMP4AudioObjectType.h
+ Filename: e_tmp4audioobjecttype.h
 
  This file contains enumerated types for MP4 Audio Object Types, as defined
  in ISO/IEC 14496-3, AMMENDMENT 1 Dated 2000-09-15

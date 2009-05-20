@@ -132,16 +132,10 @@ OMX_ERRORTYPE H263EncOmxComponentDestructor(OMX_IN OMX_HANDLETYPE pHandle, OMX_P
 
 #if (DYNAMIC_LOAD_OMX_M4VENC_COMPONENT || DYNAMIC_LOAD_OMX_H263ENC_COMPONENT)
 class Mpeg4H263EncOmxSharedLibraryInterface:  public OsclSharedLibraryInterface,
-            public OmxSharedLibraryInterface
+        public OmxSharedLibraryInterface
 
 {
     public:
-        static Mpeg4H263EncOmxSharedLibraryInterface *Instance()
-        {
-            static Mpeg4H263EncOmxSharedLibraryInterface omxinterface;
-            return &omxinterface;
-        };
-
         OsclAny *QueryOmxComponentInterface(const OsclUuid& aOmxTypeId, const OsclUuid& aInterfaceId)
         {
             if (PV_OMX_M4VENC_UUID == aOmxTypeId)
@@ -178,7 +172,6 @@ class Mpeg4H263EncOmxSharedLibraryInterface:  public OsclSharedLibraryInterface,
             return NULL;
         };
 
-    private:
         Mpeg4H263EncOmxSharedLibraryInterface() {};
 };
 
@@ -187,7 +180,13 @@ extern "C"
 {
     OSCL_EXPORT_REF OsclAny* PVGetInterface()
     {
-        return Mpeg4H263EncOmxSharedLibraryInterface::Instance();
+        return (OsclAny*) OSCL_NEW(Mpeg4H263EncOmxSharedLibraryInterface, ());
+    }
+
+    OSCL_EXPORT_REF void PVReleaseInterface(OsclSharedLibraryInterface* aInstance)
+    {
+        Mpeg4H263EncOmxSharedLibraryInterface* module = (Mpeg4H263EncOmxSharedLibraryInterface*)aInstance;
+        OSCL_DELETE(module);
     }
 }
 
@@ -340,8 +339,8 @@ OMX_ERRORTYPE OmxComponentMpeg4EncAO::ConstructComponent(OMX_PTR pAppData, OMX_P
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->VideoMpeg4.eProfile = OMX_VIDEO_MPEG4ProfileCore;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->VideoMpeg4.eLevel = OMX_VIDEO_MPEG4Level2;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->VideoMpeg4.nPFrames = 10;
-    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->VideoMpeg4.nBFrames = 0;		//No support for B frames
-    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->VideoMpeg4.nMaxPacketSize = 256;	//Default value
+    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->VideoMpeg4.nBFrames = 0;        //No support for B frames
+    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->VideoMpeg4.nMaxPacketSize = 256;    //Default value
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->VideoMpeg4.nAllowedPictureTypes = OMX_VIDEO_PictureTypeI | OMX_VIDEO_PictureTypeP;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->VideoMpeg4.bGov = OMX_FALSE;
 
@@ -430,12 +429,16 @@ OMX_ERRORTYPE OmxComponentMpeg4EncAO::ConstructComponent(OMX_PTR pAppData, OMX_P
     if (iEncMode == MODE_MPEG4)
     {
         pOutPort->VideoParam[0].eCompressionFormat = OMX_VIDEO_CodingMPEG4;
+        oscl_strncpy((OMX_STRING)iComponentRole, (OMX_STRING)"video_encoder.mpeg4", OMX_MAX_STRINGNAME_SIZE);
 
     }
     else if (iEncMode == MODE_H263)
     {
         pOutPort->VideoParam[0].eCompressionFormat = OMX_VIDEO_CodingH263;
+        oscl_strncpy((OMX_STRING)iComponentRole, (OMX_STRING)"video_encoder.h263", OMX_MAX_STRINGNAME_SIZE);
     }
+
+
 
 
     //OMX_CONFIG_ROTATIONTYPE SETTINGS ON INPUT PORT
@@ -448,7 +451,7 @@ OMX_ERRORTYPE OmxComponentMpeg4EncAO::ConstructComponent(OMX_PTR pAppData, OMX_P
     oscl_memset(&pOutPort->VideoErrorCorrection, 0, sizeof(OMX_VIDEO_PARAM_ERRORCORRECTIONTYPE));
     SetHeader(&pOutPort->VideoErrorCorrection, sizeof(OMX_VIDEO_PARAM_ERRORCORRECTIONTYPE));
     pOutPort->VideoErrorCorrection.nPortIndex = OMX_PORT_OUTPUTPORT_INDEX;
-    pOutPort->VideoErrorCorrection.bEnableDataPartitioning = OMX_FALSE;	//As in node default is h263
+    pOutPort->VideoErrorCorrection.bEnableDataPartitioning = OMX_FALSE; //As in node default is h263
 
 
     //OMX_VIDEO_PARAM_BITRATETYPE settings of output port
@@ -540,8 +543,8 @@ OMX_ERRORTYPE OmxComponentMpeg4EncAO::ConstructComponent(OMX_PTR pAppData, OMX_P
 
 
 /** This function is called by the omx core when the component
-	* is disposed by the IL client with a call to FreeHandle().
-	*/
+    * is disposed by the IL client with a call to FreeHandle().
+    */
 
 OMX_ERRORTYPE OmxComponentMpeg4EncAO::DestroyComponent()
 {
@@ -578,13 +581,13 @@ void OmxComponentMpeg4EncAO::ProcessData()
     QueueType* pInputQueue = ipPorts[OMX_PORT_INPUTPORT_INDEX]->pBufferQueue;
     QueueType* pOutputQueue = ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->pBufferQueue;
 
-    ComponentPortType*	pInPort = ipPorts[OMX_PORT_INPUTPORT_INDEX];
-    ComponentPortType*	pOutPort = ipPorts[OMX_PORT_OUTPUTPORT_INDEX];
+    ComponentPortType*  pInPort = ipPorts[OMX_PORT_INPUTPORT_INDEX];
+    ComponentPortType*  pOutPort = ipPorts[OMX_PORT_OUTPUTPORT_INDEX];
 
-    OMX_U8*					pOutBuffer;
-    OMX_U32					OutputLength;
-    OMX_BOOL				EncodeReturn = OMX_FALSE;
-    OMX_COMPONENTTYPE*		pHandle = &iOmxComponent;
+    OMX_U8*                 pOutBuffer;
+    OMX_U32                 OutputLength;
+    OMX_BOOL                EncodeReturn = OMX_FALSE;
+    OMX_COMPONENTTYPE*      pHandle = &iOmxComponent;
 
     if ((!iIsInputBufferEnded) || (iEndofStream))
     {
@@ -711,8 +714,8 @@ void OmxComponentMpeg4EncAO::ProcessData()
                     iBufferOverRun = OMX_FALSE;
                     CopyDataToOutputBuffer();
 
-                }	//else loop of if (OMX_FALSE == iMantainOutInternalBuffer)
-            }	//if (OutputLength > 0)	 loop
+                }   //else loop of if (OMX_FALSE == iMantainOutInternalBuffer)
+            }   //if (OutputLength > 0)  loop
 
 
             //If encoder returned error in case of frame skip/corrupt frame, report it to the client via a callback
@@ -814,7 +817,7 @@ void OmxComponentMpeg4EncAO::ProcessData()
 
 OMX_BOOL OmxComponentMpeg4EncAO::CopyDataToOutputBuffer()
 {
-    ComponentPortType*	pOutPort = ipPorts[OMX_PORT_OUTPUTPORT_INDEX];
+    ComponentPortType*  pOutPort = ipPorts[OMX_PORT_OUTPUTPORT_INDEX];
     QueueType* pOutputQueue = ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->pBufferQueue;
 
     while (iInternalOutBufFilledLen > 0)
@@ -867,19 +870,13 @@ OMX_BOOL OmxComponentMpeg4EncAO::CopyDataToOutputBuffer()
             ipOutputBuffer->nOffset = 0;
             iNewOutBufRequired = OMX_FALSE;
         }
-    }	//while (iInternalOutBufFilledLen > 0)
+    }   //while (iInternalOutBufFilledLen > 0)
 
     return OMX_TRUE;
 
 }
 
 
-//Not implemented & supported in case of base profile components
-
-void OmxComponentMpeg4EncAO::ComponentGetRolesOfComponent(OMX_STRING* aRoleString)
-{
-    *aRoleString = (OMX_STRING)"video_encoder.mpeg4";
-}
 
 
 //Component constructor

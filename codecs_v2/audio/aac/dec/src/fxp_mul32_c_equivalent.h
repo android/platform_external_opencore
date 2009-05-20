@@ -17,13 +17,8 @@
  */
 /*
 
- Pathname: ./c/include/fxp_mul32_c_equivalent.h
+ Filename: fxp_mul32_c_equivalent.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

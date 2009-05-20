@@ -152,9 +152,9 @@ class PvmiMIOFileInputMediaData
 };
 
 class PvmiMIOFileInput : public OsclTimerObject,
-            public PvmiMIOControl,
-            public PvmiMediaTransfer,
-            public PvmiCapabilityAndConfig
+        public PvmiMIOControl,
+        public PvmiMediaTransfer,
+        public PvmiCapabilityAndConfig
 
 {
     public:
@@ -234,6 +234,8 @@ class PvmiMIOFileInput : public OsclTimerObject,
 
         PVMFStatus Get_Timed_Config_Info();
         PVMFStatus RetrieveFSI(uint32 fsi_size = 0);
+        PVMFStatus Send_SPS_PPS_info();
+        PVMFStatus RetrieveNALType();
 
     private:
         void Run();
@@ -326,7 +328,7 @@ class PvmiMIOFileInput : public OsclTimerObject,
         uint32 SampleSizeArray[MAX_SAMPLE_SIZE];
         uint32 TextTimeStampArray[MAX_SAMPLE_SIZE];
 
-        Oscl_Vector<uint32, OsclMemAllocator> iTextTimeStampVector;
+        Oscl_Vector<uint32, OsclMemAllocator> iTimeStampVector;
 
         // Counter and size info for file read
         Oscl_Vector<uint32, OsclMemAllocator> iFrameSizeVector;
@@ -370,6 +372,12 @@ class PvmiMIOFileInput : public OsclTimerObject,
         uint32 iFormatSpecificInfoSize;
         bool iSetFormatSpecificInfo;
         PvmiKvp* iFSIKvp;
+        uint32 iConfigSize;
+        uint8 *configinfo;
+        uint8 iNALType;
+
+        //Peer's cap-config interface ptr
+        PvmiCapabilityAndConfig* iPeerCapConfig;
 };
 
 #endif // PVMI_MIO_FILEINPUT_H_INCLUDED

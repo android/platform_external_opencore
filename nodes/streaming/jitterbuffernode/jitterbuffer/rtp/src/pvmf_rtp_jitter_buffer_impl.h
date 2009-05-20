@@ -30,8 +30,6 @@
 #include "pvmf_jitter_buffer_common_types.h"
 #endif
 
-#define PVMF_JITTER_BUFFER_ROLL_OVER_THRESHOLD_16BIT 2000
-
 class PVMFRTPJitterBufferImpl: public PVMFJitterBufferImpl
 {
     public:
@@ -97,28 +95,7 @@ class PVMFRTPJitterBufferImpl: public PVMFJitterBufferImpl
             }
         }
 
-        PVMFRTPInfoParams *FindRTPInfoParams(uint32 aSeqNum)
-        {
-            if (iRTPInfoParamsVec.size() == 1)
-            {
-                return (iRTPInfoParamsVec.begin());
-            }
-
-            PVMFRTPInfoParams* retVal = NULL;
-            Oscl_Vector<PVMFRTPInfoParams, OsclMemAllocator>::iterator it;
-
-
-            for (it = iRTPInfoParamsVec.begin();
-                    it < iRTPInfoParamsVec.end();
-                    it++)
-            {
-                if (it->seqNum <= aSeqNum)
-                {
-                    retVal = it;
-                }
-            }
-            return retVal;
-        }
+        PVMFRTPInfoParams *FindRTPInfoParams(uint32 aSeqNum);
         bool IsSequenceNumEarlier(uint16 aSeqNumToComp, uint16 aBaseSeqNum, uint16& aDiff);
         void ReportJBInfoEvent(PVMFAsyncEvent& aEvent);
         void UpdatePacketArrivalStats(PVMFSharedMediaDataPtr& aArrivedPacket);
@@ -129,33 +106,34 @@ class PVMFRTPJitterBufferImpl: public PVMFJitterBufferImpl
         PVMFStatus PerformFlowControl(bool aIncomingPacket);
 
         PVMFMediaClock* iPacketArrivalClock;
+        PVLogger*   ipRTPInfoTrackerLogger;
         PVMFTimebase_Tickcount iPacketArrivalTimeBase;
         PVMFTimestamp iPrevPacketTS;
         double iInterArrivalJitterD;
         uint32 iPrevPacketRecvTime;
 
         //Burst detection variables:
-        bool			iBurstDetect;
-        uint32			iBurstStartTimestamp;
-        uint32			iEstServerClockBurstStartTimestamp;
-        PVMFMediaClock  *iBurstClock;				//may be wallclock owned by the jitterbuffer Misc can be used instead
+        bool            iBurstDetect;
+        uint32          iBurstStartTimestamp;
+        uint32          iEstServerClockBurstStartTimestamp;
+        PVMFMediaClock  *iBurstClock;               //may be wallclock owned by the jitterbuffer Misc can be used instead
         PVMFTimebase_Tickcount iBurstClockTimeBase;
-        bool			iRTPDataArrived;
-        uint32			iEarlyDecodingTime;
-        bool			iServerBurst;
-        float			iBurstThreshold;
-        uint32			iBurstDetectDurationInMilliSec;
-        bool			iInitialBuffering;
+        bool            iRTPDataArrived;
+        uint32          iEarlyDecodingTime;
+        bool            iServerBurst;
+        float           iBurstThreshold;
+        uint32          iBurstDetectDurationInMilliSec;
+        bool            iInitialBuffering;
 
-        uint32			iPlayListRTPTimeBase;
-        bool			iPlayListRTPTimeBaseSet;
+        uint32          iPlayListRTPTimeBase;
+        bool            iPlayListRTPTimeBaseSet;
 
         bool   isPrevRtpTimeSet;
         uint32 iPrevRtpTimeBase;
         bool   isPrevNptTimeSet;
         uint32 iPrevNptTimeInRTPTimeScale;
         MediaClockConverter iMediaClockConvertor;
-
+        PVMFRTPInfoParams iLatestPurgedRTPInfoParams;
 };
 #endif
 

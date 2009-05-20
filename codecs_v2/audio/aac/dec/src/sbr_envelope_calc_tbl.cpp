@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_envelope_calc_tbl.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_envelope_calc_tbl.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

@@ -5,7 +5,7 @@ LOCAL_PATH := $(call get_makefile_dir)
 include $(MK)/clear.mk
 
 TARGET := protocolenginenode_base
-
+XCXXFLAGS := $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 XINCDIRS += ../../../config/$(BUILD_ARCH)  ../../../config/linux
 XINCDIRS += ../../../protocol_common/src ../../../download_protocols/progressive_download/src ../../../download_protocols/progressive_streaming/src ../../../download_protocols/fasttrack_download/src ../../../download_protocols/shoutcast/src ../../../wm_http_streaming/src
 

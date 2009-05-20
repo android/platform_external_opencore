@@ -17,25 +17,7 @@
  */
 /*
 
- Pathname: ms_synt.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Cleaned up a bit, not finished.
-
- Description:
- Copied in code from pns_intensity_right.c, which has the same structure as
- this file.  Also, merged in code from ms_map_mask.c
-
- Description:
- (1) Various optimizations (eliminated extra variables by making use of a
- single temporary register throughout the code, etc.)
- (2) Wrote pseudocode, pasted in correct function template, etc.
-
- Description:  Unrolled loops to get speed up code
+ Filename: ms_synt.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -199,28 +181,6 @@
         start_indx = start_indx + num_bands;
 
     ENDFOR
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-   resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

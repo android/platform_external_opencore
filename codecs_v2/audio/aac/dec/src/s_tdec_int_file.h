@@ -17,54 +17,7 @@
  */
 /*
 
- Pathname: s_tDec_Int_File.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Remove unneeded structure elements, clean up.
-
- Description: Remove block.h, not needed, chains in other not needed files.
-
- Description: Added declaration of scratch memory, scratchTnsDecCoefMem,
- which will be utilized by tns_decode_coef().
-
- Description:
- (1) Modified to include the lines...
-
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-
-    #ifdef __cplusplus
-    }
-    #endif
-
- (2) Updated the copyright header.
-
- Description: Per review comments...
- (1) Removed declaration of unused variable, savedMCInfo
- (2) Commented out ADTS related variables.
- (3) Slight re-wording of comment for clarity.
-
- Description:
- (1) Moved scratch_prog_config into the scratch union.
-
- Description:
- (1) Added ltp state variable.
-
- Description: Make tDec_Int_perChan an array of structures.
-              In the user applications, the malloc command will allocate a
-              continuous chunk of memory.
-
- Description:
-           (1) Added the array data_stream_bytes[] to structure tDec_Int_File.
-               This to support Data Streaming Elements (DSE).
-           (2) Updated the copyright header.
-
-
- Who:                                       Date:
- Description:
+ Filename: s_tdec_int_file.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -179,20 +132,20 @@ extern "C"
         Int            ltp_buffer_state;
 
         /*
-         *	For eaac+, a scratch matrix is created with the rigth element ( perChan[1] is not used)
+         *  For eaac+, a scratch matrix is created with the rigth element ( perChan[1] is not used)
          *  and the fxpCoef matrix. These  2 matrices are [2][38][64] == 4864 Int32
          *    2349 coming from the perChan[1] plus 4096 coming from fxpCoef
          */
         tDec_Int_Chan  perChan[Chans];
 
-        Int32		   fxpCoef[2][LN];         /* LN  = 2048     */
+        Int32          fxpCoef[2][LN];         /* LN  = 2048     */
 
 
 
 #ifdef AAC_PLUS
 
         SBRDECODER_DATA sbrDecoderData;/* allocates 2 SBR_CHANNEL, each has a SBR_FRAME_DATA */
-        SBR_DEC			sbrDec;
+        SBR_DEC         sbrDec;
         SBRBITSTREAM    sbrBitStr;
 
 #endif
@@ -242,7 +195,7 @@ extern "C"
          */
 
         /*
-         *	also used by the circular buffer scheme on aac+ (needs 4096 + 1152)
+         *  also used by the circular buffer scheme on aac+ (needs 4096 + 1152)
          *  from scratch_mem[2] + 5248  (uses most of shared_memory).
          *  For eaac+, shared memory is used by sbrQmfBufferReal which needs
          *  1824 bytes

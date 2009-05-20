@@ -6,7 +6,7 @@ include $(MK)/clear.mk
 
 TARGET := protocolenginenode_pdl
 
-
+XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 
 XINCDIRS +=  ../../../../config/$(BUILD_ARCH)  ../../../../config/linux
 XINCDIRS +=  ../../../../include ../../src ../../../common/src ../../../../protocol_common/src ../../../../base/src

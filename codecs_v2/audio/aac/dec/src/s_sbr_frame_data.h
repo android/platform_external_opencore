@@ -18,16 +18,6 @@
 /*
 
  Filename: s_sbr_frame_data.h
- Funtions:
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
-
 
 ----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
@@ -42,8 +32,8 @@
 #include    "s_sbr_header_data.h"
 #include    "e_invf_mode.h"
 #include    "e_coupling_mode.h"
-#include	"sbr_constants.h"
-#include	"s_patch.h"
+#include    "sbr_constants.h"
+#include    "s_patch.h"
 /*----------------------------------------------------------------------------
 ; MACROS
 ; Define module specific macros here
@@ -142,7 +132,7 @@ typedef struct
     Int32 *sbrQmfBufferImag;
     Int32 HistsbrQmfBufferImag[6*SBR_NUM_BANDS];
 #endif
-    Int16  V[1152];		/* Used by calc_sbr_synfilterbank as freq. history buffer */
+    Int16  V[1152];     /* Used by calc_sbr_synfilterbank as freq. history buffer */
 
 
     Int32 degreeAlias[64];

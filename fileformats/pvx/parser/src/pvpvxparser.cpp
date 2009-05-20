@@ -79,7 +79,7 @@ OSCL_EXPORT_REF CPVXParser::CPVXParserStatus CPVXParser::ParsePVX(OsclMemoryFrag
         return CPVXParser_InvalidSize;
     }
 
-    FileLoc += 2;	// Skip the file size
+    FileLoc += 2;   // Skip the file size
 
     // Get video and audio IDs (2.0) OR PVX file version (Imperial) (2 bytes)
     if (FileLoc + 2 >= aBufferLen)
@@ -119,11 +119,11 @@ OSCL_EXPORT_REF CPVXParser::CPVXParserStatus CPVXParser::ParsePVX(OsclMemoryFrag
         {
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                             (0, "CPVXParser::ParsePVX() called FileLoc=%d,dUserIDSize=%d, \
-			aBufferLen=%d,MAX_PVXUSERID_LEN=%d", FileLoc, dUserIDSize, aBufferLen, MAX_PVXUSERID_LEN));
+\t\t\taBufferLen=%d,MAX_PVXUSERID_LEN=%d", FileLoc, dUserIDSize, aBufferLen, MAX_PVXUSERID_LEN));
             if (FileLoc + dUserIDSize >= aBufferLen || dUserIDSize > MAX_PVXUSERID_LEN - 1)
             {
                 PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0, "CPVXParser:: \
-				ParsePVX Error 5 FileLoc+2 >= aBufferLen"));
+\t\t\t\tParsePVX Error 5 FileLoc+2 >= aBufferLen"));
                 return CPVXParser_InvalidSize;
             }
             aPVXInfo.iUserID.write(0, dUserIDSize, (char *)&aBuffer[FileLoc]);
@@ -215,9 +215,9 @@ OSCL_EXPORT_REF CPVXParser::CPVXParserStatus CPVXParser::ParsePVX(OsclMemoryFrag
         FileLoc += 40;
     }
 
-    //	For proper implementation, URL size should be an offset from subscriber auth size
+    //  For proper implementation, URL size should be an offset from subscriber auth size
 
-    //	But following PVPlayer 2.0 PC/CE implementation
+    //  But following PVPlayer 2.0 PC/CE implementation
 
     // Get the URL size (2 bytes)
     if (FileLoc + 2 >= aBufferLen)
@@ -288,16 +288,16 @@ OSCL_EXPORT_REF CPVXParser::CPVXParserStatus CPVXParser::ParsePVX(OsclMemoryFrag
         aPVXInfo.iUserPlayback = (aPVXInfo.iFlags & 0x20 ? false : true);
         switch (aPVXInfo.iFlags & 0x18)
         {
-            case 0x08:	// Automatic after download complete
+            case 0x08:  // Automatic after download complete
                 aPVXInfo.iPlaybackControl = CPVXInfo::EAfterDownload;
                 break;
-            case 0x10:	// Play as soon as possible
+            case 0x10:  // Play as soon as possible
                 aPVXInfo.iPlaybackControl = CPVXInfo::EAsap;
                 break;
-            case 0x18:	// Reserved
+            case 0x18:  // Reserved
                 aPVXInfo.iPlaybackControl = CPVXInfo::EReserve;
                 break;
-            case 0x00:	// Not automatic
+            case 0x00:  // Not automatic
             default:
                 aPVXInfo.iPlaybackControl = CPVXInfo::ENoPlayback;
                 break;

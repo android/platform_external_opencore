@@ -23,12 +23,6 @@
 
    Filename: pvmp3_imdct_synth.h
 
-   Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -82,11 +76,11 @@ extern "C"
 #endif
 
     void pvmp3_imdct_synth(int32 in[SUBBANDS_NUMBER*FILTERBANK_BANDS],
-                           int32 overlap[SUBBANDS_NUMBER*FILTERBANK_BANDS],
-                           uint32 blk_type,
-                           int16 mx_band,
-                           int32 used_freq_lines,
-                           int32 *Scratch_mem);
+    int32 overlap[SUBBANDS_NUMBER*FILTERBANK_BANDS],
+    uint32 blk_type,
+    int16 mx_band,
+    int32 used_freq_lines,
+    int32 *Scratch_mem);
 
 #ifdef __cplusplus
 }

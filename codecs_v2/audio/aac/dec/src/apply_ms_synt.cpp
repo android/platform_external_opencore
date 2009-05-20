@@ -17,19 +17,9 @@
  */
 /*
 
- Pathname: ./src/apply_ms_synt.c
+ Filename: apply_ms_synt.cpp
 
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Updated pseudocode to correct capitalized format for the IF
- FOR and WHILE statements.
-
- Description: Delete local variable start_indx, since it is never used.
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -223,28 +213,6 @@
     WHILE (partition < pFrameInfo->num_win);
 
     return;
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
-
 ------------------------------------------------------------------------------
 */
 

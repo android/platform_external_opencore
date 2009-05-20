@@ -82,16 +82,10 @@ OSCL_EXPORT_REF OMX_ERRORTYPE AvcOmxComponentDestructor(OMX_IN OMX_HANDLETYPE pH
 #if DYNAMIC_LOAD_OMX_AVC_COMPONENT
 class OsclSharedLibraryInterface;
 class AvcOmxSharedLibraryInterface: public OsclSharedLibraryInterface,
-            public OmxSharedLibraryInterface
+        public OmxSharedLibraryInterface
 
 {
     public:
-        static AvcOmxSharedLibraryInterface *Instance()
-        {
-            static AvcOmxSharedLibraryInterface omxinterface;
-            return &omxinterface;
-        };
-
         OsclAny *QueryOmxComponentInterface(const OsclUuid& aOmxTypeId, const OsclUuid& aInterfaceId)
         {
             if (PV_OMX_AVCDEC_UUID == aOmxTypeId)
@@ -116,7 +110,6 @@ class AvcOmxSharedLibraryInterface: public OsclSharedLibraryInterface,
             return NULL;
         };
 
-    private:
         AvcOmxSharedLibraryInterface() {};
 };
 
@@ -125,7 +118,13 @@ extern "C"
 {
     OSCL_EXPORT_REF OsclAny* PVGetInterface()
     {
-        return AvcOmxSharedLibraryInterface::Instance();
+        return (OsclAny*) OSCL_NEW(AvcOmxSharedLibraryInterface, ());
+    }
+
+    OSCL_EXPORT_REF void PVReleaseInterface(OsclSharedLibraryInterface* aInstance)
+    {
+        AvcOmxSharedLibraryInterface* module = (AvcOmxSharedLibraryInterface*)aInstance;
+        OSCL_DELETE(module);
     }
 }
 
@@ -263,7 +262,9 @@ OMX_ERRORTYPE OpenmaxAvcAO::ConstructComponent(OMX_PTR pAppData, OMX_PTR pProxy)
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.eCompressionFormat = OMX_VIDEO_CodingUnused;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.eColorFormat = OMX_COLOR_FormatYUV420Planar;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.nFrameWidth = 176;
+    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.nStride = 176;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.nFrameHeight = 144;
+    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.nSliceHeight = 144;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.nBitrate = 64000;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.xFramerate = (15 << 16);
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.eDir = OMX_DirOutput;
@@ -271,7 +272,7 @@ OMX_ERRORTYPE OpenmaxAvcAO::ConstructComponent(OMX_PTR pAppData, OMX_PTR pProxy)
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.nBufferCountActual = NUMBER_OUTPUT_BUFFER_AVC
             ;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.nBufferCountMin = 1;
-    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.nBufferSize = 176 * 144 * 3 / 2; //Don't use OUTPUT_BUFFER_SIZE_AVC, just use QCIF (as default)
+    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.nBufferSize = OUTPUT_BUFFER_SIZE_AVC; //just use QCIF (as default)
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.bEnabled = OMX_TRUE;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.bPopulated = OMX_FALSE;
 
@@ -311,6 +312,8 @@ OMX_ERRORTYPE OpenmaxAvcAO::ConstructComponent(OMX_PTR pAppData, OMX_PTR pProxy)
     pOutPort->VideoParam[0].eCompressionFormat = OMX_VIDEO_CodingUnused;
     pOutPort->VideoParam[0].eColorFormat = OMX_COLOR_FormatYUV420Planar;
 
+    oscl_strncpy((OMX_STRING)iComponentRole, (OMX_STRING)"video_decoder.avc", OMX_MAX_STRINGNAME_SIZE);
+
     iDecodeReturn = OMX_FALSE;
 
     if (ipAvcDec)
@@ -349,9 +352,9 @@ OMX_ERRORTYPE OpenmaxAvcAO::ConstructComponent(OMX_PTR pAppData, OMX_PTR pProxy)
 
 
 /** This function is called by the omx core when the component
-	* is disposed by the IL client with a call to FreeHandle().
-	* \param Component, the component to be disposed
-	*/
+    * is disposed by the IL client with a call to FreeHandle().
+    * \param Component, the component to be disposed
+    */
 
 OMX_ERRORTYPE OpenmaxAvcAO::DestroyComponent()
 {
@@ -529,18 +532,18 @@ void OpenmaxAvcAO::DecodeWithoutMarker()
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0, "OpenmaxAvcAO : DecodeWithoutMarker IN"));
 
-    QueueType*				pInputQueue  = ipPorts[OMX_PORT_INPUTPORT_INDEX]->pBufferQueue;
-    QueueType*				pOutputQueue = ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->pBufferQueue;
-    ComponentPortType*	pOutPort =     ipPorts[OMX_PORT_OUTPUTPORT_INDEX];
-    OMX_COMPONENTTYPE *		pHandle =      &iOmxComponent;
+    QueueType*              pInputQueue  = ipPorts[OMX_PORT_INPUTPORT_INDEX]->pBufferQueue;
+    QueueType*              pOutputQueue = ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->pBufferQueue;
+    ComponentPortType*  pOutPort =     ipPorts[OMX_PORT_OUTPUTPORT_INDEX];
+    OMX_COMPONENTTYPE *     pHandle =      &iOmxComponent;
 
-    OMX_U8*					pOutBuffer;
-    OMX_U32					OutputLength;
-    OMX_U8*					pTempInBuffer;
-    OMX_U32					TempInLength;
-    OMX_BOOL				MarkerFlag = OMX_FALSE;
-    OMX_TICKS				TempTimestamp;
-    OMX_BOOL				ResizeNeeded = OMX_FALSE;
+    OMX_U8*                 pOutBuffer;
+    OMX_U32                 OutputLength;
+    OMX_U8*                 pTempInBuffer;
+    OMX_U32                 TempInLength;
+    OMX_BOOL                MarkerFlag = OMX_FALSE;
+    OMX_TICKS               TempTimestamp;
+    OMX_BOOL                ResizeNeeded = OMX_FALSE;
 
     OMX_U32 TempInputBufferSize = (2 * sizeof(uint8) * (ipPorts[OMX_PORT_INPUTPORT_INDEX]->PortParam.nBufferSize));
     OMX_U32 CurrWidth =  ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.nFrameWidth;
@@ -574,7 +577,7 @@ void OpenmaxAvcAO::DecodeWithoutMarker()
             }
 
             //Do not proceed if the output buffer can't fit the YUV data
-            if (ipOutputBuffer->nAllocLen < (OMX_U32)(((CurrWidth + 15)&(~15)) * ((CurrHeight + 15)&(~15)) * 3 / 2))
+            if ((ipOutputBuffer->nAllocLen < (OMX_U32)(((CurrWidth + 15)&(~15)) *((CurrHeight + 15)&(~15)) * 3 / 2)) && (OMX_TRUE == ipAvcDec->iAvcActiveFlag))
             {
                 ipOutputBuffer->nFilledLen = 0;
                 ReturnOutputBuffer(ipOutputBuffer, pOutPort);
@@ -638,8 +641,22 @@ void OpenmaxAvcAO::DecodeWithoutMarker()
         iTempInputBufferLength = TempInLength;
 
         //If decoder returned error, report it to the client via a callback
-        if (!iDecodeReturn && OMX_FALSE == iEndofStream)
+        if (!iDecodeReturn && OMX_FALSE == ipAvcDec->iAvcActiveFlag)
         {
+            // initialization error
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0, "OpenmaxAvcAO : DecodeWithoutMarker ErrorBadParameter callback send"));
+
+            (*(ipCallbacks->EventHandler))
+            (pHandle,
+             iCallbackData,
+             OMX_EventError,
+             OMX_ErrorBadParameter,
+             0,
+             NULL);
+        }
+        else if (!iDecodeReturn && OMX_FALSE == iEndofStream)
+        {
+            // decoding error
             PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0, "OpenmaxAvcAO : DecodeWithoutMarker ErrorStreamCorrupt callback send"));
 
             (*(ipCallbacks->EventHandler))
@@ -736,14 +753,14 @@ void OpenmaxAvcAO::DecodeWithMarker()
     QueueType* pInputQueue = ipPorts[OMX_PORT_INPUTPORT_INDEX]->pBufferQueue;
     QueueType* pOutputQueue = ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->pBufferQueue;
 
-    ComponentPortType*	pInPort = ipPorts[OMX_PORT_INPUTPORT_INDEX];
-    ComponentPortType*	pOutPort = ipPorts[OMX_PORT_OUTPUTPORT_INDEX];
+    ComponentPortType*  pInPort = ipPorts[OMX_PORT_INPUTPORT_INDEX];
+    ComponentPortType*  pOutPort = ipPorts[OMX_PORT_OUTPUTPORT_INDEX];
 
-    OMX_U8*					pOutBuffer;
-    OMX_U32					OutputLength;
-    OMX_BOOL				MarkerFlag = OMX_TRUE;
-    OMX_BOOL				Status;
-    OMX_BOOL				ResizeNeeded = OMX_FALSE;
+    OMX_U8*                 pOutBuffer;
+    OMX_U32                 OutputLength;
+    OMX_BOOL                MarkerFlag = OMX_TRUE;
+    OMX_BOOL                Status;
+    OMX_BOOL                ResizeNeeded = OMX_FALSE;
 
     OMX_U32 CurrWidth =  ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.nFrameWidth;
     OMX_U32 CurrHeight = ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->PortParam.format.video.nFrameHeight;
@@ -770,7 +787,7 @@ void OpenmaxAvcAO::DecodeWithMarker()
             }
 
             //Do not proceed if the output buffer can't fit the YUV data
-            if (ipOutputBuffer->nAllocLen < (OMX_U32)(((CurrWidth + 15)&(~15)) * ((CurrHeight + 15)&(~15)) * 3 / 2))
+            if ((ipOutputBuffer->nAllocLen < (OMX_U32)(((CurrWidth + 15)&(~15)) *((CurrHeight + 15)&(~15)) * 3 / 2)) && (OMX_TRUE == ipAvcDec->iAvcActiveFlag))
             {
                 ipOutputBuffer->nFilledLen = 0;
                 ReturnOutputBuffer(ipOutputBuffer, pOutPort);
@@ -843,8 +860,22 @@ void OpenmaxAvcAO::DecodeWithMarker()
 
 
             //If decoder returned error, report it to the client via a callback
-            if (!iDecodeReturn && OMX_FALSE == iEndofStream)
+            if (!iDecodeReturn && OMX_FALSE == ipAvcDec->iAvcActiveFlag)
             {
+                // initialization error
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0, "OpenmaxAvcAO : DecodeWithoutMarker ErrorBadParameter callback send"));
+
+                (*(ipCallbacks->EventHandler))
+                (pHandle,
+                 iCallbackData,
+                 OMX_EventError,
+                 OMX_ErrorBadParameter,
+                 0,
+                 NULL);
+            }
+            else if (!iDecodeReturn && OMX_FALSE == iEndofStream)
+            {
+                // decode error
                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0, "OpenmaxAvcAO : DecodeWithMarker ErrorStreamCorrupt callback send"));
 
                 (*(ipCallbacks->EventHandler))
@@ -991,10 +1022,6 @@ void OpenmaxAvcAO::DecodeWithMarker()
 }
 
 
-void OpenmaxAvcAO::ComponentGetRolesOfComponent(OMX_STRING* aRoleString)
-{
-    *aRoleString = (OMX_STRING)"video_decoder.avc";
-}
 
 
 

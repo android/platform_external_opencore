@@ -17,33 +17,8 @@
  */
 /*
 
- Pathname: ./src/fft_rx4_long.c
+ Filename: fft_rx4_long.cpp
  Funtions: fft_rx4_long
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-            (1) Eliminated search for max in the main loop.
-            (2) Reduced precision on w_256rx4 from Q15 to Q10
-
- Description:
-            (1) Created function fft_rx4_long_no_max to overcome LTP problem.
-
- Description:
-            (1) Modified shift so the accumulation growths faster than the
-                downshift, so now the input can be as high as 1.0 and saturation
-                will not occurre. The accumulation times the Q10 format will
-                never exceed 31 bits. This increases precision
-            (2) Eliminated unneeded data moves, used before for max search.
-            (3) Eliminated function fft_rx4_long_no_max.
-
- Description:
-            (1) Added comment to explain max search elimination and
-                Q format during multiplications
-
- Who:                       Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -117,28 +92,6 @@
    RETURN( exponent )
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
-
-------------------------------------------------------------------------------
 */
 /*----------------------------------------------------------------------------
 ; INCLUDES
@@ -195,21 +148,21 @@ void fft_rx4_long(
     Int32      *peak_value)
 
 {
-    Int		n1;
-    Int		n2;
-    Int		j;
-    Int		k;
-    Int		i;
+    Int     n1;
+    Int     n2;
+    Int     j;
+    Int     k;
+    Int     i;
 
-    Int32  	t1;
-    Int32  	t2;
-    Int32  	r1;
-    Int32  	r2;
-    Int32  	r3;
-    Int32  	r4;
-    Int32  	s1;
-    Int32  	s2;
-    Int32  	s3;
+    Int32   t1;
+    Int32   t2;
+    Int32   r1;
+    Int32   r2;
+    Int32   r3;
+    Int32   r4;
+    Int32   s1;
+    Int32   s2;
+    Int32   s3;
     Int32   *pData1;
     Int32   *pData2;
     Int32   *pData3;
@@ -220,9 +173,9 @@ void fft_rx4_long(
     Int32   temp4;
     Int32   max;
 
-    Int32  	exp_jw1;
-    Int32  	exp_jw2;
-    Int32  	exp_jw3;
+    Int32   exp_jw1;
+    Int32   exp_jw2;
+    Int32   exp_jw3;
 
 
 

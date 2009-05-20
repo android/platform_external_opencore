@@ -25,11 +25,6 @@
    Date: 09/21/2007
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
-------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
  This include file defines the structure, BITS

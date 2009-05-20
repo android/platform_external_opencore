@@ -17,22 +17,7 @@
  */
 /*
 
- Pathname: ibstream.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Change names of constants.
-
- Description: Change the buffer from UInt to UInt32
-
- Description: Remove declaration of getbits and include header file
-
- Description: Change input buffer to UChar
-              Add constant
-
- Who:                                              Date:
- Description:
+ Filename: ibstream.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

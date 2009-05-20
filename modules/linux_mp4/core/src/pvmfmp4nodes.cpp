@@ -22,7 +22,7 @@
 #include "osclconfig.h"
 
 class Mp4NodesInterface: public OsclSharedLibraryInterface,
-            public NodeSharedLibraryInterface
+        public NodeSharedLibraryInterface
 {
     public:
         Mp4NodesInterface() {};
@@ -60,7 +60,7 @@ class Mp4NodesInterface: public OsclSharedLibraryInterface,
 
 extern "C"
 {
-    OsclSharedLibraryInterface *PVGetInterface(void)
+    OSCL_EXPORT_REF OsclSharedLibraryInterface *PVGetInterface(void)
     {
         return OSCL_NEW(Mp4NodesInterface, ());
     }

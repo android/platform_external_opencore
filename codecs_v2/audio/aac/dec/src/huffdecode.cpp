@@ -17,73 +17,7 @@
  */
 /*
 
- Pathname: huffdecode.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  Change variable types.
-
- Description:  (1) Modified to bring in-line with PV standards.
-               (2) Eliminated global_gain on stack,
-                   getics() has to define this parameter on its stack.
-               (3) Eliminated multiple returns
-               (4) Altered return logic of getics()
-               (5) Convert Real coef -> Int32 coef
-               (6) Move BITS *pInputStream to 2nd parameter of huffdecode.c
-                   and getics.c
-               (7) Pass pFrameInfo per channel, because two channels can have
-                   different windows
-
- Description: (1) Eliminated function call to chn_config
-              (2) Eliminate widx calculation
-              (3) copy channel info from left to right when common_window
-                  is enabled
-              (4) add error checking of getmask return value
-
- Description:  Change default_position to current_program
-
- Description:  Remove prstflag
-
- Description:  Modify call to get_ics_info
-
- Description:  Modified so getmask is NOT called if the status returned
- from get_ics_info indicates an error.
-
- Description:
- (1) Added include of "e_ElementId.h"
-     Previously, this function was relying on another include file
-     to include e_ElementId.h
-
- (2) Updated the copyright header.
-
- Description:  Modified to include usage of the new "shared memory" structures
- defined in s_tDec_Int_File.h and s_tDec_Int_Chan.h
-
- Description:
- (1) Updated to reflect the fact that the temporary FrameInfo used by getics.c
- was moved into the region of memory shared with fxpCoef.
-
- Description:
- (1) Removed first parameter to getics.  The temporary FrameInfo was
-     unnecessary.
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9 or less and get1bits
-			  when only 1 bit is read.
-
- Description: Relaxed tag verification. Some encoder do not match the tag
-              to the channel ID (as the standard request to differentiate
-              different channel), in our wireless work, with only mono
-              or stereo channel, this become restrictive to some encoders
-
-
- Description:
+ Filename: huffdecode.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -298,28 +232,6 @@
     ENDWHILE
 
     RETURN status;
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

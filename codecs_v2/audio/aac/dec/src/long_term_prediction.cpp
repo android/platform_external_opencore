@@ -17,46 +17,7 @@
  */
 /*
 
- Pathname: long_term_prediction.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Made changes based on comments and experiment results.
-
- Description: Passed in buffer sizes based on review comments and prototype
-              agreements.
-
- Description: 1. Passed in "weight_index" instead of "weight".
-              2. Added weight table.
-
- Description: 1. Removed some passed in buffer size variables since they are
-                 not used for long window.
-              2. Modified comments format.
-
- Description:
-    Modified casting to ensure proper operations for different platforms
-
- Description:
-    Implemented circular buffer techniques, which save 4096 memmoves per
-    frame.
-
- Description:
-    Implemented some optimizations found during the code review of this
-    module.  The optimizations related to the rules on the range of
-    ltp_buffer_index and num_samples, which allows for a simpler
-    code construct to be used in the processing of the predicted samples.
-
- Description:
-    Add max calculation on the filter implementation, this to eliminate
-    function buffer_adaptation() on the time to frequency transformation.
-    Function interface changed. It now return the amount of shifting needed
-    to garb only the top 16 MSB.
-
- Description:
-     Replace clearing memory with for-loop with pvmemset function
-
- Description:
+ Filename: long_term_prediction.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -261,28 +222,6 @@
     ENDIF [ IF (win_seq != EIGHT_SHORT_SEQUENCE) ]
 
     RETURN
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

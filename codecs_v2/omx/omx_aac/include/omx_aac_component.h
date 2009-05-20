@@ -16,8 +16,8 @@
  * -------------------------------------------------------------------
  */
 /**
-	@file omx_aac_component.h
-	OpenMax decoder_component component.
+    @file omx_aac_component.h
+    OpenMax decoder_component component.
 
 */
 
@@ -57,7 +57,6 @@ class OpenmaxAacAO : public OmxComponentAudio
         OMX_ERRORTYPE ComponentInit();
         OMX_ERRORTYPE ComponentDeInit();
 
-        static void ComponentGetRolesOfComponent(OMX_STRING* aRoleString);
         void ProcessData();
         void SyncWithInputTimestamp();
         void ProcessInBufferFlag();

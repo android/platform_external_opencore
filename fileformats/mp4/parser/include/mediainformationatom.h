@@ -71,7 +71,8 @@ class MediaInformationAtom : public Atom
                              uint32 mediaType,
                              OSCL_wString& filename,
                              bool oPVContentDownloadable = false,
-                             uint32 parsingMode = 0);
+                             uint32 parsingMode = 0,
+                             bool aOpenFileOncePerTrack = true);
 
         virtual ~MediaInformationAtom();
 
@@ -163,7 +164,7 @@ class MediaInformationAtom : public Atom
         }
 
 
-        int32 updateFileSize(uint32	filesize)
+        int32 updateFileSize(uint32 filesize)
         {
             if (_psampleTableAtom != NULL)
             {

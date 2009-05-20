@@ -72,9 +72,9 @@ uint32 TSC_324m::OpenSession(void)
     }
     else
     {
-        CEStart();		// INITIATE CE-SEND
+        CEStart();      // INITIATE CE-SEND
         Tsc_IdcVi();    // Send vendor information
-        MSDStart();	    // INITIATE MSD
+        MSDStart();     // INITIATE MSD
     }
     return(PhaseD_CSUP);
 }
@@ -205,16 +205,16 @@ uint32 TSC_324m::LcErrIdc(PS_ControlMsgHeader  pReceiveInf)
 
     ErrCode_Lc_D ,      // ( 9) no response from Peer LCSE / B-LCSE ( Timer T103 Expiry ) */
 
-    /*	switch(pReceiveInf->pParameter){
-    	  case ErrCode_Lc_A:
-    		break;
-    	  case ErrCode_Lc_B:
-    		break;
-    	  case ErrCode_Lc_C:
-    		break;
-    	  case ErrCode_Lc_D:
-    		break;
-    	}
+    /*  switch(pReceiveInf->pParameter){
+          case ErrCode_Lc_A:
+            break;
+          case ErrCode_Lc_B:
+            break;
+          case ErrCode_Lc_C:
+            break;
+          case ErrCode_Lc_D:
+            break;
+        }
     */
     /* Buffer Free */
 //    OSCL_DEFAULT_FREE( pReceiveInf->pParameter );
@@ -390,7 +390,7 @@ uint32 TSC_324m::Status04Event23(PS_ControlMsgHeader  pReceiveInf)
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "TSC_324m::Status04Event23 sn=%d", pReceiveInf->InfSupplement1));
-    iTSCcomponent->MuxTableSendComplete(pReceiveInf->InfSupplement1, PVMFSuccess);
+    iTSCcomponent->MuxTableSendComplete(pReceiveInf->InfSupplement1, pReceiveInf->InfSupplement2, PVMFSuccess);
     return 0;
 }
 
@@ -434,8 +434,9 @@ uint32 TSC_324m::Status04Event24(PS_ControlMsgHeader  pReceiveInf)
                      pReceiveInf->InfSupplement1, pReceiveInf->InfSupplement2));
     if ((S_InfHeader::TDirection)pReceiveInf->InfSupplement1 == S_InfHeader::OUTGOING)
     {
-        iTSCcomponent->MuxTableSendComplete(pReceiveInf->InfSupplement2,
-                                            PVMFFailure);
+        uint16 sn = (uint16)(pReceiveInf->InfSupplement2 >> 16);
+        uint16 mux_number = (uint16)(pReceiveInf->InfSupplement2 & 0xFFFF);
+        iTSCcomponent->MuxTableSendComplete(sn, mux_number, PVMFFailure);
     }
     return(PhaseD_CSUP);
 }
@@ -584,8 +585,7 @@ uint32 TSC_324m::Status08Event23(PS_ControlMsgHeader  pReceiveInf)
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "TSC_324m::Status04Event23 sn=%d",
                      pReceiveInf->InfSupplement1));
-    iTSCcomponent->MuxTableSendComplete(pReceiveInf->InfSupplement1,
-                                        PVMFSuccess);
+    iTSCcomponent->MuxTableSendComplete(pReceiveInf->InfSupplement1, pReceiveInf->InfSupplement2, PVMFSuccess);
     return(PhaseE_Comm);
 }
 
@@ -609,8 +609,9 @@ uint32 TSC_324m::Status08Event24(PS_ControlMsgHeader  pReceiveInf)
     if ((S_InfHeader::TDirection)pReceiveInf->InfSupplement1 ==
             S_InfHeader::OUTGOING)
     {
-        iTSCcomponent->MuxTableSendComplete(pReceiveInf->InfSupplement2,
-                                            PVMFFailure);
+        uint16 sn = (uint16)(pReceiveInf->InfSupplement2 >> 16);
+        uint16 mux_number = (uint16)(pReceiveInf->InfSupplement2 & 0xFFFF);
+        iTSCcomponent->MuxTableSendComplete(sn, mux_number, PVMFFailure);
     }
     return(PhaseE_Comm);
 }
@@ -986,17 +987,17 @@ uint8* GetDecoderConfigFromOLC(PS_ForwardReverseParam pPara, uint32 forRev, uint
 {
     uint32 i = 0, n = 0;
     PS_GenericCapability pGenericCap = NULL;
-    PS_GenericParameter	nonCollapsing = NULL;
+    PS_GenericParameter nonCollapsing = NULL;
     uint8* ret = NULL;
 
-    if (forRev)  	/* reverse */
+    if (forRev)     /* reverse */
     {
         if (pPara->reverseLogicalChannelParameters.dataType.videoData->index == 5) /* genericVideoCapability */
         {
             pGenericCap = pPara->reverseLogicalChannelParameters.dataType.videoData->genericVideoCapability;
         }
     }
-    else  		/* forward  */
+    else        /* forward  */
     {
         if (pPara->forwardLogicalChannelParameters.dataType.videoData->index == 5) /* genericVideoCapability */
         {
@@ -1004,7 +1005,7 @@ uint8* GetDecoderConfigFromOLC(PS_ForwardReverseParam pPara, uint32 forRev, uint
         }
     }
 
-    if (pGenericCap != NULL) 	/* Search for decoderConfig parameters */
+    if (pGenericCap != NULL)    /* Search for decoderConfig parameters */
     {
         n = pGenericCap->size_of_nonCollapsing;
         for (i = 0; i < n; i++)
@@ -1019,7 +1020,7 @@ uint8* GetDecoderConfigFromOLC(PS_ForwardReverseParam pPara, uint32 forRev, uint
             }
         }
     }
-    *nOctets = 0;	/* None found; return empty string */
+    *nOctets = 0;   /* None found; return empty string */
     return NULL;
 }
 
@@ -1040,7 +1041,7 @@ OsclAny TSC_324m::ShowTsc(uint16 tag, uint16 indent, char* inString)
     char outString[200];
 
     /* Construct outString with proper indent */
-    for (i = 0;i < indent;++i)
+    for (i = 0; i < indent; ++i)
     {
         outString[i] = ' ';
     }
@@ -1059,7 +1060,7 @@ OsclAny TSC_324m::ShowTsc(uint16 tag, uint16 indent, char* inString)
 /*OsclAny TSC_324m::Tsc_Analyzer(char* msg)
 {
 #ifdef PVTsc_Analyzer
-	ShowTsc(Tsc_Analyzer_TSC,0,msg);
+    ShowTsc(Tsc_Analyzer_TSC,0,msg);
 #endif
 }*/
 
@@ -1068,7 +1069,7 @@ OsclAny TSC_324m::ShowTsc(uint16 tag, uint16 indent, char* inString)
 
 
 // =======================================================
-// CheckAltCapSet()								(RAN-32K)
+// CheckAltCapSet()                             (RAN-32K)
 //
 // This routine checks an AlternativeCapabilitySet structure
 //   to see if a particular entry number is present.  Simple.
@@ -1078,7 +1079,7 @@ uint32 TSC_324m::CheckAltCapSet(PS_AlternativeCapabilitySet pAltCapSet,
 {
     uint32 i;
     *preference_index = 999;
-    for (i = 0;i < pAltCapSet->size;++i)
+    for (i = 0; i < pAltCapSet->size; ++i)
     {
         if (pAltCapSet->item[i] == entry)
         {

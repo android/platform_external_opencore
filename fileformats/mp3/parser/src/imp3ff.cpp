@@ -104,6 +104,13 @@ OSCL_DLL_ENTRY_POINT_DEFAULT()
 OSCL_EXPORT_REF IMpeg3File::IMpeg3File(OSCL_wString& filename, MP3ErrorType &bSuccess, Oscl_FileServer* fileServSession, PVMFCPMPluginAccessInterfaceFactory*aCPM, OsclFileHandle*aFileHandle, bool enableCRC) :
         pMP3Parser(NULL)
 {
+    iLastScanPos = 0;
+    iUseExternalFileHandle = false;
+    if (aFileHandle)
+    {
+        iUseExternalFileHandle = true;
+    }
+
     bSuccess = MP3_SUCCESS;
 
     // Initialize the metadata related variables
@@ -197,7 +204,7 @@ OSCL_EXPORT_REF MP3ErrorType IMpeg3File::ParseMp3File()
 
         // Populate metadata key list vector
         int32 leavecode = OsclErrNone;
-        for (uint32 p = 0;p < id3Frames.size();p++)
+        for (uint32 p = 0; p < id3Frames.size(); p++)
         {
             OSCL_HeapString<OsclMemAllocator> keystr((const char *)((*id3Frames[p]).key), oscl_strlen((const char *)((*id3Frames[p]).key)));
             leavecode = PushKVPKey(keystr, iAvailableMetadataKeys);
@@ -518,7 +525,7 @@ OSCL_EXPORT_REF MP3ErrorType IMpeg3File::SetFileSize(const uint32 aFileSize)
     MP3ErrorType errCode = MP3_ERROR_UNKNOWN;
     if (pMP3Parser != NULL)
     {
-        errCode	= pMP3Parser->SetFileSize(aFileSize);
+        errCode = pMP3Parser->SetFileSize(aFileSize);
     }
     return errCode;
 }
@@ -736,7 +743,7 @@ OSCL_EXPORT_REF PVMFStatus IMpeg3File::GetMetadataValues(PVMFMetadataList& aKeyL
             }
         }
 
-        if (gotvalue)	//get next key since this key has already been parsed.
+        if (gotvalue)   //get next key since this key has already been parsed.
         {
             gotvalue = false;
             continue;
@@ -1500,9 +1507,25 @@ OSCL_EXPORT_REF MP3ErrorType IMpeg3File::RequestReadCapacityNotification(PvmiDat
 
 OSCL_EXPORT_REF MP3ErrorType IMpeg3File::ScanMP3File(uint32 aFramesToScan)
 {
+    MP3ErrorType errCode = MP3_ERROR_UNKNOWN;
+
     if (pMP3Parser && iScanFP.IsOpen())
-        return pMP3Parser->ScanMP3File(&iScanFP, aFramesToScan);
-    return MP3_ERROR_UNKNOWN;
+    {
+        if (iUseExternalFileHandle)
+        {
+            uint32 currPos = iScanFP.Tell();
+            iScanFP.Seek(iLastScanPos, Oscl_File::SEEKSET);
+            errCode = pMP3Parser->ScanMP3File(&iScanFP, aFramesToScan);
+            iLastScanPos = iScanFP.Tell();
+            iScanFP.Seek(currPos, Oscl_File::SEEKSET);
+        }
+        else
+        {
+            errCode = pMP3Parser->ScanMP3File(&iScanFP, aFramesToScan);
+        }
+
+    }
+    return errCode;
 }
 
 OsclAny* IMpeg3File::AllocateKVPKeyArray(int32& aLeaveCode, PvmiKvpValueType aValueType, int32 aNumElements)

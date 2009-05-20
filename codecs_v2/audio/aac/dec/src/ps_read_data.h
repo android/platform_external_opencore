@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ps_read_data.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                   Date:
- Description:
+ Filename: ps_read_data.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -87,8 +81,8 @@ extern "C"
 #endif
 
     Int32 ps_read_data(STRUCT_PS_DEC *ps_dec,
-                       BIT_BUFFER * hBitBuf,
-                       Int32 nBitsLeft);
+    BIT_BUFFER * hBitBuf,
+    Int32 nBitsLeft);
 
 #ifdef __cplusplus
 }

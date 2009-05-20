@@ -22,13 +22,6 @@
 
    Filename: pvmp3_mpeg2_stereo_proc.h
 
-   Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -85,13 +78,13 @@ extern "C"
 #endif
 
     void pvmp3_mpeg2_stereo_proc(int32 xr[SUBBANDS_NUMBER*FILTERBANK_BANDS],
-                                 int32 xl[SUBBANDS_NUMBER*FILTERBANK_BANDS],
-                                 mp3ScaleFactors *scalefac,
-                                 granuleInfo *gr_info_l,
-                                 granuleInfo *gr_info_r,
-                                 uint32 *scalefac_IIP_buffer,
-                                 int32 used_freq_lines,
-                                 mp3Header *info);
+    int32 xl[SUBBANDS_NUMBER*FILTERBANK_BANDS],
+    mp3ScaleFactors *scalefac,
+    granuleInfo *gr_info_l,
+    granuleInfo *gr_info_r,
+    uint32 *scalefac_IIP_buffer,
+    int32 used_freq_lines,
+    mp3Header *info);
 
 
     void pvmp3_st_intensity_ver2(int32 xr[SUBBANDS_NUMBER*FILTERBANK_BANDS],

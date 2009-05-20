@@ -301,13 +301,13 @@ status_t PVMediaRecorder::stop()
     LOGV("stop");
     status_t ret = doStop();
     if (OK != ret)
-	LOGE("stop failed");
+    LOGE("stop failed");
     ret = reset();
     if (OK != ret)
-	LOGE("reset failed");
+    LOGE("reset failed");
     ret = close();
     if (OK != ret)
-	LOGE("close failed");
+    LOGE("close failed");
 
     return ret;
 }

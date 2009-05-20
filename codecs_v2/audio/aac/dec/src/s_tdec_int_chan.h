@@ -17,42 +17,7 @@
  */
 /*
 
- Pathname: s_tDec_Int_Chan.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Change data types of win
-
- Description: Remove wnd_shape structure.
-
- Description: Remove dependency on window_block.h, Fix header too.
-
- Description:
- Modified to utilize memory in the last 1024 elements in fxpCoef.
-
- Description:
- (1) Modified to include the lines...
-
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-
-    #ifdef __cplusplus
-    }
-    #endif
-
- (2) Updated the copyright header.
-
- Description:
- (1) Move temporary FrameInfo structure into the shared region with fxpCoef.
- (2) Add more comments detailing the size of the shared structure.
-
- Description:
- (1) Changed time_quant from 2048 Int32 buffer to 1024 Int32 buffer.
-
- Who:                                         Date:
- Description:
+ Filename: s_tdec_int_chan.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

@@ -17,33 +17,13 @@
  */
 /*
 
- Pathname: ./src/find_adts_syncword.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Fixed error in logic that determines whether there are enough
- bits available to conduct a search for the syncword.  The plus sign in
- the following condition should be a minus.
-
-    if (pInputStream->usedBits <
-            (pInputStream->availableBits + syncword_length)
-
- The length of the syncword should subtract from the number of available
- bits, not add.
-
- Description:  Fixed condition when the end of file was found, unsigned
-   comparison produced a undesired search. Fixed by casting comparison
-     if ((Int)pInputStream->usedBits <
-            ((Int)pInputStream->availableBits - syncword_length) )
-
- Description:
+ Filename: find_adts_syncword.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
  Inputs:
-	pSyncword     = Pointer to variable containing the syncword that the
+    pSyncword     = Pointer to variable containing the syncword that the
                     function should be scanning for in the buffer. [ UInt32 * ]
 
     pInputStream  = Pointer to a BITS structure, used by the function getbits
@@ -55,10 +35,10 @@
                       with the value pointed to by pSyncword. [ UInt32 ]
 
  Local Stores/Buffers/Pointers Needed:
-	None
+    None
 
  Global Stores/Buffers/Pointers Needed:
-	None
+    None
 
  Outputs:
     None
@@ -67,10 +47,10 @@
     None
 
  Local Stores Modified:
-	None
+    None
 
  Global Stores Modified:
-	None
+    None
 
 ------------------------------------------------------------------------------
  FUNCTION DESCRIPTION
@@ -130,7 +110,7 @@
             search_length = search_length - 1;
 
             adts_header = adts_header << 1;
-	        adts_header = adts_header OR ...
+            adts_header = adts_header OR ...
 
             CALL getbits(syncword_length, pInputStream);
                 MODIFYING pInputStream->usedBits
@@ -156,28 +136,6 @@
 
     return (status);
 
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-		  stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-		 name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-		   used to represent cycle count for each subroutine
-		   called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-		name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

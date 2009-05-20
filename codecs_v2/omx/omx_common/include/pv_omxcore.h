@@ -53,51 +53,6 @@
 #endif
 #endif
 
-#ifndef USE_CML2_CONFIG
-
-
-#ifdef ANDROID
-
-// NOTE: if at least one component uses dynamic loading,
-// USE_DYNAMIC_LOAD_OMX_COMPONENT needs to be 1
-#define USE_DYNAMIC_LOAD_OMX_COMPONENTS 0
-
-#define DYNAMIC_LOAD_OMX_AVC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_M4V_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_H263_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_WMV_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_AAC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_AMR_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_MP3_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_WMA_COMPONENT 0
-
-#define DYNAMIC_LOAD_OMX_AMRENC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_M4VENC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_H263ENC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_AVCENC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_AACENC_COMPONENT 0
-
-#else
-
-#define USE_DYNAMIC_LOAD_OMX_COMPONENTS 0
-
-#define DYNAMIC_LOAD_OMX_AVC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_M4V_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_H263_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_WMV_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_AAC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_AMR_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_MP3_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_WMA_COMPONENT 0
-
-#define DYNAMIC_LOAD_OMX_AMRENC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_M4VENC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_H263ENC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_AVCENC_COMPONENT 0
-#define DYNAMIC_LOAD_OMX_AACENC_COMPONENT 0
-
-#endif
-#endif
 
 #if USE_DYNAMIC_LOAD_OMX_COMPONENTS
 #ifndef OSCL_SHARED_LIBRARY_H_INCLUDED
@@ -105,7 +60,7 @@
 #endif
 #endif
 
-#define MAX_ROLES_SUPPORTED	3
+#define MAX_ROLES_SUPPORTED 3
 
 #ifdef __cplusplus
 extern "C"
@@ -113,9 +68,9 @@ extern "C"
 #endif
 
     OSCL_IMPORT_REF OMX_ERRORTYPE OMX_GetComponentsOfRole(
-        OMX_IN		OMX_STRING role,
-        OMX_INOUT	OMX_U32	*pNumComps,
-        OMX_INOUT	OMX_U8	**compNames);
+        OMX_IN      OMX_STRING role,
+        OMX_INOUT   OMX_U32 *pNumComps,
+        OMX_INOUT   OMX_U8  **compNames);
 
     OSCL_IMPORT_REF OMX_ERRORTYPE OMX_APIENTRY OMX_ComponentNameEnum(
         OMX_OUT OMX_STRING cComponentName,
@@ -190,9 +145,9 @@ class ComponentRegistrationType
 {
     public:
         // name of the component used as identifier
-        OMX_STRING		ComponentName;
-        OMX_STRING		RoleString[MAX_ROLES_SUPPORTED];
-        OMX_U32			NumberOfRolesSupported;
+        OMX_STRING      ComponentName;
+        OMX_STRING      RoleString[MAX_ROLES_SUPPORTED];
+        OMX_U32         NumberOfRolesSupported;
         // pointer to factory function to be called when component needs to be instantiated
         OMX_ERRORTYPE(*FunctionPtrCreateComponent)(OMX_OUT OMX_HANDLETYPE* pHandle, OMX_IN  OMX_PTR pAppData,
                 OMX_PTR pProxy, OMX_STRING aOmxLibName, OMX_PTR &aOmxLib, OMX_PTR aOsclUuid, OMX_U32 &aRefCount);

@@ -58,24 +58,24 @@ OSCL_EXPORT_REF PVMFStatus PVMFSocketNodeExtensionInterfaceImpl::AllocateConsecu
     return iContainer->AllocateConsecutivePorts(aPortConfig, aLowerPortNum, aHigherPortNum, aStartPortNum);
 }
 
-OSCL_EXPORT_REF PVMFStatus PVMFSocketNodeExtensionInterfaceImpl::SetMaxTCPRecvBufferSize(uint32 aBufferSize)
+OSCL_EXPORT_REF PVMFStatus PVMFSocketNodeExtensionInterfaceImpl::SetMaxTCPRecvBufferSize(uint32 aBufferSize, PVMFPortInterface* aPort)
 {
-    return iContainer->SetMaxTCPRecvBufferSize(aBufferSize);
+    return iContainer->SetMaxTCPRecvBufferSize(aBufferSize, aPort);
 }
 
-OSCL_EXPORT_REF PVMFStatus PVMFSocketNodeExtensionInterfaceImpl::GetMaxTCPRecvBufferSize(uint32& aSize)
+OSCL_EXPORT_REF PVMFStatus PVMFSocketNodeExtensionInterfaceImpl::GetMaxTCPRecvBufferSize(uint32& aSize, PVMFPortInterface* aPort) const
 {
-    return iContainer->GetMaxTCPRecvBufferSize(aSize);
+    return iContainer->GetMaxTCPRecvBufferSize(aSize, aPort);
 }
 
-OSCL_EXPORT_REF PVMFStatus PVMFSocketNodeExtensionInterfaceImpl::SetMaxTCPRecvBufferCount(uint32 aCount)
+OSCL_EXPORT_REF PVMFStatus PVMFSocketNodeExtensionInterfaceImpl::SetMaxTCPRecvBufferCount(uint32 aCount, PVMFPortInterface* aPort)
 {
-    return iContainer->SetMaxTCPRecvBufferCount(aCount);
+    return iContainer->SetMaxTCPRecvBufferCount(aCount, aPort);
 }
 
-OSCL_EXPORT_REF PVMFStatus PVMFSocketNodeExtensionInterfaceImpl::GetMaxTCPRecvBufferCount(uint32& aCount)
+OSCL_EXPORT_REF PVMFStatus PVMFSocketNodeExtensionInterfaceImpl::GetMaxTCPRecvBufferCount(uint32& aCount, PVMFPortInterface* aPort) const
 {
-    return iContainer->GetMaxTCPRecvBufferCount(aCount);
+    return iContainer->GetMaxTCPRecvBufferCount(aCount, aPort);
 }
 
 OSCL_EXPORT_REF OsclMemPoolResizableAllocator* PVMFSocketNodeExtensionInterfaceImpl::CreateSharedBuffer(const PVMFPortInterface* aPort , uint32 aBufferSize, uint32 aExpectedNumberOfBlocksPerBuffer, uint32 aResizeSize, uint32 aMaxNumResizes)

@@ -122,13 +122,17 @@ void PVPlayerNodeRegistry::AddLoadableModules(const OSCL_String& aConfigFilePath
             }
             else
             {
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_MLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerNodeRegistry::AddLoadableModules() QueryInterface() of PV_NODE_POPULATOR_INTERFACE for library %s failed.", libList.GetLibraryPathAt(i).get_cstr()));
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_MLDBG, iLogger, PVLOGMSG_ERR,
+                                (0, "PVPlayerNodeRegistry::AddLoadableModules() QueryInterface() of PV_NODE_POPULATOR_INTERFACE for library %s failed.",
+                                 libList.GetLibraryPathAt(i).get_cstr()));
 
             }
         }
         else
         {
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_MLDBG, iLogger, PVLOGMSG_ERR, (0, "PVPlayerNodeRegistry::AddLoadableModules() LoadLib() of library %s failed.", libList.GetLibraryPathAt(i).get_cstr()));
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_MLDBG, iLogger, PVLOGMSG_ERR,
+                            (0, "PVPlayerNodeRegistry::AddLoadableModules() LoadLib() of library %s failed.",
+                             libList.GetLibraryPathAt(i).get_cstr()));
         }
         lib->Close();
         OSCL_DELETE(lib);
@@ -413,7 +417,7 @@ void PVPlayerRecognizerRegistry::RemoveLoadableModules()
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerRecognizerRegistry::RemoveLoadableModules() OUT"));
 }
 
-PVMFStatus PVPlayerRecognizerRegistry::QueryFormatType(OSCL_wString& aSourceURL, PVPlayerRecognizerRegistryObserver& aObserver, OsclAny* aCmdContext)
+PVMFStatus PVPlayerRecognizerRegistry::QueryFormatType(OSCL_wString& aSourceURL, PVPlayerRecognizerRegistryObserver& aObserver, OsclAny* aCmdContext, OsclFileHandle* aFileHandle)
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerRecognizerRegistry::QueryFormatType() IN"));
     if (iObserver != NULL)
@@ -431,7 +435,14 @@ PVMFStatus PVPlayerRecognizerRegistry::QueryFormatType(OSCL_wString& aSourceURL,
         iFileDataStreamFactory = NULL;
     }
     int32 leavecode = 0;
-    OSCL_TRY(leavecode, iFileDataStreamFactory = OSCL_STATIC_CAST(PVMFDataStreamFactory*, OSCL_NEW(PVMIDataStreamSyncInterfaceRefFactory, (aSourceURL))));
+    if (aFileHandle)
+    {
+        OSCL_TRY(leavecode, iFileDataStreamFactory = OSCL_STATIC_CAST(PVMFDataStreamFactory*, OSCL_NEW(PVMIDataStreamSyncInterfaceRefFactory, (aFileHandle))));
+    }
+    else
+    {
+        OSCL_TRY(leavecode, iFileDataStreamFactory = OSCL_STATIC_CAST(PVMFDataStreamFactory*, OSCL_NEW(PVMIDataStreamSyncInterfaceRefFactory, (aSourceURL))));
+    }
     OSCL_FIRST_CATCH_ANY(leavecode,
                          return PVMFErrNoMemory;
                         );

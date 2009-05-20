@@ -17,17 +17,7 @@
  */
 /*
 
- Pathname: sfb.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: created to declare scalefactor bands for all sampling rates
-
- Description: Change short to Int16
-
- Description: Eliminated declaration of sfb_96_128 array, values are equal
-              to array sfb_64_128
+ Filename: sfb.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

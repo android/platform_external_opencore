@@ -18,17 +18,8 @@
 /*
 
  Filename: sbr_downsample_lo_res.h
- Funtions:
+ Functions:
     get_dse
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
-
 
  ----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
@@ -80,9 +71,9 @@ extern "C"
 #endif
 
     void  sbr_downsample_lo_res(Int32 v_result[],
-                                Int32 num_result,
-                                Int   freqBandTableRef[],
-                                Int32 num_Ref);
+    Int32 num_result,
+    Int   freqBandTableRef[],
+    Int32 num_Ref);
 
 #ifdef __cplusplus
 }

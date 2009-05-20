@@ -74,16 +74,10 @@ OMX_ERRORTYPE AmrEncOmxComponentDestructor(OMX_IN OMX_HANDLETYPE pHandle, OMX_PT
 
 #if DYNAMIC_LOAD_OMX_AMRENC_COMPONENT
 class AmrEncOmxSharedLibraryInterface:  public OsclSharedLibraryInterface,
-            public OmxSharedLibraryInterface
+        public OmxSharedLibraryInterface
 
 {
     public:
-        static AmrEncOmxSharedLibraryInterface *Instance()
-        {
-            static AmrEncOmxSharedLibraryInterface omxinterface;
-            return &omxinterface;
-        };
-
         OsclAny *QueryOmxComponentInterface(const OsclUuid& aOmxTypeId, const OsclUuid& aInterfaceId)
         {
             if (PV_OMX_AMRENC_UUID == aOmxTypeId)
@@ -109,7 +103,6 @@ class AmrEncOmxSharedLibraryInterface:  public OsclSharedLibraryInterface,
             return NULL;
         };
 
-    private:
         AmrEncOmxSharedLibraryInterface() {};
 };
 
@@ -118,7 +111,13 @@ extern "C"
 {
     OSCL_EXPORT_REF OsclAny* PVGetInterface()
     {
-        return AmrEncOmxSharedLibraryInterface::Instance();
+        return (OsclAny*) OSCL_NEW(AmrEncOmxSharedLibraryInterface, ());
+    }
+
+    OSCL_EXPORT_REF void PVReleaseInterface(OsclSharedLibraryInterface* aInstance)
+    {
+        AmrEncOmxSharedLibraryInterface* module = (AmrEncOmxSharedLibraryInterface*)aInstance;
+        OSCL_DELETE(module);
     }
 }
 
@@ -254,9 +253,9 @@ OMX_ERRORTYPE OmxComponentAmrEncoderAO::ConstructComponent(OMX_PTR pAppData, OMX
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->AudioAmrParam.nPortIndex = OMX_PORT_OUTPUTPORT_INDEX;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->AudioAmrParam.nChannels = 1;
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->AudioAmrParam.nBitRate = 0;
-    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->AudioAmrParam.eAMRBandMode = OMX_AUDIO_AMRBandModeNB7;	//AMRNB Mode 7 = 12200 bps
+    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->AudioAmrParam.eAMRBandMode = OMX_AUDIO_AMRBandModeNB7;  //AMRNB Mode 7 = 12200 bps
     ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->AudioAmrParam.eAMRDTXMode = OMX_AUDIO_AMRDTXModeOnVAD1;
-    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->AudioAmrParam.eAMRFrameFormat = OMX_AUDIO_AMRFrameFormatFSF;	//PVMF_AMR_IETF
+    ipPorts[OMX_PORT_OUTPUTPORT_INDEX]->AudioAmrParam.eAMRFrameFormat = OMX_AUDIO_AMRFrameFormatFSF;    //PVMF_AMR_IETF
 
     iPortTypesParam.nPorts = 2;
     iPortTypesParam.nStartPortNumber = 0;
@@ -274,6 +273,8 @@ OMX_ERRORTYPE OmxComponentAmrEncoderAO::ConstructComponent(OMX_PTR pAppData, OMX
     pOutPort->AudioParam.nIndex = 0;
     pOutPort->AudioParam.eEncoding = OMX_AUDIO_CodingAMR;
 
+    oscl_strncpy((OMX_STRING)iComponentRole, (OMX_STRING)"audio_encoder.amrnb", OMX_MAX_STRINGNAME_SIZE);
+
     iInputBufferRemainingBytes = 0;
 
     if (ipAmrEnc)
@@ -287,6 +288,7 @@ OMX_ERRORTYPE OmxComponentAmrEncoderAO::ConstructComponent(OMX_PTR pAppData, OMX
     {
         return OMX_ErrorInsufficientResources;
     }
+
 
 
 #if PROXY_INTERFACE
@@ -310,9 +312,9 @@ OMX_ERRORTYPE OmxComponentAmrEncoderAO::ConstructComponent(OMX_PTR pAppData, OMX
 
 
 /** This function is called by the omx core when the component
-	* is disposed by the IL client with a call to FreeHandle().
-	* \param Component, the component to be disposed
-	*/
+    * is disposed by the IL client with a call to FreeHandle().
+    * \param Component, the component to be disposed
+    */
 
 OMX_ERRORTYPE OmxComponentAmrEncoderAO::DestroyComponent()
 {
@@ -346,7 +348,13 @@ OMX_ERRORTYPE OmxComponentAmrEncoderAO::DestroyComponent()
 /* This routine will extract the input timestamp from the input buffer */
 void OmxComponentAmrEncoderAO::SyncWithInputTimestamp()
 {
-    iCurrentTimestamp = iFrameTimestamp;
+    // this is called when new input buffer is received
+    // and checked against internally kept (Current) timestamp
+// TODO:
+// If there is unprocessed data from previous buffer - need to adjust timestamp - but
+// timestamp adjustment should only be done once (if multiple PCM input buffers are received - prior to doing further processing)
+
+
 }
 
 
@@ -361,8 +369,8 @@ void OmxComponentAmrEncoderAO::ProcessData()
     ComponentPortType* pOutPort = ipPorts[OMX_PORT_OUTPUTPORT_INDEX];
     OMX_COMPONENTTYPE* pHandle  = &iOmxComponent;
 
-    OMX_U8*	 pOutBuffer;
-    OMX_U32	 OutputLength;
+    OMX_U8*  pOutBuffer;
+    OMX_U32  OutputLength;
     OMX_S32  EncodeReturn;
     OMX_U32  RemainderInputBytes = 0;
     OMX_TICKS OutputTimeStamp;
@@ -405,8 +413,8 @@ void OmxComponentAmrEncoderAO::ProcessData()
                 iActualNumberOutputFrames = omx_min(AllocNumberOutputFrames, iMaxNumberOutputFrames);
 
                 /* Keep the minimum of the two:
-                	-frames accomodated and
-                	-maximum frames defined by component */
+                    -frames accomodated and
+                    -maximum frames defined by component */
                 iOutputFrameLength = iActualNumberOutputFrames * MAX_AMR_FRAME_SIZE;
             }
         }
@@ -592,12 +600,6 @@ void OmxComponentAmrEncoderAO::ProcessData()
 }
 
 
-//Not implemented & supported in case of base profile components
-
-void OmxComponentAmrEncoderAO::ComponentGetRolesOfComponent(OMX_STRING* aRoleString)
-{
-    *aRoleString = (OMX_STRING)"audio_encoder.amr";
-}
 
 
 //Component constructor

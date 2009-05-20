@@ -33,16 +33,9 @@
 #include "test_pv_player_engine_config.h"
 #endif
 
-#if RUN_FASTTRACK_TESTCASES
-#ifndef PVPVXPARSER_H_INCLUDED
-#include "pvpvxparser.h"
-#endif
-#endif
 
-#if !(JANUS_IS_LOADABLE_MODULE)
 #ifndef PVMF_CPMPLUGIN_FACTORY_REGISTRY_H_INCLUDED
 #include "pvmf_cpmplugin_factory_registry.h"
-#endif
 #endif
 
 class PVPlayerDataSourceURL;
@@ -52,12 +45,6 @@ class PVMFDownloadDataSourcePVX;
 class PVMFDownloadDataSourceHTTP;
 class PVMFSourceContextData;
 class PvmiCapabilityAndConfig;
-class PVMFJanusPluginFactory;
-#if RUN_CPMJANUS_TESTCASES
-class PVMFJanusPluginConfiguration;
-#endif
-class WmDrmDeviceInfoFactory;
-class PVWmdrmDeviceSystemClockFactory;
 
 class pvplayer_async_test_downloadbase : public pvplayer_async_test_base
 {
@@ -216,52 +203,6 @@ class pvplayer_async_test_downloadbase : public pvplayer_async_test_base
         OSCL_StackString<256> iKeyStringSetAsync;
 };
 
-#if RUN_FASTTRACK_TESTCASES
-/*!
- *  A test case to test the normal FastTrack download and playback from a PVX file
- *  - Data Source: test.pvx
- *  - Data Sink(s): Video[FileOutputNode-test_player_ftdlnormal_video.dat]\n
- *                  Audio[FileOutputNode-test_player_ftdlnormal_audio.dat]
- *  - Sequence:
- *             -# CreatePlayer()
- *             -# AddDataSource()
- *             -# Init()
- *             -# AddDataSink() (video)
- *             -# AddDataSink() (audio)
- *             -# Prepare()
- *             -# Wait for Data Ready event
- *             -# Start()
- *             -# Play until either EOS is reached or 10 seconds after download
- *					finishes.
- *             -# Stop()
- *             -# RemoveDataSink() (video)
- *             -# RemoveDataSink() (audio)
- *             -# Reset()
- *             -# RemoveDataSource()
- *             -# DeletePlayer()
- *
- */
-class pvplayer_async_test_ftdlnormal : public pvplayer_async_test_downloadbase
-{
-    public:
-        pvplayer_async_test_ftdlnormal(PVPlayerAsyncTestParam aTestParam)
-                : pvplayer_async_test_downloadbase(aTestParam)
-        {
-            iLogger = PVLogger::GetLoggerObject("pvplayer_async_test_ftdlnormal");
-            iTestCaseName = _STRLIT_CHAR("FastTrack Download Normal");
-        }
-
-        ~pvplayer_async_test_ftdlnormal();
-
-        void CreateDataSource();
-        void CreateDataSinkVideo();
-        void CreateDataSinkAudio();
-
-        uint8 iPVXFileBuf[4096];
-        int32 iDownloadMaxfilesize;
-        CPVXInfo iDownloadPvxInfo;
-};
-#endif
 
 /*!
  *  A test case to test the normal 3GPP download and playback from an HTTP URL.
@@ -278,7 +219,7 @@ class pvplayer_async_test_ftdlnormal : public pvplayer_async_test_downloadbase
  *             -# Wait for Data Ready event
  *             -# Start()
  *             -# Play until either EOS is reached or 10 seconds after download
- *					finishes.
+ *                  finishes.
  *             -# Stop()
  *             -# RemoveDataSink() (video)
  *             -# RemoveDataSink() (audio)
@@ -295,11 +236,6 @@ class pvplayer_async_test_3gppdlnormal : public pvplayer_async_test_downloadbase
         {
             iLogger = PVLogger::GetLoggerObject("pvplayer_async_test_3gppdlnormal");
             iTestCaseName = _STRLIT_CHAR("3GPP Download Play ASAP");
-#if RUN_CPMJANUS_TESTCASES && !(JANUS_IS_LOADABLE_MODULE)
-            iPluginFactory = NULL;
-            iDrmDeviceInfoFactory = NULL;
-            iDrmSystemClockFactory = NULL;
-#endif
         }
 
         ~pvplayer_async_test_3gppdlnormal();
@@ -308,16 +244,6 @@ class pvplayer_async_test_3gppdlnormal : public pvplayer_async_test_downloadbase
         void CreateDataSinkVideo();
         void CreateDataSinkAudio();
 
-        //for janus DRM
-#if RUN_CPMJANUS_TESTCASES && !(JANUS_IS_LOADABLE_MODULE)
-        PVMFCPMPluginFactoryRegistryClient iPluginRegistryClient;
-        PVMFJanusPluginFactory* iPluginFactory;
-        OSCL_HeapString<OsclMemAllocator> iPluginMimeType;
-        bool RegisterJanusPlugin(PVMFJanusPluginConfiguration& aConfig);
-        void CleanupJanusPlugin();
-        WmDrmDeviceInfoFactory* iDrmDeviceInfoFactory;
-        PVWmdrmDeviceSystemClockFactory* iDrmSystemClockFactory;
-#endif
         void CleanupData();
 };
 
@@ -336,7 +262,7 @@ class pvplayer_async_test_3gppdlnormal : public pvplayer_async_test_downloadbase
  *             -# Wait for Data Ready event
  *             -# Start()
  *             -# Play until either EOS is reached or 10 seconds after download
- *					finishes.
+ *                  finishes.
  *             -# Stop()
  *             -# RemoveDataSink() (video)
  *             -# RemoveDataSink() (audio)
@@ -684,6 +610,7 @@ class pvplayer_async_test_ppb_base : public pvplayer_async_test_base
                 , iShoutcastSession(false)
                 , iSCListenTime(0)
                 , iShoutcastPlayStopPlay(false)
+                , iUseLongClip(false)
                 , iSessionDuration(0)
         {
             iNumBufferingStart = iNumBufferingComplete = iNumUnderflow = iNumDataReady = iNumEOS = 0;
@@ -817,7 +744,7 @@ class pvplayer_async_test_ppb_base : public pvplayer_async_test_base
 
         void enableLoop()
         {
-            iLoop = iLoopReq = 10;
+            iLoop = iLoopReq = 5;
         }
         int32 iLoop;
         int32 iLoopReq;
@@ -886,6 +813,12 @@ class pvplayer_async_test_ppb_base : public pvplayer_async_test_base
             iShoutcastPlayStopPlay = true;
         }
 
+        void useLongClip()
+        {
+            iUseLongClip = true;
+        }
+        bool iUseLongClip;
+
         //for janus drm.
         void PrintJanusError(const PVCmdResponse& aResponse);
 
@@ -934,11 +867,11 @@ class pvplayer_async_test_ppb_normal : public pvplayer_async_test_ppb_base
  *             -# Prepare()
  *             -# Wait for Data Ready event
  *             -# Start()
- *			   -# After getting UnderFlow event
- *			   -# Pause()
- *			   -# Resume()
+ *             -# After getting UnderFlow event
+ *             -# Pause()
+ *             -# Resume()
  *             -# Play until either EOS is reached or 10 seconds after download
- *					finishes.
+ *                  finishes.
  *             -# Stop()
  *             -# RemoveDataSink() (video)
  *             -# RemoveDataSink() (audio)

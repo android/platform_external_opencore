@@ -3,14 +3,9 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
 	src/ccrgb16toyuv420.cpp \
- 	src/ccrgb24torgb16.cpp \
  	src/ccyuv422toyuv420.cpp \
- 	src/cczoomrotation12.cpp \
  	src/cczoomrotation16.cpp \
- 	src/cczoomrotation24.cpp \
- 	src/cczoomrotation32.cpp \
  	src/cczoomrotationbase.cpp \
- 	src/cpvvideoblend.cpp \
  	src/ccrgb24toyuv420.cpp \
  	src/ccrgb12toyuv420.cpp \
  	src/ccyuv420semiplnrtoyuv420plnr.cpp \
@@ -36,15 +31,10 @@ LOCAL_COPY_HEADERS_TO := $(PV_COPY_HEADERS_TO)
 
 LOCAL_COPY_HEADERS := \
 	include/cczoomrotationbase.h \
- 	include/cczoomrotation12.h \
  	include/cczoomrotation16.h \
- 	include/cczoomrotation24.h \
- 	include/cczoomrotation32.h \
  	include/ccrgb16toyuv420.h \
- 	include/ccrgb24torgb16.h \
  	include/ccyuv422toyuv420.h \
  	include/colorconv_config.h \
- 	include/pvvideoblend.h \
  	include/ccrgb24toyuv420.h \
  	include/ccrgb12toyuv420.h \
  	include/ccyuv420semitoyuv420.h \

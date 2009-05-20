@@ -43,14 +43,6 @@
     pvmp3_decode_huff_cw_tab32
     pvmp3_decode_huff_cw_tab33
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Description:
-
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 

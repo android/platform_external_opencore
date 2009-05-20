@@ -63,7 +63,7 @@ PVMFAMRFFParserNode::PVMFAMRFFParserNode(int32 aPriority) :
     iLogger                    = NULL;
     iDataPathLogger            = NULL;
     iClockLogger               = NULL;
-    iDownloadComplete		   = false;
+    iDownloadComplete          = false;
 
     iFileSizeLastConvertedToTime = 0;
     iLastNPTCalcInConvertSizeToTime = 0;
@@ -701,6 +701,7 @@ PVMFStatus PVMFAMRFFParserNode::DoGetMetadataValues(PVMFAMRFFNodeCommand& aCmd)
             if (numvalentries > (uint32)starting_index)
             {
                 bool random_access_denied = false;
+                if (iAMRFileInfo.iDuration <= 0) random_access_denied = true;
 
                 PVMFStatus retval =
                     PVMFCreateKVPUtils::CreateKVPForBoolValue(KeyVal,
@@ -886,6 +887,11 @@ PVMFStatus PVMFAMRFFParserNode::DoSetDataSourcePosition(PVMFAMRFFNodeCommand& aC
     }
 
     // get media data TS (should be equal to iContinuousTimeStamp)
+    if (iInterfaceState != EPVMFNodePrepared)
+    {
+        iSelectedTrackList[0].iContinuousTimeStamp += PVMF_AMR_PARSER_NODE_TS_DELTA_DURING_REPOS_IN_MS;
+        iSelectedTrackList[0].iClockConverter->update_clock(Oscl_Int64_Utils::get_uint64_lower32(iSelectedTrackList[0].iContinuousTimeStamp));
+    }
     uint32 millisecTS = iSelectedTrackList[0].iClockConverter->get_converted_ts(1000);
     *actualMediaDataTS = millisecTS;
 
@@ -928,6 +934,43 @@ PVMFStatus PVMFAMRFFParserNode::DoSetDataSourcePosition(PVMFAMRFFNodeCommand& aC
     {
         if (bitstreamObject::END_OF_FILE == result)
         {
+            for (uint32 i = 0; i < iSelectedTrackList.size(); ++i)
+            {
+                iSelectedTrackList[i].iSeqNum = 0;
+                iSelectedTrackList[i].oEOSReached = true;
+                iSelectedTrackList[i].oQueueOutgoingMessages = true;
+                iSelectedTrackList[i].oEOSSent = false;
+            }
+            result = iAMRParser->ResetPlayback(0);
+            if (result != bitstreamObject::EVERYTHING_OK)
+            {
+                return PVMFErrResource;
+            }
+
+            *actualNPT = result;
+            return PVMFSuccess;
+        }
+        else if (bitstreamObject::DATA_INSUFFICIENT == result)
+        {
+            // This condition could mean 2 things
+            // 1) End Of File reached for a local content
+            // 2) Insufficient data condition met for PDL use-case
+            // For 1 treat it as End of File and send End of Track
+            // For 2 we dont support reposition until the clip is fully downloaded,
+            // if the clip is fully downloaded and then we get Insufficient data condition
+            // treat it as End Of File.
+            if (iDownloadProgressInterface != NULL)
+            {
+                // Check if the file is completely Downloaded or not
+                if (!iDownloadComplete)
+                {
+                    // File not downloaded completely, return not Supported
+                    return PVMFErrNotSupported;
+                }
+            }
+
+            // Here either file is completely downlaoded if doing PDL or it is a local file,
+            // treat it as End of File in both cases
             for (uint32 i = 0; i < iSelectedTrackList.size(); ++i)
             {
                 iSelectedTrackList[i].iSeqNum = 0;
@@ -1925,7 +1968,7 @@ void PVMFAMRFFParserNode::DoReleasePort(PVMFAMRFFNodeCommand& aCmd)
     // set the address to NULL
 
     // Remove the selected track from the track list
-    for (uint32 i = 0;i < iSelectedTrackList.size();i++)
+    for (uint32 i = 0; i < iSelectedTrackList.size(); i++)
     {
         if (iSelectedTrackList[i].iPort == aCmd.iParam1)
         {
@@ -4055,7 +4098,7 @@ PVMFStatus PVMFAMRFFParserNode::PushValueToList(Oscl_Vector<OSCL_HeapString<Oscl
 {
     int32 leavecode = 0;
     OSCL_TRY(leavecode, aKeyListPtr->push_back(aRefMetaDataKeys[aLcv]));
-    OSCL_FIRST_CATCH_ANY(leavecode, PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFAMRFFParserNode::PushValueToList() Memory allocation failure when copying metadata key"));return PVMFErrNoMemory);
+    OSCL_FIRST_CATCH_ANY(leavecode, PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFAMRFFParserNode::PushValueToList() Memory allocation failure when copying metadata key")); return PVMFErrNoMemory);
     return PVMFSuccess;
 }
 

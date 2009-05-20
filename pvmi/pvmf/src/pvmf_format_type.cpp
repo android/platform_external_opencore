@@ -97,7 +97,8 @@ OSCL_EXPORT_REF bool PVMFFormatType::isVideo() const
             (pv_mime_strcmp(iMimeStr.c_str(), PVMF_MIME_RGB16) == 0) ||
             (pv_mime_strcmp(iMimeStr.c_str(), PVMF_MIME_RGB24) == 0) ||
             (pv_mime_strcmp(iMimeStr.c_str(), PVMF_MIME_H264_VIDEO_RAW) == 0) ||
-            (pv_mime_strcmp(iMimeStr.c_str(), PVMF_MIME_H264_VIDEO_MP4) == 0))
+            (pv_mime_strcmp(iMimeStr.c_str(), PVMF_MIME_H264_VIDEO_MP4) == 0) ||
+            (pv_mime_strcmp(iMimeStr.c_str(), PVMF_MIME_ISO_AVC_SAMPLE_FORMAT) == 0))
     {
         return true;
     }

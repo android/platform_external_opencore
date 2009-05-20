@@ -13,7 +13,6 @@ XINCDIRS += \
         ../../../../audio/mp3/dec/src \
         ../../../../audio/mp3/dec/include
 
-XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 
 OPTIMIZE_FOR_PERFORMANCE_OVER_SIZE := true
 

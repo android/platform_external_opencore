@@ -17,7 +17,7 @@
  */
 /*
 
- Pathname: ./src/decode_huff_cw_binary.c
+ Filename: decode_huff_cw_binary.cpp
  Funtions:
     decode_huff_cw_tab1
     decode_huff_cw_tab2
@@ -32,27 +32,6 @@
     decode_huff_cw_tab11
     decode_huff_cw_scl
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Updated per review comments
-              (1) make cw sgined and change "if(cw&0x80000000)" to if(cw<0)
-              (2)
-
- Description: Create specific functions for different huffman tables.
-
-
- Description: Added ( Int16) castings to eliminate several compiler warnings
-
-
- Description: Modified huffman tables to allocate int32 variables instead of
-              int16, which lead to data missaligned for some compiler.
-              Eliminated casting and unused variables
-
-
- Who:                                   Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -140,20 +119,6 @@
 
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE:
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES:
-
-
-------------------------------------------------------------------------------
 */
 
 
@@ -179,8 +144,8 @@
 #define    MASK_IDX    (0x1FF)
 #define    MASK_RIGHT  (0xFE00)
 
-#define	   UPPER16		(16)
-#define	   MASK_LOW16   (0xFFFF)
+#define    UPPER16      (16)
+#define    MASK_LOW16   (0xFFFF)
 /*----------------------------------------------------------------------------
 ; LOCAL FUNCTION DEFINITIONS
 ; Function Prototype declaration

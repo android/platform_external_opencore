@@ -17,76 +17,10 @@
  */
 /*
 
- Pathname:  huffspec_fxp.c
+ Filename: huffspec_fxp.cpp
  Funtions:
     huffspec_fxp
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description: (1) Modified to keep in-line with PV standards
-              (2) Eliminated "continue" in if(sect_cb==ZERO_HCB||...)
-
- Description: (1) Use SectInfo *pSect
-              (2) Convert 'Real' to 'Int32', float -> fixed-point
-              (3) move BITS *pInputStream to second parameter
-              (4) pass in quantSpec and tmp_spec, scratch shared with hufffac
-              (5) pass in FrameInfo *pLongFrameInfo, eliminate only_long_info
-
- Description: (1) Eliminate parameter Hcb *book, because of eliminating
-                  function 'hufftab.c', Hcb hcbbook defined as a
-                  const structure in 'hcbtables.h'.
-              (2) Replace three nested 'for' loops with a for-while loop in
-                  the rescaling part.
-              (3) Change esc_iquant-> esc_iquant_fxp, call esc_iquant_fxp()
-                  by sfb
-
- Description: Cleaned up include files.
-
- Description:  Correct definition of stack variable "scale".
-        It was defined as Int, but it receives an UInt value,
-        this present a problem when Int is 16 bits and
-        the sign bit is not interpreted correctly. This does not
-        shows for 32-bit implementations. This problem manifest itself
-        as a flipping sign on some spectral coefficients (the ones
-        multiplied by 0x8000).
-
- Description: Typecast b_low and b_high to 32-bits before multiplication, this
-              assures propoer compilation on a 16-bit platform (TI-C55x)
-
- Description: Modified to speed up decode_huff_cw
-
- Description: pass codebook index to decode_huff_cw, delete pointer to Huffman
-              structure
-
- Description: keep memset to quantSpec, remove memset to temp_spec
-
- Description: Modified per review comments
-
- Description: Use Binary tree search in decode_huff_cw_binary
-
- Description: Modified per review comments
-              (1) delete unused codes
-
- Description: (1) Change the interface to decode huffman codeword.
-			  (2) Move the scaling inside the inverse quantization.
-			  (3) Change scaling factor accuracy to 10 bits.
-
- Description:
-              (1) delete unused variable max_fac
-
- Description: Addresses of huffman tables are now found by means of a
-              switch statement, this solve linking problem when using the
-              /ropi option (Read-only position independent) for some
-              compilers
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -195,28 +129,6 @@
 
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
-
-------------------------------------------------------------------------------
 */
 
 /*----------------------------------------------------------------------------
@@ -224,7 +136,7 @@
 ----------------------------------------------------------------------------*/
 #include    "pv_audio_type_defs.h"
 #include    "aac_mem_funcs.h"
-#include	"esc_iquant_scaling.h"
+#include    "esc_iquant_scaling.h"
 #include    "huffman.h"
 #include    "unpack_idx.h"
 #include    "pulse_nc.h"
@@ -324,7 +236,7 @@ Int huffspec_fxp(
     Int     *pSfbStart;
     Int     *pSfb;
     Int16     *pQuantSpec;        /* probably could be short */
-    Int		max = 0;
+    Int     max = 0;
     /* rescaling parameters */
     Int     nsfb;
     Int     tot_sfb;

@@ -12,8 +12,10 @@ XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 SRCDIR := ../../src
 INCSRCDIR := ../../include
 
-SRCS := aacfileparser.cpp
+SRCS := aacfileparser.cpp \
+	aacfileio.cpp
 
-HDRS := aacfileparser.h 
+HDRS := aacfileparser.h \
+	aacfileio.h
 
 include $(MK)/library.mk

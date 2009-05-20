@@ -59,6 +59,12 @@ class AVTConfig
             iSamplingRate = 0;
             iNumChannels = 0;
             iLoopingEnable = false;
+            iTotalAudioSamples = 0;
+            iTotalVideoSamples = 0;
+            iAverageAudioBitRate = 0;
+            iAverageVideoBitRate = 0;
+            iAudioTimeScale = 0;
+            iVideoTimeScale = 0;
 
         };
 
@@ -71,6 +77,12 @@ class AVTConfig
             iSamplingRate = 0;
             iNumChannels = 0;
             iLoopingEnable = false;
+            iTotalAudioSamples = 0;
+            iTotalVideoSamples = 0;
+            iAverageAudioBitRate = 0;
+            iAverageVideoBitRate = 0;
+            iAudioTimeScale = 0;
+            iVideoTimeScale = 0;
 
         };
 
@@ -83,8 +95,16 @@ class AVTConfig
             iSamplingRate = arATVConfig.iSamplingRate;
             iNumChannels = arATVConfig.iNumChannels;
             iTextLogFile = arATVConfig.iTextLogFile;
+            iAudioLogFile = arATVConfig.iAudioLogFile;
+            iVideoLogFile = arATVConfig.iVideoLogFile;
             iTextConfigFile = arATVConfig.iTextConfigFile;
             iLoopingEnable = arATVConfig.iLoopingEnable;
+            iTotalAudioSamples = arATVConfig.iTotalAudioSamples;
+            iTotalVideoSamples = arATVConfig.iTotalVideoSamples;
+            iAverageAudioBitRate = arATVConfig.iAverageAudioBitRate;
+            iAverageVideoBitRate = arATVConfig.iAverageVideoBitRate;
+            iAudioTimeScale = arATVConfig.iAudioTimeScale;
+            iVideoTimeScale = arATVConfig.iVideoTimeScale;
 
         }
 
@@ -96,7 +116,16 @@ class AVTConfig
         int iNumChannels;
         OSCL_HeapString<OsclMemAllocator> iTextLogFile;
         OSCL_HeapString<OsclMemAllocator> iTextConfigFile;
+        OSCL_HeapString<OsclMemAllocator> iAudioLogFile;
+        OSCL_HeapString<OsclMemAllocator> iVideoLogFile;
         bool iLoopingEnable;
+        int iTotalAudioSamples;
+        int iTotalVideoSamples;
+        int iAverageAudioBitRate;
+        int iAverageVideoBitRate;
+        int iAudioTimeScale;
+        int iVideoTimeScale;
+
 };
 
 /** Enumerated list of test input types */
@@ -115,9 +144,11 @@ typedef enum
     , YUV_WRONG_FILE //just introduced for error handling scenarios
     , TEXT_FILE
     , AMRWB_IETF_FILE
+    , AAC_FILE
+    , AVC_FILE
 } PVAETestInputType;
 
-#define ARRAY_SIZE	512
+#define ARRAY_SIZE  512
 
 ////////////////////////////////////////////////////////////////////////////
 class PVAETestInput

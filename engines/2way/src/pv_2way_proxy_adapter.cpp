@@ -208,6 +208,8 @@ OSCL_EXPORT_REF void CPV2WayProxyAdapter::PVThreadLogon(PVMainProxy &proxy)
 
 OSCL_EXPORT_REF void CPV2WayProxyAdapter::PVThreadLogoff(PVMainProxy &proxy)
 {
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                    (0, "CPV2WayProxyAdapter::PVThreadLogoff"));
     OSCL_UNUSED_ARG(proxy);
     DeleteTerminal();
 }
@@ -506,10 +508,6 @@ PVCommandId CPV2WayProxyAdapter::RemoveLogAppender(const char* aTag, OsclSharedP
 
 PVCommandId CPV2WayProxyAdapter::SetLogLevel(const char *aTag, int32 aLevel, bool aSetSubtree, OsclAny* aContextData)
 {
-    // set the log level in this thread
-    PVLogger *logger = PVLogger::GetLoggerObject(aTag);
-    logger->SetLogLevel(aLevel);
-
     ////// copy tag string //////
     Oscl_TAlloc<uint8, OsclMemAllocator> myAlloc;
     typedef OsclRefCounterSA<Oscl_TAlloc<uint8, OsclMemAllocator> > refcount_type;
@@ -642,34 +640,57 @@ void CPV2WayProxyAdapter::CommandCompleted(const PVCmdResponse& aResponse)
     CPVCmnInterfaceCmdMessage *iface_msg = (CPVCmnInterfaceCmdMessage *)aResponse.GetContext();
     PVMFStatus status = aResponse.GetCmdStatus();
 
-    if (iface_msg->GetType() == PVT_COMMAND_QUERY_INTERFACE)
+    if (iface_msg && iface_msg->GetType() == PVT_COMMAND_QUERY_INTERFACE)
     {
         status = PVMFFailure;
         /* Handle query interface*/
         PVUuid uuid = OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iUuid;
-        PVInterface *iface = OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iInterfacePtr;
-
-        if (iface != NULL && aResponse.GetCmdStatus() == PVMFSuccess)
+        PVInterface* tface = OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iInterfacePtr;
+        if (tface)
         {
-            PVProxiedInterface *proxiedinterface = NULL;
-            PVInterface * tempInterface = NULL;
+            tface->addRef();
+        }
 
-            bool success = iface->queryInterface(PVUidProxiedInterface, tempInterface);
-            proxiedinterface = OSCL_STATIC_CAST(PVProxiedInterface*, tempInterface) ;
-            iface->removeRef();
-            OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iInterfacePtr = iface = NULL;
+        if (tface != NULL && aResponse.GetCmdStatus() == PVMFSuccess)
+        {
+            PVProxiedInterface* proxiedinterface = NULL;
+            PVInterface* tempInterface = NULL;
+
+            bool success = tface->queryInterface(PVUidProxiedInterface, tempInterface);
+            // proxiedinterface will take on the ref values of tempInterface
+            proxiedinterface = OSCL_STATIC_CAST(PVProxiedInterface*, tempInterface);
+            if (proxiedinterface)
+            {
+                proxiedinterface->addRef();
+            }
+            if (tempInterface)
+            {
+                tempInterface->removeRef();
+            }
+            tface->removeRef();
+            if (OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iInterfacePtr)
+            {
+                OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iInterfacePtr->removeRef();
+            }
+            OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iInterfacePtr = tface = NULL;
 
             if (success && proxiedinterface)
             {
                 proxiedinterface->SetMainProxy(iPVProxy);
-                proxiedinterface->QueryProxiedInterface(uuid, iface);
+                proxiedinterface->QueryProxiedInterface(uuid, tface);
                 proxiedinterface->removeRef();
-                OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iInterfacePtr = iface;
-                if (iface != NULL)
+                OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iInterfacePtr = tface;
+                if (tface != NULL)
                 {
+                    OSCL_STATIC_CAST(PV2WayMessageQueryInterface*, iface_msg)->iInterfacePtr->addRef();
                     status = PVMFSuccess;
                 }
             }
+        }
+        if (tface)
+        {
+            tface->removeRef();
+            tface = NULL;
         }
     }
 

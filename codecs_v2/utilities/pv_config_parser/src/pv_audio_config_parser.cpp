@@ -57,16 +57,15 @@
 #define ENCOPT4_PLUSV2    0x2000
 #define ENCOPT4_PLUSV3    0x4000
 
-//The following is from \codecs_v2\wma\dec\src\macros.h
 //-------------------------------------------------------------------------------------
-//If no build is defined in the pre-processor definitions, then code for all supported wma formats will be included
-#if !defined(BUILD_WMASTD) && !defined(BUILD_WMAPRO) && !defined(BUILD_WMALSL) && !defined(BUILD_WMAPROPLUS)
+// WMA Macros - define all of the WMA formats that PV can support even if those libraries or functionality is not turned on in the CML2 build config
+#if !defined(BUILD_WMASTD)
 #define BUILD_WMASTD
+#endif
+
+#if !defined(BUILD_WMAPRO)
 #define BUILD_WMAPRO
-#define BUILD_WMAPROPLUS
-//#define BUILD_WMAPRO_PLLM
-//#define BUILD_WMALSL
-#endif // !BUILD_WMASTD && !BUILD_WMAPRO && !BUILD_WMAPROPLUS && !BUILD_WMALSL
+#endif
 
 #if defined(BUILD_WMAPROPLUS) && !defined(BUILD_WMAPRO)
 #define BUILD_WMAPRO
@@ -127,7 +126,7 @@ OSCL_EXPORT_REF int32 pv_audio_config_parser(pvAudioConfigParserInputs *aInputs,
 
 #if !defined(BUILD_WMALSL)
                 bBitStreamSupported = false;
-#endif	// BUILD_WMALSL	
+#endif  // BUILD_WMALSL 
 
                 // more limits according to the current PV WMA implementation
                 // do not supoprt multi-channel
@@ -138,7 +137,7 @@ OSCL_EXPORT_REF int32 pv_audio_config_parser(pvAudioConfigParserInputs *aInputs,
                 }
 
                 // do not support 24-bit
-                if	(aOutputs->BitsPerSample > 16)
+                if (aOutputs->BitsPerSample > 16)
                 {
                     bBitStreamSupported = false;
                     break;
@@ -163,7 +162,7 @@ OSCL_EXPORT_REF int32 pv_audio_config_parser(pvAudioConfigParserInputs *aInputs,
                 AvgBytesPerSec  = dwdata;
 
                 tp = aInputs->inPtr + 14;
-                LoadWORD(wdata , tp);	//iValidBitsPerSample
+                LoadWORD(wdata , tp);   //iValidBitsPerSample
                 // Round up to the byte to get the container size
                 aOutputs->BitsPerSample = 8 * ((wdata + 7) / 8);
 
@@ -175,7 +174,7 @@ OSCL_EXPORT_REF int32 pv_audio_config_parser(pvAudioConfigParserInputs *aInputs,
 #if !defined(BUILD_WMAPRO)
                 bBitStreamSupported = false;
                 break;
-#endif	// BUILD_WMAPRO
+#endif  // BUILD_WMAPRO
 
 #if !defined(BUILD_WMAPROPLUS)
                 if (0 != (AdvancedEncodeOpt & ENCOPT4_PLUSVER))
@@ -183,7 +182,7 @@ OSCL_EXPORT_REF int32 pv_audio_config_parser(pvAudioConfigParserInputs *aInputs,
                     bBitStreamSupported = false;
                     break;
                 }
-#endif	// BUILD_WMAPROPLUS
+#endif  // BUILD_WMAPROPLUS
 
                 // more limits according to the current PV WMA implementation
                 // do not supoprt multi-channel
@@ -194,7 +193,7 @@ OSCL_EXPORT_REF int32 pv_audio_config_parser(pvAudioConfigParserInputs *aInputs,
                 }
 
                 // do not support 24-bit
-                if	(aOutputs->BitsPerSample > 16)
+                if (aOutputs->BitsPerSample > 16)
                 {
                     bBitStreamSupported = false;
                     break;
@@ -209,7 +208,7 @@ OSCL_EXPORT_REF int32 pv_audio_config_parser(pvAudioConfigParserInputs *aInputs,
                 }
 
                 // only decode PLUSV1 (not including PLUSV1ALT)
-                if	(ENCOPT4_PLUSV1 != (AdvancedEncodeOpt & ENCOPT4_PLUSVER))
+                if (ENCOPT4_PLUSV1 != (AdvancedEncodeOpt & ENCOPT4_PLUSVER))
                 {
                     bBitStreamSupported = false;
                     break;

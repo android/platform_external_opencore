@@ -21,7 +21,7 @@
  *  @brief This file defines the general return and event codes to be used by PVMF elements.
  *         Theses base-level codes are unique. Error codes are negative values and informational
  *         codes are positive values.
- *
+ *  NOTE: If you add any new event, update the PVMFStatusToString method as well.
  */
 
 #ifndef PVMF_RETURN_CODES_H_INCLUDED
@@ -376,5 +376,10 @@ const PVMFStatus PVMFInfoLast = 100;
  Macro to tell if a code is in PVMFInfo range
  */
 #define IsPVMFInfoCode(s) ((PVMFInfoFirst<=s)&&(s<=PVMFInfoLast))
+
+// Convert a PVMFStatus code to a string that can be used in logs.
+// @param status code.
+// @return a human readable string representing the status.
+const char *PVMFStatusToString(const PVMFStatus status);
 
 #endif

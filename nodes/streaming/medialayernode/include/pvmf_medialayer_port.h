@@ -53,14 +53,14 @@
 #define PVMF_MLNODE_LOGINFOLOW(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iLogger,PVLOGMSG_INFO,m);
 #define PVMF_MLNODE_LOGINFO(m) PVMF_MLNODE_LOGINFOMED(m)
 #define PVMF_MLNODE_LOGBIN(iPortLogger, m) PVLOGGER_LOGBIN(PVLOGMSG_INST_LLDBG, iPortLogger, PVLOGMSG_ERR, m);
-#define PVMF_MLNODE_LOGDATATRAFFIC(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iDataPathLogger,PVLOGMSG_INFO,m);
-#define PVMF_MLNODE_LOGDATATRAFFIC_IN(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iDataPathLoggerIn,PVLOGMSG_INFO,m);
-#define PVMF_MLNODE_LOGDATATRAFFIC_OUT(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iDataPathLoggerOut,PVLOGMSG_INFO,m);
-#define PVMF_MLNODE_LOGDATATRAFFIC_E(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iDataPathLogger,PVLOGMSG_ERR,m);
-#define PVMF_MLNODE_LOGDATATRAFFIC_FLOWCTRL(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iDataPathLoggerFlowCtrl,PVLOGMSG_INFO,m);
+#define PVMF_MLNODE_LOGDATATRAFFIC(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iDataPathLogger,PVLOGMSG_INFO,m);
+#define PVMF_MLNODE_LOGDATATRAFFIC_IN(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iDataPathLoggerIn,PVLOGMSG_INFO,m);
+#define PVMF_MLNODE_LOGDATATRAFFIC_OUT(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iDataPathLoggerOut,PVLOGMSG_INFO,m);
+#define PVMF_MLNODE_LOGDATATRAFFIC_E(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG,iDataPathLogger,PVLOGMSG_ERR,m);
+#define PVMF_MLNODE_LOGDATATRAFFIC_FLOWCTRL(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iDataPathLoggerFlowCtrl,PVLOGMSG_INFO,m);
 #define PVMF_MLNODE_LOGDIAGNOSTICS(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_PROF,iDiagnosticsLogger,PVLOGMSG_INFO,m);
-#define PVMF_MLNODE_LOG_REPOS(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iReposLogger,PVLOGMSG_INFO,m);
-#define PVMF_MLNODE_LOG_RUNL(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iRunlLogger,PVLOGMSG_INFO,m);
+#define PVMF_MLNODE_LOG_REPOS(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iReposLogger,PVLOGMSG_INFO,m);
+#define PVMF_MLNODE_LOG_RUNL(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iRunlLogger,PVLOGMSG_INFO,m);
 
 
 /** memory allocator type for this node */
@@ -301,8 +301,8 @@ class PVMFMediaLayerPortContainer
  */
 class PVMFMediaLayerNode;
 class PVMFMediaLayerPort : public PvmfPortBaseImpl,
-            public PvmiCapabilityAndConfig,
-            public OsclMemPoolFixedChunkAllocatorObserver
+        public PvmiCapabilityAndConfig,
+        public OsclMemPoolFixedChunkAllocatorObserver
 {
     public:
         /**
@@ -354,7 +354,7 @@ class PVMFMediaLayerPort : public PvmfPortBaseImpl,
 
         /* Implement pure virtuals from PvmiCapabilityAndConfig interface */
         PVMFStatus getParametersSync(PvmiMIOSession aSession, PvmiKeyType aIdentifier,
-                                     PvmiKvp*& aParameters, int& num_parameter_elements,	PvmiCapabilityContext aContext);
+                                     PvmiKvp*& aParameters, int& num_parameter_elements,    PvmiCapabilityContext aContext);
         PVMFStatus releaseParameters(PvmiMIOSession aSession, PvmiKvp* aParameters, int num_elements);
         void setParametersSync(PvmiMIOSession aSession, PvmiKvp* aParameters,
                                int num_elements, PvmiKvp * & aRet_kvp);

@@ -34,10 +34,6 @@
 
 #define MAX_PATHNAME_LENGTH 512
 
-#ifndef USE_CML2_CONFIG
-#define MAX_NUMBER_OF_OMX_CORES 10
-#define MAX_NUMBER_OF_OMX_COMPONENTS 50
-#endif /* USE_CML2_CONFIG */
 
 
 typedef class OMXMasterCoreGlobalData
@@ -404,7 +400,7 @@ static OMX_ERRORTYPE _OMX_Deinit(OMXMasterCoreGlobalData *data)
         for (jj = 0; jj < data->iNumOMXCores; jj++)
         {
             Status = (*(pInterface[jj]->GetpOMX_Deinit()))();
-            OSCL_DELETE(pInterface[jj]);
+            // interface delete will take place as part of library closing
         }
 
         OSCL_FREE(pInterface);
@@ -899,6 +895,16 @@ OMX_BOOL PV_OMXConfigParser(
             else if (0 == oscl_strcmp(pInputs->cComponentRole, (OMX_STRING)"audio_decoder.amr"))
             {
                 aInputs.iMimeType = PVMF_MIME_AMR;
+
+            }
+            else if (0 == oscl_strcmp(pInputs->cComponentRole, (OMX_STRING)"audio_decoder.amrnb"))
+            {
+                aInputs.iMimeType = PVMF_MIME_AMR;
+
+            }
+            else if (0 == oscl_strcmp(pInputs->cComponentRole, (OMX_STRING)"audio_decoder.amrwb"))
+            {
+                aInputs.iMimeType = PVMF_MIME_AMRWB;
 
             }
             else if (0 == oscl_strcmp(pInputs->cComponentRole, (OMX_STRING)"audio_decoder.mp3"))

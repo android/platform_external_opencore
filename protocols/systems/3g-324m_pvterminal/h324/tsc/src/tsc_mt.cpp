@@ -44,11 +44,38 @@
 #define FIRST_MUX_ENTRY_NUMBER TSC_FM_MAX_MTE + 1
 #define LAST_MUX_ENTRY_NUMBER 14
 
+TSC_mt::~TSC_mt()
+{
+    Reset();
+}
+
+void TSC_mt::Reset()
+{
+    if (iTSCcomponent)
+    {
+        iTSCcomponent->removeRef();
+    }
+    iTSCcomponent = NULL;
+}
+
 void TSC_mt::ClearVars()
 {
     iToBeDeletedMuxEntryNumbers.clear();
     iOutMtSn = 0;
     iPendingMtSn = 0;
+}
+
+void TSC_mt::SetMembers(H245* aH245, H223* aH223, TSC_component* aTSCcomponent)
+{
+    iH245 = aH245;
+    iH223 = aH223;
+    if (iTSCcomponent)
+    {
+        iTSCcomponent->removeRef();
+        iTSCcomponent = NULL;
+    }
+    iTSCcomponent = aTSCcomponent;
+    iTSCcomponent->addRef();
 }
 
 void TSC_mt::DeleteMuxEntry(uint32 aNum)
@@ -70,11 +97,15 @@ void TSC_mt::InitVarsSession()
 
 bool TSC_mt::MuxTableSendComplete(uint32 sn)
 {
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                    (0,
+                     "TSC_mt::IsMuxTableSendComplete(%d)", sn));
+
     if ((uint32)iPendingMtSn != sn)
     {
         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                         (0,
-                         "TSC_mt::MuxTableSendComplete Outdated multipex entry send sn(%d), last sn(%d)",
+                         "TSC_mt::IsMuxTableSendComplete Outdated multipex entry send sn(%d), last sn(%d)",
                          sn, iPendingMtSn));
         return false;
     }

@@ -540,7 +540,7 @@ PVMFStatus H223OutgoingChannel::AppendOutgoingPkt(OsclSharedPtr<PVMFMediaDataImp
         // if couldn't allocate memory - leave
         return PVMFErrNoMemory;
     }
-    LCMediaDataEntry* entry = new(memory_for_entry) LCMediaDataEntry();
+    LCMediaDataEntry* entry = OSCL_PLACEMENT_NEW(memory_for_entry, LCMediaDataEntry());
     entry->mediaData = mediaData;
 
     LCMediaDataEntry* first = entry;

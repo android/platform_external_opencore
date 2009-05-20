@@ -73,7 +73,7 @@ class TSC_clc;
 
 
 class TSC_component : public OsclTimerObserver,
-            public PVMFComponentInterface
+        public PVMFComponentInterface
 {
     public:
         TSC_component(TSC_statemanager& aTSCStateManager,
@@ -82,6 +82,10 @@ class TSC_component : public OsclTimerObserver,
                       TSC_blc& aTSCblc,
                       TSC_clc& aTSCclc,
                       TSC_mt& aTSCmt);
+
+        virtual ~TSC_component()
+        {
+        }
 
         void SetMembers(H245* aH245, H223* aH223, TSCObserver* aTSCObserver);
         bool queryInterface(const PVUuid& aUuid, PVInterface*& aInterfacePtr);
@@ -99,7 +103,6 @@ class TSC_component : public OsclTimerObserver,
         void ResetTsc();
         void Disconnect();
 
-        void GetTerminalParam(CPVH324MParam& ah324param);
         TPVStatusCode SetTerminalParam(CPVTerminalParam& params);
 
         bool IsSupported(TPVDirection dir, PV2WayMediaType media, CodecCapabilityInfo& codec_info);
@@ -112,7 +115,7 @@ class TSC_component : public OsclTimerObserver,
             return iVideoLayer;
         }
 
-        void ClipCodecs(PS_TerminalCapabilitySet pTcs);			// (RAN-32K)
+        void ClipCodecs(PS_TerminalCapabilitySet pTcs);         // (RAN-32K)
 
         // mux descriptors
         CPVMultiplexEntryDescriptor* GenerateSingleDescriptor(uint8 entry_num, TPVChannelId lcn1);
@@ -149,7 +152,7 @@ class TSC_component : public OsclTimerObserver,
                                  PS_ForwardReverseParam forRevParams);
         uint32 LcRlsIdc(PS_ControlMsgHeader pReceiveInf);
         uint32 BlcRlsIdc(PS_ControlMsgHeader pReceiveInf);
-        OsclAny MuxTableSendComplete(uint32 sn, PVMFStatus status);
+        OsclAny MuxTableSendComplete(uint32 sn, uint32 mux_number, PVMFStatus status);
         OsclAny StopData();
         void Start();
         virtual void StartDisconnect(bool terminate);
@@ -292,7 +295,7 @@ class TSC_component : public OsclTimerObserver,
         bool iAllowAl3Video;
         bool iAllowAl1Audio;
         bool iAllowAl2Audio;
-        bool iAllowAl3Audio;		/*   (These are sent in outgoing CE) */
+        bool iAllowAl3Audio;        /*   (These are sent in outgoing CE) */
         bool iUseAl1Video;
         bool iUseAl2Video;
         bool iUseAl3Video;
@@ -314,14 +317,14 @@ class TSC_component : public OsclTimerObserver,
         /* AL2 with/without sequence numbers */
         bool iAl2WithSn;
 
-        unsigned iRemoteAl1Audio;			/* Remote terminal */
-        unsigned iRemoteAl2Audio;			/* Remote terminal */
-        unsigned iRemoteAl3Audio;			/*   (These are received in incoming CE) */
-        unsigned iRemoteAl1Video;			/* Remote terminal */
-        unsigned iRemoteAl2Video;			/* Remote terminal */
-        unsigned iRemoteAl3Video;			/*   (These are received in incoming CE) */
+        unsigned iRemoteAl1Audio;           /* Remote terminal */
+        unsigned iRemoteAl2Audio;           /* Remote terminal */
+        unsigned iRemoteAl3Audio;           /*   (These are received in incoming CE) */
+        unsigned iRemoteAl1Video;           /* Remote terminal */
+        unsigned iRemoteAl2Video;           /* Remote terminal */
+        unsigned iRemoteAl3Video;           /*   (These are received in incoming CE) */
 
-        TPVAdaptationLayer iVideoLayer;			/* Layer to use, decided by local terminal */
+        TPVAdaptationLayer iVideoLayer;         /* Layer to use, decided by local terminal */
         /*   (0=undetermined, 2=AL2, 3=AL3) */
         OsclSharedPtr<S_TerminalCapabilitySet> iRemoteTcs;
 

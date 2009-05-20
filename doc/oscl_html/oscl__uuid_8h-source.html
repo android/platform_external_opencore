@@ -78,10 +78,10 @@
 00078             sptr = aUuidString;
 00079             ++sptr; <span class="comment">//Increment over the starting parantheses '('</span>
 00080             eptr = sptr;
-00081             <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0;i &lt; uuidStrLen - 1 ; ++i)
+00081             <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; uuidStrLen - 1 ; ++i)
 00082             {
 00083                 <span class="keywordflow">if</span> ((*eptr != <a class="code" href="oscl__uuid_8h.html#a3">PV_CHAR_COMMA</a>) &amp;&amp; (*eptr != <a class="code" href="oscl__uuid_8h.html#a2">PV_CHAR_CLOSE_BRACKET</a>)) <span class="comment">//Increment the pointer unless you get to the ","</span>
-00084                 {                                                               <span class="comment">//The comma signifies the beginning of the new OsclUuid parameter</span>
+00084                 {                               <span class="comment">//The comma signifies the beginning of the new OsclUuid parameter</span>
 00085                     ++eptr;
 00086                 }
 00087                 <span class="keywordflow">else</span>
@@ -220,7 +220,7 @@
 00220 <span class="preprocessor">#endif</span>
 00221 <span class="preprocessor"></span>
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

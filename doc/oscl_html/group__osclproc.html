@@ -376,12 +376,12 @@ PV Scheduler class     </td>
 
 <p>
 <b>Value:</b><div class="fragment"><pre><span class="keywordflow">if</span> (!_qname.IsEmpty())\
+    {\
+        OsclDoubleRunner &lt;_type&gt; iter(_qname);\
+        _type *item;\
+        <span class="keywordflow">for</span> (iter.<a class="code" href="classOsclDoubleRunner.html#a5">SetToHead</a>(); ;iter++)\
         {\
-                OsclDoubleRunner &lt;_type&gt; iter(_qname);\
-                _type *item;\
-                <span class="keywordflow">for</span> (iter.<a class="code" href="classOsclDoubleRunner.html#a5">SetToHead</a>(); ;iter++)\
-                {\
-                        item=iter;\</pre></div>    </td>
+            item=iter;\</pre></div>    </td>
   </tr>
 </table>
 <a name="a8" doxytag="oscl_double_list.h::QUE_ITER_END"></a><p>
@@ -409,9 +409,9 @@ PV Scheduler class     </td>
 
 <p>
 <b>Value:</b><div class="fragment"><pre><span class="keywordflow">if</span> (_qname.IsTail(item))\
-                                <span class="keywordflow">break</span>;\
-                }\
-        }</pre></div>    </td>
+                <span class="keywordflow">break</span>;\
+        }\
+    }</pre></div>    </td>
   </tr>
 </table>
 <hr><h2>Typedef Documentation</h2>
@@ -647,7 +647,7 @@ template&lt;class T, class S&gt; </td>
   </tr>
 </table>
 <hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

@@ -17,45 +17,8 @@
  */
 /*
 
- Pathname: s_TNSfilt.h
+ Filename: s_tnsfilt.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Added lpc, start, & size, so the data from
- tns_inv_subblock can be shared with tns_decode_subblock.
-
- Description: Removed lpc to save 2KB of memory (on 32-bit machines.)
- This change requires tns_decode_coef.c to perform calculations in place.
-
- Description: Removed start & size.  start_band and stop_band can simply
- take on a new meaning after this function.  (coef index, rather than
- scalefactor band index.)
-
- Description: Had to add "start_coef" and "stop_coef" in order to preserve
- values "start_band" and "stop_band."  This required a change to
- tns_setup_filter.c also.
-
- Description: Had to add element "q_lpc" to store the q-format of the lpc
- coefficients passed via "coef."
-
- Description: Moved lpc_coef array up to the s_TNS_frame_info.h structure.
-
- Description:
- (1) Modified to include the lines...
-
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-
-    #ifdef __cplusplus
-    }
-    #endif
-
- (2) Updated the copyright header.
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -67,7 +30,7 @@
 /*----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
-#ifndef	S_TNSFILT_H
+#ifndef S_TNSFILT_H
 #define S_TNSFILT_H
 
 #ifdef __cplusplus

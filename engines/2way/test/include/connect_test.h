@@ -25,9 +25,8 @@ class connect_test : public test_base
 {
     public:
         connect_test(bool aUseProxy, int aMaxRuns, bool runTimerTest = false) :
-                test_base(PVMF_MIME_AMR_IF2, PVMF_MIME_AMR_IF2, PVMF_MIME_YUV420, PVMF_MIME_YUV420, aUseProxy, aMaxRuns) ,
+                test_base(aUseProxy, aMaxRuns) ,
                 iRunTimerTest(runTimerTest),
-                i324mConfigInterface(NULL),
                 iMP4H263EncoderInterface(NULL) {};
 
         ~connect_test()
@@ -40,9 +39,6 @@ class connect_test : public test_base
 
         void DoCancel();
 
-        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
-
-
     private:
         virtual void InitSucceeded();
         virtual void InitFailed();
@@ -54,7 +50,6 @@ class connect_test : public test_base
         virtual void DisCmdFailed();
 
         bool iRunTimerTest;
-        PVInterface *i324mConfigInterface;
         PVInterface *iMP4H263EncoderInterface;
 };
 

@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: iquant_table.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: iquant_table.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

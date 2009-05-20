@@ -17,23 +17,7 @@
  */
 /*
 
- Pathname: imdct_fxp.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: This extern had the incorrect length of the arrays.  The true
- lengths are 128 and 1024, not 64 and 512.
-
- Description:  Modified interface so a vector with extended precision is
-               returned, this is a 32 bit vector whose MSB 16 bits will be
-               extracted later.  Added copyright notice.
-
- Description:   Modified function interface to accomodate the normalization
-                that now is done in this function.
-
- Who:						Date:
- Description:
+ Filename: imdct_fxp.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -47,8 +31,8 @@
 /*----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
-#ifndef	IMDCT_FXP_H
-#define	IMDCT_FXP_H
+#ifndef IMDCT_FXP_H
+#define IMDCT_FXP_H
 
 #ifdef __cplusplus
 extern "C"
@@ -119,4 +103,4 @@ extern "C"
 /*----------------------------------------------------------------------------
 ; END
 ----------------------------------------------------------------------------*/
-#endif	/* IMDCT_FXP_H */
+#endif  /* IMDCT_FXP_H */

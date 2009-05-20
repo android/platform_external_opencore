@@ -17,11 +17,7 @@
  */
 /*
 
- Pathname: qmf_filterbank_coeff.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
+ Filename: qmf_filterbank_coeff.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

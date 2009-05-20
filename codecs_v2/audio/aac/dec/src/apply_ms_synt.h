@@ -17,13 +17,8 @@
  */
 /*
 
- Pathname: ./include/apply_ms_synt.h
+ Filename: apply_ms_synt.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

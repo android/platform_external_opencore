@@ -19,15 +19,6 @@
 
  Filename: sbr_decode_huff_cw.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
-
-
 ----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
@@ -79,7 +70,7 @@ extern "C"
 #endif
 
     Int32 sbr_decode_huff_cw(SbrHuffman h,
-                             BIT_BUFFER * hBitBuf);
+    BIT_BUFFER * hBitBuf);
 
 #ifdef __cplusplus
 }

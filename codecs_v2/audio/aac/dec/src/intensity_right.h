@@ -17,15 +17,7 @@
  */
 /*
 
- Pathname: intensity_right.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Change ms_used from Int to Bool
-
- Who:                       Date:
- Description:
+ Filename: intensity_right.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

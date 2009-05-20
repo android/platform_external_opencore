@@ -17,64 +17,8 @@
  */
 /*
 
- Pathname: long_term_synthesis.c
+ Filename: long_term_synthesis.cpp
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Made the following changes based on the review comments.
-              1. Separated "shift_factor>=0" on line 395 to "shift_factor>0"
-                 and "shift_factor=0" two cases.
-              2. Added comments on line 393 to explain why factor 2 is being
-                 used to calculate shift_factor.
-              3. Added comments for short window implementation.
-              4. Changed "*(pPredicted_spectral++) = *pPredicted_spectral>>2"
-                 to "*(pPredicted++)>>=2" although they are the same.
-              5. Changed pseudo code "X+=Y" to "X=X+Y".
-              6. Fixed ending comment of "for" loop.
-              7. Passed in the size of the array and deleted some of the
-                 include files.
-
- Description: Unroll the loops.
-
- Description: Changed index "wnd" in previous line 584 with "wnd_offset"
-              and made other correspondent changes to the code.
-
-
- Description: Based on Ken's suggestion, modified the function with the
-              passing-in Q format as scalefactor band basis in order to
-              simplify TNS block functions.
-
- Description: Optimization.
-
- Description: Made changes based on review comments.
-              1. Changed misspellings.
-              2. Changed win_sfb_top[] from two dimensional array to one
-              dimensional array and correspondently changed the code.
-              3. Changed function prototype to remove some redundant
-              informations.
-              4. Fixed the adjusting Q format part code.
-              5. Fixed lines 825, 826 with correct updating pointers.
-
- Description: Due to TNS and LTP Q format issue, added code to adjust
-              predicted_spectral() to maximum resolution before perform
-              long term synthesis.
-
- Description: Modified based on review comments.
-
- Description: Changed "max" data type from UInt to UInt32.
-
- Description: Changed so that nothing is done for the case of "all zero"
- data coming from the output of Trans4m_time_2_freq. Also, included more
- efficient calculation of the abs(x).  And, I updated the pseudocode.
-
- Description: Use an auxiliary variable temp, to avoid using the same
-    pointer and a post-increment pointer in the same line. This may not
-    work with all compilers.
-
- Who:                                   Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -475,28 +419,6 @@
     ENDIF [ IF (win_seq != EIGHT_SHORT_SEQUENCE) ]
 
     RETURN
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-		  stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-		 name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-		   used to represent cycle count for each subroutine
-		   called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-		name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

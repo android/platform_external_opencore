@@ -37,11 +37,19 @@ OSCL_EXPORT_REF uint32 oscl_strlen(const oscl_wchar* str)
 
 OSCL_EXPORT_REF char* oscl_strncpy(char* dest, const char* src, uint32 count)
 {
+    if (dest == NULL)
+    {
+        return NULL;
+    }
     return strncpy(dest, src, count);
 }
 
 OSCL_EXPORT_REF oscl_wchar* oscl_strncpy(oscl_wchar *dest, const oscl_wchar *src, uint32 count)
 {
+    if (dest == NULL)
+    {
+        return NULL;
+    }
     oscl_wchar* tmp = dest;
     uint32 ii;
     for (ii = 0; ii < count && *src != '\0'; ii++)
@@ -95,11 +103,19 @@ OSCL_EXPORT_REF int32 oscl_strncmp(const oscl_wchar *str1, const oscl_wchar *str
 
 OSCL_EXPORT_REF char* oscl_strncat(char* dest, const char* src, uint32 count)
 {
+    if (dest == NULL)
+    {
+        return NULL;
+    }
     return strncat(dest, src, count);
 }
 
 OSCL_EXPORT_REF oscl_wchar* oscl_strncat(oscl_wchar* dest, const oscl_wchar* src, uint32 count)
 {
+    if (dest == NULL)
+    {
+        return NULL;
+    }
     oscl_wchar* tmp = dest + oscl_strlen(dest);
     for (uint32 ii = 0; ii < count && *src != '\0'; ii++)
     {
@@ -205,6 +221,11 @@ OSCL_EXPORT_REF oscl_wchar* oscl_strrchr(oscl_wchar *str, int32 c)
 
 OSCL_EXPORT_REF char* oscl_strset(char* dest, char val, uint32 count)
 {
+    if (dest == NULL)
+    {
+        return NULL;
+    }
+
     for (uint32 ii = 0; ii < count; ii++)
     {
         *dest++ = val;
@@ -214,6 +235,11 @@ OSCL_EXPORT_REF char* oscl_strset(char* dest, char val, uint32 count)
 
 OSCL_EXPORT_REF oscl_wchar* oscl_strset(oscl_wchar* dest, oscl_wchar val, uint32 count)
 {
+    if (dest == NULL)
+    {
+        return NULL;
+    }
+
     for (uint32 ii = 0; ii < count; ii++)
     {
         *dest++ = val;
@@ -250,7 +276,7 @@ OSCL_EXPORT_REF int32 oscl_CIstrcmp(const oscl_wchar *str1, const oscl_wchar *st
 
 OSCL_EXPORT_REF int32 oscl_CIstrncmp(const char *str1, const char *str2, uint32 count)
 {
-    for (uint32 i = 0;i < count;i++)
+    for (uint32 i = 0; i < count; i++)
     {
         if ((*str1 == '\0') || (oscl_tolower(*str1) != oscl_tolower(*str2)))
             return (oscl_tolower(*str1) - oscl_tolower(*str2));
@@ -262,7 +288,7 @@ OSCL_EXPORT_REF int32 oscl_CIstrncmp(const char *str1, const char *str2, uint32 
 
 OSCL_EXPORT_REF int32 oscl_CIstrncmp(const oscl_wchar *str1, const oscl_wchar *str2, uint32 count)
 {
-    for (uint32 i = 0;i < count;i++)
+    for (uint32 i = 0; i < count; i++)
     {
         if ((*str1 == '\0') || (oscl_tolower(*str1) != oscl_tolower(*str2)))
             return (oscl_tolower(*str1) - oscl_tolower(*str2));
@@ -333,11 +359,20 @@ OSCL_EXPORT_REF  oscl_wchar* oscl_strstr(oscl_wchar* str1,  const oscl_wchar* st
 
 OSCL_EXPORT_REF char* oscl_strcat(char* dest, const char* src)
 {
+    if (dest == NULL)
+    {
+        return NULL;
+    }
+
     return strcat(dest, src);
 }
 
 OSCL_EXPORT_REF oscl_wchar* oscl_strcat(oscl_wchar* dest, const oscl_wchar* src)
 {
+    if (dest == NULL)
+    {
+        return NULL;
+    }
     oscl_wchar* tmp = dest + oscl_strlen(dest);
     for (uint32 i = 0; *src != '\0'; i++)
     {

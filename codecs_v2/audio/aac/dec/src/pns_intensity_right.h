@@ -17,18 +17,7 @@
  */
 /*
 
- Pathname: pns_intensity_right.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Add hasmask parameter
-
- Description: Changed name to from right_ch_sfb_tools_ms to intensity_right
- to more correct reflect the purpose of the function.
-
- Who:                                  Date:
- Description:
+ Filename: pns_intensity_right.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

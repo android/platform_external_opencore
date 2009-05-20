@@ -17,15 +17,9 @@
  */
 /*
 
- Filename: extractFrameInfo.h
+ Filename: extractframeinfo.h
 
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 ------------------------------------------------------------------------------
 
 
@@ -82,7 +76,7 @@ extern "C"
 #endif
 
     SBR_ERROR extractFrameInfo(BIT_BUFFER     * hBitBuf,
-                               SBR_FRAME_DATA * h_frame_data);
+    SBR_FRAME_DATA * h_frame_data);
 
 #ifdef __cplusplus
 }

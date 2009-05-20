@@ -40,11 +40,28 @@
 #define LOG_DEBUG(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_DEBUG, m);
 #define LOG_ERR(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iLogger,PVLOGMSG_ERR,m);
 
+/////////////////////////////////////////////////////////////////////////////
+PVMP4FFCNFormatSpecificConfig::PVMP4FFCNFormatSpecificConfig()
+{
+    iBitrate = 0;
+    iTimescale = PVMF_MP4FFCN_VIDEO_TIMESCALE;
+    iFrameRate = PVMF_MP4FFCN_VIDEO_FRAME_RATE;
+    iIFrameInterval = PVMF_MP4FFCN_VIDEO_IFRAME_INTERVAL;
+    iWidth = PVMF_MP4FFCN_VIDEO_FRAME_WIDTH;
+    iHeight = PVMF_MP4FFCN_VIDEO_FRAME_HEIGHT;
+    iRateControlType = PVMP4FFCN_RATE_CONTROL_CBR;
+    iH263Profile = PVMF_MP4FFCN_VIDEO_H263_PROFILE;
+    iH263Level = PVMF_MP4FFCN_VIDEO_H263_LEVEL;
+    //no meaningful default possible, if peer does not provide
+    //this info in PVMF_MIME_ISO_AVC_SAMPLE_FORMAT, composer node will error out
+    iNALLenSize = 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 PVMp4FFComposerPort::PVMp4FFComposerPort(int32 aTag, PVMp4FFComposerNode* aNode, int32 aPriority, const char* aName)
-        :	PvmfPortBaseImpl(aTag, this,
-                           PVMF_MP4FFCN_PORT_CAPACITY, PVMF_MP4FFCN_PORT_RESERVE, PVMF_MP4FFCN_PORT_THRESHOLD,
-                           PVMF_MP4FFCN_PORT_CAPACITY, PVMF_MP4FFCN_PORT_RESERVE, PVMF_MP4FFCN_PORT_THRESHOLD, aName),
+        :   PvmfPortBaseImpl(aTag, this,
+                             PVMF_MP4FFCN_PORT_CAPACITY, PVMF_MP4FFCN_PORT_RESERVE, PVMF_MP4FFCN_PORT_THRESHOLD,
+                             PVMF_MP4FFCN_PORT_CAPACITY, PVMF_MP4FFCN_PORT_RESERVE, PVMF_MP4FFCN_PORT_THRESHOLD, aName),
         OsclActiveObject(aPriority, "PVMp4FFComposerPort"),
         iNode(aNode),
         iTrackId(0),
@@ -54,6 +71,12 @@ PVMp4FFComposerPort::PVMp4FFComposerPort(int32 aTag, PVMp4FFComposerNode* aNode,
         iLastTS(0),
         iEndOfDataReached(false)
 {
+    iMaxSampleAddTime = 0;
+    iMinSampleAddTime = 0;
+    iMinSampleSize = 0;
+    iMaxSampleSize = 0;
+    iNumSamplesAdded = 0;
+
     AddToScheduler();
     iLogger = PVLogger::GetLoggerObject("PVMp4FFComposerPort");
     oscl_memset((OsclAny*)&iFormatSpecificConfig, 0, sizeof(PVMP4FFCNFormatSpecificConfig));
@@ -65,7 +88,7 @@ PVMp4FFComposerPort::~PVMp4FFComposerPort()
 {
     if (memfrag_sps)
     {
-        for (uint32 i = 0;i < iNode->memvector_sps.size();i++)
+        for (uint32 i = 0; i < iNode->memvector_sps.size(); i++)
         {
             OSCL_FREE(iNode->memvector_sps[i]->ptr);
         }
@@ -82,7 +105,7 @@ PVMp4FFComposerPort::~PVMp4FFComposerPort()
 
     if (memfrag_pps)
     {
-        for (uint32 i = 0;i < iNode->memvector_pps.size();i++)
+        for (uint32 i = 0; i < iNode->memvector_pps.size(); i++)
         {
             OSCL_FREE(iNode->memvector_pps[i]->ptr);
         }
@@ -263,7 +286,7 @@ OSCL_EXPORT_REF PVMFStatus PVMp4FFComposerPort::getParametersSync(PvmiMIOSession
     //identifier is a key and is assumed to be null terminated
     if (oscl_strcmp(identifier, INPUT_FORMATS_CAP_QUERY) == 0)
     {
-        num_parameter_elements = 8;
+        num_parameter_elements = 9;
         status = AllocateKvp(parameters, (PvmiKeyType)INPUT_FORMATS_VALTYPE, num_parameter_elements);
         if (status != PVMFSuccess)
         {
@@ -279,6 +302,7 @@ OSCL_EXPORT_REF PVMFStatus PVMp4FFComposerPort::getParametersSync(PvmiMIOSession
             parameters[5].value.pChar_value = (char*)PVMF_MIME_H264_VIDEO_MP4;
             parameters[6].value.pChar_value = (char*)PVMF_MIME_3GPP_TIMEDTEXT;
             parameters[7].value.pChar_value = (char*)PVMF_MIME_AMRWB_IETF;
+            parameters[8].value.pChar_value = (char*)PVMF_MIME_ISO_AVC_SAMPLE_FORMAT;
         }
     }
     else if (oscl_strcmp(identifier, INPUT_FORMATS_CUR_QUERY) == 0)
@@ -349,10 +373,10 @@ OSCL_EXPORT_REF void PVMp4FFComposerPort::setParametersSync(PvmiMIOSession sessi
     OSCL_UNUSED_ARG(session);
 
     ret_kvp = NULL;
-    if (iFormat == PVMF_MIME_H264_VIDEO_MP4)
+    if ((iFormat == PVMF_MIME_H264_VIDEO_MP4) || (iFormat == PVMF_MIME_ISO_AVC_SAMPLE_FORMAT))
     {
         //this code is specific to H264 file format
-        for (int32 i = 0;i < num_elements;i++)//assuming the memory is allocated for key
+        for (int32 i = 0; i < num_elements; i++)//assuming the memory is allocated for key
         {
             if (pv_mime_strcmp(parameters->key, VIDEO_AVC_OUTPUT_SPS_CUR_VALUE) == 0)
             {
@@ -360,7 +384,7 @@ OSCL_EXPORT_REF void PVMp4FFComposerPort::setParametersSync(PvmiMIOSession sessi
                 memfrag_sps->len = parameters->capacity;
                 memfrag_sps->ptr = (uint8*)(OSCL_MALLOC(sizeof(uint8) * memfrag_sps->len));
                 oscl_memcpy((void*)memfrag_sps->ptr, (const void*)parameters->value.key_specific_value, memfrag_sps->len);
-                iNode->memvector_sps.push_back(memfrag_sps);	//storing SPS in the vector
+                iNode->memvector_sps.push_back(memfrag_sps);    //storing SPS in the vector
                 iNode->iNum_SPS_Set += 1;
             }
             if (pv_mime_strcmp(parameters->key, VIDEO_AVC_OUTPUT_PPS_CUR_VALUE) == 0)
@@ -369,14 +393,14 @@ OSCL_EXPORT_REF void PVMp4FFComposerPort::setParametersSync(PvmiMIOSession sessi
                 memfrag_pps->len = parameters->capacity;
                 memfrag_pps->ptr = (uint8*)(OSCL_MALLOC(sizeof(uint8) * memfrag_pps->len));
                 oscl_memcpy((void*)memfrag_pps->ptr, (const void*)parameters->value.key_specific_value, memfrag_pps->len);
-                iNode->memvector_pps.push_back(memfrag_pps);	//storing PPS in the vector
+                iNode->memvector_pps.push_back(memfrag_pps);    //storing PPS in the vector
                 iNode->iNum_PPS_Set += 1;
             }
         }
     }
     if (iFormat == PVMF_MIME_3GPP_TIMEDTEXT)
     {
-        for (int32 i = 0;i < num_elements;i++)//assuming the memory is allocated for keys
+        for (int32 i = 0; i < num_elements; i++)//assuming the memory is allocated for keys
         {
             if (pv_mime_strcmp(parameters->key, TIMED_TEXT_OUTPUT_CONFIG_INFO_CUR_VALUE) == 0)
             {
@@ -602,6 +626,7 @@ PVMFStatus PVMp4FFComposerPort::VerifyAndSetParameter(PvmiKvp* aKvp, bool aSetPa
                 pv_mime_strcmp(aKvp->value.pChar_value, PVMF_MIME_AMR_IETF) == 0 ||
                 pv_mime_strcmp(aKvp->value.pChar_value, PVMF_MIME_AMRWB_IETF) == 0 ||
                 pv_mime_strcmp(aKvp->value.pChar_value, PVMF_MIME_H264_VIDEO_MP4) == 0 ||
+                pv_mime_strcmp(aKvp->value.pChar_value, PVMF_MIME_ISO_AVC_SAMPLE_FORMAT) == 0 ||
                 pv_mime_strcmp(aKvp->value.pChar_value, PVMF_MIME_M4V) == 0 ||
                 pv_mime_strcmp(aKvp->value.pChar_value, PVMF_MIME_H2631998) == 0 ||
                 pv_mime_strcmp(aKvp->value.pChar_value, PVMF_MIME_H2632000) == 0 ||
@@ -651,6 +676,7 @@ PVMFStatus PVMp4FFComposerPort::NegotiateInputSettings(PvmiCapabilityAndConfig* 
             pv_mime_strcmp(kvp->value.pChar_value, PVMF_MIME_AMR_IETF) == 0 ||
             pv_mime_strcmp(kvp->value.pChar_value, PVMF_MIME_AMRWB_IETF) == 0 ||
             pv_mime_strcmp(kvp->value.pChar_value, PVMF_MIME_H264_VIDEO_MP4) == 0 ||
+            pv_mime_strcmp(kvp->value.pChar_value, PVMF_MIME_ISO_AVC_SAMPLE_FORMAT) == 0 ||
             pv_mime_strcmp(kvp->value.pChar_value, PVMF_MIME_M4V) == 0 ||
             pv_mime_strcmp(kvp->value.pChar_value, PVMF_MIME_H2631998) == 0 ||
             pv_mime_strcmp(kvp->value.pChar_value, PVMF_MIME_H2632000) == 0 ||
@@ -703,6 +729,7 @@ PVMFStatus PVMp4FFComposerPort::GetInputParametersFromPeer(PvmiCapabilityAndConf
             iFormatSpecificConfig.iBitrate = PVMF_MP4FFCN_AUDIO_BITRATE;
         }
         else if (iFormat == PVMF_MIME_H264_VIDEO_MP4 ||
+                 iFormat == PVMF_MIME_ISO_AVC_SAMPLE_FORMAT ||
                  iFormat == PVMF_MIME_M4V ||
                  iFormat == PVMF_MIME_H2631998 ||
                  iFormat == PVMF_MIME_H2632000)
@@ -742,10 +769,33 @@ PVMFStatus PVMp4FFComposerPort::GetInputParametersFromPeer(PvmiCapabilityAndConf
         numParams = 0;
     }
     else if (iFormat == PVMF_MIME_H264_VIDEO_MP4 ||
+             iFormat == PVMF_MIME_ISO_AVC_SAMPLE_FORMAT ||
              iFormat == PVMF_MIME_M4V ||
              iFormat == PVMF_MIME_H2631998 ||
              iFormat == PVMF_MIME_H2632000)
     {
+        if (iFormat == PVMF_MIME_ISO_AVC_SAMPLE_FORMAT)
+        {
+            //get the size of NALLen field first - if not available error out
+            kvp = NULL;
+            numParams = 0;
+            status = aConfig->getParametersSync(NULL, (PvmiKeyType)PVMF_AVC_SAMPLE_NAL_SIZE_IN_BYTES_VALUE_KEY, kvp, numParams, NULL);
+            if (status == PVMFSuccess && numParams == 1)
+            {
+                iFormatSpecificConfig.iNALLenSize = kvp[0].value.uint32_value;
+
+            }
+            if (kvp != NULL)
+            {
+                aConfig->releaseParameters(NULL, kvp, numParams);
+            }
+            if (iFormatSpecificConfig.iNALLenSize == 0)
+            {
+                LOG_ERR((0, "PVMp4FFComposerPort::GetInputParametersFromPeer: NALLength size not available - Error out"));
+                return PVMFFailure;
+            }
+        }
+
         if (iFormat == PVMF_MIME_H2631998 ||
                 iFormat == PVMF_MIME_H2632000)
         {
@@ -880,6 +930,41 @@ PVMFStatus PVMp4FFComposerPort::GetInputParametersFromPeer(PvmiCapabilityAndConf
     }
 
     return PVMFSuccess;
+}
+
+void PVMp4FFComposerPort::UpdateDiagnostics(uint32 aTime, uint32 aSize)
+{
+    if ((iMinSampleAddTime > aTime) || (0 == iMinSampleAddTime))
+    {
+        iMinSampleAddTime = aTime;
+    }
+    if (iMaxSampleAddTime < aTime)
+    {
+        iMaxSampleAddTime = aTime;
+    }
+    if ((iMinSampleSize > aSize) || (0 == iMinSampleSize))
+    {
+        iMinSampleSize = aSize;
+    }
+    if (iMaxSampleSize < aSize)
+    {
+        iMaxSampleSize = aSize;
+    }
+    iNumSamplesAdded++;
+}
+
+void PVMp4FFComposerPort::LogDiagnostics(PVLogger* aLogger)
+{
+    if (aLogger)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_PROF, aLogger, PVLOGMSG_INFO, (0, "Fmt=%s", iFormat.getMIMEStrPtr()))
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_PROF, aLogger, PVLOGMSG_INFO, (0, "TrackID=%d", iTrackId))
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_PROF, aLogger, PVLOGMSG_INFO, (0, "iNumSamplesAdded=%d", iNumSamplesAdded))
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_PROF, aLogger, PVLOGMSG_INFO, (0, "iMaxSampleSize=%d", iMaxSampleSize))
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_PROF, aLogger, PVLOGMSG_INFO, (0, "iMinSampleSize=%d", iMinSampleSize))
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_PROF, aLogger, PVLOGMSG_INFO, (0, "iMaxSampleAddTime=%d", iMaxSampleAddTime))
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_PROF, aLogger, PVLOGMSG_INFO, (0, "iMinSampleAddTime=%d", iMinSampleAddTime))
+    }
 }
 
 

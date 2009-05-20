@@ -349,7 +349,8 @@ void TscSrpBuffer::ConstructL()
                               (iTxMediaDataImplMemAlloc));
     OsclError::LeaveIfNull(iTxPacketAlloc);
 
-    iTimer = new OsclTimer<OsclMemAllocator>("TSCSRPBufferTimer");
+    typedef OsclTimer<OsclMemAllocator> timerType;
+    iTimer = OSCL_NEW(timerType, ("TSCSRPBufferTimer"));
     OsclError::LeaveIfNull(iTimer);
     iTimer->SetFrequency(1000 / TSC_SRP_BUFFER_TIMEOUT); // make timer work in 20ms intervals
     iTimer->SetObserver(this);

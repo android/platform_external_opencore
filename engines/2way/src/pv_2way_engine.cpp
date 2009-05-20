@@ -76,6 +76,8 @@
 #include "pvdevsound_node_base.h"
 #endif
 
+
+
 #include "pvlogger.h"
 
 #include "oscl_dll.h"
@@ -96,6 +98,8 @@
 #include "oscl_mem.h"
 #include "oscl_mem_audit.h"
 #endif
+
+#include "pv_proxied_interface.h"
 
 // Define entry point for this DLL
 OSCL_DLL_ENTRY_POINT_DEFAULT()
@@ -146,7 +150,7 @@ const uint32 KNumPCMFrames  = 2; // 10
 #define DELETE_VIDEO_ENC_NODE(n) PVVideoEncMDFNodeFactory::Delete(n)
 #else
 #ifndef PV2WAY_USE_OMX
-#define	CREATE_VIDEO_ENC_NODE()  PVMFVideoEncNodeFactory::CreateVideoEncNode()
+#define CREATE_VIDEO_ENC_NODE()  PVMFVideoEncNodeFactory::CreateVideoEncNode()
 #define DELETE_VIDEO_ENC_NODE(n) PVMFVideoEncNodeFactory::DeleteVideoEncNode(n)
 #endif // PV2WAY_USE_OMX
 #endif
@@ -156,15 +160,15 @@ const uint32 KNumPCMFrames  = 2; // 10
 #define DELETE_VIDEO_DEC_NODE(n) OSCL_DELETE(n)
 #else
 #ifdef PV2WAY_USE_OMX
-#define	CREATE_OMX_VIDEO_DEC_NODE()  PVMFOMXVideoDecNodeFactory::CreatePVMFOMXVideoDecNode()
+#define CREATE_OMX_VIDEO_DEC_NODE()  PVMFOMXVideoDecNodeFactory::CreatePVMFOMXVideoDecNode()
 #define DELETE_OMX_VIDEO_DEC_NODE(n) PVMFOMXVideoDecNodeFactory::DeletePVMFOMXVideoDecNode(n)
 #endif // PV2WAY_USE_OMX
-#define	CREATE_VIDEO_DEC_NODE()  PVMFVideoDecNodeFactory::CreatePVMFVideoDecNode()
+#define CREATE_VIDEO_DEC_NODE()  PVMFVideoDecNodeFactory::CreatePVMFVideoDecNode()
 #define DELETE_VIDEO_DEC_NODE(n) PVMFVideoDecNodeFactory::DeletePVMFVideoDecNode(n)
 #endif
 
 #ifdef PV2WAY_USE_OMX
-#define	CREATE_OMX_ENC_NODE()  PVMFOMXEncNodeFactory::CreatePVMFOMXEncNode()
+#define CREATE_OMX_ENC_NODE()  PVMFOMXEncNodeFactory::CreatePVMFOMXEncNode()
 #define DELETE_OMX_ENC_NODE(n) PVMFOMXEncNodeFactory::DeletePVMFOMXEncNode(n);
 #endif // PV2WAY_USE_OMX
 
@@ -295,7 +299,8 @@ CPV324m2Way::CPV324m2Way() :
         iPendingAudioEncReset(-1),
         iPendingVideoEncReset(-1),
         iAudioDatapathLatency(0),
-        iVideoDatapathLatency(0)
+        iVideoDatapathLatency(0),
+        iReferenceCount(1)
 {
     iLogger = PVLogger::GetLoggerObject("2wayEngine");
     iSyncControlPVUuid = PvmfNodesSyncControlUuid;
@@ -509,7 +514,7 @@ void CPV324m2Way::PreInit()
             if (iTerminalType == PV_324M)
             {
 #ifndef NO_2WAY_324
-                iTscNode = TPV2WayNode(new TSC_324m(PV_LOOPBACK_MUX));
+                iTscNode = TPV2WayNode(OSCL_NEW(TSC_324m, (PV_LOOPBACK_MUX)));
                 iTSC324mInterface = (TSC_324m *)iTscNode.iNode;
                 iTSCInterface = (TSC *)iTSC324mInterface;
                 // Create the list of stack supported formats
@@ -537,15 +542,82 @@ void CPV324m2Way::PreInit()
     }
 }
 
+bool CPV324m2Way::AllocNodes()
+{
+    bool allocSuccessful = true;
+    int error = 0;
+#if defined(PV_RECORD_TO_FILE_SUPPORT)
+    OSCL_TRY(error, iVideoDecSplitterNode =
+                 TPV2WayNode(PVMFSplitterNode::Create()););
+    OSCL_FIRST_CATCH_ANY(error,
+                         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                         (0, "CPV324m2Way::PreInit unable to allocate video splitter node\n"));
+                         allocSuccessful = false;);
+
+    OSCL_TRY(error, iFFComposerNode =
+                 TPV2WayNode(PVMp4FFComposerNodeFactory::CreateMp4FFComposer(this, this, this));;
+             iFFComposerNode->SetClock(&iClock););
+    OSCL_FIRST_CATCH_ANY(error,
+                         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                         (0, "CPV324m2Way::PreInit unable to allocate ff composer node\n"));
+                         allocSuccessful = false;);
+#endif
+
+#if defined(PV_PLAY_FROM_FILE_SUPPORT)
+    OSCL_TRY(error, iAudioSrcSplitterNode =
+                 TPV2WayNode(PVMFSplitterNode::Create()););
+    OSCL_FIRST_CATCH_ANY(error,
+                         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                         (0, "CPV324m2Way::PreInit unable to allocate audio src splitter node\n"));
+                         allocSuccessful = false;);
+
+    OSCL_TRY(error, iVideoSrcSplitterNode =
+                 TPV2WayNode(PVMFSplitterNode::Create()););
+    OSCL_FIRST_CATCH_ANY(error,
+                         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                         (0, "CPV324m2Way::PreInit unable to allocate video src splitter node\n"));
+                         allocSuccessful = false;);
+
+
+    OSCL_TRY(error, iPlayFromFileNode =
+                 TPV2WayNode(PlayFromFileNode::NewL());
+             iPlayFromFileNode->SetClock(&iClock););
+    if (iPlayFromFileNode == NULL) error = PVMFErrNoMemory;
+    OSCL_FIRST_CATCH_ANY(error,
+                         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                         (0, "CPV324m2Way::PreInit unable to allocate playfromfile node\n"));
+                         allocSuccessful = false;);
+#endif
+    if (!allocSuccessful)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                        (0, "CPV324m2Way::Init allocation failed\n"));
+    }
+    else
+    {
+#if defined(PV_RECORD_TO_FILE_SUPPORT)
+        InitiateSession(iVideoDecSplitterNode);
+        InitiateSession(iFFComposerNode);
+#endif
+
+#if defined(PV_PLAY_FROM_FILE_SUPPORT)
+        InitiateSession(iAudioSrcSplitterNode);
+        InitiateSession(iVideoSrcSplitterNode);
+        InitiateSession(iPlayFromFileNode);
+#endif
+    }
+    if (error)
+    {
+        allocSuccessful = false;
+    }
+    return allocSuccessful;
+}
+
 PVCommandId CPV324m2Way::Init(PV2WayInitInfo& aInitInfo,
                               OsclAny* aContextData)
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "CPV324m2Way::InitL\n"));
-
-    PVMFNodeSessionInfo sessionInfo;
-
-    bool allocSuccessful = true;
 
     switch (iState)
     {
@@ -564,99 +636,9 @@ PVCommandId CPV324m2Way::Init(PV2WayInitInfo& aInitInfo,
             ((TSC_324m*)(iTscNode.iNode))->SetMultiplexingDelayMs(0);
             ((TSC_324m*)(iTscNode.iNode))->SetClock(&iClock);
 
-            SetPreferredCodecs(aInitInfo);
-
-#if defined(PV_RECORD_TO_FILE_SUPPORT)
-            OSCL_TRY(error, iVideoDecSplitterNode =
-                         TPV2WayNode(PVMFSplitterNode::Create()););
-            OSCL_FIRST_CATCH_ANY(error,
-                                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
-                                                 (0, "CPV324m2Way::PreInit unable to allocate video splitter node\n"));
-                                 allocSuccessful = false;);
-
-            OSCL_TRY(error, iFFComposerNode =
-                         TPV2WayNode(PVMp4FFComposerNodeFactory::CreateMp4FFComposer(this, this, this));;
-                     iFFComposerNode->SetClock(&iClock););
-            OSCL_FIRST_CATCH_ANY(error,
-                                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
-                                                 (0, "CPV324m2Way::PreInit unable to allocate ff composer node\n"));
-                                 allocSuccessful = false;);
-#endif
-
-#if defined(PV_PLAY_FROM_FILE_SUPPORT)
-            OSCL_TRY(error, iAudioSrcSplitterNode =
-                         TPV2WayNode(PVMFSplitterNode::Create()););
-            OSCL_FIRST_CATCH_ANY(error,
-                                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
-                                                 (0, "CPV324m2Way::PreInit unable to allocate audio src splitter node\n"));
-                                 allocSuccessful = false;);
-
-            OSCL_TRY(error, iVideoSrcSplitterNode =
-                         TPV2WayNode(PVMFSplitterNode::Create()););
-            OSCL_FIRST_CATCH_ANY(error,
-                                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
-                                                 (0, "CPV324m2Way::PreInit unable to allocate video src splitter node\n"));
-                                 allocSuccessful = false;);
-
-
-            OSCL_TRY(error, iPlayFromFileNode =
-                         TPV2WayNode(PlayFromFileNode::NewL());
-                     iPlayFromFileNode->SetClock(&iClock););
-            if (iPlayFromFileNode == NULL) error = PVMFErrNoMemory;
-            OSCL_FIRST_CATCH_ANY(error,
-                                 PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
-                                                 (0, "CPV324m2Way::PreInit unable to allocate playfromfile node\n"));
-                                 allocSuccessful = false;);
-#endif
-
-            if (!allocSuccessful)
+            if (AllocNodes())
             {
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
-                                (0, "CPV324m2Way::Init allocation failed\n"));
-            }
-            else
-            {
-
-
-#if defined(PV_RECORD_TO_FILE_SUPPORT)
-                InitiateSession(iVideoDecSplitterNode);
-                InitiateSession(iFFComposerNode);
-#endif
-
-#if defined(PV_PLAY_FROM_FILE_SUPPORT)
-                InitiateSession(iAudioSrcSplitterNode);
-                InitiateSession(iVideoSrcSplitterNode);
-                InitiateSession(iPlayFromFileNode);
-#endif
-                //Set incoming channel capabilities.
-                // TBD: Incoming capabilities need to be queried from the registry and passed to the stack
-                H324ChannelParameters inAudioChannelParams(INCOMING, PVMF_MIME_AMR_IF2, MAX_AUDIO_BITRATE);
-                H324ChannelParameters inVideoChannelParams(INCOMING, PVMF_MIME_H2632000, MAX_VIDEO_BITRATE);
-                H324ChannelParameters inDtmfParams(INCOMING, PVMF_MIME_USERINPUT_BASIC_STRING, 0);
-
-                ConvertMapToVector(iIncomingAudioCodecs, iFormatCapability);
-                inAudioChannelParams.SetCodecs(iFormatCapability);
-
-                ConvertMapToVector(iIncomingVideoCodecs, iFormatCapability);
-                inVideoChannelParams.SetCodecs(iFormatCapability);
-                inDtmfParams.SetCodecs(iIncomingUserInputFormats);
-                iIncomingChannelParams.push_back(inAudioChannelParams);
-                iIncomingChannelParams.push_back(inVideoChannelParams);
-                iIncomingChannelParams.push_back(inDtmfParams);
-
-                //Set outgoing channel capabilities.
-                H324ChannelParameters outAudioChannelParams(OUTGOING,
-                        PVMF_MIME_AMR_IF2, MAX_AUDIO_BITRATE);
-                ConvertMapToVector(iOutgoingAudioCodecs, iFormatCapability);
-                outAudioChannelParams.SetCodecs(iFormatCapability);
-                iOutgoingChannelParams.push_back(outAudioChannelParams);
-
-                H324ChannelParameters outVideoChannelParams(OUTGOING,
-                        PVMF_MIME_H2632000, MAX_VIDEO_BITRATE);
-
-                ConvertMapToVector(iOutgoingVideoCodecs, iFormatCapability);
-                outVideoChannelParams.SetCodecs(iFormatCapability);
-                iOutgoingChannelParams.push_back(outVideoChannelParams);
+                SetPreferredCodecs(aInitInfo);
             }
 
             iInitInfo = GetCmdInfoL();
@@ -821,6 +803,126 @@ PVCommandId CPV324m2Way::AddDataSource(PVTrackId aChannelId,
     return iCommandId++;
 }
 
+void CPV324m2Way::DoAddDataSourceTscNode(CPVDatapathNode& datapathnode,
+        CPV2WayEncDataChannelDatapath* datapath,
+        TPV2WayCmdInfo *cmd)
+{
+    //Add tsc node to datapath
+    datapathnode.iNode = iTscNode;
+    datapathnode.iConfigure = NULL;
+    datapathnode.iCanNodePause = false;
+    datapathnode.iLoggoffOnReset = false;
+    datapathnode.iIgnoreNodeState = true;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeStarted;
+    datapathnode.iInputPort.iCanCancelPort = true;
+    datapathnode.iInputPort.iPortSetType = EAppDefined;
+    datapathnode.iInputPort.iFormatType = datapath->GetFormat();
+    datapathnode.iInputPort.iPortTag = cmd->iPvtCmdData;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_UNKNOWN_PORT;
+    datapath->AddNode(datapathnode);
+}
+
+
+void CPV324m2Way::DoAddDataSourceNode(TPV2WayNode& aNode,
+                                      CPVDatapathNode& datapathnode,
+                                      CPV2WayEncDataChannelDatapath* datapath)
+{
+    //Add source node to datapath
+    TPV2WayNode* srcNode = &aNode;
+    datapathnode.iNode = *srcNode;
+    datapathnode.iLoggoffOnReset = true;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
+    datapath->AddNode(datapathnode);
+}
+
+#if defined(PV_PLAY_FROM_FILE_SUPPORT)
+void CPV324m2Way::DoAddVideoSrcSplitterNode(CPVDatapathNode& datapathnode,
+        CPV2WayEncDataChannelDatapath* datapath)
+{
+    //Add video src splitter node to datapath
+    datapathnode.iNode = iVideoSrcSplitterNode;
+    datapathnode.iConfigure = NULL;
+    datapathnode.iCanNodePause = false;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iInputPort.iPortSetType = EUserDefined;
+    datapathnode.iInputPort.iFormatType = PVMF_MIME_YUV420;
+    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
+    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iOutputPort.iCanCancelPort = false;
+    datapathnode.iOutputPort.iPortSetType = EUserDefined;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_YUV420;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
+    datapath->AddNode(datapathnode);
+}
+void CPV324m2Way::DoAddAudioSrcSplitterNode(CPVDatapathNode& datapathnode,
+        CPV2WayEncDataChannelDatapath* datapath)
+{
+    //Add audio src splitter node to datapath
+    datapathnode.iNode = iAudioSrcSplitterNode;
+    datapathnode.iConfigure = NULL;
+    datapathnode.iCanNodePause = false;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iInputPort.iPortSetType = EUseOtherNodePortFormat;
+    datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
+    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iOutputPort.iCanCancelPort = false;
+    datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
+    datapath->AddNode(datapathnode);
+}
+#endif
+
+void CPV324m2Way::DoAddVideoEncNode(CPVDatapathNode& datapathnode,
+                                    CPV2WayEncDataChannelDatapath* datapath)
+{
+    //Add video enc node to datapath
+    datapathnode.iNode = iVideoEncNode;
+    datapathnode.iConfigure = this;
+    datapathnode.iConfigTime = EConfigBeforeInit;
+    datapathnode.iCanNodePause = true;
+    datapathnode.iLoggoffOnReset = false;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iInputPort.iPortSetType = EUserDefined;
+    datapathnode.iInputPort.iFormatType = PVMF_MIME_YUV420;
+    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
+    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
+    datapath->AddNode(datapathnode);
+}
+
+void CPV324m2Way::DoAddAudioEncNode(CPVDatapathNode& datapathnode,
+                                    CPV2WayEncDataChannelDatapath* datapath)
+{
+    //Add audio enc node to datapath
+    datapathnode.iNode = iAudioEncNode;
+    datapathnode.iConfigure = this;
+    datapathnode.iConfigTime = EConfigBeforeInit;
+    datapathnode.iCanNodePause = true;
+    datapathnode.iLoggoffOnReset = false;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iInputPort.iPortSetType = EUserDefined;
+    datapathnode.iInputPort.iFormatType = PVMF_MIME_PCM16;
+    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
+    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
+    datapath->AddNode(datapathnode);
+}
+
 void CPV324m2Way::DoAddDataSource(TPV2WayNode& aNode,
                                   const PVMFCmdResp& aResponse)
 {
@@ -837,7 +939,7 @@ void CPV324m2Way::DoAddDataSource(TPV2WayNode& aNode,
     {
         OSCL_DELETE(srcNode);
         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
-                        (0, "CPV324m2Way::AddDataSourceL - unable to get capability"));
+                        (0, "CPV324m2Way::DoAddDataSource - unable to get capability"));
         OSCL_LEAVE(PVMFFailure);
     }
 
@@ -853,13 +955,17 @@ void CPV324m2Way::DoAddDataSource(TPV2WayNode& aNode,
     }
     else
     {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                        (0, "CPV324m2Way::DoAddDataSource media_type is neither Audio nor Video"));
         OSCL_LEAVE(PVMFErrArgument);
     }
 
     bool formatSupported = false;
     for (uint i = 0; i < capability.iOutputFormatCapability.size(); i++)
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_INFO, (0, "CPV324m2Way::AddDataSourceL - format %s\n", (capability.iOutputFormatCapability[i]).getMIMEStrPtr()));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_INFO,
+                        (0, "CPV324m2Way::AddDataSourceL - format %s\n",
+                         (capability.iOutputFormatCapability[i]).getMIMEStrPtr()));
         if (datapath->GetSourceSinkFormat() == capability.iOutputFormatCapability[i])
         {
             formatSupported = true;
@@ -868,6 +974,8 @@ void CPV324m2Way::DoAddDataSource(TPV2WayNode& aNode,
     }
     if (!formatSupported)
     {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                        (0, "CPV324m2Way::DoAddDataSource capability is not supported"));
         OSCL_LEAVE(PVMFErrNotSupported);
     }
 
@@ -882,64 +990,18 @@ void CPV324m2Way::DoAddDataSource(TPV2WayNode& aNode,
             datapath->SetChannelId(cmd->iPvtCmdData);
 
             //Add source node to datapath
-            datapathnode.iNode = *srcNode;
             datapathnode.iConfigure = NULL;
-            datapathnode.iLoggoffOnReset = true;
-            datapathnode.iIgnoreNodeState = false;
-            datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-            datapath->AddNode(datapathnode);
+            DoAddDataSourceNode(aNode, datapathnode, datapath);
 
 #if defined(PV_PLAY_FROM_FILE_SUPPORT)
             //Add video src splitter node to datapath
-            datapathnode.iNode = iVideoSrcSplitterNode;
-            datapathnode.iConfigure = NULL;
-            datapathnode.iCanNodePause = false;
-            datapathnode.iIgnoreNodeState = false;
-            datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iInputPort.iPortSetType = EUserDefined;
-            datapathnode.iInputPort.iFormatType = PVMF_MIME_YUV420;
-            datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-            datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iOutputPort.iCanCancelPort = false;
-            datapathnode.iOutputPort.iPortSetType = EUserDefined;
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_YUV420;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-            datapath->AddNode(datapathnode);
+            DoAddVideoSrcSplitterNode(datapathnode, datapath);
 #endif
             //Add video enc node to datapath
-            datapathnode.iNode = iVideoEncNode;
-            datapathnode.iConfigure = this;
-            datapathnode.iConfigTime = EConfigBeforeInit;
-            datapathnode.iCanNodePause = true;
-            datapathnode.iLoggoffOnReset = false;
-            datapathnode.iIgnoreNodeState = false;
-            datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iInputPort.iPortSetType = EUserDefined;
-            datapathnode.iInputPort.iFormatType = PVMF_MIME_YUV420;
-            datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-            datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-            datapath->AddNode(datapathnode);
+            DoAddVideoEncNode(datapathnode, datapath);
 
             //Add tsc node to datapath
-            datapathnode.iNode = iTscNode;
-            datapathnode.iConfigure = NULL;
-            datapathnode.iCanNodePause = false;
-            datapathnode.iLoggoffOnReset = false;
-            datapathnode.iIgnoreNodeState = true;
-            datapathnode.iInputPort.iRequestPortState = EPVMFNodeStarted;
-            datapathnode.iInputPort.iCanCancelPort = true;
-            datapathnode.iInputPort.iPortSetType = EAppDefined;
-            datapathnode.iInputPort.iFormatType = datapath->GetFormat();
-            datapathnode.iInputPort.iPortTag = cmd->iPvtCmdData;
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_UNKNOWN_PORT;
-            datapath->AddNode(datapathnode);
+            DoAddDataSourceTscNode(datapathnode, datapath, cmd);
 
             // Check if FSI exists and Extension Interface is queried
             uint32 fsi_len = 0;
@@ -955,11 +1017,15 @@ void CPV324m2Way::DoAddDataSource(TPV2WayNode& aNode,
         }
         else
         {
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                            (0, "CPV324m2Way::DoAddDataSource invalid state (not closed)"));
             OSCL_LEAVE(PVMFErrInvalidState);
         }
     }
 
-    else if ((datapath->GetSourceSinkFormat() == PVMF_MIME_H2632000) || (datapath->GetSourceSinkFormat() == PVMF_MIME_H2631998) || (datapath->GetSourceSinkFormat() == PVMF_MIME_M4V))
+    else if ((datapath->GetSourceSinkFormat() == PVMF_MIME_H2632000) ||
+             (datapath->GetSourceSinkFormat() == PVMF_MIME_H2631998) ||
+             (datapath->GetSourceSinkFormat() == PVMF_MIME_M4V))
     {
         // video media type
         if (datapath->GetState() == EClosed)
@@ -969,40 +1035,25 @@ void CPV324m2Way::DoAddDataSource(TPV2WayNode& aNode,
                              cmd->iPvtCmdData));
             datapath->SetChannelId(cmd->iPvtCmdData);
             //Add source node to datapath
-            datapathnode.iNode = *srcNode;
             datapathnode.iConfigure = NULL;
-            datapathnode.iLoggoffOnReset = true;
-            datapathnode.iIgnoreNodeState = false;
-            datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
+            DoAddDataSourceNode(aNode, datapathnode, datapath);
 
-            datapath->AddNode(datapathnode);
             //Add tsc node to datapath
-            datapathnode.iNode = iTscNode;
-            datapathnode.iConfigure = NULL;
-            datapathnode.iCanNodePause = false;
-            datapathnode.iLoggoffOnReset = false;
-            datapathnode.iIgnoreNodeState = true;
-            datapathnode.iInputPort.iRequestPortState = EPVMFNodeStarted;
-            datapathnode.iInputPort.iCanCancelPort = true;
-            datapathnode.iInputPort.iPortSetType = EAppDefined;
-            datapathnode.iInputPort.iFormatType = datapath->GetFormat();
-            datapathnode.iInputPort.iPortTag = cmd->iPvtCmdData;
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_UNKNOWN_PORT;
-            datapath->AddNode(datapathnode);
+            DoAddDataSourceTscNode(datapathnode, datapath, cmd);
 
             datapath->SetCmd(cmd);
         }
         else
         {
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                            (0, "CPV324m2Way::DoAddDataSource invalid state (not closed)"));
             OSCL_LEAVE(PVMFErrInvalidState);
         }
     }
 
-    else if ((datapath->GetSourceSinkFormat() == PVMF_MIME_AMR_IF2) || (datapath->GetSourceSinkFormat() == PVMF_MIME_AMR_IETF) || (datapath->GetSourceSinkFormat() == PVMF_MIME_PCM16))
+    else if ((datapath->GetSourceSinkFormat() == PVMF_MIME_AMR_IF2) ||
+             (datapath->GetSourceSinkFormat() == PVMF_MIME_AMR_IETF) ||
+             (datapath->GetSourceSinkFormat() == PVMF_MIME_PCM16))
     {
         if (datapath->GetState() == EClosed)
         {
@@ -1011,8 +1062,6 @@ void CPV324m2Way::DoAddDataSource(TPV2WayNode& aNode,
             datapath->SetChannelId(cmd->iPvtCmdData);
 
             //Add source node to datapath
-            datapathnode.iNode = *srcNode;
-
 #ifndef PV_DISABLE_DEVSOUNDNODES
             datapathnode.iConfigure = this;
             datapathnode.iConfigTime = EConfigBeforeInit;
@@ -1020,74 +1069,34 @@ void CPV324m2Way::DoAddDataSource(TPV2WayNode& aNode,
             datapathnode.iConfigure = NULL;
 #endif
             datapathnode.iCanNodePause = true;
-            datapathnode.iLoggoffOnReset = true;
-            datapathnode.iIgnoreNodeState = false;
-            datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-            datapath->AddNode(datapathnode);
+            DoAddDataSourceNode(aNode, datapathnode, datapath);
+
 
 #if defined(PV_PLAY_FROM_FILE_SUPPORT)
             //Add audio src splitter node to datapath
-            datapathnode.iNode = iAudioSrcSplitterNode;
-            datapathnode.iConfigure = NULL;
-            datapathnode.iCanNodePause = false;
-            datapathnode.iIgnoreNodeState = false;
-            datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iInputPort.iPortSetType = EUseOtherNodePortFormat;
-            datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-            datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iOutputPort.iCanCancelPort = false;
-            datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-            datapath->AddNode(datapathnode);
+            DoAddAudioSrcSplitterNode(datapathnode, datapath);
 #endif
 
             if (datapath->GetSourceSinkFormat() == PVMF_MIME_PCM16)
             {
                 //Add audio enc node to datapath
-                datapathnode.iNode = iAudioEncNode;
-                datapathnode.iConfigure = this;
-                datapathnode.iConfigTime = EConfigBeforeInit;
-                datapathnode.iCanNodePause = true;
-                datapathnode.iLoggoffOnReset = false;
-                datapathnode.iIgnoreNodeState = false;
-                datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iInputPort.iPortSetType = EUserDefined;
-                datapathnode.iInputPort.iFormatType = PVMF_MIME_PCM16;
-                datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-                datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iOutputPort.iPortSetType = EConnectedPortFormat;
-                datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-                datapath->AddNode(datapathnode);
+                DoAddAudioEncNode(datapathnode, datapath);
             }
 
             //Add tsc node to datapath
-            datapathnode.iNode = iTscNode;
-            datapathnode.iConfigure = NULL;
-            datapathnode.iCanNodePause = false;
-            datapathnode.iLoggoffOnReset = false;
-            datapathnode.iIgnoreNodeState = true;
-            datapathnode.iInputPort.iRequestPortState = EPVMFNodeStarted;
-            datapathnode.iInputPort.iCanCancelPort = true;
-            datapathnode.iInputPort.iPortSetType = EAppDefined;
-            datapathnode.iInputPort.iPortTag = cmd->iPvtCmdData;
-            datapathnode.iInputPort.iFormatType = datapath->GetFormat();
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_UNKNOWN_PORT;
-            datapath->AddNode(datapathnode);
+            DoAddDataSourceTscNode(datapathnode, datapath, cmd);
 
             datapath->SetCmd(cmd);
         }
         else
         {
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                            (0, "CPV324m2Way::DoAddDataSource invalid state (not closed)"));
             OSCL_LEAVE(PVMFErrInvalidState);
         }
     }
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE,
+                    (0, "CPV324m2Way::DoAddDataSource ----- finished call"));
 
     return;
 }
@@ -1208,6 +1217,9 @@ PVCommandId CPV324m2Way::DoRemoveDataSourceSink(PVMFNodeInterface& aEndPt,
         node = RemoveTPV2WayNode(iSourceNodes, &aEndPt);
     }
     OSCL_DELETE(node);
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                    (0, "CPV324m2Way::DoRemoveDataSourceSink finished function"
+                    ));
     return iCommandId++;
 }
 
@@ -1280,6 +1292,125 @@ PVCommandId CPV324m2Way::AddDataSink(PVTrackId aChannelId,
     return iCommandId++;
 }
 
+void CPV324m2Way::DoAddDataSinkTscNode(CPVDatapathNode& datapathnode,
+                                       CPV2WayDecDataChannelDatapath* datapath,
+                                       TPV2WayCmdInfo *cmd)
+{
+    //Add tsc node to datapath
+    datapathnode.iNode = iTscNode;
+    datapathnode.iConfigure = NULL;
+    datapathnode.iCanNodePause = false;
+    datapathnode.iIgnoreNodeState = true;
+    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeStarted;
+    datapathnode.iOutputPort.iCanCancelPort = true;
+    datapathnode.iOutputPort.iPortSetType = EAppDefined;
+    datapathnode.iOutputPort.iFormatType = datapath->GetFormat();
+    datapathnode.iOutputPort.iPortTag = -cmd->iPvtCmdData;
+    // Need to put in the LC number here
+    //datapathnode.iOutputPort.iPortTag = GetStackNodePortTag(EPV2WayAudioOut);
+    datapath->AddNode(datapathnode);
+}
+
+void CPV324m2Way::DoAddVideoParserNode(CPVDatapathNode& datapathnode,
+                                       CPV2WayDecDataChannelDatapath* datapath)
+{
+    //Add video parser node to datapath
+    datapathnode.iNode = iVideoParserNode;
+    datapathnode.iConfigure = NULL;
+    datapathnode.iCanNodePause = false;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
+    datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
+    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iOutputPort.iCanCancelPort = false;
+    datapathnode.iOutputPort.iPortSetType = EUseOtherNodePortFormat;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
+    datapath->AddNode(datapathnode);
+}
+
+void CPV324m2Way::DoAddDataSinkNodeForH263_M4V(TPV2WayNode& aNode,
+        CPVDatapathNode& datapathnode,
+        CPV2WayDecDataChannelDatapath* datapath)
+{
+    //Add sink node to datapath
+    TPV2WayNode* sinkNode = &aNode;
+    datapathnode.iNode.iNode = sinkNode->iNode;
+    datapathnode.iNode.iSessionId = sinkNode->iSessionId;
+    datapathnode.iConfigure = NULL;
+    datapathnode.iCanNodePause = false;
+    datapathnode.iLoggoffOnReset = true;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
+    datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_UNKNOWN_PORT;
+    datapath->AddNode(datapathnode);
+}
+
+
+void CPV324m2Way::DoAddDataSinkGeneric(TPV2WayNode& aNode,
+                                       CPVDatapathNode& datapathnode,
+                                       CPV2WayDecDataChannelDatapath* datapath)
+{
+    //Add sink node to datapath
+    TPV2WayNode* sinkNode = &aNode;
+    datapathnode.iNode = *sinkNode;
+    datapathnode.iConfigure = NULL;
+    datapathnode.iCanNodePause = true;
+    datapathnode.iLoggoffOnReset = true;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
+    datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_UNKNOWN_PORT;
+    datapath->AddNode(datapathnode);
+}
+
+void CPV324m2Way::DoAddVideoDecNode(CPVDatapathNode& datapathnode,
+                                    CPV2WayDecDataChannelDatapath* datapath)
+{
+    //Add video dec node to datapath
+    datapathnode.iNode = iVideoDecNode;
+    datapathnode.iConfigure = NULL;
+    datapathnode.iCanNodePause = true;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
+    datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
+    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iOutputPort.iPortSetType = EUserDefined;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_YUV420;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
+    datapath->AddNode(datapathnode);
+}
+
+void CPV324m2Way::DoAddAudioDecNode(CPVDatapathNode& datapathnode,
+                                    CPV2WayDecDataChannelDatapath* datapath)
+{
+    //Add audio dec node to datapath
+    datapathnode.iNode = iAudioDecNode;
+    datapathnode.iConfigure = NULL;
+    datapathnode.iCanNodePause = true;
+    datapathnode.iIgnoreNodeState = false;
+    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
+    datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
+    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
+    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
+    datapathnode.iOutputPort.iPortSetType = EUserDefined;
+    datapathnode.iOutputPort.iFormatType = PVMF_MIME_PCM16;
+    datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
+    datapath->AddNode(datapathnode);
+}
+
 void CPV324m2Way::DoAddDataSink(TPV2WayNode& aNode,
                                 const PVMFCmdResp& aResponse)
 {
@@ -1317,7 +1448,9 @@ void CPV324m2Way::DoAddDataSink(TPV2WayNode& aNode,
     bool formatSupported = false;
     for (uint i = 0; i < capability.iInputFormatCapability.size(); i++)
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_INFO, (0, "CPV324m2Way::AddDataSinkL - format %s\n", (capability.iInputFormatCapability[i]).getMIMEStrPtr()));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_INFO,
+                        (0, "CPV324m2Way::AddDataSinkL - format %s\n",
+                         (capability.iInputFormatCapability[i]).getMIMEStrPtr()));
         if (datapath->GetSourceSinkFormat() == capability.iInputFormatCapability[i])
         {
             formatSupported = true;
@@ -1329,7 +1462,8 @@ void CPV324m2Way::DoAddDataSink(TPV2WayNode& aNode,
         OSCL_LEAVE(PVMFErrNotSupported);
     }
 
-    if ((datapath->GetSourceSinkFormat() == PVMF_MIME_H2632000) || (datapath->GetSourceSinkFormat() == PVMF_MIME_M4V))
+    if ((datapath->GetSourceSinkFormat() == PVMF_MIME_H2632000) ||
+            (datapath->GetSourceSinkFormat() == PVMF_MIME_M4V))
     {
         if (datapath)
         {
@@ -1339,47 +1473,13 @@ void CPV324m2Way::DoAddDataSink(TPV2WayNode& aNode,
                                 (0, "CPV324m2Way::AddDataSinkL - creating video datapath\n"));
 
                 //Add tsc node to datapath
-                datapathnode.iNode = iTscNode;
-                datapathnode.iConfigure = NULL;
-                datapathnode.iCanNodePause = false;
-                datapathnode.iIgnoreNodeState = true;
-                datapathnode.iOutputPort.iRequestPortState = EPVMFNodeStarted;
-                datapathnode.iOutputPort.iCanCancelPort = true;
-                datapathnode.iOutputPort.iPortSetType = EAppDefined;
-                datapathnode.iOutputPort.iFormatType = datapath->GetFormat();
-                datapathnode.iOutputPort.iPortTag = -cmd->iPvtCmdData;
-                datapath->AddNode(datapathnode);
+                DoAddDataSinkTscNode(datapathnode, datapath, cmd);
 
                 //Add video parser node to datapath
-                datapathnode.iNode = iVideoParserNode;
-                datapathnode.iConfigure = NULL;
-                datapathnode.iCanNodePause = false;
-                datapathnode.iIgnoreNodeState = false;
-                datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
-                datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-                datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iOutputPort.iCanCancelPort = false;
-                datapathnode.iOutputPort.iPortSetType = EUseOtherNodePortFormat;
-                datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-                datapath->AddNode(datapathnode);
+                DoAddVideoParserNode(datapathnode, datapath);
 
                 //Add sink node to datapath
-                datapathnode.iNode.iNode = sinkNode->iNode;
-                datapathnode.iNode.iSessionId = sinkNode->iSessionId;
-                datapathnode.iConfigure = NULL;
-                datapathnode.iCanNodePause = false;
-                datapathnode.iLoggoffOnReset = true;
-                datapathnode.iIgnoreNodeState = false;
-                datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
-                datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-                datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iOutputPort.iPortTag = PV2WAY_UNKNOWN_PORT;
-                datapath->AddNode(datapathnode);
+                DoAddDataSinkNodeForH263_M4V(aNode, datapathnode, datapath);
 
                 datapath->SetCmd(cmd);
                 datapath->SetChannelId(cmd->iPvtCmdData);
@@ -1404,85 +1504,16 @@ void CPV324m2Way::DoAddDataSink(TPV2WayNode& aNode,
                                 (0, "CPV324m2Way::AddDataSinkL - creating video datapath\n"));
 
                 //Add tsc node to datapath
-                datapathnode.iNode = iTscNode;
-                datapathnode.iConfigure = NULL;
-                datapathnode.iCanNodePause = false;
-                datapathnode.iIgnoreNodeState = true;
-                datapathnode.iOutputPort.iRequestPortState = EPVMFNodeStarted;
-                datapathnode.iOutputPort.iCanCancelPort = true;
-                datapathnode.iOutputPort.iPortSetType = EAppDefined;
-                datapathnode.iOutputPort.iFormatType = datapath->GetFormat();
-                //datapathnode.iOutputPort.iPortTag = GetStackNodePortTag(EPV2WayVideoOut);
-                datapathnode.iOutputPort.iPortTag = -cmd->iPvtCmdData;
-                datapath->AddNode(datapathnode);
+                DoAddDataSinkTscNode(datapathnode, datapath, cmd);
 
                 //Add video parser node to datapath
-                datapathnode.iNode = iVideoParserNode;
-                datapathnode.iConfigure = NULL;
-                datapathnode.iCanNodePause = false;
-                datapathnode.iIgnoreNodeState = false;
-                datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
-                datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-                datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iOutputPort.iCanCancelPort = false;
-                datapathnode.iOutputPort.iPortSetType = EUseOtherNodePortFormat;
-                datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-                datapath->AddNode(datapathnode);
+                DoAddVideoParserNode(datapathnode, datapath);
 
                 //Add video dec node to datapath
-                datapathnode.iNode = iVideoDecNode;
-                datapathnode.iConfigure = NULL;
-                datapathnode.iCanNodePause = true;
-                datapathnode.iIgnoreNodeState = false;
-                datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
-                datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-                datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iOutputPort.iPortSetType = EUserDefined;
-                datapathnode.iOutputPort.iFormatType = PVMF_MIME_YUV420;
-                datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-                datapath->AddNode(datapathnode);
+                DoAddVideoDecNode(datapathnode, datapath);
 
                 //Add sink node to datapath
-                datapathnode.iNode.iNode = sinkNode->iNode;
-                datapathnode.iNode.iSessionId = sinkNode->iSessionId;
-                datapathnode.iConfigure = NULL;
-                datapathnode.iCanNodePause = false;
-                if (datapath->GetSourceSinkFormat() == PVMF_MIME_PCM16)
-                {
-                    //Add audio dec node to datapath
-                    datapathnode.iNode = iAudioDecNode;
-                    datapathnode.iConfigure = NULL;
-                    datapathnode.iCanNodePause = true;
-                    datapathnode.iIgnoreNodeState = false;
-                    datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-                    datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
-                    datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                    datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-                    datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-                    datapathnode.iOutputPort.iPortSetType = EUserDefined;
-                    datapathnode.iOutputPort.iFormatType = PVMF_MIME_PCM16;
-                    datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-                    iAudioDecDatapath->AddNode(datapathnode);
-                }
-
-                //Add sink node to datapath
-                datapathnode.iNode = *sinkNode;
-                datapathnode.iConfigure = NULL;
-                datapathnode.iCanNodePause = true;
-                datapathnode.iLoggoffOnReset = true;
-                datapathnode.iIgnoreNodeState = false;
-                datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
-                datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-                datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iOutputPort.iPortTag = PV2WAY_UNKNOWN_PORT;
-                datapath->AddNode(datapathnode);
+                DoAddDataSinkGeneric(aNode, datapathnode, datapath);
 
                 datapath->SetChannelId(cmd->iPvtCmdData);
                 datapath->SetCmd(cmd);
@@ -1497,7 +1528,10 @@ void CPV324m2Way::DoAddDataSink(TPV2WayNode& aNode,
         }
     }
 
-    else if ((datapath->GetSourceSinkFormat() == PVMF_MIME_AMR_IF2) || (datapath->GetSourceSinkFormat() == PVMF_MIME_AMR_IETF) || (datapath->GetSourceSinkFormat() == PVMF_MIME_G723) || (datapath->GetSourceSinkFormat() == PVMF_MIME_PCM16))
+    else if ((datapath->GetSourceSinkFormat() == PVMF_MIME_AMR_IF2) ||
+             (datapath->GetSourceSinkFormat() == PVMF_MIME_AMR_IETF) ||
+             (datapath->GetSourceSinkFormat() == PVMF_MIME_G723) ||
+             (datapath->GetSourceSinkFormat() == PVMF_MIME_PCM16))
     {
         if (datapath->GetState() == EClosed)
         {
@@ -1505,51 +1539,16 @@ void CPV324m2Way::DoAddDataSink(TPV2WayNode& aNode,
                             (0, "CPV324m2Way::AddDataSinkL - adding - audio sink node\n"));
 
             //Add tsc node to datapath
-            datapathnode.iNode = iTscNode;
-            datapathnode.iConfigure = NULL;
-            datapathnode.iCanNodePause = false;
-            datapathnode.iIgnoreNodeState = true;
-            datapathnode.iOutputPort.iRequestPortState = EPVMFNodeStarted;
-            datapathnode.iOutputPort.iCanCancelPort = true;
-            datapathnode.iOutputPort.iPortSetType = EAppDefined;
-            datapathnode.iOutputPort.iFormatType = datapath->GetFormat();
-            // Need to put in the LC number here
-            //datapathnode.iOutputPort.iPortTag = GetStackNodePortTag(EPV2WayAudioOut);
-            datapathnode.iOutputPort.iPortTag = -cmd->iPvtCmdData;
-            datapath->AddNode(datapathnode);
+            DoAddDataSinkTscNode(datapathnode, datapath, cmd);
 
             if (datapath->GetSourceSinkFormat() == PVMF_MIME_PCM16)
             {
                 //Add audio dec node to datapath
-                datapathnode.iNode = iAudioDecNode;
-                datapathnode.iConfigure = NULL;
-                datapathnode.iCanNodePause = true;
-                datapathnode.iIgnoreNodeState = false;
-                datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
-                datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-                datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-                datapathnode.iOutputPort.iRequestPortState = EPVMFNodeInitialized;
-                datapathnode.iOutputPort.iPortSetType = EUserDefined;
-                datapathnode.iOutputPort.iFormatType = PVMF_MIME_PCM16;
-                datapathnode.iOutputPort.iPortTag = PV2WAY_OUT_PORT;
-                datapath->AddNode(datapathnode);
+                DoAddAudioDecNode(datapathnode, datapath);
             }
 
             //Add sink node to datapath
-            datapathnode.iNode = *sinkNode;
-            datapathnode.iConfigure = NULL;
-            datapathnode.iCanNodePause = true;
-            datapathnode.iLoggoffOnReset = true;
-            datapathnode.iIgnoreNodeState = false;
-            datapathnode.iInputPort.iRequestPortState = EPVMFNodeInitialized;
-            datapathnode.iInputPort.iPortSetType = EConnectedPortFormat;
-            datapathnode.iInputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iInputPort.iPortTag = PV2WAY_IN_PORT;
-            datapathnode.iOutputPort.iCanCancelPort = false;
-            datapathnode.iOutputPort.iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
-            datapathnode.iOutputPort.iPortTag = PV2WAY_UNKNOWN_PORT;
-            datapath->AddNode(datapathnode);
+            DoAddDataSinkGeneric(aNode, datapathnode, datapath);
 
             datapath->SetChannelId(cmd->iPvtCmdData);
 
@@ -1691,16 +1690,16 @@ PVCommandId CPV324m2Way::Connect(const PV2WayConnectOptions& aOptions,
     }
 
     /*
-    	// start enc datapaths that are already created
-    	if (iAudioEncDatapath->GetState() != EClosed)
-    	{
-    		iAudioEncDatapath->CheckOpen();
-    	}
-    	if (iVideoEncDatapath->GetState() != EClosed)
-    	{
-    		iVideoEncDatapath->CheckOpen();
-    	}
-    	*/
+        // start enc datapaths that are already created
+        if (iAudioEncDatapath->GetState() != EClosed)
+        {
+            iAudioEncDatapath->CheckOpen();
+        }
+        if (iVideoEncDatapath->GetState() != EClosed)
+        {
+            iVideoEncDatapath->CheckOpen();
+        }
+        */
     return iCommandId++;
 }
 
@@ -1832,7 +1831,7 @@ void CPV324m2Way::CheckState()
 
 void CPV324m2Way::CheckInit()
 {
-//	PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0,"CPV324m2Way::CheckInit state %d, video enc node state %d, interface state %d\n", iState, ((PVMFNodeInterface *)iVideoEncNode)->GetState(), iVideoEncNodeInterface.iState));
+//  PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0,"CPV324m2Way::CheckInit state %d, video enc node state %d, interface state %d\n", iState, ((PVMFNodeInterface *)iVideoEncNode)->GetState(), iVideoEncNodeInterface.iState));
     int32 error;
 
     if (((PVMFNodeInterface *)iTscNode)->GetState() == EPVMFNodeIdle)
@@ -1866,8 +1865,8 @@ void CPV324m2Way::CheckConnect()
     if ((iMuxDatapath->GetState() == EOpened) && iIsStackConnected)
     {
         /* Increase video encoder bitrate if required */
-        //	PVMp4H263EncExtensionInterface *ptr = (PVMp4H263EncExtensionInterface *) iVideoEncNodeInterface.iInterface;
-        //	ptr->SetOutputBitRate(0, VIDEO_ENCODER_BITRATE);
+        //  PVMp4H263EncExtensionInterface *ptr = (PVMp4H263EncExtensionInterface *) iVideoEncNodeInterface.iInterface;
+        //  ptr->SetOutputBitRate(0, VIDEO_ENCODER_BITRATE);
         SetState(EConnected);
 
         iConnectInfo->status = PVMFSuccess;
@@ -2298,7 +2297,7 @@ void CPV324m2Way::HandleSinkNodeCmd(PV2WayNodeCmdType aType,
         case PV2WAY_NODE_CMD_QUERY_INTERFACE:
             if (aResponse.GetCmdStatus() == PVMFSuccess)
             {
-                for (uint32 ii = 0; ii < iSinkNodeList.size();ii++)
+                for (uint32 ii = 0; ii < iSinkNodeList.size(); ii++)
                 {
                     if ((aNode == iSinkNodeList[ii].iSinkNode) &&
                             (aResponse.GetCmdId() == iSinkNodeList[ii].iNodeInterface.iId))
@@ -2625,7 +2624,7 @@ PVCommandId CPV324m2Way::QueryInterface(const PVUuid& aUuid,
                                              (0, "CPV324m2Way::QueryInterface failed!\n"));
                              cmd->status = PVMFFailure;
                              Dispatch(cmd););
-        cmd->status = PVMFSuccess; //ks added
+        cmd->status = PVMFSuccess;
     }
     else if (aUuid == PVMp4H263EncExtensionUUID &&
              ((PVMFNodeInterface *)iVideoEncNode))
@@ -2637,6 +2636,21 @@ PVCommandId CPV324m2Way::QueryInterface(const PVUuid& aUuid,
                              cmd->status = PVMFFailure;
                              PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
                                              (0, "CPV324m2Way::QueryInterface unable to query for video encoder interface!\n")););
+    }
+    else if (aUuid == PV2WayTestEncExtensionUUID)
+    {
+        PV2WayTestExtensionInterface* myInterface = OSCL_STATIC_CAST(PV2WayTestExtensionInterface*, this);
+        aInterfacePtr = OSCL_STATIC_CAST(PVInterface*, myInterface);
+        aInterfacePtr->addRef();
+        cmd->status = PVMFSuccess;
+    }
+    else if (aUuid == PVUidProxiedInterface)
+    {
+        // this is needed for the callback for any extension interfaces for this class directly
+        PV2WayTestExtensionInterface* myInterface = OSCL_STATIC_CAST(PV2WayTestExtensionInterface*, this);
+        aInterfacePtr = OSCL_STATIC_CAST(PVInterface*, myInterface);
+        aInterfacePtr->addRef();
+        cmd->status = PVMFSuccess;
     }
     else
     {
@@ -2964,7 +2978,7 @@ void CPV324m2Way::SetDefaults()
     iClock.Stop();
 
     /* Delete the list of sink/source nodes */
-    for (i = 0;i < iSourceNodes.size();i++)
+    for (i = 0; i < iSourceNodes.size(); i++)
     {
         TPV2WayNode* lNode = iSourceNodes[i];
         OSCL_DELETE(lNode);
@@ -2973,7 +2987,7 @@ void CPV324m2Way::SetDefaults()
     iSourceNodes.clear();
     iSourceNodes.destroy();
 
-    for (i = 0;i < iSinkNodes.size();i++)
+    for (i = 0; i < iSinkNodes.size(); i++)
     {
         TPV2WayNode* lNode = iSinkNodes[i] ;
         OSCL_DELETE(lNode);
@@ -3011,6 +3025,11 @@ void CPV324m2Way::Run()
                             (0, "CPV324m2Way::Run Calling CommandCompleted CmdType %d CmdId %d CmdStatus %d\n",
                              cmd->type, cmd->id, cmd->status));
 
+            if (cmd->status != PVMFSuccess)
+            {
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE,
+                                (0, "CPV324m2Way::Dispatch Command failed\n"));
+            }
             switch (cmd->type)
             {
                 case PVT_COMMAND_INIT:
@@ -3083,7 +3102,6 @@ void CPV324m2Way::Run()
                                         (0, "CPV324m2Way::Run ERROR Failed to lookup dec datapath.\n"));
                         break;
                     }
-
                     if ((cmd->status != PVMFSuccess) &&
                             (cmd->status != PVMFErrCancelled))
                     {
@@ -3302,7 +3320,7 @@ void CPV324m2Way::Dispatch(TPV2WayEventInfo* aEventInfo)
 bool CPV324m2Way::IsNodeInList(Oscl_Vector<TPV2WayNode*, OsclMemAllocator>& aList,
                                PVMFNodeInterface* aNode)
 {
-    for (uint32 i = 0;i < aList.size();i++)
+    for (uint32 i = 0; i < aList.size(); i++)
     {
         TPV2WayNode* lNode = aList[i];
         if (lNode && lNode->iNode == aNode)
@@ -3324,7 +3342,7 @@ bool CPV324m2Way::IsSinkNode(PVMFNodeInterface* aNode)
 TPV2WayNode* CPV324m2Way::GetTPV2WayNode(Oscl_Vector<TPV2WayNode*, OsclMemAllocator>& aList,
         PVMFNodeInterface* aNode)
 {
-    for (uint32 i = 0;i < aList.size();i++)
+    for (uint32 i = 0; i < aList.size(); i++)
     {
         TPV2WayNode* lNode = aList[i];
         if (lNode && lNode->iNode == aNode)
@@ -3336,7 +3354,7 @@ TPV2WayNode* CPV324m2Way::GetTPV2WayNode(Oscl_Vector<TPV2WayNode*, OsclMemAlloca
 TPV2WayNode* CPV324m2Way::RemoveTPV2WayNode(Oscl_Vector<TPV2WayNode*, OsclMemAllocator>& aList,
         PVMFNodeInterface* aNode)
 {
-    for (uint32 i = 0;i < aList.size();i++)
+    for (uint32 i = 0; i < aList.size(); i++)
     {
         TPV2WayNode* lNode = aList[i];
         if (lNode && lNode->iNode == aNode)
@@ -3847,7 +3865,7 @@ PVMFStatus CPV324m2Way::ConfigureNode(CPVDatapathNode *aNode)
 
                 if (remote_caps)
                 {
-                    for (uint16 i = 0; i < remote_caps->GetNumCapabilityItems();i++)
+                    for (uint16 i = 0; i < remote_caps->GetNumCapabilityItems(); i++)
                     {
                         CPvtMediaCapability * RemoteCapItem =
                             remote_caps->GetCapabilityItem(i);
@@ -4152,6 +4170,7 @@ PVMFStatus CPV324m2Way::EstablishChannel(TPVDirection aDir,
 
     PV2WayMediaType media_type = ::GetMediaType(aCodec);
     OSCL_ASSERT(media_type == PV_AUDIO || media_type == PV_VIDEO);
+    // aFormatType is the Codec that the establishing channel wants
     PVMFFormatType aFormatType = PVCodecTypeToPVMFFormatType(aCodec);
     PVMFFormatType aAppFormatType = PVMF_MIME_FORMAT_UNKNOWN;
 
@@ -4163,8 +4182,10 @@ PVMFStatus CPV324m2Way::EstablishChannel(TPVDirection aDir,
         return PVMFErrNoMemory;
     }
 
-    Oscl_Map<PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator, pvmf_format_type_key_compare_class>* codec_list = NULL;
-    Oscl_Map<PVMFFormatType, PVMFFormatType, OsclMemAllocator, pvmf_format_type_key_compare_class>* app_format_for_engine_format = NULL;
+    Oscl_Map < PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator,
+    pvmf_format_type_key_compare_class > * codec_list = NULL;
+    Oscl_Map < PVMFFormatType, PVMFFormatType, OsclMemAllocator,
+    pvmf_format_type_key_compare_class > * app_format_for_engine_format = NULL;
 
     CPV2WayDataChannelDatapath* datapath = NULL;
 
@@ -4234,7 +4255,8 @@ PVMFStatus CPV324m2Way::EstablishChannel(TPVDirection aDir,
         }
         app_format_for_engine_format = &iAppFormatForEngineFormatOutgoing;
     }
-    Oscl_Map<PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator, pvmf_format_type_key_compare_class>::iterator it = codec_list->find(aFormatType);
+    Oscl_Map < PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator,
+    pvmf_format_type_key_compare_class >::iterator it = codec_list->find(aFormatType);
 
     if (it == codec_list->end())
     {
@@ -4255,6 +4277,10 @@ PVMFStatus CPV324m2Way::EstablishChannel(TPVDirection aDir,
     }
     datapath->SetFormat(aFormatType);
     datapath->SetSourceSinkFormat(aAppFormatType);
+
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE,
+                    (0, "CPV324m2Way::EstablishChannel setting codec=%d formatType:%s appFormat: %s\n", aCodec,
+                     aFormatType.getMIMEStrPtr(), aAppFormatType.getMIMEStrPtr()));
 
     // Send the informational event to the app
     aEvent->localBuffer[0] = (uint8) media_type;
@@ -4799,7 +4825,7 @@ PVMFCommandId CPV324m2Way::SendNodeCmdL(PV2WayNodeCmdType aCmd,
 
         case PV2WAY_NODE_CMD_SKIP_MEDIA_DATA:
         {
-            for (uint32 ii = 0;ii < iSinkNodeList.size();ii++)
+            for (uint32 ii = 0; ii < iSinkNodeList.size(); ii++)
             {
                 if ((aNode == iSinkNodeList[ii].iSinkNode)
                         && (iSinkNodeList[ii].iNodeInterface.iState ==
@@ -4964,50 +4990,74 @@ bool CPV324m2Way::IsNodeReset(PVMFNodeInterface& aNode)
     return false;
 }
 
-
-void CPV324m2Way::SetPreferredCodecs(TPVDirection aDir,
-                                     Oscl_Vector<const char*, OsclMemAllocator>& aAppAudioFormats,
-                                     Oscl_Vector<const char*, OsclMemAllocator>& aAppVideoFormats)
+///////////////////////////////////////////////////////////////////
+// CPV324m2Way::SelectPreferredCodecs
+// This function takes the selection of codecs from the MIOs/app
+// and compares them to the set of codecs the 2way engine supports.
+// it adds the appropriate codecs (the same codec if it finds an exact match,
+// the corresponding codec if it finds a converter) to the iIncomingVideoCodecs,
+// iOutgoingAudioCodecs, etc.
+///////////////////////////////////////////////////////////////////
+void CPV324m2Way::SelectPreferredCodecs(TPVDirection aDir,
+                                        Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aAppAudioFormats,
+                                        Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aAppVideoFormats)
 {
-    /* Iterate over formats supported by the stack */
-    Oscl_Map<PVMFFormatType, CPvtMediaCapability*, OsclMemAllocator, pvmf_format_type_key_compare_class>::iterator it = iStackSupportedFormats.begin();
+    // Iterate over formats supported by the stack
+    Oscl_Map < PVMFFormatType, CPvtMediaCapability*, OsclMemAllocator,
+    pvmf_format_type_key_compare_class >::iterator it = iStackSupportedFormats.begin();
+    // go through the stack's supported codecs (those that it can process the protocol for)
     while (it != iStackSupportedFormats.end())
     {
         CPvtMediaCapability* media_capability = (*it++).second;
+        PVMFFormatType stackFormatType = media_capability->GetFormatType();
+        // Is stack preferred format present in application formats ?
         const char* format_str = NULL;
-        // Is format present in application formats ?
-        format_str = FindFormatType(media_capability->GetFormatType(), aAppAudioFormats, aAppVideoFormats);
+        CodecSpecifier* format = FindFormatType(stackFormatType,
+                                                aAppAudioFormats, aAppVideoFormats);
+        if (format)
+        {
+            // the stack-supported format is found within the MIO-specified codecs
+            format_str = format->GetFormat().getMIMEStrPtr();
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                            (0, "CPV324m2Way::SelectPreferredCodecs ***** format was found: %s ******",
+                             format_str));
+        }
         if (format_str)
         {
-            DoSelectFormat(aDir, media_capability->GetFormatType(), format_str, APP);
+            // no conversion necessary- stack supports format given by application/MIOs
+            DoSelectFormat(aDir, stackFormatType, format_str, APP);
         }
         else
         {
-            PV2WayMediaType media_type = ::GetMediaType(PVMFFormatTypeToPVCodecType(media_capability->GetFormatType()));
+            PV2WayMediaType media_type = ::GetMediaType(PVMFFormatTypeToPVCodecType(stackFormatType));
             const char* can_convert_format = NULL;
 
             if (media_type == PV_AUDIO)
             {
-                can_convert_format = CanConvertFormat(aDir, media_capability->GetFormatType(), aAppAudioFormats);
+                // can the engine convert between the stack preferred codec and any of the application
+                // formats?
+                can_convert_format = CanConvertFormat(aDir, stackFormatType, aAppAudioFormats);
             }
             else if (media_type == PV_VIDEO)
             {
-                can_convert_format = CanConvertFormat(aDir, media_capability->GetFormatType(), aAppVideoFormats);
+                can_convert_format = CanConvertFormat(aDir, stackFormatType, aAppVideoFormats);
             }
 
             if (can_convert_format)
             {
                 // Engine can convert the format using a conversion node
-                DoSelectFormat(aDir, media_capability->GetFormatType(), format_str, ENG, can_convert_format);
+                // so select it in a list
+                DoSelectFormat(aDir, stackFormatType, format_str, ENG, can_convert_format);
             }
             else
             {
-                // Check if it is a mandatory codec
+                // Check if it is a mandatory codec - if it is and it got
+                // here then it isn't supported but it needs to be
                 if (media_capability->IsMandatory())
                 {
-                    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
-                                    (0, "CPV324m2Way::SetPreferredCodecs, ERROR Mandatory codec=%s not supported",
-                                     (media_capability->GetFormatType()).getMIMEStrPtr()));
+                    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                                    (0, "CPV324m2Way::SelectPreferredCodecs, ERROR Mandatory stack codec=%s not supported",
+                                     stackFormatType.getMIMEStrPtr()));
                     OSCL_LEAVE(PVMFErrResource);
                 }
             }
@@ -5015,12 +5065,57 @@ void CPV324m2Way::SetPreferredCodecs(TPVDirection aDir,
     }
 }
 
+///////////////////////////////////////////////////////////////////
+// CPV324m2Way::SetPreferredCodecs
+// This function takes the selection of codecs from the MIOs/app
+// and uses these to select the appropriate codecs for the stack node
+// it also sets these as the expected codecs in the channels.
+//
+///////////////////////////////////////////////////////////////////
 void CPV324m2Way::SetPreferredCodecs(PV2WayInitInfo& aInitInfo)
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
-                    (0, "CPV324m2Way::SetPreferredCodecs"));
-    SetPreferredCodecs(INCOMING, aInitInfo.iIncomingAudioFormats, aInitInfo.iIncomingVideoFormats);
-    SetPreferredCodecs(OUTGOING, aInitInfo.iOutgoingAudioFormats, aInitInfo.iOutgoingVideoFormats);
+                    (0, "CPV324m2Way::SetPreferredCodecs: Outgoing"));
+    // given aInitInfo from app, match up with the stack preferred codecs and engine codecs
+    // side effect is that iIncomingVideoCodecs, etc are set.
+    SelectPreferredCodecs(OUTGOING, aInitInfo.iOutgoingAudioFormats, aInitInfo.iOutgoingVideoFormats);
+    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                    (0, "CPV324m2Way::SetPreferredCodecs: Incoming"));
+    SelectPreferredCodecs(INCOMING, aInitInfo.iIncomingAudioFormats, aInitInfo.iIncomingVideoFormats);
+
+    // now that iIncomingVideoCodecs, etc are selected (codecs the stack, engine and app want)
+    // take those values and add them to the iIncomingChannelParams, iOutgoingChannelParams
+    // so the channel will know which formats are acceptable.
+    H324ChannelParameters inDtmfParams(INCOMING, 0);
+    inDtmfParams.SetCodecs(iIncomingUserInputFormats);
+
+    //Set incoming channel capabilities.
+    // TBD: Incoming capabilities need to be queried from the registry and passed to the stack
+    H324ChannelParameters inAudioChannelParams(INCOMING, MAX_AUDIO_BITRATE);
+    // add iIncomingAudioCodecs members into iFormatCapability
+    ConvertMapToVector(iIncomingAudioCodecs, iFormatCapability);
+    inAudioChannelParams.SetCodecs(iFormatCapability);
+
+    H324ChannelParameters inVideoChannelParams(INCOMING, MAX_VIDEO_BITRATE);
+    ConvertMapToVector(iIncomingVideoCodecs, iFormatCapability);
+    inVideoChannelParams.SetCodecs(iFormatCapability);
+
+    iIncomingChannelParams.push_back(inDtmfParams);
+    iIncomingChannelParams.push_back(inAudioChannelParams);
+    iIncomingChannelParams.push_back(inVideoChannelParams);
+
+
+    //Set outgoing channel capabilities.
+    H324ChannelParameters outAudioChannelParams(OUTGOING, MAX_AUDIO_BITRATE);
+    ConvertMapToVector(iOutgoingAudioCodecs, iFormatCapability);
+    outAudioChannelParams.SetCodecs(iFormatCapability);
+
+    H324ChannelParameters outVideoChannelParams(OUTGOING, MAX_VIDEO_BITRATE);
+    ConvertMapToVector(iOutgoingVideoCodecs, iFormatCapability);
+    outVideoChannelParams.SetCodecs(iFormatCapability);
+
+    iOutgoingChannelParams.push_back(outAudioChannelParams);
+    iOutgoingChannelParams.push_back(outVideoChannelParams);
 }
 
 
@@ -5134,7 +5229,7 @@ void CPV324m2Way::CheckRecordFileInit()
                     (0, "CPV324m2Way::CheckRecordFileInit ff composer node state %d\n",
                      iFFComposerNode->GetState()));
 
-//	int32 error;
+//  int32 error;
     return;
 }
 
@@ -5144,7 +5239,7 @@ void CPV324m2Way::CheckRecordFileReset()
                     (0, "CPV324m2Way::CheckRecordFileReset audio rec state %d, video rec state %d\n",
                      iAudioRecDatapath->GetState(), iVideoRecDatapath->GetState()));
 
-//	int32 error;
+//  int32 error;
     return;
 }
 
@@ -5510,17 +5605,15 @@ void CPV324m2Way::ConvertMapToVector(Oscl_Map < PVMFFormatType,
                                      Oscl_Vector < FormatCapabilityInfo,
                                      OsclMemAllocator > & aFormatCapability)
 {
-    iFormatCapability.clear();
+    // add aCodecs members into aFormatCapability
+    aFormatCapability.clear();
     Oscl_Map < PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator,
     pvmf_format_type_key_compare_class >::iterator it;
     it = aCodecs.begin();
     for (it = aCodecs.begin() ; it != aCodecs.end(); it++)
     {
-        iFormatCapability.push_back(aCodecs[(*it).first]);
+        aFormatCapability.push_back(aCodecs[(*it).first]);
     }
-
-    aFormatCapability = iFormatCapability;
-
 }
 
 
@@ -5784,7 +5877,9 @@ bool CPV324m2Way::IsSupported(const PVMFFormatType& aInputFmtType, const PVMFFor
     }
     else
     {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "CPV324m2Way::IsSupported() Not supported format\n"));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                        (0, "CPV324m2Way::IsSupported() ERROR unsupported conversion: input: %s output: %s\n",
+                         aInputFmtType.getMIMEStrPtr(), aOutputFmtType.getMIMEStrPtr()));
         return false;
     }
 }
@@ -5797,17 +5892,20 @@ void CPV324m2Way::GetStackSupportedFormats()
     iStackSupportedFormats[PVMF_MIME_H2632000] = OSCL_NEW(CPvtH263Capability, (MAX_VIDEO_BITRATE));
 }
 
-const char* CPV324m2Way::FindFormatType(PVMFFormatType aFormatType,
-                                        Oscl_Vector<const char*, OsclMemAllocator>& aAudioFormats,
-                                        Oscl_Vector<const char*, OsclMemAllocator>& aVideoFormats)
+
+CodecSpecifier* CPV324m2Way::FindFormatType(PVMFFormatType aFormatType,
+        Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aAudioFormats,
+        Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aVideoFormats)
 {
-    PVMFFormatType aThatFormatType = PVMF_MIME_FORMAT_UNKNOWN;
     uint32 i = 0;
 
     for (i = 0; i < aAudioFormats.size(); i++)
     {
-        aThatFormatType = aAudioFormats[i];
-        if (aFormatType == aThatFormatType)
+        PVMFFormatType temp = aAudioFormats[i]->GetFormat();
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                        (0, "CPV324m2Way::FindFormatType ***** aFormat %s aAudioFormat %s ******",
+                         aFormatType.getMIMEStrPtr(), aAudioFormats[i]->GetFormat().getMIMEStrPtr()));
+        if (aAudioFormats[i]->IsFormat(aFormatType))
         {
             return aAudioFormats[i];
         }
@@ -5815,8 +5913,10 @@ const char* CPV324m2Way::FindFormatType(PVMFFormatType aFormatType,
 
     for (i = 0; i < aVideoFormats.size(); i++)
     {
-        aThatFormatType  = aVideoFormats[i];
-        if (aFormatType == aThatFormatType)
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
+                        (0, "CPV324m2Way::FindFormatType ***** aFormat %s aVideoFormat %s ******",
+                         aFormatType.getMIMEStrPtr(), aVideoFormats[i]->GetFormat().getMIMEStrPtr()));
+        if (aVideoFormats[i]->IsFormat(aFormatType))
         {
             return aVideoFormats[i];
         }
@@ -5824,7 +5924,9 @@ const char* CPV324m2Way::FindFormatType(PVMFFormatType aFormatType,
     return NULL;
 }
 
-const char* CPV324m2Way::CanConvertFormat(TPVDirection aDir, const PVMFFormatType& aThisFmtType, Oscl_Vector<const char*, OsclMemAllocator>& aThatFormatList)
+const char* CPV324m2Way::CanConvertFormat(TPVDirection aDir,
+        PVMFFormatType aThisFmtType,
+        Oscl_Vector<CodecSpecifier*, OsclMemAllocator>& aThatFormatList)
 {
     PVMFFormatType aInputFmtType = PVMF_MIME_FORMAT_UNKNOWN;
     PVMFFormatType aOutputFmtType = PVMF_MIME_FORMAT_UNKNOWN;
@@ -5833,32 +5935,44 @@ const char* CPV324m2Way::CanConvertFormat(TPVDirection aDir, const PVMFFormatTyp
 
     for (uint32 i = 0; i < aThatFormatList.size(); i++)
     {
-        PVMFFormatType thatFmtType = aThatFormatList[i];
+        PVMFFormatType thatFmtType = aThatFormatList[i]->GetFormat();
         aInputFmtType = (aDir == INCOMING) ? aThisFmtType : thatFmtType;
         aOutputFmtType = (aDir == INCOMING) ? thatFmtType : aThisFmtType;
         if (IsSupported(aInputFmtType, aOutputFmtType))
         {
-            return aThatFormatList[i];
+            return thatFmtType.getMIMEStrPtr();
         }
     }
     return NULL;
 }
 
-void CPV324m2Way::DoSelectFormat(TPVDirection aDir, PVMFFormatType aFormatType, const char* aFormatStr, TPVPriority aPriority, PVMFFormatType aFormatTypeApp)
+
+//////////////////////////////////////////////////////
+// Function: DoSelectFormat
+// DoSelectFormat will add the new format to the appropriate
+// codec map (iOutgoingAudioCodecs, iIncomingVideoCodecs, etc)
+// And it will add whether this codec is serviced by the APP
+// or the stack node (ENG)
+//
+//////////////////////////////////////////////////////
+void CPV324m2Way::DoSelectFormat(TPVDirection aDir,
+                                 PVMFFormatType aFormatType,
+                                 const char* aFormatStr,
+                                 TPVPriority aPriority,
+                                 PVMFFormatType aFormatTypeApp)
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "CPV324m2Way::DoSelectFormat, aDir=%d, aFormatType=%s, aPriority=%d",
                      aDir, aFormatType.getMIMEStrPtr(), aPriority));
 
-    FormatCapabilityInfo format_cap_info;
+
+    // select the appropriate lists for the engine formats,
+    // and for the app formats.
+    Oscl_Map < PVMFFormatType, FormatCapabilityInfo,
+    OsclMemAllocator, pvmf_format_type_key_compare_class > * the_engine_map = NULL;
+    Oscl_Map < PVMFFormatType, PVMFFormatType,
+    OsclMemAllocator, pvmf_format_type_key_compare_class > * the_app_map = NULL;
     PV2WayMediaType media_type = GetMediaType(PVMFFormatTypeToPVCodecType(aFormatType));
-    Oscl_Map<PVMFFormatType, FormatCapabilityInfo, OsclMemAllocator, pvmf_format_type_key_compare_class>* the_engine_map = NULL;
-    Oscl_Map<PVMFFormatType, PVMFFormatType, OsclMemAllocator, pvmf_format_type_key_compare_class>* the_app_map = NULL;
-
-    format_cap_info.dir = aDir;
-    FILL_FORMAT_INFO(aFormatType, format_cap_info);
-    format_cap_info.iPriority = aPriority;
-
     switch (aDir)
     {
         case OUTGOING:
@@ -5872,7 +5986,18 @@ void CPV324m2Way::DoSelectFormat(TPVDirection aDir, PVMFFormatType aFormatType, 
         default:
             return;
     }
+
+    FormatCapabilityInfo format_cap_info;
+    format_cap_info.dir = aDir;
+    // fills format_cap with info from aFormatType
+    FILL_FORMAT_INFO(aFormatType, format_cap_info);
+    format_cap_info.iPriority = aPriority;
+
+    // set the map with information about the format information
+    // this is where iIncoming/Outgoing,Audio/Video Codecs gets set.
     (*the_engine_map)[aFormatType] = format_cap_info;
+    // set whether app directly supports (APP) or
+    // the engine can convert using a conversion node (ENG)
     (*the_app_map)[aFormatType] = aFormatTypeApp;
 
     RegisterMioLatency(aFormatStr, true, aFormatType);

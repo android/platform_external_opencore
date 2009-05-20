@@ -21,7 +21,8 @@
 
 void init_test::test()
 {
-    fprintf(fileoutput, "Start init test, num runs %d, proxy %d.\n", iMaxRuns, iUseProxy);
+    fprintf(fileoutput, "----- Start init test, num runs %d, proxy %d. ----- \n", iMaxRuns, iUseProxy);
+    fprintf(fileoutput, "\n** Test Number: %d. ** \n", iTestNum);
     int error = 0;
 
     scheduler = OsclExecScheduler::Current();
@@ -64,15 +65,11 @@ void init_test::DoCancel()
 }
 
 
-void init_test::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
-{
-    OSCL_UNUSED_ARG(aEvent);
-}
-
 void init_test::InitSucceeded()
 {
     iRstCmdId = 0;
     int error;
+    cleanup();
     OSCL_TRY(error, iRstCmdId =  terminal->Reset());
     if (error)
     {
@@ -99,13 +96,11 @@ void init_test::RstCmdCompleted()
     iCurrentRun++;
     if (iCurrentRun < iMaxRuns)
     {
-        //iInitCmdId = 0;
         Init();
     }
     else
     {
-        destroy_sink_source();
-        RunIfNotReady();
+        test_base::RstCmdCompleted();
     }
 }
 

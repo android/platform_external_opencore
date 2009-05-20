@@ -876,19 +876,19 @@ class PVPlayerWatchdogTimerObserver
 
 
 class PVPlayerEngine : public OsclTimerObject,
-            public PVPlayerInterface,
-            public PvmiCapabilityAndConfig,
-            public PVMFNodeCmdStatusObserver,
-            public PVMFNodeInfoEventObserver,
-            public PVMFNodeErrorEventObserver,
-            public PVPlayerDatapathObserver,
-            public OsclTimerObserver,
-            public PVPlayerLicenseAcquisitionInterface,
-            public PVPlayerRecognizerRegistryObserver,
-            public PVPlayerWatchdogTimerObserver,
-            public PVPlayerTrackSelectionInterface,
-            public PVMFMediaClockNotificationsObs,
-            public ThreadSafeQueueObserver
+        public PVPlayerInterface,
+        public PvmiCapabilityAndConfig,
+        public PVMFNodeCmdStatusObserver,
+        public PVMFNodeInfoEventObserver,
+        public PVMFNodeErrorEventObserver,
+        public PVPlayerDatapathObserver,
+        public OsclTimerObserver,
+        public PVPlayerLicenseAcquisitionInterface,
+        public PVPlayerRecognizerRegistryObserver,
+        public PVPlayerWatchdogTimerObserver,
+        public PVPlayerTrackSelectionInterface,
+        public PVMFMediaClockNotificationsObs,
+        public ThreadSafeQueueObserver
 {
     public:
         static PVPlayerEngine* New(PVCommandStatusObserver *aCmdObserver,
@@ -1339,6 +1339,7 @@ class PVPlayerEngine : public OsclTimerObject,
             // Datapath commands
             PVP_CMD_DPPrepare,
             PVP_CMD_DPStart,
+            PVP_CMD_DPPause,
             PVP_CMD_DPStop,
             PVP_CMD_DPTeardown,
             PVP_CMD_DPReset,
@@ -1447,6 +1448,7 @@ class PVPlayerEngine : public OsclTimerObject,
         PVMFStatus IssueDecNodeInit(PVMFNodeInterface* aNode, PVMFSessionId aDecNodeSessionId, OsclAny* aCmdContext, PVMFCommandId &aCmdId);
         PVMFStatus IssueDecNodeReset(PVMFNodeInterface* aNode, PVMFSessionId aDecNodeSessionId, OsclAny* aCmdContext, PVMFCommandId &aCmdId);
         PVMFStatus IssueQueryInterface(PVMFNodeInterface* aNode, PVMFSessionId aSessionId, const PVUuid aUuid, PVInterface*& aInterfacePtr, OsclAny* aCmdContext, PVMFCommandId& aCmdId);
+        PVMFStatus DoSourceURLQueryFormatType(PVPlayerEngineContext* context, OsclFileHandle* filehandle);
 
         // Handle to the logger node
         PVLogger* iLogger;
@@ -1563,8 +1565,8 @@ class PVPlayerEngine : public OsclTimerObject,
 
         struct PVPlayerEngineUuidNodeMapping
         {
-            PVUuid			iUuid;
-            PVMFNodeInterface*	iNode;
+            PVUuid          iUuid;
+            PVMFNodeInterface*  iNode;
             PVPlayerEngineUuidNodeMapping(PVUuid aUuid, PVMFNodeInterface* aNode):
                     iUuid(aUuid), iNode(aNode) {}
         };

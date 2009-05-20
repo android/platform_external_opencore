@@ -23,14 +23,6 @@
 
    Filename: pvmp3_mpeg2_get_scale_data.cpp
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Description:
-
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -223,7 +215,7 @@ void pvmp3_mpeg2_get_scale_data(mp3SideInfo *si,
     }
 
     k = 0;
-    for (i = 0;i < 4;i++)
+    for (i = 0; i < 4; i++)
     {
         if (new_slen[i])
         {

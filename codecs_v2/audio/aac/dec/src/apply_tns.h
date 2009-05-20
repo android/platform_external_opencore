@@ -17,21 +17,7 @@
  */
 /*
 
- Pathname: ./include/apply_tns.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Updated per review comments.
-
- Description: Changed function prototype to mirror changes made in apply_tns.c
-
- Description: The scratch memory was mistakenly declared here as type "Int32"
- It should have been "Int"
-
- Who:                       Date:
- Description:
-
+ Filename: apply_tns.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

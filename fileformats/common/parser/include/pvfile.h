@@ -244,11 +244,11 @@ class PVFile
         // For memory buffer data stream
         // returns the byte range availabe in the stream cache
         OSCL_IMPORT_REF void GetCurrentByteRange(uint32& aCurrentFirstByteOffset, uint32& aCurrentLastByteOffset);
+        OsclFileHandle* iFileHandle;
 
     private:
         //Access parameters from local source data
         PVMFCPMPluginAccessInterfaceFactory* iCPMAccessFactory;
-        OsclFileHandle* iFileHandle;
 
         //Internal implementation.
         Oscl_File* iFile;

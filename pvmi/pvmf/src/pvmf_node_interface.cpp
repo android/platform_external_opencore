@@ -27,7 +27,7 @@ OSCL_EXPORT_REF void PVMFNodeInterface::SetState(TPVMFNodeInterfaceState s)
 
 OSCL_EXPORT_REF void PVMFNodeInterface::ReportCmdCompleteEvent(PVMFSessionId s, PVMFCmdResp &resp)
 {
-    for (uint32 i = 0;i < iSessions.size();i++)
+    for (uint32 i = 0; i < iSessions.size(); i++)
     {
         if (iSessions[i].iId == s)
         {
@@ -40,7 +40,7 @@ OSCL_EXPORT_REF void PVMFNodeInterface::ReportCmdCompleteEvent(PVMFSessionId s, 
 
 OSCL_EXPORT_REF void PVMFNodeInterface::ReportErrorEvent(PVMFEventType aEventType, OsclAny* aEventData, PVInterface*aExtMsg)
 {
-    for (uint32 i = 0;i < iSessions.size();i++)
+    for (uint32 i = 0; i < iSessions.size(); i++)
     {
         PVMFAsyncEvent resp(PVMFErrorEvent
                             , aEventType
@@ -54,7 +54,7 @@ OSCL_EXPORT_REF void PVMFNodeInterface::ReportErrorEvent(PVMFEventType aEventTyp
 
 OSCL_EXPORT_REF void PVMFNodeInterface::ReportErrorEvent(PVMFAsyncEvent &aEvent)
 {
-    for (uint32 i = 0;i < iSessions.size();i++)
+    for (uint32 i = 0; i < iSessions.size(); i++)
     {
         PVMFAsyncEvent resp(PVMFErrorEvent
                             , aEvent.GetEventType()
@@ -70,7 +70,7 @@ OSCL_EXPORT_REF void PVMFNodeInterface::ReportErrorEvent(PVMFAsyncEvent &aEvent)
 
 OSCL_EXPORT_REF void PVMFNodeInterface::ReportInfoEvent(PVMFEventType aEventType, OsclAny* aEventData, PVInterface*aExtMsg)
 {
-    for (uint32 i = 0;i < iSessions.size();i++)
+    for (uint32 i = 0; i < iSessions.size(); i++)
     {
         PVMFAsyncEvent resp(PVMFInfoEvent
                             , aEventType
@@ -84,7 +84,7 @@ OSCL_EXPORT_REF void PVMFNodeInterface::ReportInfoEvent(PVMFEventType aEventType
 
 OSCL_EXPORT_REF void PVMFNodeInterface::ReportInfoEvent(PVMFAsyncEvent &aEvent)
 {
-    for (uint32 i = 0;i < iSessions.size();i++)
+    for (uint32 i = 0; i < iSessions.size(); i++)
     {
         PVMFAsyncEvent resp(PVMFInfoEvent
                             , aEvent.GetEventType()

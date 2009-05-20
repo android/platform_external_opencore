@@ -17,13 +17,8 @@
  */
 /*
 
- Pathname: .fxp_mul32_pentium.h
+ Filename: fxp_mul32_pentium.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

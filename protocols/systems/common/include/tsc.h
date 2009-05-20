@@ -98,7 +98,6 @@ class TSC : public PVInterface
 
         /* Channel specific commands */
         virtual TPVStatusCode SetTerminalParam(CPVTerminalParam* params) = 0;
-        virtual CPVTerminalParam* GetTerminalParam() = 0;
         virtual TPVStatusCode SetOutgoingBitrate(int32 bitrate) = 0;
         virtual TPVStatusCode RequestFrameUpdate(PVMFPortInterface* port) = 0;
         /* Returns a pointer to the logical channels buffer.  DO NOT DELETE */

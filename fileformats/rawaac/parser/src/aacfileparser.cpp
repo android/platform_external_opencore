@@ -43,21 +43,32 @@ OSCL_DLL_ENTRY_POINT_DEFAULT()
 //! specially used in ResetPlayback(), re-poition the file pointer
 int32 AACBitstreamObject::reset(int32 filePos)
 {
+    PVMF_AACPARSER_LOGDEBUG((0, "RESET::IN iBytesRead [%d] iBytesProcessed [%d] iFilePtr [%d] iActualSize [%d] iPos[%d]", iBytesRead, iBytesProcessed, ipAACFile->Tell(), iActual_size, iPos));
     iBytesRead  = filePos; // set the initial value
     iBytesProcessed = filePos;
     if (ipAACFile)
     {
-        ipAACFile->Seek(filePos, Oscl_File::SEEKSET);
+        AACUtils::SeektoOffset(ipAACFile, filePos, Oscl_File::SEEKSET);
     }
     iPos = AACBitstreamObject::MAIN_BUFF_SIZE;
+    iActual_size = 0;
+    PVMF_AACPARSER_LOGDEBUG((0, "RESET::OUT iBytesRead [%d] = iBytesProcessed [%d] iFilePtr [%d] iActualSize [%d] iPos[%d]", iBytesRead, iBytesProcessed, ipAACFile->Tell(), iActual_size, iPos));
     return refill();
 }
 
 //! read data from bitstream, this is the only function to read data from file
 int32 AACBitstreamObject::refill()
 {
-    if (iBytesRead > 0 && iFileSize > 0 && iBytesRead >= iFileSize)
+
+    PVMF_AACPARSER_LOGDEBUG((0, "REFILL::IN iBytesRead [%d] iBytesProcessed [%d] iFilePtr [%d] iActualSize [%d] iPos[%d] iFileSize [%d]", iBytesRead, iBytesProcessed, ipAACFile->Tell(), iActual_size, iPos, iFileSize));
+
+    if (iBytesRead > 0 && iFileSize > 0 && (uint32)iBytesRead >= iFileSize)
     {
+        // if number of bytes read so far exceed the file size,
+        // then first update the file size (PDL case).
+        if (!UpdateFileSize()) return AACBitstreamObject::MISC_ERROR;
+        PVMF_AACPARSER_LOGDEBUG((0, "REFILL::updated file size [%d]", iFileSize));
+
         //At this point we're near the end of data.
         //Quit reading data but don't return EOF until all data is processed.
         if (iBytesProcessed < iBytesRead)
@@ -66,7 +77,9 @@ int32 AACBitstreamObject::refill()
         }
         else
         {
-            return AACBitstreamObject::END_OF_FILE;
+            //there is no more data to read.
+            if ((uint32)iBytesRead >= iFileSize || (uint32)iBytesProcessed >= iFileSize)
+                return AACBitstreamObject::INSUFFICIENT_DATA;
         }
     }
 
@@ -79,22 +92,38 @@ int32 AACBitstreamObject::refill()
     // Get file size at the very first time
     if (iFileSize == 0)
     {
+        if (ipAACFile->Seek(0, Oscl_File::SEEKEND))
+        {
+            return AACBitstreamObject::MISC_ERROR;
+        }
+
+        iFileSize = ipAACFile->Tell();
+
+        if (!(iFileSize > 0))
+        {
+            return AACBitstreamObject::MISC_ERROR;
+        }
+
         if (ipAACFile->Seek(0, Oscl_File::SEEKSET))
         {
-            PVMF_AACPARSER_LOGERROR((0, "AACBitstreamObject::refill- Misc Error"));
             return AACBitstreamObject::MISC_ERROR;
         }
-        ipAACFile->GetRemainingBytes((uint32&)iFileSize);
-        if (iFileSize <= 0)
-        {
-            PVMF_AACPARSER_LOGERROR((0, "AACBitstreamObject::refill- Misc Error"));
-            return AACBitstreamObject::MISC_ERROR;
-        }
+
         // first-time read, set the initial value of iPos
         iPos = AACBitstreamObject::MAIN_BUFF_SIZE;
+        iBytesProcessed = 0;
     }
 
-    int32 remain_bytes = AACBitstreamObject::MAIN_BUFF_SIZE - iPos;
+    int32 remain_bytes = 0;
+    //check whether there is any leftover data in the buffer.
+    if (iPos >= iActual_size)
+    {
+        remain_bytes = 0;
+    }
+    else
+    {
+        remain_bytes = iActual_size - iPos;
+    }
     if (remain_bytes > 0)
     {
         // move the remaining stuff to the beginning of iBuffer
@@ -110,13 +139,32 @@ int32 AACBitstreamObject::refill()
     iBytesRead += iActual_size;
     iActual_size += remain_bytes;
     iPos = 0;
+    PVMF_AACPARSER_LOGDEBUG((0, "REFILL::OUT iBytesRead [%d] iBytesProcessed [%d] iFilePtr [%d] iActualSize [%d] iPos[%d] iFileSize [%d]", iBytesRead, iBytesProcessed, ipAACFile->Tell(), iActual_size, iPos, iFileSize));
 
     return AACBitstreamObject::EVERYTHING_OK;
+}
+
+//! get the updated file size
+bool AACBitstreamObject::UpdateFileSize()
+{
+    if (ipAACFile != NULL)
+    {
+        uint32 aRemBytes = 0;
+        if (ipAACFile->GetRemainingBytes(aRemBytes))
+        {
+            uint32 currPos = (uint32)(ipAACFile->Tell());
+            iFileSize = currPos + aRemBytes;
+            return true;
+        }
+    }
+    return false;
 }
 
 //! get frame size and number of data blocks for the next frame, in preparation of getNextFrame()
 int32 AACBitstreamObject::getNextFrameInfo(int32& frame_size, int32& numDateBlocks)
 {
+    PVMF_AACPARSER_LOGDEBUG((0, "AACBitstreamObject::getNextFrameInfo In"));
+
     int32 ret_value = AACBitstreamObject::EVERYTHING_OK;
 
     // Need to refill?
@@ -176,12 +224,14 @@ int32 AACBitstreamObject::getNextFrameInfo(int32& frame_size, int32& numDateBloc
     // update CRC check
     ibCRC_Check = ((pBuffer[1] & 0x01) ? false : true);
 
+    PVMF_AACPARSER_LOGDEBUG((0, "AACBitstreamObject::getNextFrameInfo Out"));
     return ret_value;
 }
 
 //! most important function to get one frame data plus frame type, used in getNextBundledAccessUnits()
 int32 AACBitstreamObject::getNextFrame(uint8* frameBuffer, int32& frame_size, int32& aHdrSize, bool bHeaderIncluded)
 {
+    PVMF_AACPARSER_LOGDEBUG((0, "AACBitstreamObject::getNextFrame In, iFileSize=%d, iPos=%d, frame_size=%d, iBytesRead=%d, iBytesProcessed=%d, iActualSize=%d", iFileSize, iPos, frame_size, iBytesRead, iBytesProcessed, iActual_size));
     aHdrSize = 0;
     if (!frameBuffer || (frame_size <= 0 || frame_size > MAX_AAC_FRAME_SIZE))
     {
@@ -231,17 +281,27 @@ int32 AACBitstreamObject::getNextFrame(uint8* frameBuffer, int32& frame_size, in
         }
 
         uint8 *pBuffer = &iBuffer[iPos];
-        if ((iBytesRead >= iFileSize) && (frame_size > (iBytesRead - iBytesProcessed)))
+        if (((uint32)iBytesRead >= iFileSize) || (frame_size > (iBytesRead - iBytesProcessed)))
         {
-            frame_size = iBytesRead - iBytesProcessed;
+            ret_value = refill();
+            if (ret_value)
+            {
+                return ret_value;
+            }
         }
 
+        if (frame_size > (iBytesRead - iBytesProcessed))
+            frame_size = iBytesRead - iBytesProcessed;
+
+        PVMF_AACPARSER_LOGDEBUG((0, "AACBitstreamObject::getNextFrame Before Read, iFileSize=%d, iPos=%d, frame_size=%d, iBytesRead=%d, iBytesProcessed=%d, iActual_size=%d", iFileSize, iPos, frame_size, iBytesRead, iBytesProcessed, iActual_size));
         // copy the data to the given buffer
         oscl_memcpy(frameBuffer, pBuffer, frame_size);
         iPos += frame_size;
         iBytesProcessed += frame_size;
+        PVMF_AACPARSER_LOGDEBUG((0, "AACBitstreamObject::getNextFrame after read, iFileSize=%d, iPos=%d, frame_size=%d, iBytesRead=%d, iBytesProcessed=%d, iActual_size=%d", iFileSize, iPos, frame_size, iBytesRead, iBytesProcessed, iActual_size));
     }
 
+    PVMF_AACPARSER_LOGDEBUG((0, "AACBitstreamObject::getNextFrame Out, iFileSize=%d, iPos=%d, frame_size=%d, iBytesRead=%d, iBytesProcessed=%d, iActual_size=%d", iFileSize, iPos, frame_size, iBytesRead, iBytesProcessed, iActual_size));
     return ret_value;
 }
 
@@ -252,121 +312,86 @@ void AACBitstreamObject::parseID3Header(PVFile& aFile)
         return;//error
 
     int32 curpos = aFile.Tell();
-    aFile.Seek(0, Oscl_File::SEEKSET);
-    id3Parser->ParseID3Tag(&aFile);
-    aFile.Seek(curpos, Oscl_File::SEEKSET);
+    AACUtils::SeektoOffset(&aFile, 0, Oscl_File::SEEKSET);
+    iID3Parser->ParseID3Tag(&aFile);
+    AACUtils::SeektoOffset(&aFile, curpos, Oscl_File::SEEKSET);
 }
 
-int32 AACBitstreamObject::isAACFile()
+int32 AACBitstreamObject::isAACFile(PVFile* aFilePtr)
 {
-    if (!ipAACFile || !ipAACFile->IsOpen())
+    OSCL_UNUSED_ARG(aFilePtr);
+    PVFile* fpUsed = ipAACFile;
+
+    if (!fpUsed || !fpUsed->IsOpen())
     {
         return AACBitstreamObject::READ_ERROR;
     }
 
-    int32 retVal = AACBitstreamObject::EVERYTHING_OK;
+    AACUtils::SeektoOffset(fpUsed, 0, Oscl_File::SEEKSET);
 
-    // save current file pointer location
-    int32 curPos = ipAACFile->Tell();
-    ipAACFile->Seek(0, Oscl_File::SEEKSET);
-
-    // check for ID3v2 tag at the beginning of file
     uint32 tagSize = 0;
-    if (true == id3Parser->IsID3V2Present(ipAACFile, tagSize))
+    // check for ID3v2 tag
+    if (true == iID3Parser->IsID3V2Present(fpUsed, tagSize))
     {
-        // skip over ID3v2 tag
-        // move the file read pointer to beginning of audio data
-        // but first make sure the data is there
-        uint32 aCurrentSize = 0;
-        uint32 aRemBytes = 0;
-        if (ipAACFile->GetRemainingBytes(aRemBytes))
-        {
-            uint32 currPos_2 = (uint32)(ipAACFile->Tell());
-            aCurrentSize = currPos_2 + aRemBytes;
+        // store the metadata size
+        iAudioStartOffset = tagSize;
+    }
 
-            if (aCurrentSize >= tagSize)
+    if (AACUtils::SeektoOffset(fpUsed, iAudioStartOffset, Oscl_File::SEEKSET) != AAC_SUCCESS)
+    {
+        return AACBitstreamObject::INSUFFICIENT_DATA;
+    }
+
+    uint32 remainingBytes = 0;
+    iAACFormat = EAACUnrecognized;
+    int32 retVal = AACBitstreamObject::INSUFFICIENT_DATA;
+
+    // File pointer should be at the audio data
+    // ADTS - Takes 8192 bytes to confirm its a AAC Files (max AAC frame size)
+    // ADIF - 4 bytes to confirm ADIF files
+    if (fpUsed->GetRemainingBytes(remainingBytes))
+    {
+        retVal = reset(iAudioStartOffset);
+        uint8 *pBuffer = &iBuffer[iPos];
+
+        if (remainingBytes >= MAX_ADTS_PACKET_LENGTH)
+        {
+            // check for possible ADTS sync word
+            int32 index = find_adts_syncword(pBuffer);
+            if (index != -1)
             {
-                if (ipAACFile->Seek(tagSize, Oscl_File::SEEKSET) != 0)
+                // definitely ADTS
+                iAACFormat = EAACADTS;
+                retVal = AACBitstreamObject::EVERYTHING_OK;
+            }
+            else
+            {
+                retVal = GENERIC_ERROR;
+            }
+        }
+        else
+        {
+            retVal = AACBitstreamObject::INSUFFICIENT_DATA;
+        }
+
+        // Format wasn't recognized to be AAC-ADTS
+        if (iAACFormat == EAACUnrecognized)
+        {
+            if (remainingBytes >= AAC_ADIF_IDENTIFIER_LEN)
+            {
+                if (oscl_memcmp(AAC_ADIF_IDENTIFIER, pBuffer, AAC_ADIF_IDENTIFIER_LEN) == 0)
                 {
-                    retVal = AACBitstreamObject::READ_ERROR;
+                    // definitely ADIF
+                    iAACFormat = EAACADIF;
+                    retVal = AACBitstreamObject::EVERYTHING_OK;
                 }
             }
             else
             {
-                // data has not arrived yet
                 retVal = AACBitstreamObject::INSUFFICIENT_DATA;
             }
         }
-        else
-        {
-            retVal = AACBitstreamObject::READ_ERROR;
-        }
     }
-
-    // file pointer should be at the audio data
-    // can be ADTS, ADIF or raw AAC
-    // - it takes 8192 bytes (max AAC frame size) to determine that is is ADTS
-    // - it takes 4 bytes to determine that it is ADIF
-    // - it takes 1536 bytes to determine that it is raw AAC
-
-    // make sure there are at least 8192 bytes left in the file
-    if (AACBitstreamObject::EVERYTHING_OK == retVal)
-    {
-        uint32 aRemBytes = 0;
-        if (ipAACFile->GetRemainingBytes(aRemBytes))
-        {
-            int32 currPos_2 = ipAACFile->Tell();
-            retVal = reset(currPos_2);
-
-            if (AACBitstreamObject::EVERYTHING_OK == retVal)
-            {
-                uint8 *pBuffer = &iBuffer[iPos];
-
-                // default to not enough data
-                retVal = AACBitstreamObject::INSUFFICIENT_DATA;
-                if (aRemBytes >= MAX_ADTS_PACKET_LENGTH)
-                {
-                    // check for possible ADTS sync word
-                    int32 index = find_adts_syncword(pBuffer);
-                    if (index != -1)
-                    {
-                        // definitely ADTS
-                        retVal = AACBitstreamObject::EVERYTHING_OK;
-                    }
-                }
-
-                if (AACBitstreamObject::INSUFFICIENT_DATA == retVal)
-                {
-                    // not enough data to determine if it is ADTS
-                    // see if it is ADIF
-                    if (aRemBytes >= 4)
-                    {
-                        // check for ADIF header
-                        if (pBuffer[0] == 0x41 &&  // 'A'
-                                pBuffer[1] == 0x44 &&  // 'D'
-                                pBuffer[2] == 0x49 &&  // 'I'
-                                pBuffer[3] == 0x46)    // 'F'
-                        {
-                            // definitely ADIF
-                            retVal = AACBitstreamObject::EVERYTHING_OK;
-                        }
-                        else
-                        {
-                            // non-recognized format,
-                            retVal = AACBitstreamObject::MISC_ERROR;
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            retVal = AACBitstreamObject::READ_ERROR;
-        }
-    }
-
-    // retore file pointer
-    ipAACFile->Seek(curPos, Oscl_File::SEEKSET);
     return retVal;
 }
 
@@ -375,94 +400,62 @@ int32 AACBitstreamObject::isAACFile()
 
 int32 AACBitstreamObject::find_adts_syncword(uint8 *pBuffer)
 {
-
-
-    uint32 test_for_syncword = 0;
-
-
-
+    bool syncwordFound = false;
     uint32 i;
-    uint32 buff_length;
+    uint32 bufLength;
+    uint32 frameLen;
 
+    iAvgFrameSize = 0;
 
-    buff_length = OSCL_MIN(MAX_ADTS_PACKET_LENGTH, iActual_size);
+    bufLength = OSCL_MIN(MAX_ADTS_PACKET_LENGTH, iActual_size);
 
-
-    for (i = 0; i < buff_length - 1; i++)
+    // Sync word is always byte aligned, sync word == 0xFFF
+    for (i = 0; i < bufLength - 1; i++)
     {
-        /*
-         *  Sync word is always byte aligned, sync word == 0xFFF
-         */
-        if (pBuffer[i] == 0xFF)
+        if (isValidSyncWord(&pBuffer[i]))
         {
-            if ((pBuffer[i+1] & 0xF0) == 0xF0)
-            {
-                test_for_syncword = 1;  /*  flag found sync adts word */
-                break;
-            }
+            syncwordFound = true;
+            break;
         }
     }
 
-    if (test_for_syncword)    // get here only if match is found
+    if (true == syncwordFound)
     {
         uint32 index = i;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // extract the aac frame lenght where the next sync word should be
-        if ((index + 5) < buff_length)
+        uint32 nextIndex = i;
+        // extract the aac frame length where the next sync word should be
+        if ((index + 5) < bufLength)
         {
-            uint32 length = (uint32)((pBuffer[index +  3] & 0x03) << 11); //  lowest 2 bits in the 4th byte of the header
-            length |= (uint32)(pBuffer[index +  4] << 3);            //  whole 5th byte(8 bits) of the header
-            length |= (uint32)((pBuffer[index +  5] & 0xe0) >> 5);   //  highest 3 bits in the 6th byte of the header
-
-
-            // Verify for false sync word in non-adts files, by validating next 2 sync word
-            if ((length > ADTS_HEADER_LENGTH)           &&
-                    (length < buff_length - index)          &&    // buff_length should account for up to 4 aac frames
-                    (pBuffer[index + length    ] == 0xff)  &&
-                    ((pBuffer[index + length + 1] & 0xf0) == 0xf0))
+            uint8* buf = &pBuffer[index+3];
+            frameLen = GetADTSFrameLength(buf);
+            if (frameLen >= MAX_ADTS_PACKET_LENGTH)
             {
-                // extract the second aac frame lenght to predict next adts header
-                length += index;
-                uint32 length_2 = (uint32)((pBuffer[length +  3] & 0x03) << 11);
-                length_2 |= (uint32)(pBuffer[length +  4] << 3);
-                length_2 |= (uint32)((pBuffer[length+  5] & 0xe0) >> 5);
+                return (-1);
+            }
+            nextIndex += frameLen;
+            iAvgFrameSize = frameLen;
 
+            if ((frameLen > ADTS_HEADER_LENGTH && // frameLen is valid
+                    frameLen < bufLength - index) && // data is available for next frame search
+                    isValidSyncWord(&pBuffer[nextIndex])) // validate syncword
+            {
+                iAvgFrameSize += frameLen;
 
-                if ((length_2 > ADTS_HEADER_LENGTH)       &&
-                        (length_2 < buff_length - length)     &&
-                        (pBuffer[length + length_2] == 0xff) &&
-                        ((pBuffer[length + length_2 + 1] & 0xf0) == 0xf0))
+                buf = &pBuffer[nextIndex + 3];
 
+                frameLen = GetADTSFrameLength(buf);
+                nextIndex += frameLen;
+
+                if ((frameLen > ADTS_HEADER_LENGTH && // frameLen is valid
+                        frameLen < bufLength - index) && // data is available for next frame search
+                        isValidSyncWord(&pBuffer[nextIndex])) // validate syncword
                 {
-
-                    return (index);  // sure this is adts
+                    iAvgFrameSize += frameLen;
+                    iAvgFrameSize /= 3;
+                    iAudioStartOffset = index;
+                    return index;
                 }
+
                 iPosSyncAdtsFound = index - 1; // allow overlapping on extended search
                 return (-1);  // false adts synchronization, it is adif or raw
             }
@@ -483,6 +476,7 @@ int32 AACBitstreamObject::find_adts_syncword(uint8 *pBuffer)
         iPosSyncAdtsFound = i - 1; // allow overlapping on extended search
         return (-1);    // no adts synchronization, it could be adif or raw
     }
+    return (-1);
 }
 
 //! get clip information: file size, format(ADTS or ADIF) and sampling rate index
@@ -512,22 +506,36 @@ int32 AACBitstreamObject::getFileInfo(int32& fileSize, TAACFormat& format, uint8
     fileSize = sampleFreqIndex = 0;
     int32 ret_value = AACBitstreamObject::EVERYTHING_OK;
 
+    // Get file size at the very first time
     if (iFileSize == 0)
     {
-        ret_value = reset(0);
+        AACUtils::getCurrentFileSize(ipAACFile, iFileSize);
+        if (iFileSize <= 0)
+        {
+            PVMF_AACPARSER_LOGERROR((0, "AACBitstreamObject::refill- Misc Error"));
+            return AACBitstreamObject::INSUFFICIENT_DATA;
+        }
+        // first-time read, set the initial value of iPos
+        iPos = AACBitstreamObject::MAIN_BUFF_SIZE;
+
         if (ret_value == AACBitstreamObject::EVERYTHING_OK)
         {
             //retrieve the ID3 meta-data from the file
             parseID3Header(*ipAACFile);
 
-            if (id3Parser->GetByteOffsetToStartOfAudioFrames() > 0)
+            iMetadataSize = iID3Parser->GetByteOffsetToStartOfAudioFrames();
+            if (iMetadataSize > 0)
             {
                 //skip past the ID3 header.
-                ret_value = reset(id3Parser->GetByteOffsetToStartOfAudioFrames());
+                ret_value = reset(iMetadataSize);
                 if (ret_value != AACBitstreamObject::EVERYTHING_OK)
                 {
                     return ret_value;
                 }
+            }
+            else
+            {
+                ret_value = reset(0);
             }
 
             fileSize = iFileSize;
@@ -1312,6 +1320,7 @@ int32 AACBitstreamObject::getFileInfo(int32& fileSize, TAACFormat& format, uint8
         fileSize = iFileSize;
         format = iAACFormat;
         sampleFreqIndex = iSampleFreqIndex;
+        bitRate = iBitrate;
     }
     return ret_value;
 }
@@ -1349,7 +1358,7 @@ int32 AACBitstreamObject::extendedAdtsSearchForFileInfo(TAACFormat& format,
         }
         else
         {
-            if (iBytesRead > ADTS_SYNC_SEARCH_LENGTH(iFileSize, 5))    // search over 3.13 % of the file
+            if ((uint32)iBytesRead > ADTS_SYNC_SEARCH_LENGTH(iFileSize, 5))    // search over 3.13 % of the file
             {
                 return AACBitstreamObject::MISC_ERROR;  // break the loop
             }
@@ -1486,6 +1495,10 @@ OSCL_EXPORT_REF CAACFileParser::CAACFileParser(void)
     iLogger = PVLogger::GetLoggerObject("pvaacparser");
     iDiagnosticLogger = PVLogger::GetLoggerObject("playerdiagnostics.pvaac_parser");
 
+    iMetadataSize = 0;
+    iDownloadFileSize = 0;
+    iAACFileSize = 0;
+
     iTotalNumFramesRead = 0;
     iEndOfFileReached = false;
     ipBSO = NULL;
@@ -1535,7 +1548,6 @@ OSCL_EXPORT_REF CAACFileParser::~CAACFileParser(void)
     {
         PV_AAC_FF_DELETE(NULL, AACBitstreamObject, ipBSO);
         ipBSO = NULL;
-
     }
 
 }
@@ -1575,9 +1587,6 @@ OSCL_EXPORT_REF CAACFileParser::~CAACFileParser(void)
 //------------------------------------------------------------------------------
 OSCL_EXPORT_REF bool CAACFileParser::InitAACFile(OSCL_wString& aClip,  bool aInitParsingEnable, Oscl_FileServer* iFileSession, PVMFCPMPluginAccessInterfaceFactory* aCPMAccess, OsclFileHandle*aHandle)
 {
-    uint32 bitRateValue;
-    uint32 HeaderLenValue;
-
     iAACFile.SetCPM(aCPMAccess);
     iAACFile.SetFileHandle(aHandle);
 
@@ -1596,68 +1605,26 @@ OSCL_EXPORT_REF bool CAACFileParser::InitAACFile(OSCL_wString& aClip,  bool aIni
         return false;
     }
 
-    // create ipBSO
-    PV_AAC_FF_NEW(NULL, AACBitstreamObject, (&iAACFile), ipBSO);
-
-    if (!ipBSO)
-    {
-        return false;
-    }
-    if (ipBSO->get())
+    ParserErrorCode errCode = AAC_SUCCESS;
+    PV_AAC_FF_NEW(NULL, AACBitstreamObject, (&iAACFile, errCode), ipBSO);
+    if (ipBSO->getFileInfo(iAACFileSize, iAACFormat, iSampleFreqTableIndex, iAACBitRate, iAACHeaderLen, aClip))
     {
         return false;
     }
 
-    // get file info: file size, format, sampling rate
-    uint8 sampleFreqTableValue;
-    TAACFormat format;
-    if (ipBSO->getFileInfo(iAACFileSize, format, sampleFreqTableValue, bitRateValue, HeaderLenValue, aClip))
-    {
+    //ADTS/ADIF/RAW format
+    if ((iSampleFreqTableIndex >= 12) && (iSampleFreqTableIndex < 16))
         return false;
-    }
+    iAACSampleFrequency = ADTSSampleFreqTable[(uint16)iSampleFreqTableIndex];
+    if (iAACSampleFrequency == -1)
+        return false;
 
-    if (format == EAACADTS)
+    if (iAACFormat != EAACUnrecognized)
     {
-        // ADTS format
-        iAACFormat = EAACADTS;
-        if (sampleFreqTableValue >= 16)
-            return false;
-        iAACSampleFrequency = ADTSSampleFreqTable[(uint16)sampleFreqTableValue];
-        if (iAACSampleFrequency == -1)
-            return false;
-    }
-    else if (format == EAACADIF)
-    {
-        // ADIF format
-        iAACFormat = EAACADIF;
-        //ADIF and ADTS uses the same sampling frequency lookup table
-        if (sampleFreqTableValue >= 16)
-            return false;
-        iAACSampleFrequency = ADTSSampleFreqTable[(uint16)sampleFreqTableValue];
-        if (iAACSampleFrequency == -1)
-            return false;
-        //bitrate and variable header length for ADIF only
-        iAACBitRate = (int32)bitRateValue;
-        iAACHeaderLen = (int32)HeaderLenValue;
-        iFirstTime = true;
-    }
-    else if (format == EAACRaw)
-    {
-        // AAC raw format
-        iAACFormat = EAACRaw;
-        // Use the same sampling frequency lookup table
-        if (sampleFreqTableValue >= 16)
-            return false;
-        iAACSampleFrequency = ADTSSampleFreqTable[(uint16)sampleFreqTableValue];
-        if (iAACSampleFrequency == -1)
-            return false;
-        //variable header length for raw only
-        iAACHeaderLen = (int32)HeaderLenValue;
         iFirstTime = true;
     }
     else
     {
-        iAACFormat = EAACUnrecognized;
         return false;
     }
 
@@ -1687,7 +1654,7 @@ OSCL_EXPORT_REF bool CAACFileParser::InitAACFile(OSCL_wString& aClip,  bool aIni
             {
                 // get the next frame
                 status = ipBSO->getNextFrameInfo(frame_size, numBlocks);
-                if (status == AACBitstreamObject::END_OF_FILE)
+                if (status == AACBitstreamObject::END_OF_FILE || status == AACBitstreamObject::INSUFFICIENT_DATA)
                 {
                     break;
                 }
@@ -1707,6 +1674,10 @@ OSCL_EXPORT_REF bool CAACFileParser::InitAACFile(OSCL_wString& aClip,  bool aIni
                         iRPTable.push_back(filePos);
                     }
                     else if (status == AACBitstreamObject::END_OF_FILE)
+                    {
+                        break;
+                    }
+                    else if (status == AACBitstreamObject::INSUFFICIENT_DATA)
                     {
                         break;
                     }
@@ -1834,7 +1805,7 @@ OSCL_EXPORT_REF bool CAACFileParser::RetrieveFileInfo(TPVAacFileInfo& aInfo)
 // INPUT AND OUTPUT DEFINITIONS
 //
 //  Inputs:
-//		aID3MetaData: pointer to data structure for the output.
+//      aID3MetaData: pointer to data structure for the output.
 //
 //  Outputs:
 //    None
@@ -2118,8 +2089,8 @@ CAACFileParser::GetNextBundledAccessUnits(uint32 *aNumSamples,
         GAU *aGau,
         bool bADTSHeaderIncluded)
 {
-    // AMR format has already been identified in InitAMRFile function.
-    // Check if AMR format is valid as the safeguard
+    // AAC format has already been identified in InitAACFile function.
+    // Check if AAC format is valid as the safeguard
     if (iAACFormat == EAACUnrecognized)
     {
         PVMF_AACPARSER_LOGERROR((0, "CAACFileParser::GetNextBundledAccessUnits- Misc error-"));
@@ -2152,7 +2123,11 @@ CAACFileParser::GetNextBundledAccessUnits(uint32 *aNumSamples,
                 iEndOfFileReached = true;
                 break;
             }
-
+            else if (returnValue == AACBitstreamObject::INSUFFICIENT_DATA)
+            {
+                *aNumSamples = 0;
+                return returnValue;
+            }
             else if (returnValue == AACBitstreamObject::EVERYTHING_OK && frame_size > 0)
             {
                 // Check whether the gau buffer will be overflow or the requested number
@@ -2177,6 +2152,11 @@ CAACFileParser::GetNextBundledAccessUnits(uint32 *aNumSamples,
                     aGau->info[i].len = frame_size + hdrSize;
                     aGau->info[i].ts  = (int32)(((OsclFloat)(iTotalNumFramesRead++) * 1024000.0) / (OsclFloat)iAACSampleFrequency); // BX
                     numSamplesRead += numBlocks;
+                }
+                else if (returnValue == AACBitstreamObject::INSUFFICIENT_DATA)
+                {
+                    *aNumSamples = 0;
+                    return returnValue;
                 }
                 else
                 { // error happens!!
@@ -2241,6 +2221,11 @@ CAACFileParser::GetNextBundledAccessUnits(uint32 *aNumSamples,
                     bytesReadInGau += bytestoread;
                     *aNumSamples += 1;
                 }
+                else if (returnValue == AACBitstreamObject::INSUFFICIENT_DATA)
+                { // error happens!!
+                    PVMF_AACPARSER_LOGERROR((0, "CAACFileParser::GetNextBundledAccessUnits- Under flow-"));
+                    return AACBitstreamObject::INSUFFICIENT_DATA;
+                }
                 else
                 {
                     // error happens!!
@@ -2271,9 +2256,14 @@ CAACFileParser::GetNextBundledAccessUnits(uint32 *aNumSamples,
                 // update infomation
                 aGau->info[0].len = bytestoread;
                 aGau->info[0].ts = 0xFFFFFFFF; // Unknown timestamp
-//				aGau->info[0].ts=(int32)(((OsclFloat)(iTotalNumFramesRead++) * 1024000.0) / (OsclFloat)iAACSampleFrequency); // BX
+//              aGau->info[0].ts=(int32)(((OsclFloat)(iTotalNumFramesRead++) * 1024000.0) / (OsclFloat)iAACSampleFrequency); // BX
                 bytesReadInGau += bytestoread;
                 *aNumSamples += 1;
+            }
+            else if (returnValue == AACBitstreamObject::INSUFFICIENT_DATA)
+            { // error happens!!
+                PVMF_AACPARSER_LOGERROR((0, "CAACFileParser::GetNextBundledAccessUnits- Under flow-"));
+                return AACBitstreamObject::INSUFFICIENT_DATA;
             }
             else
             {
@@ -2490,7 +2480,8 @@ OSCL_EXPORT_REF ParserErrorCode CAACFileParser::getAACHeaderLen(OSCL_wString& aC
         return FILE_OPEN_ERROR;
     }
     AACBitstreamObject *ipBSOTemp;
-    PV_AAC_FF_NEW(NULL, AACBitstreamObject, (&iAACFileTemp), ipBSOTemp);
+    ParserErrorCode errCode = AAC_SUCCESS;
+    PV_AAC_FF_NEW(NULL, AACBitstreamObject, (&iAACFileTemp, errCode), ipBSOTemp);
 
 
     if (!ipBSOTemp || ipBSOTemp->get())
@@ -2520,7 +2511,7 @@ OSCL_EXPORT_REF ParserErrorCode CAACFileParser::getAACHeaderLen(OSCL_wString& aC
     PV_AAC_FF_DELETE(NULL, AACBitstreamObject, ipBSOTemp);
     ipBSOTemp = NULL;
     *HeaderLenValue = tempHeaderLenValue;
-    return OK;
+    return AAC_SUCCESS;
 }
 
 OSCL_EXPORT_REF ParserErrorCode CAACFileParser::IsAACFile(OSCL_wString& aClip, Oscl_FileServer* aFileSession, PVMFCPMPluginAccessInterfaceFactory* aCPMAccess, OsclFileHandle* aHandle)
@@ -2537,7 +2528,8 @@ OSCL_EXPORT_REF ParserErrorCode CAACFileParser::IsAACFile(OSCL_wString& aClip, O
     }
 
     AACBitstreamObject *ipBSOTemp;
-    PV_AAC_FF_NEW(NULL, AACBitstreamObject, (&iAACFileTemp), ipBSOTemp);
+    ParserErrorCode errCode = AAC_SUCCESS;
+    PV_AAC_FF_NEW(NULL, AACBitstreamObject, (&iAACFileTemp, errCode), ipBSOTemp);
 
     if (!ipBSOTemp || ipBSOTemp->get())
     {
@@ -2557,7 +2549,7 @@ OSCL_EXPORT_REF ParserErrorCode CAACFileParser::IsAACFile(OSCL_wString& aClip, O
 
     if (AACBitstreamObject::EVERYTHING_OK == result)
     {
-        return OK;
+        return AAC_SUCCESS;
     }
     else if (AACBitstreamObject::INSUFFICIENT_DATA == result)
     {
@@ -2566,3 +2558,53 @@ OSCL_EXPORT_REF ParserErrorCode CAACFileParser::IsAACFile(OSCL_wString& aClip, O
     return GENERIC_ERROR;
 }
 
+
+OSCL_EXPORT_REF int32 CAACFileParser::GetMetadataSize()
+{
+    return ipBSO->GetMetadataSize();
+}
+
+OSCL_EXPORT_REF void CAACFileParser::SetDownloadFileSize(uint32 aDownloadFileSize)
+{
+    iDownloadFileSize = aDownloadFileSize;
+}
+
+void AACBitstreamObject::SetDownloadFileSize(uint32 aDownloadFileSize)
+{
+    iDownloadFileSize = aDownloadFileSize;
+}
+
+bool AACBitstreamObject::isValidSyncWord(uint8* aBuffer)
+{
+    if ((aBuffer[0] == 0xFF) &&
+            ((aBuffer[1] & 0xF0) == 0xF0))
+    {
+        return true;
+    }
+    return false;
+}
+
+int32 AACBitstreamObject::GetMetadataSize()
+{
+    if (iMetadataSize > 0)
+        return iMetadataSize;
+    return 0;
+}
+
+uint32 AACBitstreamObject::GetAvgFrameSize()
+{
+    return iAvgFrameSize;
+}
+
+int32 AACBitstreamObject::GetADTSFrameLength(uint8* aBuffer)
+{
+    int32 frameLen = 0;
+    // lowest 2 bits in the 4th byte of the header
+    frameLen = (uint32)((aBuffer[0] & 0x03) << 11);
+    // whole 5th byte(8 bits) of the header
+    frameLen |= (uint32)(aBuffer[1] << 3);
+    // highest 3 bits in the 6th byte of the header
+    frameLen |= (uint32)((aBuffer[2] & 0xe0) >> 5);
+
+    return frameLen;
+}

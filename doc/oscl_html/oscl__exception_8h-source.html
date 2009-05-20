@@ -60,19 +60,19 @@
 00092 <span class="preprocessor"></span>
 00094 
 <a name="l00099"></a><a class="code" href="group__osclerror.html#a50">00099</a> <span class="preprocessor">#define OSCL_FIRST_CATCH( _leave_status, _catch_value, _statements) \</span>
-00100 <span class="preprocessor">        if (_leave_status!=OsclErrNone &amp;&amp; _leave_status == _catch_value){_statements;}</span>
+00100 <span class="preprocessor">    if (_leave_status!=OsclErrNone &amp;&amp; _leave_status == _catch_value){_statements;}</span>
 00101 <span class="preprocessor"></span>
 00103 
 <a name="l00110"></a><a class="code" href="group__osclerror.html#a51">00110</a> <span class="preprocessor">#define OSCL_CATCH( _leave_status, _catch_value, _statements) \</span>
-00111 <span class="preprocessor">        else if (_leave_status!=OsclErrNone &amp;&amp; _leave_status == _catch_value){_statements;}</span>
+00111 <span class="preprocessor">    else if (_leave_status!=OsclErrNone &amp;&amp; _leave_status == _catch_value){_statements;}</span>
 00112 <span class="preprocessor"></span>
 00114 
 <a name="l00120"></a><a class="code" href="group__osclerror.html#a52">00120</a> <span class="preprocessor">#define OSCL_CATCH_ANY(_leave_status,_statements) \</span>
-00121 <span class="preprocessor">        else if (_leave_status!=OsclErrNone){ _statements;}</span>
+00121 <span class="preprocessor">    else if (_leave_status!=OsclErrNone){ _statements;}</span>
 00122 <span class="preprocessor"></span>
 00124 
 <a name="l00130"></a><a class="code" href="group__osclerror.html#a53">00130</a> <span class="preprocessor">#define OSCL_LAST_CATCH(_leave_status) \</span>
-00131 <span class="preprocessor">        else if (_leave_status!=OsclErrNone){OSCL_LEAVE(_leave_status);}</span>
+00131 <span class="preprocessor">    else if (_leave_status!=OsclErrNone){OSCL_LEAVE(_leave_status);}</span>
 00132 <span class="preprocessor"></span>
 00133 
 00134 <span class="preprocessor">#endif // INCLUDED_OSCL_EXCEPTION_H</span>
@@ -80,7 +80,7 @@
 00136 
 00137 
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

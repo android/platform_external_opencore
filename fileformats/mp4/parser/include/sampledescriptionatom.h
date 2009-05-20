@@ -71,6 +71,7 @@
 
 
 class ProtectionSchemeInformationBox;
+class SpeechSampleEntry3GPP2;
 
 class SampleDescriptionAtom : public FullAtom
 {
@@ -115,7 +116,7 @@ class SampleDescriptionAtom : public FullAtom
 
         uint8  getObjectTypeIndication();
 
-        uint32 getMaxBufferSizeDB();	// Get the max size buffer needed to retrieve the media samples
+        uint32 getMaxBufferSizeDB();    // Get the max size buffer needed to retrieve the media samples
         int32  getAverageBitrate();
         int32  getMaxBitrate();
 
@@ -206,6 +207,8 @@ class SampleDescriptionAtom : public FullAtom
         bool _oAVC;
 
         ProtectionSchemeInformationBox* _pProtectionSchemeInformationBox;
+
+        SpeechSampleEntry3GPP2* _p3GPP2SpeechSampleEntry;
 };
 
 

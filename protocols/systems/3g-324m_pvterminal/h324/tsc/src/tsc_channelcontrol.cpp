@@ -34,7 +34,7 @@ TSC_channelcontrol::TSC_channelcontrol(OlcList& aOlcs,
                                        TSC_lc& aTSClc,
                                        TSC_capability& aTSCcapability,
                                        TSC_clc& aTSCclc,
-                                       TSC_component& aTSCcomponent) :
+                                       TSC_component* aTSCcomponent) :
         iOlcs(aOlcs),
         iH223(NULL),
         iTSCstatemanager(aTSCStateManager),
@@ -45,10 +45,19 @@ TSC_channelcontrol::TSC_channelcontrol(OlcList& aOlcs,
         iTSCclc(aTSCclc),
         iTSCcomponent(aTSCcomponent)
 {
+    iTSCcomponent->addRef();
     iLogger = PVLogger::GetLoggerObject("3g324m.h245user");
 };
 
 
+void TSC_channelcontrol::Reset()
+{
+    if (iTSCcomponent)
+    {
+        iTSCcomponent->removeRef();
+    }
+    iTSCcomponent = NULL;
+}
 
 
 LogicalChannelInfo* TSC_channelcontrol::GetLogicalChannelInfo(PVMFPortInterface& port)

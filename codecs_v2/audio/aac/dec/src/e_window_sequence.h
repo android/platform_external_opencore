@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ./include/e_WINDOW_SEQUENCE.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: e_window_sequence.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

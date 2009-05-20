@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_decode_huff_cw.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_decode_huff_cw.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

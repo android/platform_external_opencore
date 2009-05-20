@@ -104,7 +104,7 @@ void AndroidAudioStream::setParametersSync(PvmiMIOSession aSession, PvmiKvp* aPa
 
 void AndroidAudioStream::writeAudioBuffer(uint8* aData, uint32 aDataLen, PVMFCommandId cmdId, OsclAny* aContext, PVMFTimestamp aTimestamp)
 {
-	mAudioSink->write(aData, aDataLen);
+    mAudioSink->write(aData, aDataLen);
     sendResponse(cmdId, aContext, aTimestamp);
 }
 

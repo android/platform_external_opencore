@@ -49,7 +49,8 @@ SampleTableAtom::SampleTableAtom(MP4_FF_FILE *fp,
                                  uint32 size,
                                  uint32 type,
                                  bool oPVContentDownloadable,
-                                 uint32 parsingMode)
+                                 uint32 parsingMode,
+                                 bool aOpenFileOncePerTrack)
         : Atom(fp, size, type),
         _currentPlaybackSampleTimestamp(0),
         _currentPlaybackSampleNumber(0),
@@ -79,6 +80,7 @@ SampleTableAtom::SampleTableAtom(MP4_FF_FILE *fp,
     _pinput   = NULL;
     _commonFilePtr = NULL;
     _currChunkOffset = 0;
+    iOpenFileOncePerTrack = aOpenFileOncePerTrack;
 
     _defaultMimeType += _STRLIT_WCHAR("UNKNOWN");
 
@@ -107,17 +109,21 @@ SampleTableAtom::SampleTableAtom(MP4_FF_FILE *fp,
         _pinput->_fileServSession = fp->_fileServSession;
         _pinput->_pvfile.SetCPM(fp->_pvfile.GetCPM());
 
-#ifndef OPEN_FILE_ONCE_PER_TRACK
-        ptr = oscl_malloc(sizeof(MP4_FF_FILE));
-        if (ptr == NULL)
-        {
-            _success = false;
-            _mp4ErrorCode = MEMORY_ALLOCATION_FAILED;
-            return;
-        }
-        _commonFilePtr = OSCL_PLACEMENT_NEW(ptr, MP4_FF_FILE(*fp));
+        _pinput->_pvfile.SetFileHandle(fp->_pvfile.iFileHandle);
+        _pinput->_fileSize = fp->_fileSize;
 
-#endif
+        if (!iOpenFileOncePerTrack)
+        {
+            ptr = oscl_malloc(sizeof(MP4_FF_FILE));
+            if (ptr == NULL)
+            {
+                _success = false;
+                _mp4ErrorCode = MEMORY_ALLOCATION_FAILED;
+                return;
+            }
+            _commonFilePtr = OSCL_PLACEMENT_NEW(ptr, MP4_FF_FILE(*fp));
+            _commonFilePtr->_pvfile.SetFileHandle(fp->_pvfile.iFileHandle);
+        }
 
         _currentPlaybackSampleNumber = 0; // Initializing playback start point
 
@@ -134,7 +140,7 @@ SampleTableAtom::SampleTableAtom(MP4_FF_FILE *fp,
             AtomUtils::getNextAtomType(fp, atomSize, atomType);
 
             if (atomType == TIME_TO_SAMPLE_ATOM)
-            {	//"stts"
+            {   //"stts"
                 PV_MP4_FF_NEW(fp->auditCB, TimeToSampleAtom,
                               (fp, mediaType, atomSize,
                                atomType, filename, parsingMode),
@@ -152,7 +158,7 @@ SampleTableAtom::SampleTableAtom(MP4_FF_FILE *fp,
             }
 
             else if (atomType == COMPOSITION_OFFSET_ATOM)
-            {	//"ctts"
+            {   //"ctts"
                 PV_MP4_FF_NEW(fp->auditCB, CompositionOffsetAtom,
                               (fp, mediaType, atomSize,
                                atomType, filename, parsingMode),
@@ -469,23 +475,25 @@ SampleTableAtom::~SampleTableAtom()
         PV_MP4_FF_DELETE(NULL, SyncSampleAtom, _psyncSampleAtom);
     }
 
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-    if (_pinput != NULL)
+    if (iOpenFileOncePerTrack)
     {
-        AtomUtils::CloseMP4File(_pinput);
-        oscl_free(_pinput);
+        if (_pinput != NULL)
+        {
+            AtomUtils::CloseMP4File(_pinput);
+            oscl_free(_pinput);
+        }
     }
-#else
-    if (_pinput != NULL)
+    else
     {
-        oscl_free(_pinput);
+        if (_pinput != NULL)
+        {
+            oscl_free(_pinput);
+        }
+        if (_commonFilePtr != NULL)
+        {
+            oscl_free(_commonFilePtr);
+        }
     }
-    if (_commonFilePtr != NULL)
-    {
-        oscl_free(_commonFilePtr);
-    }
-#endif
-
     if (_pAMRTempBuffer != NULL)
     {
         oscl_free(_pAMRTempBuffer);
@@ -537,7 +545,7 @@ SampleTableAtom::getSample(uint32 sampleNum, uint8 *buf, int32 &size, uint32 &in
     index = _SDIndex;
 
     if (sampleSize == 0)
-    {	//shortcut
+    {   //shortcut
         return EVERYTHING_FINE;
     }
 
@@ -577,22 +585,25 @@ SampleTableAtom::getSample(uint32 sampleNum, uint8 *buf, int32 &size, uint32 &in
     // Open file
     if (!_pinput->IsOpen())
     {
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-        // Check if file is already open
-        // Opens file in binary mode with read sharing permissions
-        // Return Error in case the file open fails.
-        if (AtomUtils::OpenMP4File(_filename,
-                                   Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
-                                   _pinput) != 0)
+        if (iOpenFileOncePerTrack)
         {
-            return FILE_OPEN_FAILED;
+            // Check if file is already open
+            // Opens file in binary mode with read sharing permissions
+            // Return Error in case the file open fails.
+            if (AtomUtils::OpenMP4File(_filename,
+                                       Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
+                                       _pinput) != 0)
+            {
+                return FILE_OPEN_FAILED;
+            }
         }
-#else
-        _pinput->_fileSize = _commonFilePtr->_fileSize;
-        _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
-        AtomUtils::Flush(_pinput);
-        AtomUtils::seekFromStart(_pinput, 0);
-#endif
+        else
+        {
+            _pinput->_fileSize = _commonFilePtr->_fileSize;
+            _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
+            AtomUtils::Flush(_pinput);
+            AtomUtils::seekFromStart(_pinput, 0);
+        }
         if (!_IsUpdateFileSize)
         {
             if (AtomUtils::getCurrentFileSize(_pinput, _fileSize) == false)
@@ -607,10 +618,16 @@ SampleTableAtom::getSample(uint32 sampleNum, uint8 *buf, int32 &size, uint32 &in
         return INSUFFICIENT_DATA;
     }
 
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-    if (_oPVContentDownloadable)
+    if (iOpenFileOncePerTrack)
     {
-        if (sampleNum == 0)
+        if (_oPVContentDownloadable)
+        {
+            if (sampleNum == 0)
+            {
+                AtomUtils::seekFromStart(_pinput, sampleFileOffset);
+            }
+        }
+        else
         {
             AtomUtils::seekFromStart(_pinput, sampleFileOffset);
         }
@@ -619,9 +636,6 @@ SampleTableAtom::getSample(uint32 sampleNum, uint8 *buf, int32 &size, uint32 &in
     {
         AtomUtils::seekFromStart(_pinput, sampleFileOffset);
     }
-#else
-    AtomUtils::seekFromStart(_pinput, sampleFileOffset);
-#endif
 
     // Read byte data into buffer
     if (AtomUtils::readByteData(_pinput, sampleSize, buf))
@@ -737,22 +751,26 @@ MP4_ERROR_CODE SampleTableAtom::getKeyMediaSampleNumAt(uint32 aKeySampleNum,
 
         if (!_pinput->IsOpen())
         {
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-            // Check if file is already open
-            // Opens file in binary mode with read sharing permissions
-            // Return Error in case the file open fails.
-            if (AtomUtils::OpenMP4File(_filename,
-                                       Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
-                                       _pinput) != 0)
+            if (iOpenFileOncePerTrack)
             {
-                return FILE_OPEN_FAILED;
+                // Check if file is already open
+                // Opens file in binary mode with read sharing permissions
+                // Return Error in case the file open fails.
+                if (AtomUtils::OpenMP4File(_filename,
+                                           Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
+                                           _pinput) != 0)
+                {
+                    return FILE_OPEN_FAILED;
+                }
             }
-#else
-            _pinput->_fileSize = _commonFilePtr->_fileSize;
-            _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
-            AtomUtils::Flush(_pinput);
-            AtomUtils::seekFromStart(_pinput, 0);
-#endif
+            else
+            {
+                _pinput->_fileSize = _commonFilePtr->_fileSize;
+                _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
+                AtomUtils::Flush(_pinput);
+                AtomUtils::seekFromStart(_pinput, 0);
+            }
+
             if (!_IsUpdateFileSize)
             {
                 if (AtomUtils::getCurrentFileSize(_pinput, _fileSize) == false)
@@ -940,22 +958,25 @@ SampleTableAtom::getPrevKeyMediaSample(uint32 inputtimestamp, uint32 &aKeySample
 
         if (!_pinput->IsOpen())
         {
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-            // Check if file is already open
-            // Opens file in binary mode with read sharing permissions
-            // Return Error in case the file open fails.
-            if (AtomUtils::OpenMP4File(_filename,
-                                       Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
-                                       _pinput) != 0)
+            if (iOpenFileOncePerTrack)
             {
-                return FILE_OPEN_FAILED;
+                // Check if file is already open
+                // Opens file in binary mode with read sharing permissions
+                // Return Error in case the file open fails.
+                if (AtomUtils::OpenMP4File(_filename,
+                                           Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
+                                           _pinput) != 0)
+                {
+                    return FILE_OPEN_FAILED;
+                }
             }
-#else
-            _pinput->_fileSize = _commonFilePtr->_fileSize;
-            _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
-            AtomUtils::Flush(_pinput);
-            AtomUtils::seekFromStart(_pinput, 0);
-#endif
+            else
+            {
+                _pinput->_fileSize = _commonFilePtr->_fileSize;
+                _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
+                AtomUtils::Flush(_pinput);
+                AtomUtils::seekFromStart(_pinput, 0);
+            }
             if (!_IsUpdateFileSize)
             {
                 if (AtomUtils::getCurrentFileSize(_pinput, _fileSize) == false)
@@ -1143,22 +1164,25 @@ SampleTableAtom::getNextKeyMediaSample(uint32 inputtimestamp, uint32 &aKeySample
 
         if (!_pinput->IsOpen())
         {
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-            // Check if file is already open
-            // Opens file in binary mode with read sharing permissions
-            // Return Error in case the file open fails.
-            if (AtomUtils::OpenMP4File(_filename,
-                                       Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
-                                       _pinput) != 0)
+            if (iOpenFileOncePerTrack)
             {
-                return FILE_OPEN_FAILED;
+                // Check if file is already open
+                // Opens file in binary mode with read sharing permissions
+                // Return Error in case the file open fails.
+                if (AtomUtils::OpenMP4File(_filename,
+                                           Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
+                                           _pinput) != 0)
+                {
+                    return FILE_OPEN_FAILED;
+                }
             }
-#else
-            _pinput->_fileSize = _commonFilePtr->_fileSize;
-            _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
-            AtomUtils::Flush(_pinput);
-            AtomUtils::seekFromStart(_pinput, 0);
-#endif
+            else
+            {
+                _pinput->_fileSize = _commonFilePtr->_fileSize;
+                _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
+                AtomUtils::Flush(_pinput);
+                AtomUtils::seekFromStart(_pinput, 0);
+            }
             if (!_IsUpdateFileSize)
             {
                 if (AtomUtils::getCurrentFileSize(_pinput, _fileSize) == false)
@@ -1921,22 +1945,25 @@ check_for_file_pointer_reset:
 
         if (!_pinput->IsOpen())
         {
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-            // Check if file is already open
-            // Opens file in binary mode with read sharing permissions
-            // Return Error in case the file open fails.
-            if (AtomUtils::OpenMP4File(_filename,
-                                       Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
-                                       _pinput) != 0)
+            if (iOpenFileOncePerTrack)
             {
-                return FILE_OPEN_FAILED;
+                // Check if file is already open
+                // Opens file in binary mode with read sharing permissions
+                // Return Error in case the file open fails.
+                if (AtomUtils::OpenMP4File(_filename,
+                                           Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
+                                           _pinput) != 0)
+                {
+                    return FILE_OPEN_FAILED;
+                }
             }
-#else
-            _pinput->_fileSize = _commonFilePtr->_fileSize;
-            _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
-            AtomUtils::Flush(_pinput);
-            AtomUtils::seekFromStart(_pinput, 0);
-#endif
+            else
+            {
+                _pinput->_fileSize = _commonFilePtr->_fileSize;
+                _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
+                AtomUtils::Flush(_pinput);
+                AtomUtils::seekFromStart(_pinput, 0);
+            }
             if (!_IsUpdateFileSize)
             {
                 if (AtomUtils::getCurrentFileSize(_pinput, _fileSize) == false)
@@ -1986,12 +2013,16 @@ int32 SampleTableAtom::getTimestampForRandomAccessPoints(uint32 *num, uint32 *ts
 {
     if (_psyncSampleAtom == NULL)
     {
-        return 2;	//success : every sample is a random access point
+        if (_psampleSizeAtom != NULL)
+        {
+            *num = _psampleSizeAtom->getSampleCount();
+        }
+        return 2;   //success : every sample is a random access point
     }
 
     if (_ptimeToSampleAtom == NULL)
     {
-        return 0;	//fail
+        return 0;   //fail
     }
 
     uint32 tmp = _psyncSampleAtom->getEntryCount();
@@ -1999,7 +2030,7 @@ int32 SampleTableAtom::getTimestampForRandomAccessPoints(uint32 *num, uint32 *ts
     if (*num == 0)
     {
         *num = tmp;
-        return 1;	//success. This is only the query mode.
+        return 1;   //success. This is only the query mode.
     }
     if (*num > tmp)
         *num = tmp;
@@ -2020,7 +2051,7 @@ int32 SampleTableAtom::getTimestampForRandomAccessPoints(uint32 *num, uint32 *ts
                 offsetBuf[i] = offset;
         }
     }
-    return	1;	//success
+    return  1;  //success
 }
 
 
@@ -2028,12 +2059,12 @@ int32 SampleTableAtom::getTimestampForRandomAccessPointsBeforeAfter(uint32 ts, u
 {
     if (_psyncSampleAtom == NULL)
     {
-        return 2;	//success : every sample is a random access point
+        return 2;   //success : every sample is a random access point
     }
 
     if (_ptimeToSampleAtom == NULL)
     {
-        return 0;	//fail
+        return 0;   //fail
     }
 
 
@@ -2057,7 +2088,7 @@ int32 SampleTableAtom::getTimestampForRandomAccessPointsBeforeAfter(uint32 ts, u
         return PV_ERROR;
     }
     uint32 startIdx = 0, endIdx = 0, k = 0, idx = 0;
-    for (idx = 0; idx < numSyncSamples;idx++)
+    for (idx = 0; idx < numSyncSamples; idx++)
     {
         int32 tempSampleNum = _psyncSampleAtom->getSampleNumberAt(idx);
         if (SampleNumberForTS == tempSampleNum)
@@ -2094,7 +2125,7 @@ int32 SampleTableAtom::getTimestampForRandomAccessPointsBeforeAfter(uint32 ts, u
     }
     numsamplestoget = k;
 
-    return	1;	//success
+    return  1;  //success
 }
 
 uint32 SampleTableAtom::getTimestampForSampleNumber(uint32 sampleNumber)
@@ -2264,7 +2295,7 @@ SampleTableAtom::getNextBundledAccessUnits(uint32 *n,
     if (_currentPlaybackSampleNumber >= (int32)numSamples)
     {
         *n = 0;
-        pgau->info[0].ts = 0;	//_currentPlaybackSampleTimestamp;
+        pgau->info[0].ts = 0;   //_currentPlaybackSampleTimestamp;
         nReturn = END_OF_TRACK;
         return nReturn;
     }
@@ -2596,23 +2627,26 @@ SampleTableAtom::getNextNSamples(uint32 startSampleNum,
         // Open file
         if (!_pinput->IsOpen())
         {
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-            // Check if file is already open
-            // Opens file in binary mode with read sharing permissions
-            // Return Error in case the file open fails.
-            if (AtomUtils::OpenMP4File(_filename,
-                                       Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
-                                       _pinput) != 0)
+            if (iOpenFileOncePerTrack)
             {
-                *n = 0;
-                return FILE_OPEN_FAILED;
+                // Check if file is already open
+                // Opens file in binary mode with read sharing permissions
+                // Return Error in case the file open fails.
+                if (AtomUtils::OpenMP4File(_filename,
+                                           Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
+                                           _pinput) != 0)
+                {
+                    *n = 0;
+                    return FILE_OPEN_FAILED;
+                }
             }
-#else
-            _pinput->_fileSize = _commonFilePtr->_fileSize;
-            _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
-            AtomUtils::Flush(_pinput);
-            AtomUtils::seekFromStart(_pinput, 0);
-#endif
+            else
+            {
+                _pinput->_fileSize = _commonFilePtr->_fileSize;
+                _pinput->_pvfile.Copy(_commonFilePtr->_pvfile);
+                AtomUtils::Flush(_pinput);
+                AtomUtils::seekFromStart(_pinput, 0);
+            }
             if (!_IsUpdateFileSize)
             {
                 if (AtomUtils::getCurrentFileSize(_pinput, _fileSize) == false)
@@ -2774,21 +2808,23 @@ SampleTableAtom::getNextNSamples(uint32 startSampleNum,
         currticks = OsclTickCount::TickCount();
         StartTime = OsclTickCount::TicksToMsec(currticks);
 #endif
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-        if (_oPVContentDownloadable)
+        if (iOpenFileOncePerTrack)
         {
-            if (_currentPlaybackSampleNumber == 0)
+            if (_oPVContentDownloadable)
+            {
+                if (_currentPlaybackSampleNumber == 0)
+                {
+                    AtomUtils::seekFromStart(_pinput, sampleFileOffset);
+                }
+            }
+            else
             {
                 AtomUtils::seekFromStart(_pinput, sampleFileOffset);
             }
         }
         else
-        {
             AtomUtils::seekFromStart(_pinput, sampleFileOffset);
-        }
-#else
-        AtomUtils::seekFromStart(_pinput, sampleFileOffset);
-#endif
+
 #if (PVLOGGER_INST_LEVEL > PVLOGMSG_INST_LLDBG)
         currticks = OsclTickCount::TickCount();
         EndTime = OsclTickCount::TicksToMsec(currticks);
@@ -2983,7 +3019,7 @@ SampleTableAtom::peekNextNSamples(uint32 startSampleNum,
         // Find chunk
         uint32 lastSampleNum = startSampleNum + samplesToBePeeked - 1;
 
-        int32 chunk = 	_psampleToChunkAtom->getChunkNumberForSamplePeek(sampleNum);
+        int32 chunk =   _psampleToChunkAtom->getChunkNumberForSamplePeek(sampleNum);
 
         if (chunk == PV_ERROR)
         {
@@ -3094,6 +3130,10 @@ int32 SampleTableAtom::getOffsetByTime(uint32 ts, int32* sampleFileOffset)
     }
 
     int32 sampleNum = _ptimeToSampleAtom->getSampleNumberFromTimestamp(ts, true);
+    if (sampleNum == PV_ERROR)
+    {
+        return DEFAULT_ERROR;
+    }
 
     // Go for composition offset adjustment.
     sampleNum =
@@ -3167,7 +3207,7 @@ int32 SampleTableAtom::updateFileSize(uint32 filesize)
     {
         if (AtomUtils::Flush(_pinput))
         {
-            return DEFAULT_ERROR;	//error
+            return DEFAULT_ERROR;   //error
         }
     }
     return EVERYTHING_FINE;

@@ -93,7 +93,7 @@ OSCL_EXPORT_REF OsclAny* OsclMemPoolFixedChunkAllocator::allocate(const uint32 n
     else if (n > iChunkSize)
     {
         OSCL_LEAVE(OsclErrArgument);
-        // OSCL_UNUSED_RETURN(NULL);	This statement was removed to avoid compiler warning for Unreachable Code
+        // OSCL_UNUSED_RETURN(NULL);    This statement was removed to avoid compiler warning for Unreachable Code
 
     }
 
@@ -141,6 +141,18 @@ OSCL_EXPORT_REF void OsclMemPoolFixedChunkAllocator::deallocate(OsclAny* p)
         // Returned memory is not aligned to the chunk.
         OSCL_LEAVE(OsclErrArgument);
     }
+
+#if(!OSCL_BYPASS_MEMMGT)
+    // check if the same chunk was deallocated multiple times in a row
+    uint32 ii;
+    for (ii = 0; ii < iFreeMemChunkList.size(); ii++)
+    {
+        if (iFreeMemChunkList[ii] == p)
+        {
+            OSCL_LEAVE(OsclErrArgument);
+        }
+    }
+#endif
 
     // Put the returned chunk in the free pool
     iFreeMemChunkList.push_back(p);
@@ -313,7 +325,7 @@ OSCL_EXPORT_REF OsclAny* OsclMemPoolResizableAllocator::allocate(const uint32 aN
     if (aNumBytes == 0)
     {
         OSCL_LEAVE(OsclErrArgument);
-        // OSCL_UNUSED_RETURN(NULL);	This statement was removed to avoid compiler warning for Unreachable Code
+        // OSCL_UNUSED_RETURN(NULL);    This statement was removed to avoid compiler warning for Unreachable Code
     }
 
     // Find a free block that would accomodate the requested size with a block info header
@@ -581,7 +593,7 @@ OSCL_EXPORT_REF bool OsclMemPoolResizableAllocator::trim(OsclAny* aPtr, uint32 a
     if (validateblock(aPtr) == false)
     {
         OSCL_LEAVE(OsclErrArgument);
-        // OSCL_UNUSED_RETURN(false);	This statement was removed to avoid compiler warning for Unreachable Code
+        // OSCL_UNUSED_RETURN(false);   This statement was removed to avoid compiler warning for Unreachable Code
     }
 
     // Retrieve the block info header and validate the info
@@ -595,7 +607,7 @@ OSCL_EXPORT_REF bool OsclMemPoolResizableAllocator::trim(OsclAny* aPtr, uint32 a
     {
         // The bytes to free in the resize is bigger than the original buffer size
         OSCL_LEAVE(OsclErrArgument);
-        // OSCL_UNUSED_RETURN(false);	This statement was removed to avoid compiler warning for Unreachable Code
+        // OSCL_UNUSED_RETURN(false);   This statement was removed to avoid compiler warning for Unreachable Code
     }
 
     if (alignedbytestofree < (iBlockInfoAlignedSize + OSCLMEMPOOLRESIZABLEALLOCATOR_MIN_BUFFERSIZE))
@@ -706,7 +718,7 @@ OsclMemPoolResizableAllocator::MemPoolBufferInfo* OsclMemPoolResizableAllocator:
     if (newbuffer == NULL)
     {
         OSCL_LEAVE(OsclErrNoMemory);
-        // OSCL_UNUSED_RETURN(NULL);	This statement was removed to avoid compiler warning for Unreachable Code
+        // OSCL_UNUSED_RETURN(NULL);    This statement was removed to avoid compiler warning for Unreachable Code
     }
 
 #if OSCL_MEM_FILL_WITH_PATTERN
@@ -779,7 +791,7 @@ OsclMemPoolResizableAllocator::MemPoolBlockInfo* OsclMemPoolResizableAllocator::
     {
         // Request should be non-zero
         OSCL_LEAVE(OsclErrArgument);
-        // OSCL_UNUSED_RETURN(NULL);	This statement was removed to avoid compiler warning for Unreachable Code
+        // OSCL_UNUSED_RETURN(NULL);    This statement was removed to avoid compiler warning for Unreachable Code
     }
 
     for (uint32 i = 0; i < iMemPoolBufferList.size(); ++i)
@@ -811,7 +823,7 @@ OsclAny* OsclMemPoolResizableAllocator::allocateblock(MemPoolBlockInfo& aBlockPt
     if (aNumAlignedBytes == 0)
     {
         OSCL_LEAVE(OsclErrArgument);
-        // OSCL_UNUSED_RETURN(NULL);	This statement was removed to avoid compiler warning for Unreachable Code
+        // OSCL_UNUSED_RETURN(NULL);    This statement was removed to avoid compiler warning for Unreachable Code
     }
 
     // Remove the free block from the double linked list

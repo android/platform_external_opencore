@@ -61,7 +61,7 @@ typedef enum
 } PVMFOMXEncPortType;
 
 class PVMFOMXEncPort : public PvmfPortBaseImpl
-            , public PvmiCapabilityAndConfigPortFormatImpl
+        , public PvmiCapabilityAndConfigPortFormatImpl
 {
     public:
         PVMFOMXEncPort(int32 aTag, PVMFNodeInterface* aNode, const char*);
@@ -83,6 +83,7 @@ class PVMFOMXEncPort : public PvmfPortBaseImpl
         bool pvmiSetPortFormatSpecificInfoSync(OsclRefCounterMemFrag& aMemFrag);
 
         PVMFStatus Connect(PVMFPortInterface* aPort);
+        PVMFStatus PeerConnect(PVMFPortInterface* aPort);
         void setParametersSync(PvmiMIOSession aSession,
                                PvmiKvp* aParameters,
                                int num_elements,

@@ -44,10 +44,10 @@ class avi_test : public engine_test
 
         ~avi_test()
         {
-            delete iPVAviFile;
+            OSCL_DELETE(iPVAviFile);
             PVAviFile::DeleteAviFileParser((PVAviFile*)iFileParser);
-            delete iAudioMediaInput;
-            delete iVideoMediaInput;
+            OSCL_DELETE(iAudioMediaInput);
+            OSCL_DELETE(iVideoMediaInput);
         }
 
         void test();
@@ -56,7 +56,7 @@ class avi_test : public engine_test
 
         void DoCancel();
 
-        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
+//        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
 
         void CommandCompleted(const PVCmdResponse& aResponse);
 
@@ -68,8 +68,8 @@ class avi_test : public engine_test
         bool start_async_test();
         PVMFFormatType iAudSrcFormatType, iAudSinkFormatType;
         PVMFFormatType iVidSrcFormatType, iVidSinkFormatType;
-        PVAviFile*	iPVAviFile;
-        OsclAny*				 iFileParser;
+        PVAviFile*  iPVAviFile;
+        OsclAny*                 iFileParser;
         Oscl_FileServer          iFileServer;
         uint32 iAudioNum;
         uint32 iVideoNum;

@@ -17,45 +17,10 @@
  */
 /*
 
- Pathname: ./src/huffcb.c
+ Filename: huffcb.cpp
  Funtions:
     huffcb
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  Change variable names for clarity,
-               change variables 'base', 'sect_len_inc', and 'esc_val' to
-               UChar type.
-
- Description:  Add "if ((pSect[-1] % sfb_per_win) > max_sfb)" statement to
-               detect the error condition.
-               add more white space.
-
- Description: eliminated "pSect[-1]%sfb_per_win" operation
-
- Description: eliminated "pSect[-1]%sfb_per_win" operation
-
- Description: (1) Pass in SectInfo pSect
-              (2) put BITS *pInputStream as second parameter
-
- Description:  Fix a failure for thrid party AAC encoding.
-               The problem came when the total and the
-               maximun number of active scale factor bands do not coincide.
-               This is a rare situation but produces a problem when decoding
-               encoders that tolerate this.
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9 or less and get1bits
-			  when only 1 bit is read.
-
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -211,28 +176,6 @@
  ENDIF
 
  return num_sect;
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

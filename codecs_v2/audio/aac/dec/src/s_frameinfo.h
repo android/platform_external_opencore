@@ -17,32 +17,7 @@
  */
 /*
 
- Pathname: s_frameinfo.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Changed name of bk_sfb_top to frame_sfb_top.
- Included "interface.h" for defintion of MAX_WIN.  This
- will hopefully be simplified when interface.h is broken up into smaller
- include files.
-
- Description: Eliminated the never used array, group_offs[8]
-
- Description:
- (1) Modified to include the lines...
-
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-
-    #ifdef __cplusplus
-    }
-    #endif
-
- (2) Updated the copyright header.
-
- Description:
+ Filename: s_frameinfo.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

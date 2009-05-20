@@ -17,17 +17,8 @@
  */
 /*
  Filename: sbr_find_start_andstop_band.h
- Funtions:
+ Functions:
     get_dse
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
-
 
  ----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED

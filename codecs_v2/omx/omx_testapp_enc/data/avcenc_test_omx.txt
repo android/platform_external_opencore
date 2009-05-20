@@ -1,0 +1,23 @@
+foreman_176x144_24bit_5sec.rgb 	// input file name
+test.264 	// output file name
+176		// input width
+144 		// input height
+30		// input source frame rate
+RGB24 		// input format - RGB24, RGB12, YUV420, YUV420SEMIPLANAR
+176		// target frame width
+144		// target frame height
+44000		// target bit rate
+15		// target frame rate
+149		// Num of P Frames
+CBR		// rate control type, CONSTANT_Q, VBR or CBR
+30		// Initial P-frame QP
+16		// search range around the MB origin
+Cyclic		// intra refresh type, Cyclic, Adaptive or Both
+4		// Number of guaranteed I-MB in a frame, when intra refresh type is Cyclic or Both
+Baseline	// Profile - Baseline, Main, Extended, High, High10, High422, High444	
+13		// Level - 1, 1b, 11,12,13,2,21,22,3,31,32,4,41,42,5,51
+Enable		//LoopFilterType - Ebanle, Disable and DisableSliceBoundary
+0		//Constrained I prediction flag
+HalfPel		//Enumerated motion vector Accuracy - Pixel, HalfPel, QuarterPel, EighthPel
+
+

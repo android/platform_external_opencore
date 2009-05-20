@@ -7,7 +7,6 @@ include $(MK)/clear.mk
 TARGET := pvomxaudiodecnode
 
 
-XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 
 
 XINCDIRS += \

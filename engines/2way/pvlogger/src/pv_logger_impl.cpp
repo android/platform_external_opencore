@@ -162,9 +162,11 @@ uint32 PVLoggerConfigFile::SetLoggerSettings(CPV2WayInterface *aTerminal, const 
     if (EConsoleLog == iAppenderType)
     {
         // for console
-        appender = new StdErrAppender<TimeAndIdLayout, 1024>();
-        OsclRefCounterSA<AppenderDestructDealloc<StdErrAppender<TimeAndIdLayout, 1024> > > *appenderRefCounter =
-            new OsclRefCounterSA<AppenderDestructDealloc<StdErrAppender<TimeAndIdLayout, 1024> > >(appender);
+        typedef StdErrAppender<TimeAndIdLayout, 1024> ErrAppendType;
+        appender = OSCL_NEW(ErrAppendType, ());
+        typedef OsclRefCounterSA<AppenderDestructDealloc<StdErrAppender<TimeAndIdLayout, 1024> > > ErrCounterType;
+        ErrCounterType *appenderRefCounter =
+            OSCL_NEW(ErrCounterType, (appender));
         refCounter = appenderRefCounter;
     }
     else if (EFileLog == iAppenderType)
@@ -172,8 +174,8 @@ uint32 PVLoggerConfigFile::SetLoggerSettings(CPV2WayInterface *aTerminal, const 
         //for file
         OSCL_wHeapString<OsclMemAllocator> logfilename(aLogPath);
         appender = (PVLoggerAppender*)TextFileAppender<TimeAndIdLayout, 1024>::CreateAppender(logfilename.get_str());
-        OsclRefCounterSA<AppenderDestructDealloc<TextFileAppender<TimeAndIdLayout, 1024> > > *appenderRefCounter =
-            new OsclRefCounterSA<AppenderDestructDealloc<TextFileAppender<TimeAndIdLayout, 1024> > >(appender);
+        typedef OsclRefCounterSA<AppenderDestructDealloc<TextFileAppender<TimeAndIdLayout, 1024> > > TextCounterType;
+        TextCounterType *appenderRefCounter = OSCL_NEW(TextCounterType, (appender));
         refCounter = appenderRefCounter;
     }
     else

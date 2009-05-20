@@ -22,13 +22,6 @@
 
    Filename: pvmp3_get_side_info.h
 
-   Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -87,9 +80,9 @@ extern "C"
 #endif
 
     ERROR_CODE pvmp3_get_side_info(tmp3Bits  *inputStream,
-                                   mp3SideInfo *si,
-                                   mp3Header *info,
-                                   uint32 *crc);
+    mp3SideInfo *si,
+    mp3Header *info,
+    uint32 *crc);
 
 #ifdef __cplusplus
 }

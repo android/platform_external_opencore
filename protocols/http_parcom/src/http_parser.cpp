@@ -332,7 +332,7 @@ bool HTTPContentInfoInternal::parseContentType(const StrPtrLen &aContentType)
             ((ptr[6] | OSCL_ASCII_CASE_MAGIC_BIT) == 'a') &&
             ((ptr[7] | OSCL_ASCII_CASE_MAGIC_BIT) == 'r') &&
             ((ptr[8] | OSCL_ASCII_CASE_MAGIC_BIT) == 't') &&
-            (ptr[9]								  == '/') &&
+            (ptr[9]                               == '/') &&
             ((ptr[10] | OSCL_ASCII_CASE_MAGIC_BIT) == 'b') &&
             ((ptr[11] | OSCL_ASCII_CASE_MAGIC_BIT) == 'y') &&
             ((ptr[12] | OSCL_ASCII_CASE_MAGIC_BIT) == 't') &&
@@ -737,9 +737,9 @@ int32 HTTPParserInput::checkNextLine(HTTPMemoryFragment &aInputDataStream)
     {
         if (streamLength > 1 &&
                 (ptr[1] == HTTP_CHAR_CR || ptr[1] == HTTP_CHAR_LF) &&
-                ptr[1] != ptr[0]) ptr++;	// avoid double CR or double LF, should treat it as different lines
+                ptr[1] != ptr[0]) ptr++;    // avoid double CR or double LF, should treat it as different lines
         // Note that double CR(CRLFCRLF) or double LF (CRLFCRLF, or LFLF) means end of HTTP header
-        return ptr -start_ptr + 1;
+        return ptr - start_ptr + 1;
     }
 
     return 0; // no complete key-value pair available
@@ -788,7 +788,7 @@ int32 HTTPParserBaseObject::parseHeaderFields(HTTPMemoryFragment &aInputLineData
     if (status < 0)
     {
         LOGINFO((0, "HTTPParserBaseObject::parseHeaderFields() : Syntax Error founded!!"));
-        return HTTPParser::PARSE_SYNTAX_ERROR;	   // no divider characters found!
+        return HTTPParser::PARSE_SYNTAX_ERROR;     // no divider characters found!
     }
 
     // exception handling (no key or no value case)
@@ -894,9 +894,9 @@ int32 HTTPParserBaseObject::getNextFieldKeyValuePair(HTTPMemoryFragment &aInputD
 }
 
 // return value: 0 normal,
-//				 1 end of header,
-//				 2 ignore (for CRLF, to handle CRLF split into separate fragments)
-//				-1 error
+//               1 end of header,
+//               2 ignore (for CRLF, to handle CRLF split into separate fragments)
+//              -1 error
 int32 HTTPParserBaseObject::parseNextValueItem(HTTPMemoryFragment &aInputDataStream, char *&valueItemPtr, uint32 &valueItemLength, const bool isKeyItem)
 {
     char dividerChar0 = (isKeyItem ? HTTP_CHAR_COLON : HTTP_CHAR_CR);
@@ -1067,7 +1067,7 @@ int32 HTTPParserHeaderObject::parseFirstLine(HTTPMemoryFragment &aInputDataStrea
             ((ptr[1] | OSCL_ASCII_CASE_MAGIC_BIT) == 't') &&
             ((ptr[2] | OSCL_ASCII_CASE_MAGIC_BIT) == 't') &&
             ((ptr[3] | OSCL_ASCII_CASE_MAGIC_BIT) == 'p') &&
-            (ptr[4]								 == '/'))
+            (ptr[4]                              == '/'))
     {
         ptr += 5; // size of "http/"
         if (!checkHTTPVersion(ptr))
@@ -1135,23 +1135,23 @@ bool HTTPParserHeaderObject::isGoodStatusCode()
             iStatusCode > GOOD_HTTP_STATUS_CODE_END_AT299) return false;
 
     // check 1xx code, 1xx code is only allowed in Http/1.1
-    bool goodStatusCode = checkGood1xxCode();
-    if (!goodStatusCode) return false;
+    if (checkGood1xxCode())
+        return true;
 
     // check 2xx code, if 204 (no content) or 2xx code with content-length=0, then we need to error out
-    goodStatusCode = checkGood2xxCode();
+    bool goodStatusCode = checkGood2xxCode();
     return goodStatusCode;
 }
 
 // check 1xx code, 1xx code is only allowed in Http/1.1
 bool HTTPParserHeaderObject::checkGood1xxCode()
 {
-    if (iHttpVersionNum == 0 &&
+    if (iHttpVersionNum == 1 &&
             (GOOD_HTTP_STATUS_CODE_START_FROM100 <= iStatusCode && iStatusCode < GOOD_HTTP_STATUS_CODE_START_FROM200))
     {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 // check 2xx code, if 2xx code with content-length=0, then we need to error out
@@ -1300,14 +1300,18 @@ int32 HTTPParserNormalContentObject::parse(HTTPParserInput &aParserInput, RefCou
 {
     HTTPMemoryFragment aFrag;
     int32 actualSize = 0;
-    if (iContentInfo->iContentLength == 0) iContentInfo->iContentLength = 0x7fffffff; // 0=>7fff ffff
+
+
     if (iCurrTotalLengthObtained == 0 && iContentInfo->iContentRangeLeft > 0) iCurrTotalLengthObtained = iContentInfo->iContentRangeLeft;
-    int32 requestSize = (int32)iContentInfo->iContentLength - (int32)iCurrTotalLengthObtained;
-    if (requestSize <= 0)
+
+    // Shoutast sessions do not have Content-Length
+    int32 requestSize = (iContentInfo->iContentLength == 0 ? 0 : (int32)iContentInfo->iContentLength - (int32)iCurrTotalLengthObtained);
+    if (requestSize <= 0 && iContentInfo->iContentLength > 0)
     {
         if (requestSize == 0) return HTTPParser::PARSE_SUCCESS_END_OF_MESSAGE;
         return HTTPParser::PARSE_SUCCESS_END_OF_MESSAGE_WITH_EXTRA_DATA;
     }
+
     while ((actualSize = aParserInput.getData(aFrag, requestSize)) > 0)
     {
         iCurrTotalLengthObtained += actualSize;
@@ -1320,13 +1324,21 @@ int32 HTTPParserNormalContentObject::parse(HTTPParserInput &aParserInput, RefCou
 
     // construct output entity unit
     if (!constructEntityUnit(aParserInput, aEntityUnit)) return HTTPParser::PARSE_MEMORY_ALLOCATION_FAILURE;
-    if (iCurrTotalLengthObtained >= iContentInfo->iContentLength)
+
+
+    if (iCurrTotalLengthObtained >= iContentInfo->iContentLength && iContentInfo->iContentLength > 0)
     {
         if (iCurrTotalLengthObtained > iContentInfo->iContentLength ||
                 !aParserInput.empty()) return HTTPParser::PARSE_SUCCESS_END_OF_MESSAGE_WITH_EXTRA_DATA;
         return HTTPParser::PARSE_SUCCESS_END_OF_MESSAGE;
     }
-    if (actualSize == 0 && iContentInfo->iContentLength > iCurrTotalLengthObtained) return HTTPParser::PARSE_SUCCESS_END_OF_INPUT;
+
+    if (actualSize == 0 &&
+            (iContentInfo->iContentLength > iCurrTotalLengthObtained || iContentInfo->iContentLength == 0))
+    {
+        return HTTPParser::PARSE_SUCCESS_END_OF_INPUT;
+    }
+
     return HTTPParser::PARSE_SUCCESS;
 }
 

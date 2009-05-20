@@ -43,7 +43,7 @@ typedef enum
 {
     EHeaderErr = 0,
     ESizeErr
-}EMuxPduError;
+} EMuxPduError;
 
 class H223PduParcomObserver
 {
@@ -189,9 +189,9 @@ class PduParcomRefCounter: public OsclRefCounter
             {
                 if (ptr)
                 {
-                    delete ptr;
+                    OSCL_DELETE(ptr);
                 }
-                delete this;
+                OSCL_DELETE(this);
             }
         }
 

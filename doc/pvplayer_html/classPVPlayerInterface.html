@@ -288,7 +288,7 @@ A unique command id for asynchronous completion </dl>    </td>
     <td>
 
 <p>
-This function allows querying of the current playback position. The playback position units will be in the one specified by the passed-in reference to PVPPlaybackPosition. If no units are specified, the units will default to milliseconds. This command request is asynchronous. PVCommandStatusObserver's CommandCompleted() callback handler will be called when this command request completes.<dl compact><dt><b>Parameters: </b></dt><dd>
+This function allows querying of the current playback position. The playback position units will be in the one specified by the passed-in reference to PVPPlaybackPosition. Currently only milliseconds units is supported. This command request is asynchronous. PVCommandStatusObserver's CommandCompleted() callback handler will be called when this command request completes.<dl compact><dt><b>Parameters: </b></dt><dd>
 <table border=0 cellspacing=2 cellpadding=0>
 <tr><td valign=top><em>aPos</em>&nbsp;</td><td>
 Reference to place the current playback position </td></tr>
@@ -325,7 +325,7 @@ A unique command id for asynchronous completion </dl>    </td>
     <td>
 
 <p>
-This function allows querying of the current playback position as a synchronous command. The playback position units will be in the one specified by the passed-in reference to PVPPlaybackPosition. If no units are specified, the units will default to milliseconds.<dl compact><dt><b>Parameters: </b></dt><dd>
+This function allows querying of the current playback position as a synchronous command. The playback position units will be in the one specified by the passed-in reference to PVPPlaybackPosition. Currently only millisecond units is supported.<dl compact><dt><b>Parameters: </b></dt><dd>
 <table border=0 cellspacing=2 cellpadding=0>
 <tr><td valign=top><em>aPos</em>&nbsp;</td><td>
 Reference to place the current playback position @leave This method can leave with one of the following error codes OsclErrInvalidState if invoked in the incorrect state </td></tr>
@@ -1693,7 +1693,7 @@ A unique command id for asynchronous completion </dl>    </td>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="pv__player__interface_8h-source.html">pv_player_interface.h</a></ul>
 <hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>PV Player Engine</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

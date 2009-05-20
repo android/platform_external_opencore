@@ -17,35 +17,7 @@
  */
 /*
 
- Pathname: getmask.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-               Replaced for-loop style memory initialization with memset()
-
- Description: (1) Modified to bring code in-line with PV standard
-              (2) Removed multiple returns, Replaced multiple 'if's with
-                  switch
-
- Description: (1) Modified per review comments
-              (2) increment pointer pMask after memset
-
- Description: Make the maximum number of bits requested from getbits
-              become a constant.
-
- Description: Typecast 1 to UInt32 for bitmask to avoid masking on a 16-bit
-              platform
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9 or less.
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: getmask.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

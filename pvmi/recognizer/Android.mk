@@ -19,8 +19,6 @@ LOCAL_SHARED_LIBRARIES :=
 LOCAL_C_INCLUDES := \
 	$(PV_TOP)/pvmi/recognizer/src \
  	$(PV_TOP)/pvmi/recognizer/include \
- 	/pvmi/pvmf/include \
- 	/baselibs/pv_mime_utils/src \
  	$(PV_INCLUDES)
 
 LOCAL_COPY_HEADERS_TO := $(PV_COPY_HEADERS_TO)

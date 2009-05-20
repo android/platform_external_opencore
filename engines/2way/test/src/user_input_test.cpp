@@ -31,7 +31,8 @@ uint8 alphanumericTestString[ALPHANUMERIC_STRING_LENGTH] =
 
 void user_input_test::test()
 {
-    fprintf(fileoutput, "Start user input test, is dtmf %d, proxy %d.\n", iIsDTMF, iUseProxy);
+    fprintf(fileoutput, "----- Start user input test, is dtmf %d, proxy %d. ----- \n", iIsDTMF, iUseProxy);
+    fprintf(fileoutput, "\n** Test Number: %d. ** \n", iTestNum);
     int error = 0;
 
     scheduler = OsclExecScheduler::Current();
@@ -46,9 +47,6 @@ void user_input_test::test()
             OSCL_LEAVE(error);
         }
     }
-
-    destroy_sink_source();
-
     this->RemoveFromScheduler();
 }
 
@@ -59,7 +57,7 @@ void user_input_test::Run()
     {
         if (iUseProxy)
         {
-            //CPV2WayProxyFactory::DeleteTerminal(terminal);
+            CPV2WayProxyFactory::DeleteTerminal(terminal);
         }
         else
         {
@@ -91,10 +89,6 @@ void user_input_test::H324MConfigHandleInformationalEventL(PVMFAsyncEvent& aEven
     }
 }
 
-void user_input_test::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
-{
-    OSCL_UNUSED_ARG(aEvent);
-}
 
 void user_input_test::RstCmdCompleted()
 {
@@ -104,31 +98,31 @@ void user_input_test::RstCmdCompleted()
 void user_input_test::DisCmdSucceeded()
 {
     printf("Finished disconnecting \n");
-    if (i324mConfigInterface)
-        i324mConfigInterface->removeRef();
+    if (iH324MConfig)
+        iH324MConfig->removeRef();
+    iH324MConfig = NULL;
     reset();
 }
 
 void user_input_test::DisCmdFailed()
 {
     printf("Finished disconnecting \n");
-    if (i324mConfigInterface)
-        i324mConfigInterface->removeRef();
+    if (iH324MConfig)
+        iH324MConfig->removeRef();
+    iH324MConfig = NULL;
     reset();
 }
 
 void user_input_test::ConnectSucceeeded()
 {
-    i324mConfigInterface = iH324MConfig;
-//		OSCL_TRY(error, i324mIFCommandId = terminal->QueryInterface(PVH324MConfigUuid, i324mConfigInterface,NULL));
-    if (i324mConfigInterface == NULL)
+    if (iH324MConfig == NULL)
     {
         test_is_true(false);
         disconnect();
     }
-    H324MConfigInterface * i324Interface = (H324MConfigInterface *)i324mConfigInterface;
-    i324Interface->SetObserver(this);
-    iUserInputId = i324Interface->SendUserInput(iUserInput);
+    H324MConfigInterface * t324Interface = (H324MConfigInterface *)iH324MConfig;
+    t324Interface->SetObserver(this);
+    iUserInputId = t324Interface->SendUserInput(iUserInput);
 }
 
 void user_input_test::InitFailed()
@@ -141,11 +135,13 @@ bool user_input_test::start_async_test()
 {
     if (iIsDTMF)
     {
-        iUserInput = new CPVUserInputDtmf(DTMF_TEST_INPUT, DTMF_TEST_UPDATE, DTMF_TEST_DURATION);
+        iUserInput = OSCL_NEW(CPVUserInputDtmf,
+                              (DTMF_TEST_INPUT, DTMF_TEST_UPDATE, DTMF_TEST_DURATION));
     }
     else
     {
-        iUserInput = new CPVUserInputAlphanumeric(alphanumericTestString, ALPHANUMERIC_STRING_LENGTH);
+        iUserInput = OSCL_NEW(CPVUserInputAlphanumeric,
+                              (alphanumericTestString, ALPHANUMERIC_STRING_LENGTH));
     }
 
     if (iUserInput == NULL)

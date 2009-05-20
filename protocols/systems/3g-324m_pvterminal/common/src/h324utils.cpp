@@ -56,6 +56,8 @@ static const uint32 g_num_ones[] =
     /*248 - 1111 1000 */5, 6, 6, 7, 6, 7, 7, 8
 };
 
+typedef Oscl_Vector<unsigned, OsclMemAllocator> Oscl_Vector_unsigned;
+
 PVCodecType_t GetVidCodecTypeFromVideoCapability(PS_VideoCapability capability)
 {
     switch (capability->index)
@@ -473,7 +475,7 @@ void FillM4vCapability(VideoCodecCapabilityInfo& video_codec_info,
 
 CodecCapabilityInfo* GetCodecCapabilityInfoMpeg4(PS_GenericCapability mpeg4caps)
 {
-    VideoCodecCapabilityInfo* cci = new VideoCodecCapabilityInfo();
+    VideoCodecCapabilityInfo* cci = OSCL_NEW(VideoCodecCapabilityInfo, ());
     cci->codec = PV_VID_TYPE_MPEG4;
     cci->max_bitrate = mpeg4caps->maxBitRate;
     return cci;
@@ -533,7 +535,7 @@ void FillH263Capability(VideoCodecCapabilityInfo& video_codec_info,
 
 CodecCapabilityInfo* GetCodecCapabilityInfo(PS_H263VideoCapability h263caps)
 {
-    VideoCodecCapabilityInfo* cci = new VideoCodecCapabilityInfo();
+    VideoCodecCapabilityInfo* cci = OSCL_NEW(VideoCodecCapabilityInfo, ());
     cci->codec = PV_VID_TYPE_H263;
     cci->max_bitrate = h263caps->maxBitRate;
 
@@ -617,7 +619,7 @@ void FillG723Capability(PS_G7231 g723caps)
 CodecCapabilityInfo* GetCodecCapabilityInfo(PS_G7231 g723caps)
 {
     OSCL_UNUSED_ARG(g723caps);
-    CodecCapabilityInfo* cci = new CodecCapabilityInfo();
+    CodecCapabilityInfo* cci = OSCL_NEW(CodecCapabilityInfo, ());
     cci->codec = PV_AUD_TYPE_G723;
     cci->max_bitrate = 6300;
     return cci;
@@ -678,7 +680,7 @@ void FillAmrCapability(PS_GenericCapability amrCaps)
 
 CodecCapabilityInfo* GetCodecCapabilityInfoAmr(PS_GenericCapability amrCaps)
 {
-    CodecCapabilityInfo* cci = new CodecCapabilityInfo();
+    CodecCapabilityInfo* cci = OSCL_NEW(CodecCapabilityInfo, ());
     cci->codec = PV_AUD_TYPE_GSM;
     cci->max_bitrate = amrCaps->maxBitRate;
     return cci;
@@ -708,7 +710,7 @@ void FillUserInputCapability(CodecCapabilityInfo& codec_info,
 
 CodecCapabilityInfo* GetCodecCapabilityInfo(PS_UserInputCapability uiCaps)
 {
-    CodecCapabilityInfo* cci = new CodecCapabilityInfo();
+    CodecCapabilityInfo* cci = OSCL_NEW(CodecCapabilityInfo, ());
     switch (uiCaps->index)
     {
         case 1:
@@ -850,7 +852,7 @@ PV2WayMediaType GetMediaType(PS_DataType pDataType)
 }
 
 // =======================================================
-// GetSimpleAudioType()						(RAN-32K)
+// GetSimpleAudioType()                     (RAN-32K)
 //
 // This routine takes the value from p324->GetAudioType()
 //   (an H324AudType_t enum) and maps it onto a
@@ -927,8 +929,8 @@ unsigned GetFormatSpecificInfo(PS_DataType dataType,
     fsi = NULL;
 
     if (!dataType ||
-            (dataType->index != 2) ||				// videoData
-            (dataType->videoData->index != 5))	// genericVideoCapability
+            (dataType->index != 2) ||               // videoData
+            (dataType->videoData->index != 5))  // genericVideoCapability
         return ret;
 
     if (dataType->videoData->genericVideoCapability->option_of_nonCollapsing)
@@ -951,7 +953,7 @@ unsigned GetFormatSpecificInfo(PS_DataType dataType,
     for (uint32 ii = 0; ii < size; ++ii)
     {
         parameter = parameter_list + ii;
-        if ((parameter->parameterIdentifier.index == 0) &&	// standard
+        if ((parameter->parameterIdentifier.index == 0) &&  // standard
                 (parameter->parameterValue.index == 6)) // OctetString
         {
             config = parameter->parameterValue.octetString;
@@ -960,7 +962,7 @@ unsigned GetFormatSpecificInfo(PS_DataType dataType,
 
     bool is_filler_fsi = IsFillerFsi(config->data, config->size);
     if (config != NULL && !is_filler_fsi)
-    {		// Found valid decoderConfig
+    {       // Found valid decoderConfig
         ret = config->size;
         fsi = config->data;
     }
@@ -992,7 +994,7 @@ PS_Capability LookupCapability(PS_TerminalCapabilitySet pTcs,
 bool IsTransmitOnlyAltCapSet(PS_TerminalCapabilitySet pTcs,
                              PS_AlternativeCapabilitySet pAltCapSet)
 {
-    for (uint32 ii = 0;ii < pAltCapSet->size; ++ii)
+    for (uint32 ii = 0; ii < pAltCapSet->size; ++ii)
     {
         uint32 entry = pAltCapSet->item[ii];
         PS_Capability pCapability = LookupCapability(pTcs,
@@ -1008,7 +1010,7 @@ bool IsTransmitOnlyAltCapSet(PS_TerminalCapabilitySet pTcs,
 }
 
 // =======================================================
-// VerifyCodecs()							(RAN-32K)
+// VerifyCodecs()                           (RAN-32K)
 //
 // This routine checks an outgoing audio/video combination
 //   against the capabilities of the remote terminal.
@@ -1302,21 +1304,21 @@ PS_TerminalCapabilitySet GenerateTcs(MultiplexCapabilityInfo& mux_cap_info,
     // x7 is a set of  CapabilityTableEntry(s) //
     unsigned entry_num = 1, codec_num = 0;
 
-    Oscl_Map<PV2WayMediaType, Oscl_Vector<unsigned, OsclMemAllocator>*, OsclMemAllocator>
+    Oscl_Map<PV2WayMediaType, Oscl_Vector_unsigned*, OsclMemAllocator>
     cap_entries_for_media_type;
     for (codec_num = 0; codec_num < incoming_codecs.size(); ++codec_num)
     {
         FillCapabilityTableEntry(x7 + entry_num - 1, *incoming_codecs[codec_num], entry_num);
         PV2WayMediaType media_type = GetMediaType(incoming_codecs[codec_num]->codec);
-        Oscl_Vector<unsigned, OsclMemAllocator>* list = NULL;
-        Oscl_Map<PV2WayMediaType, Oscl_Vector<unsigned, OsclMemAllocator>*, OsclMemAllocator>::iterator iter =
+        Oscl_Vector_unsigned* list = NULL;
+        Oscl_Map<PV2WayMediaType, Oscl_Vector_unsigned*, OsclMemAllocator>::iterator iter =
             cap_entries_for_media_type.find(media_type);
         if (iter == cap_entries_for_media_type.end())
         {
-            list = new Oscl_Vector<unsigned, OsclMemAllocator>();
+            list = OSCL_NEW(Oscl_Vector_unsigned, ());
             cap_entries_for_media_type.insert(
                 Oscl_Map < PV2WayMediaType,
-                Oscl_Vector<unsigned, OsclMemAllocator>*,
+                Oscl_Vector_unsigned*,
                 OsclMemAllocator >::value_type(media_type, list));
         }
         else
@@ -1341,7 +1343,7 @@ PS_TerminalCapabilitySet GenerateTcs(MultiplexCapabilityInfo& mux_cap_info,
                 sizeof(S_AlternativeCapabilitySet));
     oscl_memset(x29, 0, num_alt_cap_sets * sizeof(S_AlternativeCapabilitySet));
     Oscl_Map < PV2WayMediaType,
-    Oscl_Vector<unsigned, OsclMemAllocator>*, OsclMemAllocator >::iterator iter =
+    Oscl_Vector_unsigned*, OsclMemAllocator >::iterator iter =
         cap_entries_for_media_type.begin();
 
     // x28[0] is a CapabilityDescriptor (SEQUENCE) //
@@ -1352,14 +1354,14 @@ PS_TerminalCapabilitySet GenerateTcs(MultiplexCapabilityInfo& mux_cap_info,
 
     for (unsigned acsnum = 0; acsnum < num_alt_cap_sets; ++acsnum)
     {
-        Oscl_Vector<unsigned, OsclMemAllocator>* alternatives = (*iter++).second;
+        Oscl_Vector_unsigned* alternatives = (*iter++).second;
         x29[acsnum].item = (uint32*)OSCL_DEFAULT_MALLOC(sizeof(uint32) * alternatives->size());
         x29[acsnum].size = (uint16)alternatives->size();
         for (unsigned altnum = 0; altnum < alternatives->size(); ++altnum)
         {
             x29[acsnum].item[altnum] = (*alternatives)[altnum];
         }
-        delete alternatives;
+        OSCL_DELETE(alternatives);
     }
 
     return ret;
@@ -1637,7 +1639,7 @@ uint16 GetCodecCapabilityInfo(PS_TerminalCapabilitySet pTcs,
         PV2WayMediaType mediaType = GetMediaType(cci->codec);
         if (mediaType == PV_MEDIA_NONE)
         {
-            delete cci;
+            OSCL_DELETE(cci);
         }
         else
         {
@@ -1656,7 +1658,7 @@ void Deallocate(Oscl_Vector<CodecCapabilityInfo*, OsclMemAllocator>& cci_list)
 {
     for (unsigned ii = 0; ii < cci_list.size(); ++ii)
     {
-        delete cci_list[ii];
+        OSCL_DELETE(cci_list[ii]);
     }
     cci_list.clear();
 }

@@ -108,16 +108,16 @@ const uint32    TRACK_REFERENCE_ATOM = FourCharConstToUint32('t', 'r', 'e', 'f')
 
 //movie fragments
 const uint32    MOVIE_FRAGMENT_ATOM = FourCharConstToUint32('m', 'o', 'o', 'f');
-const uint32	MOVIE_EXTENDS_ATOM = FourCharConstToUint32('m', 'v', 'e', 'x');
-const uint32	MOVIE_EXTENDS_HEADER_ATOM = FourCharConstToUint32('m', 'e', 'h', 'd');
-const uint32	TRACK_EXTENDS_ATOM = FourCharConstToUint32('t', 'r', 'e', 'x');
-const uint32	MOVIE_FRAGMENT_HEADER_ATOM = FourCharConstToUint32('m', 'f', 'h', 'd');
-const uint32	TRACK_FRAGMENT_ATOM = FourCharConstToUint32('t', 'r', 'a', 'f');
-const uint32	TRACK_FRAGMENT_HEADER_ATOM = FourCharConstToUint32('t', 'f', 'h', 'd');
-const uint32	TRACK_FRAGMENT_RUN_ATOM = FourCharConstToUint32('t', 'r', 'u', 'n');
-const uint32	MOVIE_FRAGMENT_RANDOM_ACCESS_ATOM = FourCharConstToUint32('m', 'f', 'r', 'a');
-const uint32	MOVIE_FRAGMENT_RANDOM_ACCESS_OFFSET_ATOM = FourCharConstToUint32('m', 'f', 'r', 'o');
-const uint32	TRACK_FRAGMENT_RANDOM_ACCESS_ATOM = FourCharConstToUint32('t', 'f', 'r', 'a');
+const uint32    MOVIE_EXTENDS_ATOM = FourCharConstToUint32('m', 'v', 'e', 'x');
+const uint32    MOVIE_EXTENDS_HEADER_ATOM = FourCharConstToUint32('m', 'e', 'h', 'd');
+const uint32    TRACK_EXTENDS_ATOM = FourCharConstToUint32('t', 'r', 'e', 'x');
+const uint32    MOVIE_FRAGMENT_HEADER_ATOM = FourCharConstToUint32('m', 'f', 'h', 'd');
+const uint32    TRACK_FRAGMENT_ATOM = FourCharConstToUint32('t', 'r', 'a', 'f');
+const uint32    TRACK_FRAGMENT_HEADER_ATOM = FourCharConstToUint32('t', 'f', 'h', 'd');
+const uint32    TRACK_FRAGMENT_RUN_ATOM = FourCharConstToUint32('t', 'r', 'u', 'n');
+const uint32    MOVIE_FRAGMENT_RANDOM_ACCESS_ATOM = FourCharConstToUint32('m', 'f', 'r', 'a');
+const uint32    MOVIE_FRAGMENT_RANDOM_ACCESS_OFFSET_ATOM = FourCharConstToUint32('m', 'f', 'r', 'o');
+const uint32    TRACK_FRAGMENT_RANDOM_ACCESS_ATOM = FourCharConstToUint32('t', 'f', 'r', 'a');
 
 const uint32    HINT_TRACK_REFERENCE_TYPE = FourCharConstToUint32('h', 'i', 'n', 't');
 const uint32    DPND_TRACK_REFERENCE_TYPE = FourCharConstToUint32('d', 'p', 'n', 'd');
@@ -254,52 +254,60 @@ const uint32    TEXT_BLINK_BOX = FourCharConstToUint32('b', 'l', 'n', 'k');
 
 
 
-
-const uint32	ITUNES_ALBUM_ATOM  = FourCharConstToUint32('©', 'a', 'l', 'b');
-const uint32	ITUNES_ARTIST1_ATOM = FourCharConstToUint32('©', 'a', 'r', 't');
-const uint32	ITUNES_ARTIST2_ATOM = FourCharConstToUint32('©', 'A', 'R', 'T');
-const uint32	ITUNES_ALBUM_ARTIST_ATOM = FourCharConstToUint32('a', 'A', 'R', 'T');
-const uint32	ITUNES_COMMENT_ATOM = FourCharConstToUint32('©', 'c', 'm', 't');
-const uint32	ITUNES_YEAR_ATOM = FourCharConstToUint32('©', 'd', 'a', 'y');
-const uint32	ITUNES_SONG_TITLE_ATOM = FourCharConstToUint32('©', 'n', 'a', 'm');
-const uint32	ITUNES_GENRE1_ATOM = FourCharConstToUint32('©', 'g', 'e', 'n');
-const uint32	ITUNES_GENRE2_ATOM = FourCharConstToUint32('g', 'n', 'r', 'e');
-const uint32	ITUNES_TRACK_NUMBER_ATOM = FourCharConstToUint32('t', 'r', 'k', 'n');
-const uint32	ITUNES_DISK_NUMBER_ATOM = FourCharConstToUint32('d', 'i', 's', 'k');
-const uint32	ITUNES_COMPOSER_ATOM = FourCharConstToUint32('©', 'w', 'r', 't');
-const uint32	ITUNES_ENCODER_TOOL_ATOM = FourCharConstToUint32('©', 't', 'o', 'o');
+//For iTunes
+const uint32    ITUNES_ALBUM_ATOM  = FourCharConstToUint32('©', 'a', 'l', 'b');
+const uint32    ITUNES_ARTIST1_ATOM = FourCharConstToUint32('©', 'a', 'r', 't');
+const uint32    ITUNES_ARTIST2_ATOM = FourCharConstToUint32('©', 'A', 'R', 'T');
+const uint32    ITUNES_ALBUM_ARTIST_ATOM = FourCharConstToUint32('a', 'A', 'R', 'T');
+const uint32    ITUNES_COMMENT_ATOM = FourCharConstToUint32('©', 'c', 'm', 't');
+const uint32    ITUNES_YEAR_ATOM = FourCharConstToUint32('©', 'd', 'a', 'y');
+const uint32    ITUNES_SONG_TITLE_ATOM = FourCharConstToUint32('©', 'n', 'a', 'm');
+const uint32    ITUNES_GENRE1_ATOM = FourCharConstToUint32('©', 'g', 'e', 'n');
+const uint32    ITUNES_GENRE2_ATOM = FourCharConstToUint32('g', 'n', 'r', 'e');
+const uint32    ITUNES_TRACK_NUMBER_ATOM = FourCharConstToUint32('t', 'r', 'k', 'n');
+const uint32    ITUNES_DISK_NUMBER_ATOM = FourCharConstToUint32('d', 'i', 's', 'k');
+const uint32    ITUNES_COMPOSER_ATOM = FourCharConstToUint32('©', 'w', 'r', 't');
+const uint32    ITUNES_ENCODER_TOOL_ATOM = FourCharConstToUint32('©', 't', 'o', 'o');
 const uint32    ITUNES_ENCODEDBY_ATOM = FourCharConstToUint32('@', 'e', 'n', 'c');
-const uint32	ITUNES_BPM_ATOM = FourCharConstToUint32('t', 'm', 'p', 'o');
-const uint32	ITUNES_COMPILATION_ATOM = FourCharConstToUint32('c', 'p', 'i', 'l');
-const uint32	ITUNES_ART_WORK_ATOM = FourCharConstToUint32('c', 'o', 'v', 'r');
-const uint32	ITUNES_GROUPING1_ATOM = FourCharConstToUint32('©', 'g', 'r', 'p');
-const uint32	ITUNES_GROUPING2_ATOM = FourCharConstToUint32('g', 'r', 'u', 'p');
-const uint32	ITUNES_LYRICS_ATOM = FourCharConstToUint32('©', 'l', 'y', 'r');
-const uint32	ITUNES_DESCRIPTION_ATOM = FourCharConstToUint32('d', 'e', 's', 'c');
-const uint32	ITUNES_COPYRIGHT_ATOM = FourCharConstToUint32('c', 'p', 'r', 't');
-const uint32	META_DATA_ATOM = FourCharConstToUint32('m', 'e', 't', 'a');
-const uint32	ITUNES_FREE_FORM_DATA_NAME_ATOM = FourCharConstToUint32('n', 'a', 'm', 'e');
-const uint32	ITUNES_MDIRAPPL_HDLR_PART1 = FourCharConstToUint32('m', 'd', 'i', 'r');
-const uint32	ITUNES_MDIRAPPL_HDLR_PART2 = FourCharConstToUint32('a', 'p', 'p', 'l');
+const uint32    ITUNES_BPM_ATOM = FourCharConstToUint32('t', 'm', 'p', 'o');
+const uint32    ITUNES_COMPILATION_ATOM = FourCharConstToUint32('c', 'p', 'i', 'l');
+const uint32    ITUNES_ART_WORK_ATOM = FourCharConstToUint32('c', 'o', 'v', 'r');
+const uint32    ITUNES_GROUPING1_ATOM = FourCharConstToUint32('©', 'g', 'r', 'p');
+const uint32    ITUNES_GROUPING2_ATOM = FourCharConstToUint32('g', 'r', 'u', 'p');
+const uint32    ITUNES_LYRICS_ATOM = FourCharConstToUint32('©', 'l', 'y', 'r');
+const uint32    ITUNES_DESCRIPTION_ATOM = FourCharConstToUint32('d', 'e', 's', 'c');
+const uint32    ITUNES_COPYRIGHT_ATOM = FourCharConstToUint32('c', 'p', 'r', 't');
+const uint32    META_DATA_ATOM = FourCharConstToUint32('m', 'e', 't', 'a');
+const uint32    ITUNES_FREE_FORM_DATA_NAME_ATOM = FourCharConstToUint32('n', 'a', 'm', 'e');
+const uint32    ITUNES_MDIRAPPL_HDLR_PART1 = FourCharConstToUint32('m', 'd', 'i', 'r');
+const uint32    ITUNES_MDIRAPPL_HDLR_PART2 = FourCharConstToUint32('a', 'p', 'p', 'l');
 const uint32    ITUNES_ILST_ATOM = FourCharConstToUint32('i', 'l', 's', 't');
-const uint32	ITUNES_ILST_DATA_ATOM = FourCharConstToUint32('d', 'a', 't', 'a');
-const uint32	ITUNES_MEAN_ATOM = FourCharConstToUint32('m', 'e', 'a', 'n');
-const uint32	ITUNES_FREE_FORM_ATOM = FourCharConstToUint32('-', '-', '-', '-');
+const uint32    ITUNES_ILST_DATA_ATOM = FourCharConstToUint32('d', 'a', 't', 'a');
+const uint32    ITUNES_MEAN_ATOM = FourCharConstToUint32('m', 'e', 'a', 'n');
+const uint32    ITUNES_FREE_FORM_ATOM = FourCharConstToUint32('-', '-', '-', '-');
 const uint32    ITUNES_TRACK_SUBTITLE_ATOM = FourCharConstToUint32('@', 's', 't', '3');
 const uint32    ITUNES_CONTENT_RATING_ATOM = FourCharConstToUint32('r', 't', 'n', 'g');  // Same tag as ASSET_INFO_RATING_ATOM
-
-
-
-//For iTunes
 #define ITUNES_FREE_FORM_DATA_ATOM_TYPE_NORM "iTunNORM"
 #define ITUNES_FREE_FORM_DATA_ATOM_TYPE_TOOL "tool"
 #define ITUNES_FREE_FORM_DATA_ATOM_TYPE_CDDB1 "iTunes_CDDB_1"
 #define ITUNES_FREE_FORM_DATA_ATOM_TYPE_CDDB_TRACKNUMBER "iTunes_CDDB_TrackNumber"
 #define ITUNES_FREE_FORM_DATA_ATOM_TYPE_CDDB_IDS "iTunes_CDDB_IDs"
 
+//3GPP2 Speech codecs
+const uint32    EVRC_SAMPLE_ENTRY = FourCharConstToUint32('s', 'e', 'v', 'c');
+const uint32    EVRC_SPECIFIC_BOX = FourCharConstToUint32('d', 'e', 'v', 'c');
+const uint32    EVRCB_SAMPLE_ENTRY = FourCharConstToUint32('s', 'e', 'c', 'b');
+const uint32    EVRCB_SPECIFIC_BOX = FourCharConstToUint32('d', 'e', 'c', 'b');
+const uint32    EVRCWB_SAMPLE_ENTRY = FourCharConstToUint32('s', 'e', 'c', 'w');
+const uint32    EVRCWB_SPECIFIC_BOX = FourCharConstToUint32('d', 'e', 'c', 'w');
+const uint32    QCELP_SAMPLE_ENTRY = FourCharConstToUint32('s', 'q', 'c', 'p');
+const uint32    QCELP_SPECIFIC_BOX = FourCharConstToUint32('d', 'q', 'c', 'p');
+const uint32    SMV_SAMPLE_ENTRY = FourCharConstToUint32('s', 's', 'm', 'v');
+const uint32    SMV_SPECIFIC_BOX = FourCharConstToUint32('d', 's', 'm', 'v');
+const uint32    VMR_SAMPLE_ENTRY = FourCharConstToUint32('s', 'v', 'm', 'r');
+const uint32    VMR_SPECIFIC_BOX = FourCharConstToUint32('d', 'v', 'm', 'r');
 
 // VARIOUS DESCRIPTOR TAGS CURRENTLY IN USE
-
 #define ES_DESCRIPTOR_TAG             0x03
 #define ES_ID_INC_TAG                 0x0E
 #define ES_ID_REF_TAG                 0x0F
@@ -314,14 +322,14 @@ const uint32    ITUNES_CONTENT_RATING_ATOM = FourCharConstToUint32('r', 't', 'n'
 
 typedef enum
 {
-    ENoFileType	  = 0x0000,
-    E3GP4		  = 0x0001,
-    E3GP5		  = 0x0002,
-    EISOM		  = 0x0010,
-    EMP41		  = 0x0020,
-    EMP42		  = 0x0040,
-    EMMP4		  = 0x0100,
-    EWMF		  = 0x0200,
+    ENoFileType   = 0x0000,
+    E3GP4         = 0x0001,
+    E3GP5         = 0x0002,
+    EISOM         = 0x0010,
+    EMP41         = 0x0020,
+    EMP42         = 0x0040,
+    EMMP4         = 0x0100,
+    EWMF          = 0x0200,
     EUNKNOWN_TYPE = 0x8000
 } FILE_TYPE_MASKS;
 
@@ -343,7 +351,7 @@ typedef enum
 typedef enum
 {
     AMR_AUDIO   = 0xd0,
-    QCELP_MP4	= 0xE1,
+    QCELP_MP4   = 0xE1,
     MPEG4_AUDIO = 0x40,
     MPEG2_AUDIO_LC = 0x67,
     MPEG4_VIDEO = 0x20,
@@ -362,7 +370,7 @@ typedef enum
 {
     STRING_GENRE = 0,
     INTEGER_GENRE
-}GnreVersion;
+} GnreVersion;
 
 typedef struct
 {
@@ -385,8 +393,8 @@ typedef enum
 } MP4FFParserOriginalCharEnc;
 
 
-#define JPEG	0x0000
-#define GIF		0x0001
+#define JPEG    0x0000
+#define GIF     0x0001
 #define MP4_MIN_BYTES_FOR_GETTING_MOVIE_HDR_SIZE 1024
 
 #define DISABLE_REPOS_ON_CLIPS_HAVING_UNEQUAL_TFRA_ENTRY_COUNT 0
@@ -394,12 +402,12 @@ typedef enum
 #define COUNT_OF_TRUNS_PARSED_THRESHOLD 3000
 
 // when playing from a file
-#define MAX_CACHED_TABLE_ENTRIES_FILE		4096
+#define MAX_CACHED_TABLE_ENTRIES_FILE       4096
 #define TABLE_ENTRIES_THRESHOLD_FILE            1024
 
 // when playing from a memory buffer data stream
-#define MAX_CACHED_TABLE_ENTRIES_MBDS		16384
-#define TABLE_ENTRIES_THRESHOLD_MBDS		4096
+#define MAX_CACHED_TABLE_ENTRIES_MBDS       16384
+#define TABLE_ENTRIES_THRESHOLD_MBDS        4096
 
 #define BYTE_ORDER_MASK 0xFEFF
 #define BYTE_ORDER_MASK_SIZE 2

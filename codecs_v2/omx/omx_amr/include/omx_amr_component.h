@@ -16,10 +16,10 @@
  * -------------------------------------------------------------------
  */
 /**
-	@file src/base/amr_component.h
+    @file src/base/amr_component.h
 
-	OpenMax base_component component. This component does not perform any multimedia
-	processing.	It is used as a base_component for new components development.
+    OpenMax base_component component. This component does not perform any multimedia
+    processing. It is used as a base_component for new components development.
 
 */
 
@@ -40,6 +40,9 @@
 #define NUMBER_INPUT_BUFFER_AMR  10
 #define NUMBER_OUTPUT_BUFFER_AMR  9
 
+// we are assuming 16 bits per sample
+#define AMR_NB_OUTPUT_FRAME_SIZE_IN_BYTES 320
+#define AMR_WB_OUTPUT_FRAME_SIZE_IN_BYTES 640
 
 class OpenmaxAmrAO : public OmxComponentAudio
 {
@@ -55,7 +58,7 @@ class OpenmaxAmrAO : public OmxComponentAudio
         OMX_ERRORTYPE ComponentInit();
         OMX_ERRORTYPE ComponentDeInit();
 
-        static void ComponentGetRolesOfComponent(OMX_STRING* aRoleString);
+
         void ProcessData();
 
         void DecodeWithoutMarker();
@@ -77,9 +80,10 @@ class OpenmaxAmrAO : public OmxComponentAudio
         void CheckForSilenceInsertion();
         void DoSilenceInsertion();
 
-        OMX_TICKS				iCurrentTimestamp;
-        OMX_S32 				iPreviousFrameLength;
-        OMX_U32					iZeroFramesNeeded;
+        OMX_TICKS               iCurrentTimestamp;
+        OMX_TICKS               iPreviousTimestamp;
+        OMX_S32                 iPreviousFrameLength;
+        OMX_U32                 iZeroFramesNeeded;
 
         OmxAmrDecoder* ipAmrDec;
 };

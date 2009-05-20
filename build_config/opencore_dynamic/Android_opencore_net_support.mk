@@ -8,7 +8,8 @@ LOCAL_WHOLE_STATIC_LIBRARIES := \
  	libprotocolenginenode_common \
  	libprotocolenginenode_download_common \
  	libprotocolenginenode_pdl \
- 	libprotocolenginenode_ps
+ 	libprotocolenginenode_ps \
+ 	libprotocolenginenode_shoutcast
 
 LOCAL_MODULE := libopencore_net_support
 
@@ -28,4 +29,5 @@ include   $(PV_TOP)/nodes/pvprotocolenginenode/protocol_common/Android.mk
 include   $(PV_TOP)/nodes/pvprotocolenginenode/download_protocols/common/Android.mk
 include   $(PV_TOP)/nodes/pvprotocolenginenode/download_protocols/progressive_download/Android.mk
 include   $(PV_TOP)/nodes/pvprotocolenginenode/download_protocols/progressive_streaming/Android.mk
+include   $(PV_TOP)/nodes/pvprotocolenginenode/download_protocols/shoutcast/Android.mk
 

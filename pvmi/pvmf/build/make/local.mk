@@ -5,7 +5,7 @@ LOCAL_PATH := $(call get_makefile_dir)
 include $(MK)/clear.mk
 
 TARGET := pvmf
-
+XCXXFLAGS := $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 SRCDIR := ../../src
 INCSRCDIR := ../../include
 
@@ -25,7 +25,8 @@ SRCS := pvmf_format_type.cpp \
 	pvmf_mempool.cpp \
 	pvmf_media_clock.cpp \
 	pvmf_duration_infomessage.cpp \
-	pvmf_metadata_infomessage.cpp
+	pvmf_metadata_infomessage.cpp \
+	pvmf_return_codes.cpp
 
 HDRS :=  pv_interface.h \
          pvmf_node_interface.h \

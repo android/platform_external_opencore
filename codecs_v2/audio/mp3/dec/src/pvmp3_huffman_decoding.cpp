@@ -23,18 +23,10 @@
 
    Filename: pvmp3_huffman_decoding.cpp
 
- Funtions:
+ Functions:
     pvmp3_huffman_quad_decoding
     pvmp3_huffman_pair_decoding
     pvmp3_huffman_pair_decoding_linbits
-
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

@@ -17,28 +17,8 @@
  */
 /*
 
- Pathname: hcbtables.c
+ Filename: hcbtables_binary.cpp
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Modifiy per review comments
-    (1) delete the following comments:
-        The LAV field has been deleted, since it is never used.
-
- Description: Remove old structure of huffman table and add new table structure.
-
- Description: Modified structure to avoid assigning addresses to constant
-              tables. This solve linking problem when using the
-              /ropi option (Read-only position independent) for some
-              compilers
-              - Eliminated references to contant vector addresses in
-                hcbbook_binary
-
-
- Who:                       Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -76,28 +56,6 @@
 
 ------------------------------------------------------------------------------
  PSEUDO-CODE
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

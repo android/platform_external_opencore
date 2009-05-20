@@ -27,15 +27,6 @@
         pvmp3_seek_synch
         pvmp3_header_sync
 
-
-     Date: 9/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Description:
-
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -242,12 +233,6 @@ ERROR_CODE pvmp3_frame_synch(tPVMP3DecoderExternal *pExt,
 }
 
 /*
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Description:
-
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 

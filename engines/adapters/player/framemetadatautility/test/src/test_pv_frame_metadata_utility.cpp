@@ -19,9 +19,6 @@
 #include "test_pv_frame_metadata_utility.h"
 
 #include "test_pv_frame_metadata_utility_testset1.h"
-#if RUN_JANUSCPM_TESTCASES
-#include "test_pv_frame_metadata_utility_testset_januscpm.h"
-#endif
 
 #include "oscl_mem.h"
 #include "oscl_mem_audit.h"
@@ -51,20 +48,20 @@ FILE* file;
 class PVLoggerConfigFile
 {
         /*  To change the logging settings without the need to compile the test application
-        	Let us read the logging settings from the file instead of hard coding them over here
-        	The name of the config file is pvlogger.ini
-        	The format of entries in it is like
-        	First entry will decide if the file appender has to be used or error appender will be used.
-        	0 -> ErrAppender will be used
-        	1 -> File Appender will be used
-        	2 -> Mem Appender will be used
-        	Entries after this will decide the module whose logging has to be taken.For example, contents of one sample config file could be
-        	1
-        	1,PVPlayerEngine
-        	8,PVSocketNode
-        	(pls note that no space is allowed between loglevel and logger tag)
-        	This means, we intend to have logging of level 1 for the module PVPlayerEngine
-        	and of level 8 for the PVSocketNode on file.
+            Let us read the logging settings from the file instead of hard coding them over here
+            The name of the config file is pvlogger.ini
+            The format of entries in it is like
+            First entry will decide if the file appender has to be used or error appender will be used.
+            0 -> ErrAppender will be used
+            1 -> File Appender will be used
+            2 -> Mem Appender will be used
+            Entries after this will decide the module whose logging has to be taken.For example, contents of one sample config file could be
+            1
+            1,PVPlayerEngine
+            8,PVSocketNode
+            (pls note that no space is allowed between loglevel and logger tag)
+            This means, we intend to have logging of level 1 for the module PVPlayerEngine
+            and of level 8 for the PVSocketNode on file.
         */
     public:
 
@@ -270,7 +267,7 @@ class PVLoggerConfigFile
 //  -source sometestfile.mp4
 //
 //
-void FindSourceFile(cmd_line* command_line,	OSCL_HeapString<OsclMemAllocator>& aFileNameInfo, PVMFFormatType& aInputFileFormatType, FILE* aFile)
+void FindSourceFile(cmd_line* command_line, OSCL_HeapString<OsclMemAllocator>& aFileNameInfo, PVMFFormatType& aInputFileFormatType, FILE* aFile)
 {
     aFileNameInfo = SOURCENAME_PREPEND_STRING;
     aFileNameInfo += DEFAULTSOURCEFILENAME;
@@ -412,7 +409,7 @@ void FindSourceFile(cmd_line* command_line,	OSCL_HeapString<OsclMemAllocator>& a
 //Find test range args:
 //To run a range of tests by enum ID:
 //  -test 17 29
-void FindTestRange(cmd_line* command_line,	int32& iFirstTest, int32 &iLastTest, FILE* aFile)
+void FindTestRange(cmd_line* command_line,  int32& iFirstTest, int32 &iLastTest, FILE* aFile)
 {
     //default is to run all tests.
     iFirstTest = 0;
@@ -776,11 +773,13 @@ int local_main(FILE* filehandle, cmd_line* command_line)
         fclose(InputFile);
 
         argc = ii - 1;
+
+        int n = 0;
+        command_line->setup(argc - n, &argv[n]);
     }
-
-    int n = 0;
-
-    command_line->setup(argc - n, &argv[n]);
+    //if there is no input file with cmd line args
+    //we attempt to use what was provided on cmd line
+    //as a fallback
 
     bool oPrintDetailedMemLeakInfo = false;
     FindMemMgmtRelatedCmdLineParams(command_line, oPrintDetailedMemLeakInfo, filehandle);
@@ -831,7 +830,7 @@ int local_main(FILE* filehandle, cmd_line* command_line)
                 {
                     fprintf(file, "ERROR: Leak info is incomplete.\n");
                 }
-                for (uint32 i = 0;i < leakinfo;i++)
+                for (uint32 i = 0; i < leakinfo; i++)
                 {
                     fprintf(file, "Leak Info:\n");
                     fprintf(file, "  allocNum %d\n", info[i].allocNum);
@@ -1191,11 +1190,7 @@ void pvframemetadata_utility_test::test()
                 break;
 
             case ProtectedMetadataTest:
-#if RUN_JANUSCPM_TESTCASES
-                iCurrentTest = new pvframemetadata_async_test_protectedmetadata(testparam);
-#else
                 fprintf(file, "Janus CPM test cases disabled\n");
-#endif
                 break;
             case SetTimeoutAndGetFrameTest:
                 iCurrentTest = new pvframemetadata_async_test_settimeout_getframe(testparam, 2, false);

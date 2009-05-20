@@ -105,9 +105,9 @@ static const char PVMP4METADATA_MAXSIZE[] = "maxsize=";
 static const char PVMP4METADATA_REQ_SIZE[] = "reqsize=";
 static const char PVMP4METADATA_ORIG_CHAR_ENC[] = "orig-char-enc=";
 
-#define PVMF_MP4_MIME_FORMAT_AUDIO_UNKNOWN	"x-pvmf/audio/unknown"
-#define PVMF_MP4_MIME_FORMAT_VIDEO_UNKNOWN	"x-pvmf/video/unknown"
-#define PVMF_MP4_MIME_FORMAT_UNKNOWN		"x-pvmf/unknown-media/unknown"
+#define PVMF_MP4_MIME_FORMAT_AUDIO_UNKNOWN  "x-pvmf/audio/unknown"
+#define PVMF_MP4_MIME_FORMAT_VIDEO_UNKNOWN  "x-pvmf/video/unknown"
+#define PVMF_MP4_MIME_FORMAT_UNKNOWN        "x-pvmf/unknown-media/unknown"
 
 #define MILLISECOND_TIMESCALE (1000)
 #define PVMF_MP4_MAX_UINT32   (0xffffffffU)
@@ -1093,20 +1093,20 @@ PVMFStatus PVMFMP4FFParserNode::ReleaseNodeMetadataValues(Oscl_Vector<PvmiKvp, O
                 case PVMI_KVPVALTYPE_KSV:
 
 
-                    /*				if (aValueList[i].value.key_specific_value != NULL)
-                    				 {
+                    /*              if (aValueList[i].value.key_specific_value != NULL)
+                                     {
 
-                    				     	if( ((PvmfApicStruct *)aValueList[i].value.key_specific_value)->iGraphicData != NULL)
-                    						{
-                    							oscl_free(((PvmfApicStruct *)aValueList[i].value.key_specific_value)->iGraphicData);											//OSCL_DEFAULT_FREE(((PvmfApicStruct *)aValueKVP.value.key_specific_value)->iGraphicMimeType);
-                     							((PvmfApicStruct *)aValueList[i].value.key_specific_value)->iGraphicData=NULL;
-                    						}
+                                            if( ((PvmfApicStruct *)aValueList[i].value.key_specific_value)->iGraphicData != NULL)
+                                            {
+                                                oscl_free(((PvmfApicStruct *)aValueList[i].value.key_specific_value)->iGraphicData);                                            //OSCL_DEFAULT_FREE(((PvmfApicStruct *)aValueKVP.value.key_specific_value)->iGraphicMimeType);
+                                                ((PvmfApicStruct *)aValueList[i].value.key_specific_value)->iGraphicData=NULL;
+                                            }
 
-                    						OSCL_DELETE(((PvmfApicStruct *)aValueList[i].value.key_specific_value));
+                                            OSCL_DELETE(((PvmfApicStruct *)aValueList[i].value.key_specific_value));
 
-                    						aValueList[i].value.key_specific_value=NULL;
+                                            aValueList[i].value.key_specific_value=NULL;
 
-                    				}
+                                    }
                     */
                     break;
 
@@ -3866,121 +3866,21 @@ PVMFStatus PVMFMP4FFParserNode::DoGetMetadataValues(PVMFMP4FFParserNodeCommand& 
 
                     iMP4FileHandle->getTrackMIMEType(trackidlist[i], (OSCL_String&)trackMIMEType);
 
-                    if (oscl_strncmp(trackMIMEType.get_str(), PVMF_MIME_M4V, oscl_strlen(PVMF_MIME_M4V)) == 0)
+                    // Increment the counter for the number of values found so far
+                    ++numvalentries;
+                    // Add the value entry if past the starting index
+                    if (numvalentries > starting_index)
                     {
-                        // Increment the counter for the number of values found so far
-                        ++numvalentries;
-                        // Add the value entry if past the starting index
-                        if (numvalentries > starting_index)
-                        {
-                            retval =
-                                PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp,
-                                        PVMP4METADATA_TRACKINFO_TYPE_KEY,
-                                        _STRLIT_CHAR(PVMF_MIME_M4V),
-                                        indexparam);
-                        }
+                        retval =
+                            PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp,
+                                    PVMP4METADATA_TRACKINFO_TYPE_KEY,
+                                    trackMIMEType.get_str(),
+                                    indexparam);
                     }
-                    else if (oscl_strncmp(trackMIMEType.get_str(), PVMF_MIME_H2632000, oscl_strlen(PVMF_MIME_H2632000)) == 0)
-                    {
-                        // Increment the counter for the number of values found so far
-                        ++numvalentries;
-                        // Add the value entry if past the starting index
-                        if (numvalentries > starting_index)
-                        {
-                            retval =
-                                PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp,
-                                        PVMP4METADATA_TRACKINFO_TYPE_KEY,
-                                        _STRLIT_CHAR(PVMF_MIME_H2631998),
-                                        indexparam);
-                        }
-                    }
-                    else if (oscl_strncmp(trackMIMEType.get_str(), PVMF_MIME_H264_VIDEO_MP4, oscl_strlen(PVMF_MIME_H264_VIDEO_MP4)) == 0)
-                    {
-                        // Increment the counter for the number of values found so far
-                        ++numvalentries;
-                        // Add the value entry if past the starting index
-                        if (numvalentries > starting_index)
-                        {
-                            retval =
-                                PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp, PVMP4METADATA_TRACKINFO_TYPE_KEY, _STRLIT_CHAR(PVMF_MIME_H264_VIDEO_MP4), indexparam);
-                        }
-                    }
-                    else if (oscl_strncmp(trackMIMEType.get_str(), PVMF_MIME_MPEG4_AUDIO, oscl_strlen(PVMF_MIME_MPEG4_AUDIO)) == 0)
-                    {
-                        // Increment the counter for the number of values found so far
-                        ++numvalentries;
-                        // Add the value entry if past the starting index
-                        if (numvalentries > starting_index)
-                        {
-                            retval =
-                                PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp, PVMP4METADATA_TRACKINFO_TYPE_KEY, _STRLIT_CHAR(PVMF_MIME_MPEG4_AUDIO), indexparam);
-                        }
-                    }
-                    else if ((oscl_strncmp(trackMIMEType.get_str(), PVMF_MIME_AMR_IETF, oscl_strlen(PVMF_MIME_AMR_IETF)) == 0) ||
-                             (oscl_strncmp(trackMIMEType.get_str(), PVMF_MIME_AMRWB_IETF, oscl_strlen(PVMF_MIME_AMRWB_IETF)) == 0))
-                    {
-                        // Increment the counter for the number of values found so far
-                        ++numvalentries;
-                        // Add the value entry if past the starting index
-                        if (numvalentries > starting_index)
-                        {
-                            retval =
-                                PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp, PVMP4METADATA_TRACKINFO_TYPE_KEY, _STRLIT_CHAR(PVMF_MIME_AMR_IETF), indexparam);
-                        }
-                    }
-                    else if (oscl_strncmp(trackMIMEType.get_str(), PVMF_MIME_3GPP_TIMEDTEXT, oscl_strlen(PVMF_MIME_3GPP_TIMEDTEXT)) == 0)
-                    {
-                        // Increment the counter for the number of values found so far
-                        ++numvalentries;
-                        // Add the value entry if past the starting index
-                        if (numvalentries > starting_index)
-                        {
-                            retval =
-                                PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp, PVMP4METADATA_TRACKINFO_TYPE_KEY, _STRLIT_CHAR(PVMF_MIME_3GPP_TIMEDTEXT), indexparam);
-                        }
-                    }
-                    else
-                    {
-                        // Increment the counter for the number of values found so far
-                        ++numvalentries;
-                        // Add the value entry if past the starting index
-                        if (numvalentries > starting_index)
-                        {
-                            if (iMP4FileHandle->getTrackMediaType(trackidlist[i]) == MEDIA_TYPE_VISUAL)
-                            {
-                                retval =
-                                    PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp,
-                                            PVMP4METADATA_TRACKINFO_TYPE_KEY,
-                                            _STRLIT_CHAR(PVMF_MP4_MIME_FORMAT_VIDEO_UNKNOWN),
-                                            indexparam);
-                            }
-                            else if (iMP4FileHandle->getTrackMediaType(trackidlist[i]) == MEDIA_TYPE_AUDIO)
-                            {
-                                retval =
-                                    PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp,
-                                            PVMP4METADATA_TRACKINFO_TYPE_KEY,
-                                            _STRLIT_CHAR(PVMF_MP4_MIME_FORMAT_AUDIO_UNKNOWN),
-                                            indexparam);
-                            }
-                            else
-                            {
-                                retval =
-                                    PVMFCreateKVPUtils::CreateKVPForCharStringValue(trackkvp,
-                                            PVMP4METADATA_TRACKINFO_TYPE_KEY,
-                                            _STRLIT_CHAR(PVMF_MP4_MIME_FORMAT_UNKNOWN),
-                                            indexparam);
-
-                            }
-
-                        }
-
-                    }
-
                     if (retval != PVMFSuccess && retval != PVMFErrArgument)
                     {
                         break;
                     }
-
                     if (trackkvp.key != NULL)
                     {
                         leavecode = AddToValueList(*valuelistptr, trackkvp);
@@ -5273,6 +5173,6 @@ PVMFStatus PVMFMP4FFParserNode::PushValueToList(Oscl_Vector<OSCL_HeapString<Oscl
 {
     int32 leavecode = 0;
     OSCL_TRY(leavecode, aKeyListPtr->push_back(aRefMetaDataKeys[aLcv]));
-    OSCL_FIRST_CATCH_ANY(leavecode, PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFMP4FFParserNode::PushValueToList() Memory allocation failure when copying metadata key"));return PVMFErrNoMemory);
+    OSCL_FIRST_CATCH_ANY(leavecode, PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFMP4FFParserNode::PushValueToList() Memory allocation failure when copying metadata key")); return PVMFErrNoMemory);
     return PVMFSuccess;
 }

@@ -20,7 +20,8 @@
 
 void init_cancel_test::test()
 {
-    fprintf(fileoutput, "Start init cancel test, proxy %d.\n", iUseProxy);
+    fprintf(fileoutput, "----- Start init cancel test, proxy %d. ----- \n", iUseProxy);
+    fprintf(fileoutput, "\n** Test Number: %d. ** \n", iTestNum);
     int error = 0;
 
     scheduler = OsclExecScheduler::Current();
@@ -60,12 +61,6 @@ void init_cancel_test::Run()
 
 void init_cancel_test::DoCancel()
 {
-}
-
-
-void init_cancel_test::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
-{
-    OSCL_UNUSED_ARG(aEvent);
 }
 
 void init_cancel_test::InitSucceeded()

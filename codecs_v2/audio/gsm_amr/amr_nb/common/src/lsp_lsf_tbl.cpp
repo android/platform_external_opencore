@@ -27,17 +27,7 @@ Permission to distribute, modify and use this file under the standard license
 terms listed above has been obtained from the copyright holder.
 ****************************************************************************************/
 /*
- Filename: /audio/gsm_amr/c/src/lsp_lsf_tbl.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Created this file from the reference, lsp_lsf.tab
-
- Description: Added #ifdef __cplusplus and removed "extern" from table
-              definition.
-
- Description: Put "extern" back.
+ Filename: lsp_lsf_tbl.cpp
 
 ------------------------------------------------------------------------------
  MODULE DESCRIPTION

@@ -22,13 +22,6 @@
 
    Filename: pvmp3_alias_reduction.h
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -79,9 +72,9 @@ extern "C"
 #endif
 
     void pvmp3_alias_reduction(int32 *input_buffer,
-                               granuleInfo *gr_info,
-                               int32 *used_freq_lines,
-                               mp3Header *info);
+    granuleInfo *gr_info,
+    int32 *used_freq_lines,
+    mp3Header *info);
 
 #ifdef __cplusplus
 }

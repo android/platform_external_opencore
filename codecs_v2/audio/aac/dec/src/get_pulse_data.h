@@ -17,15 +17,7 @@
  */
 /*
 
- Pathname: get_pulse_data.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Change structure name.
-
- Who:                                      Date:
- Description:
+ Filename: get_pulse_data.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

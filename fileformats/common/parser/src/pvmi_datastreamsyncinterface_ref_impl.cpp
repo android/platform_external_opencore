@@ -101,10 +101,10 @@ PVMIDataStreamSyncInterfaceRefImpl::OpenSession(PvmiDataStreamSession& aSessionI
     if (!iFileObject)
         iFileObject = OSCL_NEW(Oscl_File, (OSCL_FILE_BUFFER_MAX_SIZE, iFileHandle));
 
-    int32 result;
+    int32 result = 0;
     if (iFileHandle)
     {
-        result = 0;
+        result = iFileObject->Open("dummy", Oscl_File::MODE_READ, iFs);
     }
     else
     {

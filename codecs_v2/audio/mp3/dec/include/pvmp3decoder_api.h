@@ -22,13 +22,6 @@
 
    Filename: pvmp3decoder_api.h
 
-   Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -92,10 +85,11 @@ extern "C"
 
     typedef enum
     {
-        MP3DEC_SUCCESS           =  0,
-        MP3DEC_INVALID_FRAME     = 10,
-        MP3DEC_INCOMPLETE_FRAME  = 20,
-        MP3DEC_LOST_FRAME_SYNC   = 30
+        MP3DEC_SUCCESS                 =  0,
+        MP3DEC_INVALID_FRAME           =  1,
+        MP3DEC_INCOMPLETE_FRAME        =  2,
+        MP3DEC_LOST_FRAME_SYNC         =  4,
+        MP3DEC_OUTPUT_BUFFER_TOO_SMALL =  8
     } tPVMP3DecoderErrorCode;
 
 
@@ -223,7 +217,7 @@ extern "C"
 
         int16       *pOutputBuffer;
 
-    }tPVMP3DecoderExternal;
+    } tPVMP3DecoderExternal;
 
 
 #ifdef __cplusplus

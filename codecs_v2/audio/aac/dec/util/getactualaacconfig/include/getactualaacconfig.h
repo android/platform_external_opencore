@@ -17,14 +17,7 @@
  */
 /*
 
- Pathname: ./include/getaudioinfo.h
-
-     Date: 06/23/2005
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
+ Filename: getactualaacconfig.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

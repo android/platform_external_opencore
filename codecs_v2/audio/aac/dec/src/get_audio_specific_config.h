@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ./include/get_audio_specific_config.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                              Date:
- Description:
+ Filename: get_audio_specific_config.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

@@ -30,7 +30,7 @@
 
 /*! \file oscl_file_native.h
     \brief The file oscl_file_native.h defines the class OsclNativeFile.
-	This is the porting layer for basic file I/O operations.
+    This is the porting layer for basic file I/O operations.
 */
 
 #ifndef OSCL_FILE_NATIVE_H_INCLUDED
@@ -131,14 +131,6 @@ class OsclNativeFile : public HeapBase
 
         //native file object.
         FILE* iFile;
-#if ENABLE_MEMORY_PLAYBACK
-        // memory block
-        void* membase;
-        long long memoffset;
-        long long memlen;
-        int mempos;
-        int memcpyfailed;
-#endif
 
 };
 

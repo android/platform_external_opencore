@@ -9,8 +9,6 @@ TARGET := pvmp4ff
 
 XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 
-XCPPFLAGS += -DOPEN_FILE_ONCE_PER_TRACK  
-
 
 XINCDIRS := ../../utils/mp4recognizer/include
 

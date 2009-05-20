@@ -17,19 +17,7 @@
  */
 /*
 
- Pathname: mdct_fxp.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: This extern had the incorrect length of the arrays.  The true
- lengths are 128 and 1024, not 64 and 512.
-
- Description:  Modified interface so a vector with extended precision is
-               returned. Added copyright notice.
-
- Who:						Date:
- Description:
+ Filename: mdct_fxp.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -43,8 +31,8 @@
 /*----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
-#ifndef	MDCT_FXP_H
-#define	MDCT_FXP_H
+#ifndef MDCT_FXP_H
+#define MDCT_FXP_H
 
 #ifdef __cplusplus
 extern "C"
@@ -104,4 +92,4 @@ extern "C"
 /*----------------------------------------------------------------------------
 ; END
 ----------------------------------------------------------------------------*/
-#endif	/* MDCT_FXP_H */
+#endif  /* MDCT_FXP_H */

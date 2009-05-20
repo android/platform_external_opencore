@@ -81,8 +81,7 @@ class CPVProxyInterface
         PVProxiedInterfaceClient *iClient;
 };
 
-const int32 PVPROXY_DEFAULT_STACK_SIZE = 0x2000;
-
+const int32 PVPROXY_DEFAULT_STACK_SIZE = 0x10000;
 
 /**
 ** Implementation of PVMainProxy

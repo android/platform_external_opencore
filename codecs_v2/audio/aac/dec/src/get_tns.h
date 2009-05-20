@@ -17,33 +17,9 @@
  */
 /*
 
- Pathname: get_tns.h
+ Filename: get_tns.h
 
    Author:
-     Date: 03/08/2001
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
- (1) Modified to include the lines...
-
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-
-    #ifdef __cplusplus
-    }
-    #endif
-
- (2) Updated the copyright header.
-
- Description: Modified to include updated function declaration, which reflects
- the combination of the get_tns and tns_setup_filter routines.  Also, moved
- pInputStream to be the 2nd parameter, for a slight optimization.
-
- Who:						Date:
- Description:
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

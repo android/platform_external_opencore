@@ -22,12 +22,6 @@
 
    Filename: pvmp3_normalize.h
 
-   Date: 10/02/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -57,7 +51,7 @@
 ; DEFINES AND SIMPLE TYPEDEF'S
 ----------------------------------------------------------------------------*/
 
-#if (defined(PV_ARM_V5)||defined(PV_ARM_V4))
+#if defined(PV_ARM_V5)
 
 __inline int32 pvmp3_normalize(int32 x)
 {
@@ -71,7 +65,7 @@ __inline int32 pvmp3_normalize(int32 x)
 }
 
 
-#elif (defined(PV_ARM_GCC_V5)||defined(PV_ARM_GCC_V4))
+#elif defined(PV_ARM_GCC_V5)
 
 __inline int32 pvmp3_normalize(int32 x)
 {

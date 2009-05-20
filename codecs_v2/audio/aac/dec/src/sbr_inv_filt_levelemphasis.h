@@ -18,16 +18,7 @@
 /*
 
  Filename: sbr_inv_filt_levelemphasis.h
- Funtions:
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
-
+ Functions:
 
  ----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED

@@ -17,15 +17,8 @@
  */
 /*
 
- Filename: calc_auto_corr.c
+ Filename: calc_auto_corr.cpp
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

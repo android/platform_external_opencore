@@ -17,37 +17,8 @@
  */
 /*
 
- Pathname: tns_decode_coef.h
+ Filename: tns_decode_coef.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Modified to return the LPC coefficients in-place, so the
- interface to tns_decode_coef is changed.
-
- Description: Modified to return the q-format of the LPC coefficients.
-
- Description: Modified so that only the function is declared here.  extern
- references to constant tables removed.  Also, new copyright header included.
-
- Description: Modified to include extra parameter, so tns_decode_coef can use
- scratch memory techniques.
-
- Description:
- (1) Modified to include the lines...
-
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-
-    #ifdef __cplusplus
-    }
-    #endif
-
- (2) Updated the copyright header.
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

@@ -13,85 +13,85 @@
 00005 
 00006 <span class="comment">// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =</span>
 00007 
-00022 <span class="preprocessor">#ifndef OSCL_STDSTRING_H_INCLUDED</span>
-00023 <span class="preprocessor"></span><span class="preprocessor">#define OSCL_STDSTRING_H_INCLUDED</span>
-00024 <span class="preprocessor"></span>
-00025 <span class="preprocessor">#ifndef OSCL_BASE_H_INCLUDED</span>
-00026 <span class="preprocessor"></span><span class="preprocessor">#include "<a class="code" href="oscl__base_8h.html">oscl_base.h</a>"</span>
-00027 <span class="preprocessor">#endif</span>
-00028 <span class="preprocessor"></span>
-00029 
-00038 OSCL_IMPORT_REF uint32 <a class="code" href="group__osclbase.html#a43">oscl_strlen</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str);
-00039 
-00048 OSCL_IMPORT_REF uint32 <a class="code" href="group__osclbase.html#a43">oscl_strlen</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str);
-00049 
-00067 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a45">oscl_strncpy</a>(<span class="keywordtype">char</span>* dest, <span class="keyword">const</span> <span class="keywordtype">char</span>* src, uint32 count);
-00068 
-00086 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a45">oscl_strncpy</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* dest, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* src, uint32 count);
-00087 
-00100 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a47">oscl_strcmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2);
-00101 
-00114 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a47">oscl_strcmp</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str2);
-00115 
-00116 
-00130 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a49">oscl_strncmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2, uint32 count);
-00131 
-00145 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a49">oscl_strncmp</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str2, uint32 count);
-00146 
-00162 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a51">oscl_strncat</a>(<span class="keywordtype">char</span>* dest, <span class="keyword">const</span> <span class="keywordtype">char</span>* src, uint32 count);
-00163 
-00179 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a51">oscl_strncat</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* dest, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* src, uint32 count);
-00180 
-00191 OSCL_IMPORT_REF <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a55">oscl_strchr</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str, int32 c);
-00192 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a55">oscl_strchr</a>(<span class="keywordtype">char</span> *str, int32 c);
-00193 
-00204 OSCL_IMPORT_REF <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a55">oscl_strchr</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str, int32 c);
-00205 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a55">oscl_strchr</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str, int32 c);
-00206 
-00217 OSCL_IMPORT_REF <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a59">oscl_strrchr</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str, int32 c);
-00218 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a59">oscl_strrchr</a>(<span class="keywordtype">char</span> *str, int32 c);
-00219 OSCL_IMPORT_REF <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a59">oscl_strrchr</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str, int32 c);
-00220 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a59">oscl_strrchr</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str, int32 c);
-00221 
-00231 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a61">oscl_strset</a>(<span class="keywordtype">char</span>* dest, <span class="keywordtype">char</span> val, uint32 count);
-00232 
-00242 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a61">oscl_strset</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* dest, <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> val, uint32 count);
-00243 
-00244 
-00256 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a63">oscl_CIstrcmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str1, <span class="keyword">const</span> <span class="keywordtype">char</span> *str2);
-00257 
-00269 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a63">oscl_CIstrcmp</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str2);
-00270 
-00285 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a65">oscl_CIstrncmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str1, <span class="keyword">const</span> <span class="keywordtype">char</span> *str2, uint32 count);
-00286 
-00301 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a65">oscl_CIstrncmp</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str2, uint32 count);
-00302 
-00311 OSCL_IMPORT_REF <span class="keywordtype">char</span> <a class="code" href="group__osclbase.html#a67">oscl_tolower</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> car);
-00312 
-00313 
-00322 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> <a class="code" href="group__osclbase.html#a67">oscl_tolower</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> car);
-00323 
-00324 
-00333 OSCL_IMPORT_REF <span class="keywordtype">bool</span> <a class="code" href="group__osclbase.html#a68">oscl_isLetter</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> car);
-00334 
-00335 
-00344 OSCL_IMPORT_REF <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a72">oscl_strstr</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2);
-00345 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a72">oscl_strstr</a>(<span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2);
-00346 
-00347 
-00356 OSCL_IMPORT_REF <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a72">oscl_strstr</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str2);
-00357 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a72">oscl_strstr</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str2);
-00358 
-00359 
-00374 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a74">oscl_strcat</a>(<span class="keywordtype">char</span>* dest, <span class="keyword">const</span> <span class="keywordtype">char</span>* src);
-00375 
-00376 
-00392 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a74">oscl_strcat</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* dest, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* src);
-00393 
-00394 
-00398 <span class="preprocessor">#endif</span>
+00024 <span class="preprocessor">#ifndef OSCL_STDSTRING_H_INCLUDED</span>
+00025 <span class="preprocessor"></span><span class="preprocessor">#define OSCL_STDSTRING_H_INCLUDED</span>
+00026 <span class="preprocessor"></span>
+00027 <span class="preprocessor">#ifndef OSCL_BASE_H_INCLUDED</span>
+00028 <span class="preprocessor"></span><span class="preprocessor">#include "<a class="code" href="oscl__base_8h.html">oscl_base.h</a>"</span>
+00029 <span class="preprocessor">#endif</span>
+00030 <span class="preprocessor"></span>
+00031 
+00040 OSCL_IMPORT_REF uint32 <a class="code" href="group__osclbase.html#a43">oscl_strlen</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str);
+00041 
+00050 OSCL_IMPORT_REF uint32 <a class="code" href="group__osclbase.html#a43">oscl_strlen</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str);
+00051 
+00069 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a45">oscl_strncpy</a>(<span class="keywordtype">char</span>* dest, <span class="keyword">const</span> <span class="keywordtype">char</span>* src, uint32 count);
+00070 
+00088 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a45">oscl_strncpy</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* dest, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* src, uint32 count);
+00089 
+00102 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a47">oscl_strcmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2);
+00103 
+00116 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a47">oscl_strcmp</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str2);
+00117 
+00118 
+00132 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a49">oscl_strncmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2, uint32 count);
+00133 
+00147 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a49">oscl_strncmp</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str2, uint32 count);
+00148 
+00164 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a51">oscl_strncat</a>(<span class="keywordtype">char</span>* dest, <span class="keyword">const</span> <span class="keywordtype">char</span>* src, uint32 count);
+00165 
+00181 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a51">oscl_strncat</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* dest, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* src, uint32 count);
+00182 
+00193 OSCL_IMPORT_REF <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a55">oscl_strchr</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str, int32 c);
+00194 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a55">oscl_strchr</a>(<span class="keywordtype">char</span> *str, int32 c);
+00195 
+00206 OSCL_IMPORT_REF <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a55">oscl_strchr</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str, int32 c);
+00207 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a55">oscl_strchr</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str, int32 c);
+00208 
+00219 OSCL_IMPORT_REF <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a59">oscl_strrchr</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str, int32 c);
+00220 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a59">oscl_strrchr</a>(<span class="keywordtype">char</span> *str, int32 c);
+00221 OSCL_IMPORT_REF <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a59">oscl_strrchr</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str, int32 c);
+00222 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a59">oscl_strrchr</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str, int32 c);
+00223 
+00233 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a61">oscl_strset</a>(<span class="keywordtype">char</span>* dest, <span class="keywordtype">char</span> val, uint32 count);
+00234 
+00244 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a61">oscl_strset</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* dest, <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> val, uint32 count);
+00245 
+00246 
+00258 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a63">oscl_CIstrcmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str1, <span class="keyword">const</span> <span class="keywordtype">char</span> *str2);
+00259 
+00271 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a63">oscl_CIstrcmp</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str2);
+00272 
+00287 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a65">oscl_CIstrncmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str1, <span class="keyword">const</span> <span class="keywordtype">char</span> *str2, uint32 count);
+00288 
+00303 OSCL_IMPORT_REF int32 <a class="code" href="group__osclbase.html#a65">oscl_CIstrncmp</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> *str2, uint32 count);
+00304 
+00313 OSCL_IMPORT_REF <span class="keywordtype">char</span> <a class="code" href="group__osclbase.html#a67">oscl_tolower</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> car);
+00314 
+00315 
+00324 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> <a class="code" href="group__osclbase.html#a67">oscl_tolower</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a> car);
+00325 
+00326 
+00335 OSCL_IMPORT_REF <span class="keywordtype">bool</span> <a class="code" href="group__osclbase.html#a68">oscl_isLetter</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> car);
+00336 
+00337 
+00346 OSCL_IMPORT_REF <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a72">oscl_strstr</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2);
+00347 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a72">oscl_strstr</a>(<span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2);
+00348 
+00349 
+00358 OSCL_IMPORT_REF <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a72">oscl_strstr</a>(<span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str2);
+00359 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a72">oscl_strstr</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str1, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* str2);
+00360 
+00361 
+00376 OSCL_IMPORT_REF <span class="keywordtype">char</span>* <a class="code" href="group__osclbase.html#a74">oscl_strcat</a>(<span class="keywordtype">char</span>* dest, <span class="keyword">const</span> <span class="keywordtype">char</span>* src);
+00377 
+00378 
+00394 OSCL_IMPORT_REF <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* <a class="code" href="group__osclbase.html#a74">oscl_strcat</a>(<a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* dest, <span class="keyword">const</span> <a class="code" href="group__osclbase.html#a32">oscl_wchar</a>* src);
+00395 
+00396 
+00400 <span class="preprocessor">#endif</span>
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

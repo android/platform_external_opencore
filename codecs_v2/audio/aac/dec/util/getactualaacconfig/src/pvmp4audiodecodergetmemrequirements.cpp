@@ -17,24 +17,7 @@
  */
 /*
 
- Pathname: PVMP4AudioDecoderGetMemRequirements.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Copied from aac_decode_frame
-
- Description: Cleaned up.
-
- Description: (1) use UInt32 to replace size_t type
-              (2) memory of tDec_Int_File is splitted into 3 pieces,
-                  sizeof(tDec_Int_File) is only part of the total memory
-                  required. The additional memory required to decode per
-                  channel information is allocated by a DPI call outside this
-                  API
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: pvmp4audiodecodergetmemrequirements.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -76,28 +59,6 @@
     size = sizeof(tDec_Int_File);
 
  RETURN (size)
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

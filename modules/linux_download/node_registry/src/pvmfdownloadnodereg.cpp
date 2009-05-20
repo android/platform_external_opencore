@@ -42,7 +42,7 @@
 #include "oscl_shared_library.h"
 #endif
 
-#define DOWNLOAD_LIB_NAME "libopencore_download.so"
+#define DOWNLOAD_LIB_NAME "libopencore_download"
 
 #define NODE_REGISTRY_LIB_NAME_MAX_LENGTH 64
 
@@ -147,8 +147,8 @@ bool DownloadNodesCoreLibraryLoader::DeleteDownloadManagerNode(PVMFNodeInterface
 
 
 class DownloadNodesRegistryInterface: public OsclSharedLibraryInterface,
-            public NodeRegistryPopulatorInterface,
-            public RecognizerPopulatorInterface
+        public NodeRegistryPopulatorInterface,
+        public RecognizerPopulatorInterface
 {
     public:
         DownloadNodesRegistryInterface() {};
@@ -227,7 +227,7 @@ class DownloadNodesRegistryInterface: public OsclSharedLibraryInterface,
 
 extern "C"
 {
-    OsclSharedLibraryInterface* PVGetInterface(void)
+    OSCL_EXPORT_REF OsclSharedLibraryInterface* PVGetInterface(void)
     {
         return OSCL_NEW(DownloadNodesRegistryInterface, ());
     }

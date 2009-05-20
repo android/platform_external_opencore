@@ -43,6 +43,7 @@
 #define VOL_HEADER_START_BYTE_3 0x01
 #define VOL_HEADER_START_BYTE_4 0xB0
 
+
 static const uint8 M4vScLlookup[] =
 {
     0x18  /*00000=11000*/, 0x19/*00001=11001*/, 0x18/*00010=11000*/, 0x19/*00011=11001*/,
@@ -87,8 +88,14 @@ PVMFVideoParserNode::PVMFVideoParserNode() : OsclActiveObject(OsclActiveObject::
         iMediaDataMemPool(MAX_VIDEO_FRAMES, PVVIDEOPARSER_MEDIADATA_SIZE),
         iLogger(NULL),
         iFormatSpecificInfo(NULL),
-        iFormatSpecificInfoLen(0)
+        iFormatSpecificInfoLen(0),
+        iNotFirstFrag(false)
 {
+
+    iTimestamp = 0;
+    iLastSduHadMarker = false;
+
+
     SetState(EPVMFNodeCreated);
     // Create a 256 element table with number of 1 bits in each index value
     // Ex: 0->0, 1->1, 2->1, 3->2, 4->1, 5->2, 6->2
@@ -727,95 +734,78 @@ void PVMFVideoParserNode::DataReceived(OsclSharedPtr<PVMFMediaMsg>& aMsg)
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVMFVideoParserNode::DataReceived, state %d\n", iInterfaceState));
     if (iInterfaceState == EPVMFNodeStarted)
     {
+
         PVMFSharedMediaDataPtr mediaData;
         OsclRefCounterMemFrag memFrag;
         OsclRefCounterMemFrag curVideoFrag;
-
+        OsclRefCounterMemFrag formatSpecificInfo;
         convertToPVMFMediaData(mediaData, aMsg);
+
+
         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVMFVideoParserNode::DataReceived, Num fragments=%d, filled size=%d\n", mediaData->getNumFragments(), mediaData->getFilledSize()));
 
 
-        for (uint32 i = 0; i < mediaData->getNumFragments(); i++)
+        mediaData->getMediaFragment(0, memFrag);
+
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_DEBUG, (0, "PVMFVideoParserNode::DataReceived, frag size %d, idx %d\n", memFrag.getMemFragSize(), 0));
+
+
+        if (FrameMarkerExists((uint8 *)memFrag.getMemFragPtr(), memFrag.getMemFragSize(), mediaData->getErrorsFlag()))
         {
-            mediaData->getMediaFragment(i, memFrag);
+            iLastSduHadMarker = true;
 
-            PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_DEBUG, (0, "PVMFVideoParserNode::DataReceived, frag size %d, idx %d\n", memFrag.getMemFragSize(), i));
-
-            //Make sure it can fit in the video buffer.
-            if (memFrag.getMemFragSize() > MAX_VIDEO_FRAME_PARSE_SIZE)
-            {
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFVideoParserNode::DataReceived, frag cannot fit into video buffer\n"));
-                continue;
-            }
-
-            if (FrameMarkerExists((uint8 *)memFrag.getMemFragPtr(), memFrag.getMemFragSize(), mediaData->getErrorsFlag()))
-            {
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_DEBUG, (0, "PVMFVideoParserNode::DataReceived, frame found\n"));
-                //If buffer exists then send it.
-                if (iVideoFrame.GetRep())
-                {
-                    SendFrame();
-                }
-            }
-
-            //If data cannot fit in remaining buffer space, send current buffer regardless
-            if (iVideoFrame.GetRep() && (iVideoFrame->getFilledSize() + memFrag.getMemFragSize()) > iVideoFrame->getCapacity())
-            {
-                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_NOTICE, (0, "PVMFVideoParserNode::DataReceived, frag data cannot fit into remaining buffer space\n"));
-                SendFrame();
-            }
-
-            if (!iVideoFrame.GetRep())
-            {
-                OsclRefCounterMemFrag formatSpecificInfo;
-                OsclSharedPtr<PVMFMediaDataImpl> tempImpl;
-
-                // Drop rest of data if unable to allocate next buffer
-                tempImpl = iMediaDataAlloc->allocate(MAX_VIDEO_FRAME_PARSE_SIZE)
-                           ;
-
-                if (!tempImpl)
-                {
-                    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
-                                    (0, "PVMFVideoParserNode::DataReceived, unable to allocate media impl\n"));
-                    return;
-                }
-                iVideoFrame = PVMFMediaData::createMediaData(tempImpl, &iMediaDataMemPool);
-
-                if (!iVideoFrame)
-                {
-                    PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
-                                    (0, "PVMFVideoParserNode::DataReceived, unable to allocate media data\n"));
-                    tempImpl.Unbind();
-                    return;
-                }
-                iVideoFrame->setTimestamp(mediaData->getTimestamp());
-                iVideoFrame->setSeqNum(1);
-                mediaData->getFormatSpecificInfo(formatSpecificInfo);
-                iVideoFrame->setFormatSpecificInfo(formatSpecificInfo);
-            }
-            if (memFrag.getMemFragSize() > 0)
-            {
-                iVideoFrame->getMediaFragment(0, curVideoFrag);
-                oscl_memcpy((uint8 *)curVideoFrag.getMemFragPtr() + iVideoFrame->getFilledSize(), memFrag.getMemFragPtr(), memFrag.getMemFragSize());
-                iVideoFrame->setMediaFragFilledLen(0, iVideoFrame->getFilledSize() + memFrag.getMemFragSize());
-            }
         }
+        else
+        {
+            iLastSduHadMarker = false;
+
+        }
+
+        if (iNotFirstFrag)
+        {
+            SendFrame(iLastSduHadMarker);
+        }
+
+        iVideoFrame = mediaData;
+
+        if (iLastSduHadMarker)
+        {
+            iTimestamp = mediaData->getTimestamp();
+            iVideoFrame->setTimestamp(iTimestamp);
+            iVideoFrame->setSeqNum(1);
+            mediaData->getFormatSpecificInfo(formatSpecificInfo);
+            iVideoFrame->setFormatSpecificInfo(formatSpecificInfo);
+        }
+        else
+
+            iVideoFrame->setTimestamp(iTimestamp);
+
+
+        iNotFirstFrag = true;
+
     }
 }
+
+
 ////////////////////////////////////////////////////////////////////////////
-void PVMFVideoParserNode::SendFrame()
+void PVMFVideoParserNode::SendFrame(bool bMarkerInfo)
 {
     OsclSharedPtr<PVMFMediaMsg> mediaMsg;
+
+
     OsclSharedPtr<PVMFMediaDataImpl> mediaDataImpl;
     if (iVideoFrame->getMediaDataImpl(mediaDataImpl))
     {
-        mediaDataImpl->setMarkerInfo(1);
+
+        mediaDataImpl->setMarkerInfo(bMarkerInfo);
+
     }
     else
     {
         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFVideoParserNode::SendFrame() cannot get media data impl\n"));
     }
+
+
 
     convertToPVMFMediaMsg(mediaMsg, iVideoFrame);
 
@@ -832,6 +822,7 @@ bool PVMFVideoParserNode::FrameMarkerExists(uint8* aDataPtr,
         uint32 aCrcError)
 {
     uint16 match_cnt = 0;
+
     if (iFormatTypeInteger == PV_VID_TYPE_H263)
     {
         //If start of new frame.
@@ -940,6 +931,7 @@ void PVMFVideoParserNode::HandlePortActivity(const PVMFPortActivity& aActivity)
             {
                 if (aActivity.iPort->IncomingMsgQueueSize() == 1)
                     QueuePortActivity(aActivity);
+
             }
 
             break;

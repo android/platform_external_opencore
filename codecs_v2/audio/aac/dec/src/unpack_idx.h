@@ -17,14 +17,7 @@
  */
 /*
 
- Pathname: ./include/unpack_idx.h
-
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: unpack_idx.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -45,7 +38,7 @@
 ----------------------------------------------------------------------------*/
 #include    "pv_audio_type_defs.h"
 #include    "s_hcb.h"
-#include	"s_bits.h"
+#include    "s_bits.h"
 /*----------------------------------------------------------------------------
 ; MACROS
 ; Define module specific macros here

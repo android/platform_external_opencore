@@ -27,23 +27,17 @@
 
 void video_only_test::test()
 {
-    fprintf(fileoutput, "Start video only test, proxy %d SrcFormat:", iUseProxy);
-
-    printFormatString(iVidSrcFormatType);
-
-    fprintf(fileoutput, " SinkFormat:");
-
-    printFormatString(iVidSinkFormatType);
-
-    fprintf(fileoutput, "\n");
+    fprintf(fileoutput, "\n-------- Start video only test -------- ");
+    fprintf(fileoutput, "\n** Test Number: %d. ** \n", iTestNum);
+    fprintf(fileoutput, "\nSETTINGS:\nProxy %d", iUseProxy);
+    iSourceAndSinks->PrintFormatTypes();
+    fprintf(fileoutput, "\n----------------------------------\n");
 
     int error = 0;
 
     scheduler = OsclExecScheduler::Current();
 
     this->AddToScheduler();
-
-    init_mime_strings();
 
     if (start_async_test())
     {
@@ -75,7 +69,7 @@ void video_only_test::Run()
 
     if (timer)
     {
-        delete timer;
+        OSCL_DELETE(timer);
         timer = NULL;
     }
 
@@ -86,80 +80,6 @@ void video_only_test::DoCancel()
 {
 }
 
-void video_only_test::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
-{
-    int error = 0;
-    switch (aEvent.GetEventType())
-    {
-        case PVT_INDICATION_OUTGOING_TRACK:
-        {
-            TPVChannelId *channel_id = (TPVChannelId *)(&aEvent.GetLocalBuffer()[4]);
-            printf("Indication with logical channel #%d ", *channel_id);
-            if (aEvent.GetLocalBuffer()[0] == PV_AUDIO)
-            {
-                printf("Audio");
-            }
-            else if (aEvent.GetLocalBuffer()[0] == PV_VIDEO)
-            {
-                iOutgoingVideo = *channel_id;
-                iSelVideoSource = get_video_source(iVidSrcFormatType);
-                if (iSelVideoSource != NULL)
-                {
-                    OSCL_TRY(error, iVideoAddSourceId = terminal->AddDataSource(*channel_id, *iSelVideoSource));
-                    printf("Video");
-                }
-            }
-            else
-            {
-                printf("unknown");
-            }
-            printf(" outgoing Track\n");
-            break;
-        }
-
-        case PVT_INDICATION_INCOMING_TRACK:
-        {
-            TPVChannelId *channel_id = (TPVChannelId *)(&aEvent.GetLocalBuffer()[4]);
-            printf("Indication with logical channel #%d ", *channel_id);
-            if (aEvent.GetLocalBuffer()[0] == PV_AUDIO)
-            {
-                printf("Audio");
-            }
-            else if (aEvent.GetLocalBuffer()[0] == PV_VIDEO)
-            {
-                iIncomingVideo = *channel_id;
-                iSelVideoSink = get_video_sink(iVidSinkFormatType);
-                if (iSelVideoSink != NULL)
-                {
-                    OSCL_TRY(error, iVideoAddSinkId = terminal->AddDataSink(*channel_id, *iSelVideoSink));
-                    printf("Video");
-                }
-            }
-            else
-            {
-                printf("unknown");
-            }
-            printf(" incoming Track\n");
-            break;
-        }
-
-        case PVT_INDICATION_DISCONNECT:
-            iAudioSourceAdded = false;
-            iVideoSourceAdded = false;
-            iAudioSinkAdded = false;
-            iVideoSinkAdded = false;
-            break;
-
-        case PVT_INDICATION_CLOSE_TRACK:
-            break;
-
-        case PVT_INDICATION_INTERNAL_ERROR:
-            break;
-
-        default:
-            break;
-    }
-}
 
 void video_only_test::H324MConfigCommandCompletedL(PVMFCmdResp& aResponse)
 {
@@ -168,30 +88,13 @@ void video_only_test::H324MConfigCommandCompletedL(PVMFCmdResp& aResponse)
 
 void video_only_test::H324MConfigHandleInformationalEventL(PVMFAsyncEvent& aEvent)
 {
-    switch (aEvent.GetEventType())
-    {
-        case PV_INDICATION_VIDEO_SPATIAL_TEMPORAL_TRADEOFF_COMMAND:
-            if (aEvent.GetLocalBuffer()[2] == TRADEOFF_VALUE)
-            {
-                H324MConfigInterface * i324Interface = (H324MConfigInterface *)i324mConfigInterface;
-                iTradeOffInd = i324Interface->SendVideoTemporalSpatialTradeoffIndication(iOutgoingVideo, TRADEOFF_VALUE_2);
-            }
-            break;
-        case PV_INDICATION_VIDEO_SPATIAL_TEMPORAL_TRADEOFF_INDICATION:
-            if (aEvent.GetLocalBuffer()[2] == TRADEOFF_VALUE_2)
-            {
-                test_is_true(true);
-                timer->RunIfNotReady(TEST_DURATION);
-            }
-            break;
-    }
+    OSCL_UNUSED_ARG(aEvent);
 }
 
 void video_only_test::DoStuffWithH324MConfig()
 {
-    H324MConfigInterface * i324Interface = (H324MConfigInterface *)i324mConfigInterface;
-    i324Interface->SetObserver(this);
-    iTradeOffCmd = i324Interface->SendVideoTemporalSpatialTradeoffCommand(iIncomingVideo, TRADEOFF_VALUE);
+    H324MConfigInterface * t324Interface = (H324MConfigInterface *)iH324MConfig;
+    t324Interface->SetObserver(this);
     iEncIFCommandId = terminal->QueryInterface(PVMp4H263EncExtensionUUID, iVidEncIFace);
 }
 
@@ -200,31 +103,32 @@ void video_only_test::VideoAddSinkSucceeded()
     iVideoSinkAdded = true;
     if (iVideoSourceAdded)
     {
-        i324mConfigInterface = iH324MConfig;
-//		OSCL_TRY(error, i324mIFCommandId = terminal->QueryInterface(PVH324MConfigUuid, i324mConfigInterface,NULL));
-        if (i324mConfigInterface == NULL)
-        {
-            test_is_true(false);
-            disconnect();
-        }
-        DoStuffWithH324MConfig();
+        VideoNodesAdded();
     }
 }
+
+void video_only_test::VideoNodesAdded()
+{
+    if (iH324MConfig == NULL)
+    {
+        printf("\n*************** Test FAILED: could not set stack config (after video add sink) *************** \n");
+        test_is_true(false);
+        disconnect();
+    }
+    DoStuffWithH324MConfig();
+    timer->RunIfNotReady(TEST_DURATION);
+    test_is_true(true);
+}
+
 void video_only_test::VideoAddSourceSucceeded()
 {
     iVideoSourceAdded = true;
     if (iVideoSinkAdded)
     {
-        i324mConfigInterface = iH324MConfig;
-//			OSCL_TRY(error, i324mIFCommandId = terminal->QueryInterface(PVH324MConfigUuid, i324mConfigInterface,NULL));
-        if (i324mConfigInterface == NULL)
-        {
-            test_is_true(false);
-            disconnect();
-        }
-        DoStuffWithH324MConfig();
+        VideoNodesAdded();
     }
 }
+
 void video_only_test::VideoAddSourceFailed()
 {
     if (iVidSrcFormatType == PVMF_MIME_M4V)
@@ -233,6 +137,7 @@ void video_only_test::VideoAddSourceFailed()
     }
     else
     {
+        printf("\n*************** Test FAILED: error adding video source *************** \n");
         test_is_true(false);
     }
     disconnect();
@@ -243,25 +148,29 @@ void video_only_test::EncoderIFSucceeded()
     PVMp4H263EncExtensionInterface *iface = (PVMp4H263EncExtensionInterface *)iVidEncIFace;
     iface->RequestIFrame();
 }
+
 void video_only_test::EncoderIFFailed()
 {
     EncoderIFSucceeded();
 }
+
 void video_only_test::DisCmdFailed()
 {
     DisCmdSucceeded();
 }
+
 void video_only_test::DisCmdSucceeded()
 {
     printf("Finished disconnecting \n");
-//	destroy_sink_source();
-    if (i324mConfigInterface)
-        i324mConfigInterface->removeRef();
+    if (iH324MConfig)
+        iH324MConfig->removeRef();
+    iH324MConfig = NULL;
     reset();
 }
 
 void video_only_test::InitFailed()
 {
+    printf("\n*************** Test FAILED: Init Failed *************** \n");
     test_is_true(false);
     test_base::InitFailed();
 }
@@ -278,22 +187,30 @@ void video_only_test::TimerCallback()
 {
     int error = 1;
 
-    if (iSelVideoSource != NULL)
+    if (!iVideoSourceAdded || !iVideoSinkAdded)
     {
-        OSCL_TRY(error, iVideoRemoveSourceId = terminal->RemoveDataSource(*iSelVideoSource));
-        if (error)
-        {
-            test_is_true(false);
-            disconnect();
-        }
+        // not finished yet
+        // wait longer
+        timer->RunIfNotReady(TEST_DURATION);
+        return;
     }
+
+    OSCL_TRY(error, iVideoRemoveSourceId = iSourceAndSinks->RemoveVideoSource());
+    if (error)
+    {
+        printf("\n*************** Test FAILED: error removing video source *************** \n");
+        test_is_true(false);
+        disconnect();
+    }
+
 }
 
 bool video_only_test::start_async_test()
 {
-    timer = new engine_timer(this);
+    timer = OSCL_NEW(engine_timer, (this));
     if (timer == NULL)
     {
+        printf("\n*************** Test FAILED: timer could not be created *************** \n");
         test_is_true(false);
         return false;
     }

@@ -21,7 +21,8 @@
 
 void connect_cancel_test::test()
 {
-    fprintf(fileoutput, "Start connect cancel test, proxy %d.\n", iUseProxy);
+    fprintf(fileoutput, "----- Start connect cancel test, proxy %d. ----- \n", iUseProxy);
+    fprintf(fileoutput, "\n** Test Number: %d. ** \n", iTestNum);
     int error = 0;
 
     scheduler = OsclExecScheduler::Current();
@@ -64,25 +65,7 @@ void connect_cancel_test::DoCancel()
 }
 
 
-void connect_cancel_test::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
-{
 
-    switch (aEvent.GetEventType())
-    {
-        case PVT_INDICATION_DISCONNECT:
-            iAudioSourceAdded = false;
-            iVideoSourceAdded = false;
-            iAudioSinkAdded = false;
-            iVideoSinkAdded = false;
-            break;
-
-        case PVT_INDICATION_INTERNAL_ERROR:
-            break;
-
-        default:
-            break;
-    }
-}
 void connect_cancel_test::InitSucceeded()
 {
     int error;

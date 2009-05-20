@@ -17,21 +17,8 @@
  */
 /*
 
- Pathname: s_Huffman.h
+ Filename: s_huffman.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:   Changed "ulong" to "UInt32"
-
- Description: add helper structure to speed up decode_huff_cw
-
- Description: Remove the structure definition of Huffman
-
- Description: Added definition for SBR Huffman, used for AAC plus
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

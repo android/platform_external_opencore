@@ -47,6 +47,7 @@ MultiplexEntrySendMgr::MultiplexEntrySendMgr(int32 sn, MultiplexEntrySendUtility
 {
     iSn = sn;
     iUtil = util;
+    iMuxEntryNumbers.clear();
 }
 
 void MultiplexEntrySendMgr::Write(PS_MultiplexEntryDescriptor descriptors, int32 size)
@@ -64,28 +65,85 @@ void MultiplexEntrySendMgr::TransferRequest(PS_MuxDescriptor p_MuxDescriptor)
     T104TimerStart() ;
 }
 
-void MultiplexEntrySendMgr::MultiplexEntrySendAck(PS_MultiplexEntrySendAck p_MultiplexEntrySendAck)
+int MultiplexEntrySendMgr::MultiplexEntrySendAck(PS_MultiplexEntrySendAck p_MultiplexEntrySendAck)
 {
-    T104TimerStop() ;
-    StatusWrite(MT_OUTGOING_IDLE) ;
-    iUtil->PtvTrfCfmSend(p_MultiplexEntrySendAck->sequenceNumber) ;
+    int ret = 0;
+    uint32 *mux_number = p_MultiplexEntrySendAck->multiplexTableEntryNumber;
+    for (int i = 0; i < p_MultiplexEntrySendAck->size_of_multiplexTableEntryNumber; i++, mux_number++)
+    {
+        Oscl_Vector<uint32, OsclMemAllocator>::iterator it = iMuxEntryNumbers.begin();
+        for (; it != iMuxEntryNumbers.end(); it++)
+        {
+            if (*it == *mux_number)
+            {
+                iMuxEntryNumbers.erase(it);
+                break;
+            }
+        }
+    }
+    if (iMuxEntryNumbers.size() == 0)
+    {
+        /* All Entries Acked/Rejected */
+        T104TimerStop();
+        ret = 1;
+        StatusWrite(MT_OUTGOING_IDLE);
+    }
+
+    iUtil->PtvTrfCfmSend(p_MultiplexEntrySendAck) ;
+    return ret;
 }
 
-void MultiplexEntrySendMgr::MultiplexEntrySendReject(PS_MultiplexEntrySendReject p_MultiplexEntrySendReject)
+int MultiplexEntrySendMgr::MultiplexEntrySendReject(PS_MultiplexEntrySendReject p_MultiplexEntrySendReject)
 {
-    T104TimerStop() ;
-    StatusWrite(MT_OUTGOING_IDLE) ;
-    iUtil->PtvRjtIdcSend(S_InfHeader::OUTGOING, Src_USER ,
-                         &p_MultiplexEntrySendReject->rejectionDescriptions->meRejectCause,
-                         p_MultiplexEntrySendReject->sequenceNumber) ;
+    int i, ret = 0;
+    PS_MultiplexEntryRejectionDescriptions rej_desc = p_MultiplexEntrySendReject->rejectionDescriptions;
+    for (i = 0; i < p_MultiplexEntrySendReject->size_of_rejectionDescriptions; i++, rej_desc++)
+    {
+        uint32 mux_number = rej_desc->multiplexTableEntryNumber;
+        Oscl_Vector<uint32, OsclMemAllocator>::iterator it = iMuxEntryNumbers.begin();
+        for (; it != iMuxEntryNumbers.end(); it++)
+        {
+            if (*it == mux_number)
+            {
+                iMuxEntryNumbers.erase(it);
+                break;
+            }
+        }
+    }
+    if (iMuxEntryNumbers.size() == 0)
+    {
+        /* All Entries Acked/Rejected */
+        T104TimerStop();
+        ret = 1;
+        StatusWrite(MT_OUTGOING_IDLE);
+    }
+
+    rej_desc = p_MultiplexEntrySendReject->rejectionDescriptions;
+
+    /* Do the processing for handling rejects */
+    for (i = 0; i < p_MultiplexEntrySendReject->size_of_rejectionDescriptions; i++, rej_desc++)
+    {
+        iUtil->PtvRjtIdcSend(S_InfHeader::OUTGOING, Src_USER ,
+                             &rej_desc->meRejectCause,
+                             p_MultiplexEntrySendReject->sequenceNumber,
+                             rej_desc->multiplexTableEntryNumber) ;
+    }
+    return ret;
 }
 
 void MultiplexEntrySendMgr::T104Timeout()
 {
-//	Print("MultiplexEntrySendMgr::TimeoutOccurred Error: T104 timer timed out for sn(%d)",iSn);
+//  Print("MultiplexEntrySendMgr::TimeoutOccurred Error: T104 timer timed out for sn(%d)",iSn);
     StatusWrite(MT_OUTGOING_IDLE) ;
     iUtil->MsgMtRlsSend(iOutMTEntries) ;
-    iUtil->PtvRjtIdcSend(S_InfHeader::OUTGOING, Src_PROTOCOL , NULL, iSn) ;
+    /* WE only timeout for pending mux entries not all */
+    int muxEntriesIndex = iMuxEntryNumbers.size() - 1;
+
+    while (muxEntriesIndex >= 0)
+    {
+        iUtil->PtvRjtIdcSend(S_InfHeader::OUTGOING, Src_PROTOCOL , NULL, iSn, iMuxEntryNumbers[muxEntriesIndex]) ;
+        muxEntriesIndex--;
+    }
 }
 
 void MultiplexEntrySendMgr::StatusWrite(uint32 status)
@@ -103,7 +161,12 @@ void MultiplexEntrySendMgr::T104TimerStop(void)
     iUtil->CancelT104Timer(iSn);
 }
 
-MT::MT() : SEBase(), iTimer("MultiplexTables")
+int MultiplexEntrySendMgr::MultiplexEntrySendSn()
+{
+    return iSn;
+}
+MT::MT() : SEBase(), iPendingMtSend(NULL), iTimer("MultiplexTables")
+
 {
     Reset();
     /* Initialize timer */
@@ -119,13 +182,11 @@ void MT::Reset()
     InMTEntries.Clear();
     StatusWrite(MT_INCOMING_IDLE) ;
 
-    PendingMtSendMap::iterator it = iPendingMtSend.begin();
-    while (it != iPendingMtSend.end())
+    if (iPendingMtSend)
     {
-        //OSCL_DELETE((*it++).second);
-        delete(*it++).second;
+        OSCL_DELETE(iPendingMtSend);
     }
-    iPendingMtSend.clear();
+    iPendingMtSend = NULL;
 }
 
 void MT::RequestT104Timer(int32 sn)
@@ -141,15 +202,13 @@ void MT::CancelT104Timer(int32 sn)
 void MT::TimeoutOccurred(int32 timerID, int32 timeoutInfo)
 {
     Print("MT::TimeoutOccurred Error: T104 timer timed out for timerID(%d), timeoutInfo(%d)", timerID, timeoutInfo);
-    PendingMtSendMap::iterator iter = iPendingMtSend.find(timerID);
-    if (iter == iPendingMtSend.end())
+    if (iPendingMtSend)
     {
-        Print("MT::TimeoutOccurred   Error: Failed to lookup pending MultiplexEntrySend for sequence number %d", timerID);
-        return;
+        iPendingMtSend->T104Timeout();
+        OSCL_DELETE(iPendingMtSend);
+        iPendingMtSend = NULL;
     }
-    (*iter).second->T104Timeout();
-    OSCL_DELETE((*iter).second);
-    iPendingMtSend.erase(iter);
+
 }
 
 /************************************************************************/
@@ -167,10 +226,15 @@ void MT::TimeoutOccurred(int32 timerID, int32 timeoutInfo)
 /************************************************************************/
 void MT::TransferRequest(PS_MuxDescriptor p_MuxDescriptor)
 {
-    //MultiplexEntrySendMgr* new_mesend_mgr= OSCL_NEW(MultiplexEntrySendMgr , (OutSqcRead(),this));
-    MultiplexEntrySendMgr* new_mesend_mgr = new MultiplexEntrySendMgr(OutSqcRead(), this);
-    iPendingMtSend.insert(PendingMtSendMap::value_type(OutSqcRead(), new_mesend_mgr));
-    new_mesend_mgr->TransferRequest(p_MuxDescriptor);
+    if (iPendingMtSend) OSCL_DELETE(iPendingMtSend);
+    iPendingMtSend = OSCL_NEW(MultiplexEntrySendMgr, (OutSqcRead(), this));
+    S_MultiplexEntryDescriptor *desc = p_MuxDescriptor->multiplexEntryDescriptors;
+
+    for (int i = 0; i < p_MuxDescriptor->size_of_multiplexEntryDescriptors; i++, desc++)
+    {
+        iPendingMtSend->iMuxEntryNumbers.push_back(desc->multiplexTableEntryNumber);
+    }
+    iPendingMtSend->TransferRequest(p_MuxDescriptor);
     OutSqcInc() ;
 }
 
@@ -298,15 +362,23 @@ void MT::_0503_0011(PS_MeRejectCause p_Cause)
 /************************************************************************/
 void MT::MultiplexEntrySendAck(PS_MultiplexEntrySendAck p_MultiplexEntrySendAck)
 {
-    PendingMtSendMap::iterator iter = iPendingMtSend.find(p_MultiplexEntrySendAck->sequenceNumber);
-    if (iter == iPendingMtSend.end())
+    // look that sequence number is same as last sent sn.
+    if (!iPendingMtSend)
+    {
+        Print("MT::MultiplexEntrySendAck  Error: No pending MultiplexEntrySend for sequence number %d", p_MultiplexEntrySendAck->sequenceNumber);
+        return;
+    }
+    if (p_MultiplexEntrySendAck->sequenceNumber != iPendingMtSend->MultiplexEntrySendSn())
     {
         Print("MT::MultiplexEntrySendAck  Error: Failed to lookup pending MultiplexEntrySend for sequence number %d", p_MultiplexEntrySendAck->sequenceNumber);
         return;
     }
-    (*iter).second->MultiplexEntrySendAck(p_MultiplexEntrySendAck);
-    OSCL_DELETE((*iter).second);
-    iPendingMtSend.erase(iter);
+
+    if (iPendingMtSend->MultiplexEntrySendAck(p_MultiplexEntrySendAck))
+    {
+        OSCL_DELETE(iPendingMtSend);
+        iPendingMtSend = NULL;
+    }
 }
 
 
@@ -326,15 +398,18 @@ void MT::MultiplexEntrySendAck(PS_MultiplexEntrySendAck p_MultiplexEntrySendAck)
 /************************************************************************/
 void MT::MultiplexEntrySendReject(PS_MultiplexEntrySendReject p_MultiplexEntrySendReject)
 {
-    PendingMtSendMap::iterator iter = iPendingMtSend.find(p_MultiplexEntrySendReject->sequenceNumber);
-    if (iter == iPendingMtSend.end())
+    if (p_MultiplexEntrySendReject->sequenceNumber != iPendingMtSend->MultiplexEntrySendSn())
     {
         Print("MT::MultiplexEntrySendReject  Error: Failed to lookup pending MultiplexEntrySend for sequence number %d", p_MultiplexEntrySendReject->sequenceNumber);
         return;
     }
-    (*iter).second->MultiplexEntrySendReject(p_MultiplexEntrySendReject);
-    OSCL_DELETE((*iter).second);
-    iPendingMtSend.erase(iter);
+
+    if (iPendingMtSend->MultiplexEntrySendReject(p_MultiplexEntrySendReject))
+    {
+
+        OSCL_DELETE(iPendingMtSend);
+        iPendingMtSend = NULL;
+    }
 }
 
 /************************************************************************/
@@ -353,7 +428,8 @@ void MT::MultiplexEntrySendReject(PS_MultiplexEntrySendReject p_MultiplexEntrySe
 void MT::_0507_0011(void)
 {
     StatusWrite(MT_INCOMING_IDLE) ;
-    PtvRjtIdcSend(S_InfHeader::OUTGOING, Src_PROTOCOL , NULL, 0) ;
+    /* TODO here*/
+    PtvRjtIdcSend(S_InfHeader::OUTGOING, Src_PROTOCOL , NULL, 0, 0) ;
 }
 
 
@@ -400,10 +476,10 @@ void MT::MsgMtSend(PS_MuxDescriptor p_MuxDescriptor, uint8 sn)
 /************************************************************************/
 void MT::MsgMtAckSend(uint32 sequenceNumber, PS_MuxDescriptor pMux)
 {
-    S_MultiplexEntrySendAck		multiplexEntrySendAck ;
-    uint32						multiplexTableEntryNumber[15];
-    S_H245Msg					h245Msg ;
-    uint32						i, numEntries;
+    S_MultiplexEntrySendAck     multiplexEntrySendAck ;
+    uint32                      multiplexTableEntryNumber[15];
+    S_H245Msg                   h245Msg ;
+    uint32                      i, numEntries;
 
     numEntries = pMux->size_of_multiplexEntryDescriptors;
 
@@ -411,7 +487,7 @@ void MT::MsgMtAckSend(uint32 sequenceNumber, PS_MuxDescriptor pMux)
     multiplexEntrySendAck.size_of_multiplexTableEntryNumber = (uint16) numEntries;
 
     // Copy the entry numbers into the MESAck codeword... (RAN-MT)
-    for (i = 0;i < numEntries && i < 15;++i)
+    for (i = 0; i < numEntries && i < 15; ++i)
     {
         multiplexTableEntryNumber[i] = pMux->multiplexEntryDescriptors[i].multiplexTableEntryNumber;
     }
@@ -543,7 +619,7 @@ void MT::PtvTrfIdcSend(PS_MultiplexEntrySend p_MultiplexEntrySend)
 /*                                                                      */
 /*                          Copyright (C) 1996 NTT DoCoMo               */
 /************************************************************************/
-void MT::PtvRjtIdcSend(S_InfHeader::TDirection dir, int32 Source , PS_MeRejectCause p_Cause, int32 sn)
+void MT::PtvRjtIdcSend(S_InfHeader::TDirection dir, int32 Source , PS_MeRejectCause p_Cause, int32 sn , int32 mux_number)
 {
     S_SourceCause_Mt   sourceCause_Mt ;
     S_InfHeader        infHeader ;
@@ -557,7 +633,8 @@ void MT::PtvRjtIdcSend(S_InfHeader::TDirection dir, int32 Source , PS_MeRejectCa
     infHeader.InfType = H245_PRIMITIVE ;
     infHeader.InfId = E_PtvId_Mt_Rjt_Idc ;
     infHeader.InfSupplement1 = dir ;
-    infHeader.InfSupplement2 = sn ;
+    infHeader.InfSupplement2 = (sn << 16) + (mux_number & 0xFFFF);
+
     if (Source == Src_USER)  /* SOURCE Parameter Equal USER */
     {
         infHeader.pParameter = (uint8*) & sourceCause_Mt ;
@@ -585,24 +662,28 @@ void MT::PtvRjtIdcSend(S_InfHeader::TDirection dir, int32 Source , PS_MeRejectCa
 /*                                                                      */
 /*                          Copyright (C) 1996 NTT DoCoMo               */
 /************************************************************************/
-void MT::PtvTrfCfmSend(int32 sn)
+void MT::PtvTrfCfmSend(PS_MultiplexEntrySendAck p_MultiplexEntrySendAck)
 {
-    S_InfHeader    infHeader ;
+    uint32 *mux_number = p_MultiplexEntrySendAck->multiplexTableEntryNumber;
+    for (int i = 0; i < p_MultiplexEntrySendAck->size_of_multiplexTableEntryNumber; i++, mux_number++)
+    {
+        S_InfHeader    infHeader ;
 
-    infHeader.InfType = H245_PRIMITIVE ;
-    infHeader.InfId = E_PtvId_Mt_Trf_Cfm ;
-    infHeader.InfSupplement1 = (uint32)sn ;
-    infHeader.InfSupplement2 = 0 ;
-    infHeader.pParameter = NULL ;
-    infHeader.Size = 0 ;
+        infHeader.InfType = H245_PRIMITIVE ;
+        infHeader.InfId = E_PtvId_Mt_Trf_Cfm ;
+        infHeader.InfSupplement1 = p_MultiplexEntrySendAck->sequenceNumber ;
+        infHeader.InfSupplement2 = *mux_number;
+        infHeader.pParameter = NULL ;
+        infHeader.Size = 0 ;
 
-    PrimitiveSend(&infHeader) ;
+        PrimitiveSend(&infHeader) ;
+    }
 }
 
 
 #ifdef PVANALYZER /* --------SE Analyzer Tool -------- */
 
-#define ANALYZER_SE 0x0020		// (Assume tag is fixed)
+#define ANALYZER_SE 0x0020      // (Assume tag is fixed)
 void Show245(uint16 tag, uint16 indent, char *inString);
 
 // =========================================================

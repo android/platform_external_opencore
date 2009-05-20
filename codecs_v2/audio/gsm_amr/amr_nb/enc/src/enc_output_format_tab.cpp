@@ -30,23 +30,7 @@ terms listed above has been obtained from the copyright holder.
 ------------------------------------------------------------------------------
 
 
- Pathname: .audio/gsm-amr/c/src/enc_output_format_tab.c
-
-     Date: 03/08/2002
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Moved WMFBytesUsed and IF2BytesUsed tables from gsmamr_enc.h.
-              Changed their type definition to 'const int'. Renamed tables to
-              WmfEncBytesPerFrame and If2EncBytesPerFrame.
-
- Description: Added #ifdef __cplusplus and removed "extern" from table
-              definition.
-
- Description: Put "extern" back.
-
- Description:
+ Filename: enc_output_format_tab.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -86,28 +70,6 @@ terms listed above has been obtained from the copyright holder.
 ------------------------------------------------------------------------------
  PSEUDO-CODE
 
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

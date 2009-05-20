@@ -7,7 +7,7 @@ SED := sed
 MV := mv
 RM := rm -f
 RMDIR := rm -rf
-CP := cp
+CP := cp -f
 MKDIR := mkdir -p
 
 export RANLIB = ranlib

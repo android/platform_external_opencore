@@ -61,52 +61,54 @@
 00067 
 00071         OSCL_IMPORT_REF <a class="code" href="classOsclThread.html#a1">~OsclThread</a>();
 00072 
-00089         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a2">Create</a>(<a class="code" href="oscl__thread_8h.html#a0">TOsclThreadFuncPtr</a> func,
-00090                 int32 stack_size,
-00091                 TOsclThreadFuncArg argument,
-00092                 <a class="code" href="oscl__thread_8h.html#a10">OsclThread_State</a> state = <a class="code" href="oscl__thread_8h.html#a10a1">Start_on_creation</a>);
-00093 
-00102         OSCL_IMPORT_REF <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classOsclThread.html#d0">Exit</a>(<a class="code" href="group__osclbase.html#a25">OsclAny</a>* exitcode);
+00097         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a2">Create</a>(<a class="code" href="oscl__thread_8h.html#a0">TOsclThreadFuncPtr</a> func,
+00098                 int32 stack_size,
+00099                 TOsclThreadFuncArg argument,
+00100                 <a class="code" href="oscl__thread_8h.html#a10">OsclThread_State</a> state = <a class="code" href="oscl__thread_8h.html#a10a1">Start_on_creation</a>,
+00101                 <span class="keywordtype">bool</span> oIsJoinable = <span class="keyword">false</span>
+00102                                                              );
 00103 
-00114         OSCL_IMPORT_REF <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classOsclThread.html#d1">EnableKill</a>();
-00115 
-00123         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a3">GetPriority</a>(<a class="code" href="oscl__thread_8h.html#a11">OsclThreadPriority</a>&amp; refThreadPriority);
-00124 
-00134         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a4">SetPriority</a>(<a class="code" href="oscl__thread_8h.html#a11">OsclThreadPriority</a> ePriority);
-00135 
-00144         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a5">Suspend</a>();
+00112         OSCL_IMPORT_REF <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classOsclThread.html#d0">Exit</a>(<a class="code" href="group__osclbase.html#a25">OsclAny</a>* exitcode);
+00113 
+00124         OSCL_IMPORT_REF <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classOsclThread.html#d1">EnableKill</a>();
+00125 
+00133         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a3">GetPriority</a>(<a class="code" href="oscl__thread_8h.html#a11">OsclThreadPriority</a>&amp; refThreadPriority);
+00134 
+00144         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a4">SetPriority</a>(<a class="code" href="oscl__thread_8h.html#a11">OsclThreadPriority</a> ePriority);
 00145 
-00153         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a6">Resume</a>();
-00154 
-00168         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a7">Terminate</a>(<a class="code" href="group__osclbase.html#a25">OsclAny</a>* exitcode);
-00169 
-00170 
-00176         OSCL_IMPORT_REF <span class="keyword">static</span> <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#d2">GetId</a>(TOsclThreadId&amp; refThreadId);
-00177 
-00183         OSCL_IMPORT_REF <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classOsclThread.html#d3">CompareId</a>(TOsclThreadId &amp;t1, TOsclThreadId &amp;t2);
-00184 
-00189         OSCL_IMPORT_REF <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classOsclThread.html#d4">SleepMillisec</a>(<span class="keyword">const</span> int32 msec);
-00190 
-00191     <span class="keyword">private</span>:
-00192 
-00200         <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> MapOsclError(int16 error);
-00201 
+00154         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a5">Suspend</a>();
+00155 
+00163         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a6">Resume</a>();
+00164 
+00178         OSCL_IMPORT_REF <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#a7">Terminate</a>(<a class="code" href="group__osclbase.html#a25">OsclAny</a>* exitcode);
+00179 
+00180 
+00186         OSCL_IMPORT_REF <span class="keyword">static</span> <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> <a class="code" href="classOsclThread.html#d2">GetId</a>(TOsclThreadId&amp; refThreadId);
+00187 
+00193         OSCL_IMPORT_REF <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classOsclThread.html#d3">CompareId</a>(TOsclThreadId &amp;t1, TOsclThreadId &amp;t2);
+00194 
+00199         OSCL_IMPORT_REF <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classOsclThread.html#d4">SleepMillisec</a>(<span class="keyword">const</span> int32 msec);
+00200 
+00201     <span class="keyword">private</span>:
 00202 
-00203         TOsclMutexObject mutex;
-00204         TOsclConditionObject  condition;
-00205         uint8 suspend;
-00206 
-00207 
-00208 
-00209         TOsclThreadObject ObjThread;
-00210         <span class="keywordtype">bool</span> bCreated;
+00210         <a class="code" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a> MapOsclError(int16 error);
 00211 
-00212 };
-00213 
-00214 <span class="preprocessor">#endif</span>
-00215 <span class="preprocessor"></span>
+00212 
+00213         TOsclMutexObject mutex;
+00214         TOsclConditionObject  condition;
+00215         uint8 suspend;
+00216 
+00217 
+00218 
+00219         TOsclThreadObject ObjThread;
+00220         <span class="keywordtype">bool</span> bCreated;
+00221         <span class="keywordtype">bool</span> iJoined;
+00222 };
+00223 
+00224 <span class="preprocessor">#endif</span>
+00225 <span class="preprocessor"></span>
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

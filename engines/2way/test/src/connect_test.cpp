@@ -23,7 +23,8 @@
 
 void connect_test::test()
 {
-    fprintf(fileoutput, "Start %s test, num runs %d, proxy %d.\n", iRunTimerTest ? "timer configuration and encoder extension IF" : "connect", iMaxRuns, iUseProxy);
+    fprintf(fileoutput, "----- Start %s test, num runs %d, proxy %d. ----- \n", iRunTimerTest ? "timer configuration and encoder extension IF" : "connect", iMaxRuns, iUseProxy);
+    fprintf(fileoutput, "\n** Test Number: %d. ** \n", iTestNum);
     int error = 0;
 
     scheduler = OsclExecScheduler::Current();
@@ -66,35 +67,10 @@ void connect_test::DoCancel()
 }
 
 
-void connect_test::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
-{
-
-    switch (aEvent.GetEventType())
-    {
-        case PVT_INDICATION_DISCONNECT:
-            iAudioSourceAdded = false;
-            iVideoSourceAdded = false;
-            iAudioSinkAdded = false;
-            iVideoSinkAdded = false;
-            break;
-
-        case PVT_INDICATION_INTERNAL_ERROR:
-            break;
-
-        case PVT_INDICATION_INCOMING_TRACK:
-            printf("Incoming Indication\n");
-            break;
-
-        default:
-            break;
-    }
-}
 
 void connect_test::InitSucceeded()
 {
-    i324mConfigInterface = iH324MConfig;
-    //OSCL_TRY(error, i324mIFCommandId = terminal->QueryInterface(h324mUuid, i324mConfigInterface,NULL));
-    if (i324mConfigInterface == NULL)
+    if (iH324MConfig == NULL)
     {
         test_is_true(false);
         reset();
@@ -102,13 +78,13 @@ void connect_test::InitSucceeded()
 
     }
     // set some timers via the interface
-    H324MConfigInterface * i324Interface = (H324MConfigInterface *)i324mConfigInterface;
+    H324MConfigInterface * t324Interface = (H324MConfigInterface *)iH324MConfig;
     if (iRunTimerTest)
     {
-        i324Interface->SetTimerCounter(EH324Timer, 1, 1, 10, NULL);
-        i324Interface->SetTimerCounter(EH324Counter, 4, 1, 10, NULL);
+        t324Interface->SetTimerCounter(EH324Timer, 1, 1, 10, NULL);
+        t324Interface->SetTimerCounter(EH324Counter, 4, 1, 10, NULL);
     }
-    i324Interface->removeRef();
+    //t324Interface->removeRef();
     iStackIFSet = true;
     int error;
     PVUuid mp4h263EncUuid = PVMp4H263EncExtensionUUID;
@@ -139,7 +115,7 @@ void connect_test::EncoderIFSucceeded()
 
 void connect_test::EncoderIFFailed()
 {
-//	test_is_true(false);
+//  test_is_true(false);
     reset();
 }
 
@@ -164,7 +140,7 @@ void connect_test::DisCmdSucceeded()
     {
         reset();
     }
-    destroy_sink_source();
+    //destroy_sink_source();
 }
 
 void connect_test::DisCmdFailed()
@@ -180,7 +156,7 @@ void connect_test::DisCmdFailed()
     {
         reset();
     }
-    destroy_sink_source();
+    //destroy_sink_source();
 }
 
 

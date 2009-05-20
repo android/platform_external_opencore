@@ -17,33 +17,8 @@
  */
 /*
 
- Pathname: get_pulse_data.c
+ Filename: get_pulse_data.cpp
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description: Put into PV format
-
- Description: 1) Change loop to use pointers.
-              2) Rename to from get_nec_nc to get_pulse_data
-
- Description: Changes per code review
-              1) Fix pathname
-              2) Read in two fields to save call to getbits
-              3) Change how pPulseInfo->number_pulse is stored.
-
- Description: Placed typecast to Int in places where UInt->Int
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9.
-
- Who:                                  Date:
- Description:
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -157,28 +132,6 @@
     MODIFYING (*pPulseInfo)
 
     RETURN status
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

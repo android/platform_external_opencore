@@ -35,6 +35,7 @@
 #include "tsc_component.h"
 #include "tsc_capability.h"
 #include "tsc_channelcontrol.h"
+#include "pvt_common.h"
 #ifdef MEM_TRACK
 #include "oscl_mem.h"
 #include "oscl_mem_audit.h"
@@ -95,11 +96,10 @@ OSCL_EXPORT_REF TSC_324m::TSC_324m(TPVLoopbackMode aLoopbackMode)
                            iTSClc,
                            iTSCblc,
                            iTSCclc,
-                           iTSCmt)
+                           iTSCmt),
+        iReferenceCount(1)
 {
     iLogger = PVLogger::GetLoggerObject("3g324m.h245user");
-
-    iTSCcomponent = NULL;
 
     AddToScheduler();
 
@@ -182,7 +182,7 @@ void TSC_324m::initVarsSession()
 {
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "TSC_324m::initVarsSession"));
-    iTerminalStatus = Phase0_Idle;		/* Terminal Status */
+    iTerminalStatus = Phase0_Idle;      /* Terminal Status */
 
 
     iDisconnectInitiator = EPVT_NONE;
@@ -268,6 +268,7 @@ void TSC_324m::InitComponent()
                             (0, "TSC_324m::InitComponent- unable to create component"));
             OSCL_LEAVE(PVMFFailure);
         }
+        componentInterface->removeRef();
         iTSCcomponent->InitVarsLocal();
         iTSCcomponent->InitVarsSession();
     }
@@ -439,13 +440,13 @@ TPVStatusCode TSC_324m::ResetTsc()
 
     if (iVendor)
     {
-        delete iVendor;
+        OSCL_DELETE(iVendor);
         iVendor = NULL;
     }
 
     if (iVendorR)
     {
-        delete iVendorR;
+        OSCL_DELETE(iVendorR);
         iVendorR = NULL;
     }
 
@@ -481,12 +482,16 @@ TPVStatusCode TSC_324m::ResetTsc()
         iTimer = NULL;
     }
 
+    // reset others
+    iTSCmt.Reset();
+    iTSCcapability.Reset();
 
     if (iTSCcomponent)
     {
-        OSCL_DELETE(iTSCcomponent);
+        iTSCcomponent->removeRef();
         iTSCcomponent = NULL;
     }
+
 
 
     if (iH223)
@@ -548,16 +553,6 @@ TPVStatusCode TSC_324m::SetTerminalParam(CPVTerminalParam* params)
     return EPVT_Success;
 }
 
-CPVTerminalParam* TSC_324m::GetTerminalParam()
-{
-    CPVH223MuxParam h223Param;
-    CPVH324MParam* h324param = new CPVH324MParam();
-    iTSCcomponent->GetTerminalParam(*h324param);
-    h324param->iMasterSlave = (TPVMasterSlave)iTSCstatemanager.ReadState(TSC_MSD_DECISION);
-    h324param->SetH223Param(&h223Param);
-    return 	h324param;
-}
-
 TPVStatusCode
 TSC_324m::Connect(uint16 info_len, uint8* info_buf)
 {
@@ -605,8 +600,6 @@ TSC_324m::Connect(uint16 info_len, uint8* info_buf)
         oscl_memcpy(iSuppInfo, info_buf, info_len);
     }
     iTimer->Clear();
-
-    CPVH223MuxParam level_set;
 
     // Initialize the mux and wait for completion.  Performs level setup
     if (iH223Level != H223_LEVEL_UNKNOWN)
@@ -827,7 +820,7 @@ TPVStatusCode TSC_324m::Disconnect()
     {
         H223ChannelParam* param = iIncomingChannels.back();
         iIncomingChannels.pop_back();
-        delete param;
+        OSCL_DELETE(param);
     }
 
     initVarsSession();
@@ -836,7 +829,7 @@ TPVStatusCode TSC_324m::Disconnect()
 
 TPVStatusCode TSC_324m::Abort()
 {
-//	iMutex->Lock();
+//  iMutex->Lock();
     PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "TSC: Abort."));
     //LogStats(OUTGOING);
@@ -871,7 +864,7 @@ TPVStatusCode TSC_324m::Abort()
 
     initVarsSession();
 
-//	iMutex->Unlock();
+//  iMutex->Unlock();
     return ret;
 }
 
@@ -881,7 +874,7 @@ TPVStatusCode TSC_324m::Abort()
         PhaseA          ,
         PhaseB          ,
         PhaseC          ,
-		PhaseD_CSUP		,  // Call Setup
+        PhaseD_CSUP     ,  // Call Setup
         PhaseE_Comm     ,  // Ongoing Communication
         PhaseF_Clc      ,  // Closing all outgoing LCNs
         PhaseF_End      ,  // End of Session
@@ -894,7 +887,7 @@ void TSC_324m::Handle(PS_ControlMsgHeader msg)
     DISPATCH_PTR func_ptr = NULL;
     bool handled = false;
 
-//	iMutex->Lock();
+//  iMutex->Lock();
 
     /* Event Receive; a non blocking call */
     EventNo = Tsc_EventReceive(msg);
@@ -1129,7 +1122,7 @@ void TSC_324m::SetDispatchTable()
         { OSCL_FUNCTION_PTR(TSC_324m::MiscIndicationRecv), PhaseD_CSUP, 58}, //E_PtvId_Idc_Mscl_Cfm
         { OSCL_FUNCTION_PTR(TSC_324m::SkewIndicationRecv), PhaseD_CSUP, 59}, //E_PtvId_Idc_H223skw_Cfm
         { OSCL_FUNCTION_PTR(TSC_324m::FlowControlIndicationReceived)   ,  PhaseD_CSUP  ,  60 }, //E_PtvId_Cmd_Fc
-//		{ InternalError_CSUP,  PhaseD_CSUP  ,  38 }, //H245_INTERNAL_ERROR
+//      { InternalError_CSUP,  PhaseD_CSUP  ,  38 }, //H245_INTERNAL_ERROR
         /* ----------------------------------------- */
         /* --------- ONGOING COMM EVENTS ----------- */
         /* ----------------------------------------- */
@@ -2103,6 +2096,7 @@ PVMFCommandId TSC_324m::QueryInterface(PVMFSessionId aSession,
         proxied_interface_ptr = OSCL_NEW(H324MProxiedInterface, ());
         proxied_interface_ptr->SetH324M(this);
         aInterfacePtr = proxied_interface_ptr;
+        aInterfacePtr->addRef();
     }
     else
     {
@@ -2113,10 +2107,11 @@ PVMFCommandId TSC_324m::QueryInterface(PVMFSessionId aSession,
                         aInterfacePtr, aContext);
         if (iTSCcomponent)
         {
+            iTSCcomponent->addRef();
             InitComponent();
             if (backup)
             {
-                OSCL_DELETE(backup);
+                backup->removeRef();
             }
         }
     }
@@ -2381,9 +2376,9 @@ void TSC_324m::ConfigureSrp(TPVH223Level aLevel)
     iOutgoingSrpPort = iSrp->RequestLLPort(SRP_INPUT_PORT_TAG);
     iIncomingSrpPort = iSrp->RequestLLPort(SRP_OUTPUT_PORT_TAG);
     iOutgoingSrpPort->Connect(incoming_control_channel);
-//	incoming_control_channel->Connect(iOutgoingSrpPort);
+//  incoming_control_channel->Connect(iOutgoingSrpPort);
     iIncomingSrpPort->Connect(outgoing_control_channel);
-//	outgoing_control_channel->Connect(iIncomingSrpPort);
+//  outgoing_control_channel->Connect(iIncomingSrpPort);
 
     iTscSrpBuffer->Start();
     iSrp->SrpStart();

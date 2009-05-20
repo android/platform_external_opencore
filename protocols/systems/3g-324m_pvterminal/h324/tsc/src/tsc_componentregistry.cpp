@@ -60,6 +60,8 @@ TSC_component* TSCComponentRegistry::Create(PVMFSessionId aSession,
         component = OSCL_NEW(TSC_component,
                              (iTSCstatemanager, iTSCcapability, iTSClc, iTSCblc, iTSCclc, iTSCmt));
         aInterfacePtr = (PVMFComponentInterface*)component;
+        aInterfacePtr->addRef();
+        component->removeRef();
     }
     return component;
 }

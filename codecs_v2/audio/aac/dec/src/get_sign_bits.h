@@ -17,20 +17,7 @@
  */
 /*
 
- Pathname: get_sign_bits.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Update comments for the structure
-
- Description: Change include file. Above description probably from another
-              header file.
-
- Description: Fix pathname above
-
- Who:                                               Date: MM/DD/YYYY
- Description:
+ Filename: get_sign_bits.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

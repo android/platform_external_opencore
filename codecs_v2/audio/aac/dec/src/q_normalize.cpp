@@ -17,43 +17,8 @@
  */
 /*
 
- Pathname: q_normalize.c
+ Filename: q_normalize.cpp
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
- (1) Modify to include search over the scalefactor bands to insure
-     that the data is using all 31 data-bits.
-
- Description:
- (1) Modify to remove search over the scalefactor bands to insure
-     that the data is using all 31 data-bits.
-     (Pushed out into separate function)
- (2) Change variable "k" to more descriptive "shift_amt"
- (3) Update pseudocode to reflect removed code.
- (4) Add PV Copyright notice.
-
- Description:
- (1) Modified to protect q-normalize from shifting by amounts >= 32.
-
- Description:
- (1) Delete local variable idx_count.
-
- Description:
- (1) Included search for max in each frame, modified interface.
-
- Description:
- (1) unrolled loop based on the fact that the size of each scale band
-     is always an even number.
-
- Description:Check shift, if zero, do not shift.
-
- Description: Eliminated warning: non use variable "i" and memset function
-    definition
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -165,28 +130,6 @@
     ENDFOR
 
     return min_q;
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

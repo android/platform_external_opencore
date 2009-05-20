@@ -22,13 +22,6 @@
 
    Filename: pvmp3_crc.h
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -82,9 +75,9 @@ extern "C"
 #endif
 
     uint32 getbits_crc(tmp3Bits *inputStream,
-                       int32 neededBits,
-                       uint32 *crc,
-                       uint32 crc_enabled);
+    int32 neededBits,
+    uint32 *crc,
+    uint32 crc_enabled);
 
 
     void calculate_crc(uint32 data,

@@ -23,6 +23,9 @@
 #define DATAPATHLOGGER_TAG "protocolenginenode.protocolengine"
 #define DATAPATHERRLOGGER_TAG "datapath.sourcenode.protocolenginenode"
 
+#define Response1xxStartStatusCode  100
+#define Response1xxEndStatusCode    200
+
 class UserCommands
 {
     public:
@@ -53,8 +56,8 @@ enum ProtocolEngineOutputDataType
 struct ProtocolEngineOutputDataSideInfo
 {
     ProtocolEngineOutputDataType iDataType;
-    // for OutputDataType_FirstDataPacket,	iData = iFirstPacketNumber
-    // for OutputDataType_NormalData,		iData = iCurrentDataStreamOffset (for fasttrack) / iCurrPacketNum (for http streaming)
+    // for OutputDataType_FirstDataPacket,  iData = iFirstPacketNumber
+    // for OutputDataType_NormalData,       iData = iCurrentDataStreamOffset (for fasttrack) / iCurrPacketNum (for http streaming)
     OsclAny *iData;
 
     // constructors
@@ -94,8 +97,8 @@ enum ProtocolRequestType
 struct ProtocolStateCompleteInfo
 {
     bool isDownloadStreamingDone;  // true => current state complete means download or streaming is done/complete
-    bool isWholeSessionDone;		 // true => current state is the last state of the state transition table
-    bool isEOSAchieved;				 // true => EOS packet is received in streaming, or download reaches EOS (content-length, server discconnect or maximum file size)
+    bool isWholeSessionDone;         // true => current state is the last state of the state transition table
+    bool isEOSAchieved;              // true => EOS packet is received in streaming, or download reaches EOS (content-length, server discconnect or maximum file size)
     // for protocol engine side, isDownloadStreamingDone=true <=> isEOSAchieved=true, but node will use this structure for other
     // purposes, e.g. this flag can be used to differentiate stop case and true EOS case
     // constructors
@@ -106,8 +109,8 @@ struct ProtocolStateCompleteInfo
     ProtocolStateCompleteInfo(const ProtocolStateCompleteInfo &x)
     {
         isDownloadStreamingDone = x.isDownloadStreamingDone;
-        isWholeSessionDone		= x.isWholeSessionDone;
-        isEOSAchieved			= x.isEOSAchieved;
+        isWholeSessionDone      = x.isWholeSessionDone;
+        isEOSAchieved           = x.isEOSAchieved;
     }
     ProtocolStateCompleteInfo(const bool aDownloadStreamingDone, const bool aSessionDone, const bool aEOSAchieved) :
             isDownloadStreamingDone(aDownloadStreamingDone),
@@ -121,8 +124,8 @@ struct ProtocolStateCompleteInfo
     ProtocolStateCompleteInfo& operator=(const ProtocolStateCompleteInfo& x)
     {
         isDownloadStreamingDone = x.isDownloadStreamingDone;
-        isWholeSessionDone		= x.isWholeSessionDone;
-        isEOSAchieved			= x.isEOSAchieved;
+        isWholeSessionDone      = x.isWholeSessionDone;
+        isEOSAchieved           = x.isEOSAchieved;
         return *this;
     }
 
@@ -130,8 +133,8 @@ struct ProtocolStateCompleteInfo
     void clear()
     {
         isDownloadStreamingDone = false;
-        isWholeSessionDone		= false;
-        isEOSAchieved			= false;
+        isWholeSessionDone      = false;
+        isEOSAchieved           = false;
     }
 };
 
@@ -152,7 +155,7 @@ class ProtocolStateObserver
 
 // This class is based on state pattern, to encapsulate all state specific behavior.
 class ProtocolState : public HttpParsingBasicObjectObserver,
-            public UserCommands
+        public UserCommands
 {
     public:
         // has base implementation, basically create a templete
@@ -388,6 +391,30 @@ class ProtocolState : public HttpParsingBasicObjectObserver,
         int32 doProcessMicroStateGetResponsePreCheck();
         int32 doProcessMicroStateGetResponse(INPUT_DATA_QUEUE &aDataQueue);
 
+        bool isErrorResponse(int32 &status)
+        {
+            return (status == PROCESS_SERVER_RESPONSE_ERROR || status < 0);
+        }
+
+        bool is1xxResponse()
+        {
+            int32 statusCode = iParser->getStatusCode();
+            return (statusCode >= Response1xxStartStatusCode && statusCode < Response1xxEndStatusCode);
+        }
+
+        bool isGotEOS(int32& status)
+        {
+            return (status == PROCESS_SUCCESS_GOT_EOS);
+        }
+
+        bool isEndofMessage(int32& status)
+        {
+            return (status == PROCESS_SUCCESS_END_OF_MESSAGE ||
+                    status == PROCESS_SUCCESS_END_OF_MESSAGE_TRUNCATED ||
+                    status == PROCESS_SUCCESS_END_OF_MESSAGE_WITH_EXTRA_DATA ||
+                    status == PROCESS_SUCCESS_END_OF_MESSAGE_BY_SERVER_DISCONNECT);
+        }
+
         // support setExtensionFields()
         uint32 getBitMaskForHttpMethod(Oscl_Vector<uint32, OsclMemAllocator> &aMaskBitForHTTPMethod,
                                        const HTTPMethod aMethod);
@@ -429,7 +456,7 @@ class ProtocolObserver
 // Any http-based protocol(progressive download, fasttrack, ms http streaming and real http cloaking)
 // can be viewed as a http request-response sequence, which can be addressed by GoF state pattern
 class HttpBasedProtocol : public ProtocolStateObserver,
-            public UserCommands
+        public UserCommands
 {
     public:
         // each http based protocol must implment this interface

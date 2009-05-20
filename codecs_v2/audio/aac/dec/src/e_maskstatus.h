@@ -17,13 +17,7 @@
  */
 /*
 
-   Pathname: ./include/e_MaskStatus.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: e_maskstatus.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

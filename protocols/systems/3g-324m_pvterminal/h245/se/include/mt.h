@@ -107,8 +107,8 @@ class MultiplexEntrySendUtility
     public:
         virtual ~MultiplexEntrySendUtility() {}
         virtual void MsgMtSend(PS_MuxDescriptor, uint8 sn) = 0;
-        virtual void PtvTrfCfmSend(int32 sn) = 0;
-        virtual void PtvRjtIdcSend(S_InfHeader::TDirection dir, int32 Source , PS_MeRejectCause p_Cause, int32 sn) = 0;
+        virtual void PtvTrfCfmSend(PS_MultiplexEntrySendAck p_MultiplexEntrySendAck) = 0;
+        virtual void PtvRjtIdcSend(S_InfHeader::TDirection dir, int32 Source , PS_MeRejectCause p_Cause, int32 sn , int32 mux_number) = 0;
         virtual void MsgMtRlsSend(MTEntries& entries) = 0;
         virtual void RequestT104Timer(int32 sn) = 0;
         virtual void CancelT104Timer(int32 sn) = 0;
@@ -121,16 +121,19 @@ class MultiplexEntrySendMgr : public HeapBase
     public:
         MultiplexEntrySendMgr(int32 sn, MultiplexEntrySendUtility* util);
         void TransferRequest(PS_MuxDescriptor p_MuxDescriptor);
-        void MultiplexEntrySendAck(PS_MultiplexEntrySendAck p_MultiplexEntrySendAck);
-        void MultiplexEntrySendReject(PS_MultiplexEntrySendReject p_MultiplexEntrySendReject);
+        int MultiplexEntrySendAck(PS_MultiplexEntrySendAck p_MultiplexEntrySendAck);
+        int MultiplexEntrySendReject(PS_MultiplexEntrySendReject p_MultiplexEntrySendReject);
         void T104Timeout();
+        int MultiplexEntrySendSn();
+
+        Oscl_Vector<uint32, OsclMemAllocator> iMuxEntryNumbers;
     private:
         void Write(PS_MultiplexEntryDescriptor descriptors, int32 size);
         void StatusWrite(uint32 status);
         void T104TimerStart(void) ;
         void T104TimerStop(void) ;
 
-        MTEntries		iOutMTEntries;
+        MTEntries       iOutMTEntries;
         MultiplexEntrySendUtility* iUtil;
         int32            iSn;
         uint32           iStatus;
@@ -139,7 +142,7 @@ class MultiplexEntrySendMgr : public HeapBase
 /************************************************************************/
 /*  Function Prototype Declare                                          */
 /************************************************************************/
-typedef Oscl_Map<int32, MultiplexEntrySendMgr*, OsclMemAllocator> PendingMtSendMap;
+
 class MT : public SEBase, public MultiplexEntrySendUtility, public OsclTimerObserver
 {
     public:
@@ -162,8 +165,8 @@ class MT : public SEBase, public MultiplexEntrySendUtility, public OsclTimerObse
         void _0507_0011(void) ;
         /* MultiplexEntrySendUtility virtuals */
         void MsgMtSend(PS_MuxDescriptor, uint8 sn) ;
-        void PtvTrfCfmSend(int32 sn) ;
-        void PtvRjtIdcSend(S_InfHeader::TDirection dir, int32 Source , PS_MeRejectCause p_Cause, int32 sn);
+        void PtvTrfCfmSend(PS_MultiplexEntrySendAck p_MultiplexEntrySendAck);
+        void PtvRjtIdcSend(S_InfHeader::TDirection dir, int32 Source , PS_MeRejectCause p_Cause, int32 sn , int32 mux_number);
         void MsgMtRlsSend(MTEntries& entries) ;
         void RequestT104Timer(int32 sn);
         void CancelT104Timer(int32 sn);
@@ -185,7 +188,7 @@ class MT : public SEBase, public MultiplexEntrySendUtility, public OsclTimerObse
 
         void StatusWrite(uint8 status)
         {
-            if (status & 0x01)  	                  /* Incoming */
+            if (status & 0x01)                        /* Incoming */
             {
 #ifdef PVANALYZER /* --------SE Analyzer Tool -------- */
                 StatusShow(Status2, status);
@@ -234,12 +237,12 @@ class MT : public SEBase, public MultiplexEntrySendUtility, public OsclTimerObse
             TmrSqcNumber++;
         }
 
-        uint8			Status2;
+        uint8           Status2;
         int32             OutSqc;
         int32             InSqc;
         int32             TmrSqcNumber;
-        MTEntries		InMTEntries;
-        PendingMtSendMap iPendingMtSend;
+        MTEntries       InMTEntries;
+        MultiplexEntrySendMgr* iPendingMtSend;
         OsclTimer<OsclMemAllocator> iTimer;
 };
 

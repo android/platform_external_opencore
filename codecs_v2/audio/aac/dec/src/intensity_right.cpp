@@ -17,27 +17,8 @@
  */
 /*
 
- Pathname: intensity_right.c
+ Filename: intensity_right.cpp
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Modified per review comments.
-
- Description: Noticed that the code could be more efficient by
- using some other method for storing the sign.  The code was changed to
- use a signed Int to store the table, and an adjustment of the q-format to
- reflect the difference between the data being shifted by 16 and the table
- being stored in q-15 format.
-
- Description: Updated pseudocode
-
- Description: When the multiplication of two 16-bits variables is stored in
-              an 32-bits variable, the result should be typecasted explicitly
-              to Int32 before it is stored.
-              *(pCoefRight++) = (Int32) tempInt2 * multiplier;
-
- Description:
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -198,28 +179,6 @@
         pQformatRight = pQformatRight + sfb_per_win;
         pQformatLeft  = pQformatLeft  + sfb_per_win;
     ENDFOR
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-   resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

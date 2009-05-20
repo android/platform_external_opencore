@@ -17,18 +17,8 @@
  */
 /*
 
- Pathname: ./src/esc_iquant_scaling.c
+ Filename: esc_iquant_scaling.cpp
  Funtions:  esc_iquant_scaling
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from esc_iquant_fxp.c code
-
- Description:  Eliminated unused variables to avoid warnings, changed header
-
- Who:                                   Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -48,10 +38,10 @@
     QFormat     = the output Q format for the array coef[].
 
 
-    scale		= scaling factor after separating power of 2 factor out from
-				  0.25*(sfb_scale - 100), i.e., 0.25*sfb_scale.
+    scale       = scaling factor after separating power of 2 factor out from
+                  0.25*(sfb_scale - 100), i.e., 0.25*sfb_scale.
 
-	maxInput	= maximum absolute value of quantSpec.
+    maxInput    = maximum absolute value of quantSpec.
 
  Local Stores/Buffers/Pointers Needed: None.
 
@@ -206,15 +196,15 @@
 
                 ENDIF
 
-				b_low  = (mult_high & 0xFFFF);
-				b_high = (mult_high >> 16);
+                b_low  = (mult_high & 0xFFFF);
+                b_high = (mult_high >> 16);
 
-				mult_low  = ( (UInt32) b_low * scale );
-				mult_high = ( (Int32) b_high * scale );
+                mult_low  = ( (UInt32) b_low * scale );
+                mult_high = ( (Int32) b_high * scale );
 
-				mult_low >>= 16;
+                mult_low >>= 16;
 
-				coef[i]  = (Int32) (mult_high + mult_low);
+                coef[i]  = (Int32) (mult_high + mult_low);
 
             ENDFOR
         ENDIF
@@ -222,28 +212,6 @@
 
     RETURN
 
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */
@@ -396,7 +364,7 @@ __inline Int32 abs2(Int32 x)
 }
 
 
-#define pv_abs(x)	abs2(x)
+#define pv_abs(x)   abs2(x)
 
 
 #elif (defined(PV_ARM_GCC_V5)||defined(PV_ARM_GCC_V4))
@@ -419,12 +387,12 @@ __inline Int32 abs2(Int32 x)
     return (y);
 }
 
-#define pv_abs(x)	abs2(x)
+#define pv_abs(x)   abs2(x)
 
 
 #else
 
-#define pv_abs(x)	((x) > 0)? (x) : (-x)
+#define pv_abs(x)   ((x) > 0)? (x) : (-x)
 
 #endif
 
@@ -436,9 +404,9 @@ void esc_iquant_scaling(
     const Int16     quantSpec[],
     Int32         coef[],
     const Int     sfbWidth,
-    Int	const	   QFormat,
-    UInt16		  scale,
-    Int			  maxInput)
+    Int const      QFormat,
+    UInt16        scale,
+    Int           maxInput)
 {
     Int    i;
     Int    x;
@@ -456,8 +424,8 @@ void esc_iquant_scaling(
 #if ( defined(_ARM) || defined(_ARM_V4))
 
     {
-        Int32	*temp;
-        Int32	R12, R11, R10, R9;
+        Int32   *temp;
+        Int32   R12, R11, R10, R9;
 
         deltaOneThird = sizeof(Int32) * sfbWidth;
         temp = coef;
@@ -465,20 +433,20 @@ void esc_iquant_scaling(
         // from standard library call for __rt_memset
         __asm
         {
-            MOV		R12, #0x0
-            MOV		R11, #0x0
-            MOV		R10, #0x0
-            MOV		R9, #0x0
-            SUBS	deltaOneThird, deltaOneThird, #0x20
+            MOV     R12, #0x0
+            MOV     R11, #0x0
+            MOV     R10, #0x0
+            MOV     R9, #0x0
+            SUBS    deltaOneThird, deltaOneThird, #0x20
 loop:
-            STMCSIA	temp!, {R12, R11, R10, R9}
-            STMCSIA	temp!, {R12, R11, R10, R9}
-            SUBCSS	deltaOneThird, deltaOneThird, #0x20
-            BCS 	loop
+            STMCSIA temp!, {R12, R11, R10, R9}
+            STMCSIA temp!, {R12, R11, R10, R9}
+            SUBCSS  deltaOneThird, deltaOneThird, #0x20
+            BCS     loop
 
-            MOVS	deltaOneThird, deltaOneThird, LSL #28
-            STMCSIA	temp!, {R12, R11, R10, R9}
-            STMMIIA	temp!, {R12, R11}
+            MOVS    deltaOneThird, deltaOneThird, LSL #28
+            STMCSIA temp!, {R12, R11, R10, R9}
+            STMMIIA temp!, {R12, R11}
         }
     }
 

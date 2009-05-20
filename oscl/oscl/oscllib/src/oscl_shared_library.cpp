@@ -278,6 +278,9 @@ OSCL_EXPORT_REF OsclLibStatus OsclSharedLibrary::Close()
         // address of the symbol
         if (NULL == releaseInterface)
         {
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_REL, ipLogger, PVLOGMSG_ERR,
+                            (0, "OsclLib::Close: Could not access "
+                             "PVReleaseInterface symbol in library - Possible memory leak."));
             // check for errors
             const char* pErr = dlerror();
             if (NULL == pErr)
@@ -294,12 +297,13 @@ OSCL_EXPORT_REF OsclLibStatus OsclSharedLibrary::Close()
                                 (0, "OsclLib::Close: Could not access PVReleaseInterface "
                                  "symbol in library: %s", pErr));
             }
-            return OsclLibFail;
         }
-        releaseInterface(pSharedLibInterface);
-        pSharedLibInterface = NULL;
+        else
+        {
+            releaseInterface(pSharedLibInterface);
+            pSharedLibInterface = NULL;
+        }
     }
-
     if (ipHandle)
     {
         if (0 != dlclose(ipHandle))
@@ -361,11 +365,11 @@ OSCL_EXPORT_REF void OsclSharedLibraryList::Populate(const OSCL_String& aPath, c
     iInterfaceId = aInterfaceId;
     OsclConfigFileList configFileList;
     configFileList.Populate(aPath);
-    for (uint32 i = 0;i < configFileList.Size();i++)
+    for (uint32 i = 0; i < configFileList.Size(); i++)
     {
         OsclLibraryList libList;
         libList.Populate(aInterfaceId, configFileList.GetConfigfileAt(i));
-        for (uint32 j = 0;j < libList.Size();j++)
+        for (uint32 j = 0; j < libList.Size(); j++)
         {
             OsclSharedLibrary* sharedLib = OSCL_NEW(OsclSharedLibrary, (libList.GetLibraryPathAt(j)));
             iList.push_back(sharedLib);

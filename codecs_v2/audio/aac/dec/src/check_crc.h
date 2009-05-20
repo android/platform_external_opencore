@@ -21,12 +21,6 @@
     get_dse
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
 SC 29 Software Copyright Licencing Disclaimer:
 
 This software module was originally developed by
@@ -108,8 +102,8 @@ extern "C"
     ----------------------------------------------------------------------------*/
 
     void check_crc(HANDLE_CRC hCrcBuf,
-                   UInt32 bValue,
-                   Int32 nBits);
+    UInt32 bValue,
+    Int32 nBits);
 
 
 #ifdef __cplusplus

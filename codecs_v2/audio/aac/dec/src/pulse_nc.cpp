@@ -17,24 +17,7 @@
  */
 /*
 
- Pathname: pulse_nc.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  Modified to bring code in-line with PV standards.
-
- Description: Pass in max as input argument.
-
- Description: Went back to the if-statement to check for max.
-
- Who:                       Date:
- Description:
+ Filename: pulse_nc.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -55,7 +38,7 @@
                       Variable is named (pLongFrameInfo) because this function
                       is only used for LONG windows.
                       (FrameInfo *)
-	max				= Pointer to the maximum value of coef[]
+    max             = Pointer to the maximum value of coef[]
 
  Local Stores/Buffers/Pointers Needed:
     None
@@ -153,28 +136,6 @@
     ENDFOR
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
-
-------------------------------------------------------------------------------
 */
 
 
@@ -225,7 +186,7 @@ void pulse_nc(
     Int16      coef[],
     const PulseInfo  *pPulseInfo,
     const FrameInfo  *pLongFrameInfo,
-    Int		 *max)
+    Int      *max)
 {
     Int index;
 

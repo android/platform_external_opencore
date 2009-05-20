@@ -56,19 +56,22 @@ class AvcDecoder_OMX
             CurrInputTimestamp = 0;
             pDpbBuffer = NULL;
             FrameSize = 0;
+            iAvcActiveFlag = OMX_FALSE;
             oscl_memset(DisplayTimestampArray, 0, sizeof(OMX_TICKS)*AVC_DEC_TIMESTAMP_ARRAY_SIZE);
         };
 
         ~AvcDecoder_OMX() { };
 
-        AVCCleanupObject_OMX*	pCleanObject;
-        AVCHandle		AvcHandle;
-        AVCDecSPSInfo	SeqInfo;
-        uint32			FrameSize;
-        uint8*			pDpbBuffer;
-        OMX_TICKS		DisplayTimestampArray[AVC_DEC_TIMESTAMP_ARRAY_SIZE];
-        OMX_TICKS		CurrInputTimestamp;
-        OMX_U32			InputBytesConsumed;
+        AVCCleanupObject_OMX*   pCleanObject;
+        AVCHandle       AvcHandle;
+        AVCDecSPSInfo   SeqInfo;
+        uint32          FrameSize;
+        uint8*          pDpbBuffer;
+        OMX_TICKS       DisplayTimestampArray[AVC_DEC_TIMESTAMP_ARRAY_SIZE];
+        OMX_TICKS       CurrInputTimestamp;
+        OMX_U32         InputBytesConsumed;
+        OMX_BOOL        iAvcActiveFlag;
+        OMX_BOOL        iSkipToIDR;
 
 
         OMX_ERRORTYPE AvcDecInit_OMX();
@@ -101,5 +104,5 @@ class AvcDecoder_OMX
 
 typedef class AvcDecoder_OMX AvcDecoder_OMX;
 
-#endif	//#ifndef AVC_DEC_H_INCLUDED
+#endif  //#ifndef AVC_DEC_H_INCLUDED
 

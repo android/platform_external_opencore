@@ -38,7 +38,8 @@ MediaAtom::MediaAtom(MP4_FF_FILE *fp,
                      uint32 size,
                      uint32 type,
                      bool oPVContentDownloadable,
-                     uint32 parsingMode)
+                     uint32 parsingMode,
+                     bool aOpenFileOncePerTrack)
         : Atom(fp, size, type)
 {
     _pmediaHeader      = NULL;
@@ -150,7 +151,7 @@ MediaAtom::MediaAtom(MP4_FF_FILE *fp,
 
                 PV_MP4_FF_NEW(fp->auditCB, MediaInformationAtom, (fp, mediaType, filename,
                               oPVContentDownloadable,
-                              parsingMode),
+                              parsingMode, aOpenFileOncePerTrack),
                               _pmediaInformation);
 
                 // Error checking

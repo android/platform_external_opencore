@@ -17,18 +17,7 @@
  */
 /*
 
- Pathname: PVMP4AudioDecoderResetBuffer.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: (1) add more comments (2) set pVars->bno = 1
-
- Description: perChan[] is an array of structures in tDec_Int_File. Made
-              corresponding changes.
-
- Who:                                         Date:
- Description:
+ Filename: pvmp4audiodecoderresetbuffer.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -81,28 +70,6 @@
 
  (1) ISO/IEC 14496-3: 1999(E)
       subclause 1.6
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

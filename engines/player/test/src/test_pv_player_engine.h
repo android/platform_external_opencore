@@ -83,7 +83,21 @@ class LogAppenderDestructDealloc : public OsclDestructDealloc
 class pvplayer_engine_test_suite : public test_case
 {
     public:
-        pvplayer_engine_test_suite(char *aFilename, PVMFFormatType aFiletype, int32 aFirstTest, int32 aLastTest, bool aCompV, bool aCompA, bool aFInput, bool aBCS, int32 aLogLevel, int32 aLogNode, int32 aLogText, int32 aLogMem, int32 aFileFormatType, bool  aProxyEnabled);
+        pvplayer_engine_test_suite(char *aFilename,
+                                   PVMFFormatType aFiletype,
+                                   int32 aFirstTest,
+                                   int32 aLastTest,
+                                   bool aCompV,
+                                   bool aCompA,
+                                   bool aFInput,
+                                   bool aBCS,
+                                   int32 aLogLevel,
+                                   int32 aLogNode,
+                                   int32 aLogText,
+                                   int32 aLogMem,
+                                   int32 aFileFormatType,
+                                   bool  aProxyEnabled,
+                                   uint32 aDownloadRateInKbps);
 };
 
 
@@ -206,9 +220,9 @@ class PVPlayerTestMioFactory
 
 // The base class for all pvplayer engine asynchronous tests
 class pvplayer_async_test_base : public OsclTimerObject,
-            public PVCommandStatusObserver,
-            public PVInformationalEventObserver,
-            public PVErrorEventObserver
+        public PVCommandStatusObserver,
+        public PVInformationalEventObserver,
+        public PVErrorEventObserver
 {
     public:
         pvplayer_async_test_base(PVPlayerAsyncTestParam aTestParam) :
@@ -328,19 +342,47 @@ class pvplayer_async_test_base : public OsclTimerObject,
 
 // test_base-based class which will run async tests on pvPlayer engine
 class pvplayer_engine_test : public test_case,
-            public pvplayer_async_test_observer
+        public pvplayer_async_test_observer
 {
     public:
-        pvplayer_engine_test(char *aFileName, PVMFFormatType aFileType, int32 aFirstTest, int32 aLastTest,
-                             bool aCompV, bool aCompA, bool aFInput, bool aBCS, int32 aLogLevel, int32 aLogNode, int32 aLogText, int32 aLogMem, int32 aFileFormatType, bool aProxyEnabled);
+        pvplayer_engine_test(char *aFileName,
+                             PVMFFormatType aFileType,
+                             int32 aFirstTest,
+                             int32 aLastTest,
+                             bool aCompV,
+                             bool aCompA,
+                             bool aFInput,
+                             bool aBCS,
+                             int32 aLogLevel,
+                             int32 aLogNode,
+                             int32 aLogText,
+                             int32 aLogMem,
+                             int32 aFileFormatType,
+                             bool aProxyEnabled,
+                             uint32 aDownloadRateInKbps);
         ~pvplayer_engine_test();
 
         // Note: for command line options to work, the local tests need to be 0-99,
         // Download tests 100-199,
         // Streaming tests 200-299.
         // Interactive test 800-899
+
+        /**
+         *  @page test Test List
+         * This is extra text for the Test List page.
+         * The tests should be executed from the same directory as the test content.
+         * @code
+         *    testapp [-test <testcase number>]
+         * @endcode
+         * where <testcase number> is one of the test cases listed below.
+         *
+         */
+
         enum PVPlayerEngineAsyncTests
         {
+            /**
+            * @test (0) New Delete Test. No input.
+                */
             NewDeleteTest = 0,
             OpenPlayStopResetTest,
             OpenPlayStopResetCPMTest,
@@ -397,40 +439,193 @@ class pvplayer_engine_test : public test_case,
             MediaIONodeForwardStepActiveAudioTest,
             MediaIONodeBackwardTest,
 
+            /**
+            * @test (51) Open-Play-Stop Test.
+            * Default MP4 file with MPEG-4 + AMR tracks.
+            * No input. Output YUV and PCM data files.
+            */
             MP4M4VAMRFileOpenPlayStopTest = 51, // Start of testing various local files
+            /**
+            * @test (52) Play-Stop-Play-Stop Test.
+            * Default MP4 file with MPEG-4 + AMR tracks.
+            * No input. Output YUV and PCM data files.
+            */
             MP4M4VAMRFilePlayStopPlayStopTest,
+            /**
+            * @test (53) Open-Play-Stop Test.
+            * Default MP4 file with H.263 + AMR tracks.
+            * No input. Output YUV and PCM data files.
+            */
             MP4H263AMRFileOpenPlayStopTest,
+            /**
+            * @test (54) Play-Stop-Play-Stop Test.
+            * Default MP4 file with H.263 + AMR tracks.
+            * No input. Output YUV and PCM data files.
+            */
             MP4H263AMRFilePlayStopPlayStopTest,
+            /**
+            * @test (55) Open-Play-Stop Test.
+            * Default MP4 file with AVC + AMR tracks.
+            * No input. Output YUV and PCM data files.
+            */
             MP4AVCAMRFileOpenPlayStopTest,
+            /**
+            * @test (56) Play-Stop-Play-Stop Test.
+            * Default MP4 file with AVC + AMR tracks.
+            * No input. Output YUV and PCM data file.
+            */
             MP4AVCAMRFilePlayStopPlayStopTest,
+            /**
+            * @test (57) Open-Play-Stop Test.
+            * Default MP4 file with AMR track.
+            * No input. Output PCM data file.
+            */
             MP4AMRFileOpenPlayStopTest,
+            /**
+            * @test (58) Play-Stop-Play-Stop Test.
+            * DDefault MP4 file with AMR track.
+            * No input. Output PCM data file.
+            */
             MP4AMRFilePlayStopPlayStopTest,
+            /**
+            * @test (59) Open-Play-Stop Test.
+            * Default MP4 file with AAC track.
+            * No input. Output PCM data file.
+            */
             MP4AACFileOpenPlayStopTest,
-
+            /**
+            * @test (60) Play-Stop-Play-Stop Test.
+            * Default MP4 file with AAC track.
+            * No input. Output PCM data file.
+            */
             MP4AACFilePlayStopPlayStopTest = 60,
+            /**
+            * @test (61) Open-Play-Stop Test.
+            * Default MP4 file with AMR + text track.
+            * No input. Output PCM data file.
+            */
             MP4M4VAMRTextFileOpenPlayStopTest,
+            /**
+            * @test (62) Play-Stop-Play-Stop Test.
+            * Default MP4 file with AMR + text track.
+            * No input. Output PCM data file.
+            */
             MP4M4VAMRTextFilePlayStopPlayStopTest,
+            /**
+            * @test (63) Open-Play-Stop Test.
+            * Default AMR IETF format file.
+            * No input. Output PCM data files.
+            */
             AMRIETFFileOpenPlayStopTest,
+            /**
+            * @test (64) Play-Stop-Play-Stop Test.
+            * Default AMR IETF format file.
+            * No input. Output PCM data files.
+            */
             AMRIETFFilePlayStopPlayStopTest,
+            /**
+            * @test (65) Open-Play-Stop Test.
+            * Default AMR IF2 format file.
+            * No input. Output PCM data files.
+            */
             AMRIF2FileOpenPlayStopTest,
+            /**
+            * @test (66) Play-Stop-Play-Stop Test.
+            * Default AMR IF2 format file.
+            * No input. Output PCM data files.
+            */
             AMRIF2FilePlayStopPlayStopTest,
+            /**
+            * @test (67) Open-Play-Stop Test.
+            * Default AAC ADTS format file.
+            * No input. Output PCM data files.
+            */
             AACADTSFileOpenPlayStopTest,
+            /**
+            * @test (68) Play-Stop-Play-Stop Test.
+            * Default AAC ADTS format file.
+            * No input. Output PCM data files.
+            */
             AACADTSFilePlayStopPlayStopTest,
+            /**
+            * @test (69) Open-Play-Stop Test.
+            * Default AAC ADIF format file.
+            * No input. Output PCM data files.
+            */
             AACADIFFileOpenPlayStopTest,
-
+            /**
+            * @test (70) Play-Stop-Play-Stop Test.
+            * Default AAC ADIF format file.
+            * No input. Output PCM data files.
+            */
             AACADIFFilePlayStopPlayStopTest = 70,
+            /**
+            * @test (71) Open-Play-Stop Test.
+            * Default raw AAC format file.
+            * No input. Output PCM data files.
+            */
             AACRawFileOpenPlayStopTest,
+            /**
+            * @test (72) Play-Stop-Play-Stop Test.
+            * Default raw AAC format file.
+            * No input. Output PCM data files.
+            */
             AACRawFilePlayStopPlayStopTest,
+            /**
+            * @test (73) Open-Play-Stop Test.
+            * Default MP3 constant bitrate (CBR) format file.
+            * No input. Output PCM data files.
+            */
             MP3CBRFileOpenPlayStopTest,
+            /**
+            * @test (74) Play-Stop-Play-Stop Test.
+            * Default MP3 constant bitrate (CBR) format file.
+            * No input. Output PCM data files.
+            */
             MP3CBRFilePlayStopPlayStopTest,
+            /**
+            * @test (75) Open-Play-Stop Test.
+            * Default MP3 variable bitrate (VBR) format file.
+            * No input. Output PCM data files.
+            */
             MP3VBRFileOpenPlayStopTest,
+            /**
+            * @test (76) Play-Stop-Play-Stop Test.
+            * Default MP3 variable bitrate (VBR) format file.
+            * No input. Output PCM data files.
+            */
             MP3VBRFilePlayStopPlayStopTest,
+            /**
+            * @test (77) Open-Play-Stop Test.
+            * Default WAV format file.
+            * No input. Output PCM data files.
+            */
             WAVFileOpenPlayStopTest,
+            /**
+            * @test (78) Play-Stop-Play-Stop Test.
+            * Default WAV format file.
+            * No input. Output PCM data files.
+            */
             WAVFilePlayStopPlayStopTest,
+            /**
+            * @test (79) Open-Play-Stop Test.
+            * Default ASF format file with WMV and WMA tracks.
+            * No input. Output YUV and PCM data files.
+            */
             ASFFileOpenPlayStopTest,
+            /**
+            * @test (80) Play-Stop-Play-Stop Test.
+            * Default ASF format file with WMV and WMA tracks.
+            * No input. Output YUV and PCM data files.
+            */
             ASFFilePlayStopPlayStopTest = 80,
 
             //real audio test case
+            /**
+            * @test (81) Open-Play-Stop Test.
+            * Default Real format file with Real Video and Real Audio tracks.
+            * No input. Output YUV and PCM data files.
+            */
             RealAudioFileOpenPlayStopTest = 81,
             SetPlaybackAfterPrepare,
 
@@ -448,55 +643,257 @@ class pvplayer_engine_test : public test_case,
 
             FirstDownloadTest = 100,  //placeholder
 
+            /**
+            * @test (101) FastTrack Download Open Play Stop Test.
+            * Input PVX file (session establishment file for FastTrack).
+            * Output (partially) downloaded media file and YUV and PCM data files from 10 seconds of Playback.
+            */
             FTDownloadOpenPlayStopTest = 101,
-
+            /**
+            * @test (102) Progressive Download Play ASAP Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from 10 seconds of Playback.
+            */
             ProgDownloadPlayAsapTest, //102
+            /**
+            * @test (103) Progressive Download Then Play Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadDownloadThenPlayTest, //103
+            /**
+            * @test (104) Progressive Download Only Test.
+            * Input http url to a progressively downloadable file.
+            * Output downloaded media file.
+            */
             ProgDownloadDownloadOnlyTest, //104
+            /**
+            * @test (105) Progressive Download Cancel During Init Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file.
+            */
             ProgDownloadCancelDuringInitTest, //105
+            /**
+            * @test (106) Progressive Download Content Too Large Test.
+            * Download the file whose size is larger than the maximum file size which the player can download.
+            * Input http url to a progressively downloadable file.
+            * No output.
+            */
             ProgDownloadContentTooLarge, //106
+            /**
+            * @test (107) Progressive Download Truncated Test.
+            * Start the playback until PVMFInfoContentTruncated or EOS error occurs.
+            * Input special http url to a download simulator.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadTruncated, //107
+            /**
+            * @test (108) Progressive Download Protocol Rollover Test.
+            * Set Protocol rollover and continue download
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadProtocolRolloverTest, //108
+            /**
+            * @test (109) Progressive Download Set Playback Range Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadSetPlayBackRangeTest, //109
+            /**
+            * @test (110) Progressive Download Play Until EOS Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadPlayUtilEOSTest, //110
+            /**
+            * @test (111) FastTrack Download Open Play Until EOS Test.
+            * Input PVX file (session establishment file for FastTrack).
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             FTDownloadOpenPlayUntilEOSTest, //111
-
+            /**
+            * @test (112) Progressive Download Then Play-Pause Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadDownloadThenPlayPauseTest,//112
+            /**
+            * @test (113) Progressive Download Then Play Reposition Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadDownloadThenPlayRepositionTest,//113
+            /**
+            * @test (114) Progressive Download Cancel During Init Delay Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadCancelDuringInitDelayTest, //114
+            /**
+            * @test (115) Progressive Download Resume After Underflow Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadPauseResumeAfterUnderflowTest, //115
-
+            /**
+            * @test (116) FastTrack Download Play-Stop-Play Test.
+            * Input PVX file (session establishment file for FastTrack).
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             FTDownloadPlayStopPlayTest, //116
+            /**
+            * @test (117) Progressive Download Play-Stop-Play Test.
+            * Input http url to a progressively downloadable file.
+            * Output (partially) downloaded media file and YUV and PCM data files from Playback.
+            */
             ProgDownloadPlayStopPlayTest, //117
 
             LastDownloadTest, //placeholder
 
+            /**
+            * @test (150) Progressive Playback Until EOS Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4UntilEOSTest = 150,
+            /**
+            * @test (151) Progressive Playback Short Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4ShortTest, //151
+            /**
+            * @test (152) Progressive Playback Short Pause-Resume Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4ShortPauseResumeTest, //152
+            /**
+            * @test (153) Progressive Playback Long Pause-Resume Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4LongPauseResumeTest, //153
+            /**
+            * @test (154) Progressive Playback Start-Pause-Seek-Resume-Twice Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4StartPauseSeekResumeTwiceTest, //154
+            /**
+            * @test (155) Progressive Playback Seek-Start Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4SeekStartTest, //155
+            /**
+            * @test (156) Progressive Playback Start-Pause-Seek-Resume-Loop Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4StartPauseSeekResumeLoopTest, //156
-            ProgPlaybackMP4SeekForwardStepLoopTest,	//157
+            /**
+            * @test (157) Progressive Playback Seek-Forward-Step-Loop Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
+            ProgPlaybackMP4SeekForwardStepLoopTest, //157
+            /**
+            * @test (158) Progressive Playback Play-Stop-Play Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackPlayStopPlayTest, //158
+            /**
+            * @test (159) Progressive Playback Seek to beginning of clip after Download Complete Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4SeekToBOCAfterDownloadCompleteTest, //159
+            /**
+            * @test (160) Progressive Playback Seek in cache after Download Complete Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4SeekInCacheAfterDownloadCompleteTest, //160
+            /**
+            * @test (161) Progressive Playback EOS Stop Play Again Test
+            * Input http url to a progressively downloadable MP4 or MP3 file.
+            * Default url is an http url to an MP4 file.
+            * Output YUV and PCM data files from Playback.
+            */
             ProgPlaybackMP4EOSStopPlayAgainTest, //161
 
             LastProgressivePlaybackTest, //placeholder
 
+            /**
+            * @test (180) Shoutcast Playback 5 minute Test
+            * Input http url to a Shoutcast url
+            * Default url is a Shoutcast url to an MP3 file.
+            * Output PCM data file from Playback.
+            */
             ShoutcastPlayback5MinuteTest = 180,
+            /**
+            * @test (181) Shoutcast Playback Pause-Resume Test
+            * Input http url to a Shoutcast url
+            * Default url is a Shoutcast url to an MP3 file.
+            * Output PCM data file from Playback.
+            */
             ShoutcastPlaybackPauseResumeTest = 181,
+            /**
+            * @test (182) Shoutcast Playback Play-Stop-Play Test
+            * Input http url to a Shoutcast url
+            * Default url is a Shoutcast url to an MP3 file.
+            * Output PCM data file from Playback.
+            */
             ShoutcastPlaybackPlayStopPlayTest = 182,
 
             LastShoutcastPlaybackTest, // placeholder
 
             FirstStreamingTest = 200, //placeholder
 
+            /**
+            * @test (201) Streaming Open-Play-Stop Test
+            * Stream content for 20 seconds only
+            * Input rtsp url, SDP file, or http url to SDP or ASF file
+            * Default input is an SDP file
+            * Output YUV and PCM data files from Playback.
+            */
             StreamingOpenPlayStopTest, //201
+            /**
+            * @test (202) Streaming Open-Play-Pause-Play-Stop Test
+            * Stream content for 20 seconds - Pause - Stream 20 seconds more.
+            * Input rtsp url, SDP file, or http url to SDP or ASF file
+            * Default input is an SDP file
+            * Output YUV and PCM data files from Playback.
+            */
             StreamingOpenPlayPausePlayStopTest, //202
+            /**
+            * @test (203) Streaming Open-Play-Seek-Stop Test
+            * Stream content for 20 seconds - Seek - Stop.
+            * Input rtsp url, SDP file, or http url to SDP or ASF file
+            * Default input is an SDP file
+            * Output YUV and PCM data files from Playback.
+            */
             StreamingOpenPlaySeekStopTest, //203
+            /**
+            * @test (204) Streaming Cancel During Prepare Test
+            * Input rtsp url, SDP file, or http url to SDP or ASF file
+            * Default input is an SDP file
+            * Output YUV and PCM data files from Playback.
+            */
             StreamingCancelDuringPrepareTest, //204
 
             LastStreamingTest, //placeholder
@@ -517,6 +914,36 @@ class pvplayer_engine_test : public test_case,
             PrintMemStatsTest,
             PlayUntilEOSTest,
             ReleaseMetadataTest,
+
+            /**
+             * @test (805) ExternalDownloadPlayUntilEOSTest
+             * This testcase will test external download provided the source node in pvPlayerSDK has been modified to take in external datastream.
+             * If one provides a local file (say mp4, asf etc) then this testcase instantiates a download sim, configures it
+             * (PUT has a new command line option "-downloadrate" to specify the desired download simulate rate in kbps).
+             * It also instantiate the external DS factory and passes the same to engine in AddDataSource.
+             * If one provides this testcase with HTTP URL and if the player test configuration has RUN_PVNETWORK_DOWNLOAD_TESTCASES set to 1,
+             * then this testcase will instantiate "HTTPDownload" class to do the download.
+             * This class is part of the "http_retriever" library located in \protocols\.
+             * Testcase also instantiate the external DS factory and passes the same to engine in AddDataSource.
+             * This testcase does not accept, RTSP URLs, SDP files, PVX files as input. If RUN_PVNETWORK_DOWNLOAD_TESTCASES is set to 0
+             * then HTTP URL inputs will not work as well.
+             * This testcase does not have default arguments built in. It must always be run with "-source" arg.
+             */
+            ExternalDownloadPlayUntilEOSTest = 805,
+
+            /**
+             * @test (806) MultiProcessExternalDownloadPlayUntilEOSTest
+             * This testcase will test external download provided the source node in pvPlayerSDK has been modified to take in external datastream.
+             * This testcase uses the HTTPDownload class to perform the download and pass the downloading file name to filemonitor class that
+             * the file as it downloads. This is to simulate usecases where donwnload is happenning in a completely different process space.
+             * It also instantiate the external DS factory and passes the same to engine in AddDataSource.
+             * This testcase only accepts HTTP URLs and is valid only if the player test configuration has RUN_PVNETWORK_DOWNLOAD_TESTCASES set to 1,
+             * This testcase does not accept, local files (asf, mp4, mp3 etc), RTSP URLs, SDP files, PVX files as input.
+             * If RUN_PVNETWORK_DOWNLOAD_TESTCASES is set to 0 then this testcase is not enabled.
+             * This testcase does not have default arguments built in. It must always be run with "-source" arg.
+             */
+            MultiProcessExternalDownloadPlayUntilEOSTest = 806,
+            PlayUntilEOSUsingExternalFileHandleTest = 807,
 
             StreamingOpenPlayUntilEOSTest = 851,//851
             StreamingOpenPlayPausePlayUntilEOSTest,//852
@@ -562,302 +989,1047 @@ class pvplayer_engine_test : public test_case,
 
             //Multiple CPM Plugins
             OpenPlayStop_MultiCPMTest, //893
-            StreamingLongPauseSeekTest,	//894
+            StreamingLongPauseSeekTest, //894
 
+            /**
+            * @test (900) GenericReset_AddDataSource Test
+            */
             GenericReset_AddDataSource = 900,
+            /**
+            * @test (901) GenericReset_Init Test
+            */
             GenericReset_Init,
+            /**
+            * @test (902) GenericReset_AddDataSinkVideo Test
+            */
             GenericReset_AddDataSinkVideo,
+            /**
+            * @test (903) GenericReset_AddDataSinkAudio Test
+            */
             GenericReset_AddDataSinkAudio,
+            /**
+            * @test (904) GenericReset_Prepare Test
+            */
             GenericReset_Prepare,
+            /**
+            * @test (905) GenericReset_Start Test
+            */
             GenericReset_Start,
+            /**
+            * @test (906) GenericReset_Pause Test
+            */
             GenericReset_Pause,
+            /**
+            * @test (907) GenericReset_Resume Test
+            */
             GenericReset_Resume,
+            /**
+            * @test (908) GenericReset_Stop Test
+            */
             GenericReset_Stop,
             //GenericReset_Reset,
+            /**
+            * @test (909) GenericReset_SetPlaybackRange Test
+            */
             GenericReset_SetPlaybackRange,
-
+            /**
+            * @test (910) GenericDelete_AddDataSource Test
+            */
             GenericDelete_AddDataSource = 910,
+            /**
+            * @test (911) GenericDelete_Init Test
+            */
             GenericDelete_Init,
+            /**
+            * @test (912) GenericDelete_AddDataSinkVideo Test
+            */
             GenericDelete_AddDataSinkVideo,
+            /**
+            * @test (913) GenericDelete_AddDataSinkAudio Test
+            */
             GenericDelete_AddDataSinkAudio,
+            /**
+            * @test (914) GenericDelete_Prepare Test
+            */
             GenericDelete_Prepare,
+            /**
+            * @test (915) GenericDelete_Start Test
+            */
             GenericDelete_Start,
+            /**
+            * @test (916) GenericDelete_Pause Test
+            */
             GenericDelete_Pause,
+            /**
+            * @test (917) GenericDelete_Resume Test
+            */
             GenericDelete_Resume,
+            /**
+            * @test (918) GenericDelete_Stop Test
+            */
             GenericDelete_Stop,
             //GenericDelete_Reset,
+            /**
+            * @test (919) GenericDelete_SetPlaybackRange Test
+            */
             GenericDelete_SetPlaybackRange,
-
+            /**
+            * @test (920) GenericDeleteWhileProc_AddDataSource Test
+            */
             GenericDeleteWhileProc_AddDataSource = 920,
+            /**
+            * @test (921) GenericDeleteWhileProc_Init Test
+            */
             GenericDeleteWhileProc_Init,
+            /**
+            * @test (922) GenericDeleteWhileProc_AddDataSinkVideo Test
+            */
             GenericDeleteWhileProc_AddDataSinkVideo,
+            /**
+            * @test (923) GenericDeleteWhileProc_AddDataSinkAudio Test
+            */
             GenericDeleteWhileProc_AddDataSinkAudio,
+            /**
+            * @test (924) GenericDeleteWhileProc_Prepare Test
+            */
             GenericDeleteWhileProc_Prepare,
+            /**
+            * @test (925) GenericDeleteWhileProc_Start Test
+            */
             GenericDeleteWhileProc_Start,
+            /**
+            * @test (926) GenericDeleteWhileProc_Pause Test
+            */
             GenericDeleteWhileProc_Pause,
+            /**
+            * @test (927) GenericDeleteWhileProc_Resume Test
+            */
             GenericDeleteWhileProc_Resume,
+            /**
+            * @test (928) GenericDeleteWhileProc_Stop Test
+            */
             GenericDeleteWhileProc_Stop,
             //GenericDeleteWhileProc_Reset,
+            /**
+            * @test (929) GenericDeleteWhileProc_SetPlaybackRange Test
+            */
             GenericDeleteWhileProc_SetPlaybackRange,
 
+            /**
+            * @test (930) GenericCancelAll_AddDataSource Test
+            */
             GenericCancelAll_AddDataSource = 930,
+            /**
+            * @test (931) GenericCancelAll_Init Test
+            */
             GenericCancelAll_Init,
+            /**
+            * @test (932) GenericCancelAll_AddDataSinkVideo Test
+            */
             GenericCancelAll_AddDataSinkVideo,
+            /**
+            * @test (933) GenericCancelAll_AddDataSinkAudio Test
+            */
             GenericCancelAll_AddDataSinkAudio,
+            /**
+            * @test (934) GenericCancelAll_Prepare Test
+            */
             GenericCancelAll_Prepare,
+            /**
+            * @test (935) GenericCancelAll_Start Test
+            */
             GenericCancelAll_Start,
+            /**
+            * @test (936) GenericCancelAll_Pause Test
+            */
             GenericCancelAll_Pause,
+            /**
+            * @test (937) GenericCancelAll_Resume Test
+            */
             GenericCancelAll_Resume,
+            /**
+            * @test (938) GenericCancelAll_Stop Test
+            */
             GenericCancelAll_Stop,
             //GenericCancelAll_Reset,
+            /**
+            * @test (939) GenericCancelAll_SetPlaybackRange Test
+            */
             GenericCancelAll_SetPlaybackRange,
 
+            /**
+            * @test (940) GenericCancelAllWhileProc_AddDataSource Test
+            */
             GenericCancelAllWhileProc_AddDataSource = 940,
+            /**
+            * @test (941) GenericCancelAllWhileProc_Init Test
+            */
             GenericCancelAllWhileProc_Init,
+            /**
+            * @test (942) GenericCancelAllWhileProc_AddDataSinkVideo Test
+            */
             GenericCancelAllWhileProc_AddDataSinkVideo,
+            /**
+            * @test (943) GenericCancelAllWhileProc_AddDataSinkAudio Test
+            */
             GenericCancelAllWhileProc_AddDataSinkAudio,
+            /**
+            * @test (944) GenericCancelAllWhileProc_Prepare Test
+            */
             GenericCancelAllWhileProc_Prepare,
+            /**
+            * @test (945) GenericCancelAllWhileProc_Start Test
+            */
             GenericCancelAllWhileProc_Start,
+            /**
+            * @test (946) GenericCancelAllWhileProc_Pause Test
+            */
             GenericCancelAllWhileProc_Pause,
+            /**
+            * @test (947) GenericCancelAllWhileProc_Resume Test
+            */
             GenericCancelAllWhileProc_Resume,
+            /**
+            * @test (948) GenericCancelAllWhileProc_Stop Test
+            */
             GenericCancelAllWhileProc_Stop,
             //GenericCancelAllWhileProc_Reset,
+            /**
+            * @test (949) GenericCancelAllWhileProc_SetPlaybackRange Test
+            */
             GenericCancelAllWhileProc_SetPlaybackRange,
 
             // ACCESS DRM plugin tests
+            /**
+            * @test (960) FirstAccessCPMTest Test
+            */
             FirstAccessCPMTest = 960,
-            QueryEngine_AccessCPMTest,			//961
-            OpenPlayStop_AccessCPMTest, 		//962
-            PlayStopPlayStop_AccessCPMTest,		//963
-            StartupMeasurement_AccessCPMTest, 	//964
+            /**
+            * @test (961) QueryEngine_AccessCPMTest Test
+            */
+            QueryEngine_AccessCPMTest,          //961
+            /**
+            * @test (962) OpenPlayStop_AccessCPMTest Test
+            */
+            OpenPlayStop_AccessCPMTest,         //962
+            /**
+            * @test (963) PlayStopPlayStop_AccessCPMTest Test
+            */
+            PlayStopPlayStop_AccessCPMTest,     //963
+            /**
+            * @test (964) StartupMeasurement_AccessCPMTest Test
+            */
+            StartupMeasurement_AccessCPMTest,   //964
+            /**
+            * @test (965) LastAccessCPMTest Test
+            */
             LastAccessCPMTest,
 
+            /**
+            * @test (1051) GenericNetworkDisconnect_AddDataSource Test
+            */
             GenericNetworkDisconnect_AddDataSource = 1051,
+            /**
+            * @test (1052) GenericNetworkDisconnect_Init Test
+            */
             GenericNetworkDisconnect_Init,
+            /**
+            * @test (1053) GenericNetworkDisconnect_AddDataSinkVideo Test
+            */
             GenericNetworkDisconnect_AddDataSinkVideo,
+            /**
+            * @test (1054) GenericNetworkDisconnect_AddDataSinkAudio Test
+            */
             GenericNetworkDisconnect_AddDataSinkAudio,
+            /**
+            * @test (1055) GenericNetworkDisconnect_Prepare Test
+            */
             GenericNetworkDisconnect_Prepare,
+            /**
+            * @test (1056) GenericNetworkDisconnect_Start Test
+            */
             GenericNetworkDisconnect_Start,
+            /**
+            * @test (1057) GenericNetworkDisconnect_Pause Test
+            */
             GenericNetworkDisconnect_Pause,
+            /**
+            * @test (1058) GenericNetworkDisconnect_Resume Test
+            */
             GenericNetworkDisconnect_Resume,
+            /**
+            * @test (1059) GenericNetworkDisconnect_Stop Test
+            */
             GenericNetworkDisconnect_Stop,
+            /**
+            * @test (1060) GenericNetworkDisconnect_SetPlaybackRange Test
+            */
             GenericNetworkDisconnect_SetPlaybackRange,
 
+            /**
+            * @test (1061) GenericNetworkDisconnectWhileProc_AddDataSource Test
+            */
             GenericNetworkDisconnectWhileProc_AddDataSource = 1061,
+            /**
+            * @test (1062) GenericNetworkDisconnectWhileProc_Init Test
+            */
             GenericNetworkDisconnectWhileProc_Init,
+            /**
+            * @test (1063) GenericNetworkDisconnectWhileProc_AddDataSinkVideo Test
+            */
             GenericNetworkDisconnectWhileProc_AddDataSinkVideo,
+            /**
+            * @test (1064) GenericNetworkDisconnectWhileProc_AddDataSinkAudio Test
+            */
             GenericNetworkDisconnectWhileProc_AddDataSinkAudio,
+            /**
+            * @test (1065) GenericNetworkDisconnectWhileProc_Prepare Test
+            */
             GenericNetworkDisconnectWhileProc_Prepare,
+            /**
+            * @test (1066) GenericNetworkDisconnectWhileProc_Start Test
+            */
             GenericNetworkDisconnectWhileProc_Start,
+            /**
+            * @test (1067) GenericNetworkDisconnectWhileProc_Pause Test
+            */
             GenericNetworkDisconnectWhileProc_Pause,
+            /**
+            * @test (1068) GenericNetworkDisconnectWhileProc_Resume Test
+            */
             GenericNetworkDisconnectWhileProc_Resume,
+            /**
+            * @test (1069) GenericNetworkDisconnectWhileProc_Stop Test
+            */
             GenericNetworkDisconnectWhileProc_Stop,
+            /**
+            * @test (1070) GenericNetworkDisconnectWhileProc_SetPlaybackRange Test
+            */
             GenericNetworkDisconnectWhileProc_SetPlaybackRange,
 
+            /**
+            * @test (1071) GenericNetworkDisconnectReconnect_AddDataSource Test
+            */
             GenericNetworkDisconnectReconnect_AddDataSource = 1071,
+            /**
+             * @test (1072) GenericNetworkDisconnectReconnect_Init Test
+             */
             GenericNetworkDisconnectReconnect_Init,
+            /**
+             * @test (1073) GenericNetworkDisconnectReconnect_AddDataSinkVideo Test
+             */
             GenericNetworkDisconnectReconnect_AddDataSinkVideo,
+            /**
+             * @test (1074) GenericNetworkDisconnectReconnect_AddDataSinkAudio Test
+             */
             GenericNetworkDisconnectReconnect_AddDataSinkAudio,
+            /**
+             * @test (1075) GenericNetworkDisconnectReconnect_Prepare Test
+             */
             GenericNetworkDisconnectReconnect_Prepare,
+            /**
+             * @test (1076) GenericNetworkDisconnectReconnect_Start Test
+             */
             GenericNetworkDisconnectReconnect_Start,
+            /**
+             * @test (1077) GenericNetworkDisconnectReconnect_Pause Test
+             */
             GenericNetworkDisconnectReconnect_Pause,
+            /**
+             * @test (1078) GenericNetworkDisconnectReconnect_Resume Test
+             */
             GenericNetworkDisconnectReconnect_Resume,
+            /**
+             * @test (1079) GenericNetworkDisconnectReconnect_Stop Test
+             */
             GenericNetworkDisconnectReconnect_Stop,
+            /**
+             * @test (1080) GenericNetworkDisconnectReconnect_SetPlaybackRange Test
+             */
             GenericNetworkDisconnectReconnect_SetPlaybackRange,
 
+            /**
+             * @test (1081) GenericNetworkDisconnectReconnectWhileProc_AddDataSource Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_AddDataSource = 1081,
+            /**
+             * @test (1082) GenericNetworkDisconnectReconnectWhileProc_Init Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_Init,
+            /**
+             * @test (1083) GenericNetworkDisconnectReconnectWhileProc_AddDataSinkVideo Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_AddDataSinkVideo,
+            /**
+             * @test (1084) GenericNetworkDisconnectReconnectWhileProc_AddDataSinkAudio Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_AddDataSinkAudio,
+            /**
+             * @test (1085) GenericNetworkDisconnectReconnectWhileProc_Prepare Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_Prepare,
+            /**
+             * @test (1086) GenericNetworkDisconnectReconnectWhileProc_Start Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_Start,
+            /**
+             * @test (1087) GenericNetworkDisconnectReconnectWhileProc_Pause Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_Pause,
+            /**
+             * @test (1088) GenericNetworkDisconnectReconnectWhileProc_Resume Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_Resume,
+            /**
+             * @test (1089) GenericNetworkDisconnectReconnectWhileProc_Stop Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_Stop,
+            /**
+             * @test (1090) GenericNetworkDisconnectReconnectWhileProc_SetPlaybackRange Test
+             */
             GenericNetworkDisconnectReconnectWhileProc_SetPlaybackRange,
-
+            /**
+             * @test (1091) GenericNetworkDisconnectCancelAll_AddDataSource Test
+             */
             GenericNetworkDisconnectCancelAll_AddDataSource = 1091,
+            /**
+             * @test (1092) GenericNetworkDisconnectCancelAll_Init Test
+             */
             GenericNetworkDisconnectCancelAll_Init,
+            /**
+             * @test (1093) GenericNetworkDisconnectCancelAll_AddDataSinkVideo Test
+             */
             GenericNetworkDisconnectCancelAll_AddDataSinkVideo,
+            /**
+             * @test (1094) GenericNetworkDisconnectCancelAll_AddDataSinkAudio Test
+             */
             GenericNetworkDisconnectCancelAll_AddDataSinkAudio,
+            /**
+             * @test (1095) GenericNetworkDisconnectCancelAll_Prepare Test
+             */
             GenericNetworkDisconnectCancelAll_Prepare,
+            /**
+             * @test (1096) GenericNetworkDisconnectCancelAll_Start Test
+             */
             GenericNetworkDisconnectCancelAll_Start,
+            /**
+             * @test (1097) GenericNetworkDisconnectCancelAll_Pause Test
+             */
             GenericNetworkDisconnectCancelAll_Pause,
+            /**
+             * @test (1098) GenericNetworkDisconnectCancelAll_Resume Test
+             */
             GenericNetworkDisconnectCancelAll_Resume,
+            /**
+             * @test (1099) GenericNetworkDisconnectCancelAll_Stop Test
+             */
             GenericNetworkDisconnectCancelAll_Stop,
+            /**
+             * @test (1100) GenericNetworkDisconnectCancelAll_SetPlaybackRange Test
+             */
             GenericNetworkDisconnectCancelAll_SetPlaybackRange,
 
+            /**
+             * @test (1101) GenericNetworkDisconnectCancelAllWhileProc_AddDataSource Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_AddDataSource = 1101,
+            /**
+             * @test (1102) GenericNetworkDisconnectCancelAllWhileProc_Init Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_Init,
+            /**
+             * @test (1103) GenericNetworkDisconnectCancelAllWhileProc_AddDataSinkVideo Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_AddDataSinkVideo,
+            /**
+             * @test (1104) GenericNetworkDisconnectCancelAllWhileProc_AddDataSinkAudio Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_AddDataSinkAudio,
+            /**
+             * @test (1105) GenericNetworkDisconnectCancelAllWhileProc_Prepare Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_Prepare,
+            /**
+             * @test (1106) GenericNetworkDisconnectCancelAllWhileProc_Start Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_Start,
+            /**
+             * @test (1107) GenericNetworkDisconnectCancelAllWhileProc_Pause Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_Pause,
+            /**
+             * @test (1108) GenericNetworkDisconnectCancelAllWhileProc_Resume Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_Resume,
+            /**
+             * @test (1109) GenericNetworkDisconnectCancelAllWhileProc_Stop Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_Stop,
+            /**
+             * @test (1110) GenericNetworkDisconnectCancelAllWhileProc_SetPlaybackRange Test
+             */
             GenericNetworkDisconnectCancelAllWhileProc_SetPlaybackRange,
 
+            /**
+             * @test (1111) GenericNetworkDisconnectCancelAllWhileProtocolRollover Test
+             */
             GenericNetworkDisconnectCancelAllWhileProtocolRollover,
-
+            /**
+             * @test (1112) GenericOpenPlayMultiplePauseResumeUntilEOSTest Test
+             */
             GenericOpenPlayMultiplePauseResumeUntilEOSTest = 1112,
+            /**
+             * @test (1113) GenericOpenPlayMultipleSeekUntilEOSTest Test
+             */
             GenericOpenPlayMultipleSeekUntilEOSTest,
 
+            /**
+             * @test (1114) GenericOpenPlayStop_SleepAddDataSource Test
+             */
             GenericOpenPlayStop_SleepAddDataSource = 1114,
+            /**
+             * @test (1115) GenericOpenPlayStop_SleepInit Test
+             */
             GenericOpenPlayStop_SleepInit,
+            /**
+             * @test (1116) GenericOpenPlayStop_SleepAddDataSinkVideo Test
+             */
             GenericOpenPlayStop_SleepAddDataSinkVideo,
+            /**
+             * @test (1117) GenericOpenPlayStop_SleepAddDataSinkAudio Test
+             */
             GenericOpenPlayStop_SleepAddDataSinkAudio,
+            /**
+             * @test (1118) GenericOpenPlayStop_SleepPrepare Test
+             */
             GenericOpenPlayStop_SleepPrepare,
+            /**
+             * @test (1119) GenericOpenPlayStop_SleepGetMetaDataValueList Test
+             */
             GenericOpenPlayStop_SleepGetMetaDataValueList,
+            /**
+             * @test (1120) GenericOpenPlayStop_SleepStop Test
+             */
             GenericOpenPlayStop_SleepStop,
 
+            /**
+             * @test (1125) GenericOpenPlayPauseResumeSeekStopProfiling Test
+             */
             GenericOpenPlayPauseResumeSeekStopProfiling = 1125,
+            /**
+             * @test (1126) GenericOpenPlayPauseRepositionResumeUntilEOSTest Test
+             */
             GenericOpenPlayPauseRepositionResumeUntilEOSTest,
+            /**
+             * @test (1127) GenericOpenPlayPauseRepositionResumeNetworkDisconnectCancelAllTest Test
+             */
             GenericOpenPlayPauseRepositionResumeNetworkDisconnectCancelAllTest,
+            /**
+             * @test (1128) GenericOpenSetPlaybackRangeStartPlayStopTest Test
+             */
             GenericOpenSetPlaybackRangeStartPlayStopTest,
+            /**
+             * @test (1129) GenericOpenPlayRepositionToEndTest Test
+             */
             GenericOpenPlayRepositionToEndTest,
+            /**
+             * @test (1130) GenericPVMFErrorCorruptReNotified Test
+             */
             GenericPVMFErrorCorruptReNotified,
+            /**
+             * @test (1131) GenericOpenPlayPauseGetMetaDataUntilEOSTest Test
+             */
             GenericOpenPlayPauseGetMetaDataUntilEOSTest,
+            /**
+             * @test (1132) GenericOpenGetMetaDataPicTest Test
+             */
             GenericOpenGetMetaDataPicTest,//1132
 
             //1133-1149 available.
 
             //BEGIN JANUS CPM TESTS
+            /**
+             * @test (1150) CleanDrmData_JanusCPMTest Test
+             */
             CleanDrmData_JanusCPMTest = 1150,
+            /**
+             * @test (1151) LoadLicense_JanusCPMTest Test
+             */
             LoadLicense_JanusCPMTest,//1151
+            /**
+             * @test (1152) OpenPlayStop_JanusCPMTest Test
+             */
             OpenPlayStop_JanusCPMTest, //1152
+            /**
+             * @test (1153) PlayStopPlayStop_JanusCPMTest Test
+             */
             PlayStopPlayStop_JanusCPMTest,//1153
+            /**
+             * @test (1154) QueryEngine_JanusCPMTest Test
+             */
             QueryEngine_JanusCPMTest,//1154
+            /**
+             * @test (1155) StartupMeasurement_JanusCPMTest Test
+             */
             StartupMeasurement_JanusCPMTest, //1155
             //Janus DLA tests
+            /**
+             * @test (1156) DLA_CleanDrmData_JanusCPMTest Test
+             */
             DLA_CleanDrmData_JanusCPMTest,//1156
+            /**
+             * @test (1157) DLA_OpenPlayStop_JanusCPMTest Test
+             */
             DLA_OpenPlayStop_JanusCPMTest,//1157
+            /**
+             * @test (1158) DLA_LicenseCapture_JanusCPMTest Test
+             */
             DLA_LicenseCapture_JanusCPMTest,//1158
+            /**
+             * @test (1159) DLA_CancelAcquireLicense_JanusCPMTest Test
+             */
             DLA_CancelAcquireLicense_JanusCPMTest,//1159
             //Janus streaming tests.
+            /**
+             * @test (1160) DLA_StreamingOpenPlayUntilEOST_JanusCPMTest Test
+             */
             DLA_StreamingOpenPlayUntilEOST_JanusCPMTest,//1160
+            /**
+             * @test (1161) DLA_StreamingOpenPlayPausePlayUntilEOS_JanusCPMTest Test
+             */
             DLA_StreamingOpenPlayPausePlayUntilEOS_JanusCPMTest,//1161
+            /**
+             * @test (1162) DLA_StreamingOpenPlaySeekPlayUntilEOS_JanusCPMTest Test
+             */
             DLA_StreamingOpenPlaySeekPlayUntilEOS_JanusCPMTest,//1162
+            /**
+             * @test (1163) DLA_StreamingMultiplePlayUntilEOS_JanusCPMTest Test
+             */
             DLA_StreamingMultiplePlayUntilEOS_JanusCPMTest,//1163
+            /**
+             * @test (1164) DLA_StreamingProtocolRollOverTest_JanusCPMTest Test
+             */
             DLA_StreamingProtocolRollOverTest_JanusCPMTest,//1164
+            /**
+             * @test (1165) DLA_StreamingProtocolRollOverTestWithUnknownURLType_JanusCPMTest Test
+             */
             DLA_StreamingProtocolRollOverTestWithUnknownURLType_JanusCPMTest,//1165
+            /**
+             * @test (1166) DLA_StreamingCancelAcquireLicense_JanusCPMTest Test
+             */
             DLA_StreamingCancelAcquireLicense_JanusCPMTest,//1166
             //Janus PDL tests
+            /**
+             * @test (1167) DLA_PDL_OpenPlayUntilEOS_JanusCPMTest Test
+             */
             DLA_PDL_OpenPlayUntilEOS_JanusCPMTest,//1167
 
             //this range RESERVED for future Janus tests.
 
+            /**
+             * @test (1200) FirstDLAStreamingTest Test
+             */
             FirstDLAStreamingTest = 1200, //placeholder
             //note these are all Janus CPM tests
 
+            /**
+             * @test (1201) DLA_StreamingCancelAll_AddDataSource Test
+             */
             DLA_StreamingCancelAll_AddDataSource = 1201,
+            /**
+             * @test (1202) DLA_StreamingCancelAll_Init Test
+             */
             DLA_StreamingCancelAll_Init,
+            /**
+             * @test (1203) DLA_StreamingCancelAll_LicenseAcquired Test
+             */
             DLA_StreamingCancelAll_LicenseAcquired,
+            /**
+             * @test (1204) DLA_StreamingCancelAll_AddDataSinkVideo Test
+             */
             DLA_StreamingCancelAll_AddDataSinkVideo,
+            /**
+             * @test (1205) DLA_StreamingCancelAll_AddDataSinkAudio Test
+             */
             DLA_StreamingCancelAll_AddDataSinkAudio,
+            /**
+             * @test (1206) DLA_StreamingCancelAll_Prepare Test
+             */
             DLA_StreamingCancelAll_Prepare,
+            /**
+             * @test (1207) DLA_StreamingCancelAll_Start Test
+             */
             DLA_StreamingCancelAll_Start,
+            /**
+             * @test (1208) DLA_StreamingCancelAll_Pause Test
+             */
             DLA_StreamingCancelAll_Pause,
+            /**
+             * @test (1209) DLA_StreamingCancelAll_Resume Test
+             */
             DLA_StreamingCancelAll_Resume,
+            /**
+             * @test (1210) DLA_StreamingCancelAll_Stop Test
+             */
             DLA_StreamingCancelAll_Stop,
+            /**
+             * @test (1211) DLA_StreamingCancelAll_SetPlaybackRange Test
+             */
             DLA_StreamingCancelAll_SetPlaybackRange,
 
+            /**
+             * @test (1212) DLA_StreamingCancelAllWhileProc_AddDataSource Test
+             */
             DLA_StreamingCancelAllWhileProc_AddDataSource = 1212,
+            /**
+             * @test (1213) DLA_StreamingCancelAllWhileProc_Init Test
+             */
             DLA_StreamingCancelAllWhileProc_Init,
+            /**
+             * @test (1214) DLA_StreamingCancelAllWhileProc_LicenseAcquired Test
+             */
             DLA_StreamingCancelAllWhileProc_LicenseAcquired,
+            /**
+             * @test (1215) DLA_StreamingCancelAllWhileProc_AddDataSinkVideo Test
+             */
             DLA_StreamingCancelAllWhileProc_AddDataSinkVideo,
+            /**
+             * @test (1216) DLA_StreamingCancelAllWhileProc_AddDataSinkAudio Test
+             */
             DLA_StreamingCancelAllWhileProc_AddDataSinkAudio,
+            /**
+             * @test (1217) DLA_StreamingCancelAllWhileProc_Prepare Test
+             */
             DLA_StreamingCancelAllWhileProc_Prepare,
+            /**
+             * @test (1218) DLA_StreamingCancelAllWhileProc_Start Test
+             */
             DLA_StreamingCancelAllWhileProc_Start,
+            /**
+             * @test (1219) DLA_StreamingCancelAllWhileProc_Pause Test
+             */
             DLA_StreamingCancelAllWhileProc_Pause,
+            /**
+             * @test (1220) DLA_StreamingCancelAllWhileProc_Resume Test
+             */
             DLA_StreamingCancelAllWhileProc_Resume,
+            /**
+             * @test (1221) DLA_StreamingCancelAllWhileProc_Stop Test
+             */
             DLA_StreamingCancelAllWhileProc_Stop,
+            /**
+             * @test (1222) DLA_StreamingCancelAllWhileProc_SetPlaybackRange Test
+             */
             DLA_StreamingCancelAllWhileProc_SetPlaybackRange,
 
+            /**
+             * @test (1223) DLA_StreamingNetworkDisconnect_AddDataSource Test
+             */
             DLA_StreamingNetworkDisconnect_AddDataSource = 1223,
+            /**
+             * @test (1224) DLA_StreamingNetworkDisconnect_Init Test
+             */
             DLA_StreamingNetworkDisconnect_Init,
+            /**
+             * @test (1225) DLA_StreamingNetworkDisconnect_LicenseAcquired Test
+             */
             DLA_StreamingNetworkDisconnect_LicenseAcquired,
+            /**
+             * @test (1226) DLA_StreamingNetworkDisconnect_AddDataSinkVideo Test
+             */
             DLA_StreamingNetworkDisconnect_AddDataSinkVideo,
+            /**
+             * @test (1227) DLA_StreamingNetworkDisconnect_AddDataSinkAudio Test
+             */
             DLA_StreamingNetworkDisconnect_AddDataSinkAudio,
+            /**
+             * @test (1228) DLA_StreamingNetworkDisconnect_Prepare Test
+             */
             DLA_StreamingNetworkDisconnect_Prepare,
+            /**
+             * @test (1229) DLA_StreamingNetworkDisconnect_Start Test
+             */
             DLA_StreamingNetworkDisconnect_Start,
+            /**
+             * @test (1230) DLA_StreamingNetworkDisconnect_Pause Test
+             */
             DLA_StreamingNetworkDisconnect_Pause,
+            /**
+             * @test (1231) DLA_StreamingNetworkDisconnect_Resume Test
+             */
             DLA_StreamingNetworkDisconnect_Resume,
+            /**
+             * @test (1232) DLA_StreamingNetworkDisconnect_Stop Test
+             */
             DLA_StreamingNetworkDisconnect_Stop,
+            /**
+             * @test (1233) DLA_StreamingNetworkDisconnect_SetPlaybackRange Test
+             */
             DLA_StreamingNetworkDisconnect_SetPlaybackRange,
 
+            /**
+             * @test (1234) DLA_StreamingNetworkDisconnectWhileProc_AddDataSource Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_AddDataSource = 1234,
+            /**
+             * @test (1235) DLA_StreamingNetworkDisconnectWhileProc_Init Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_Init,
+            /**
+             * @test (1236) DLA_StreamingNetworkDisconnectWhileProc_LicenseAcquired Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_LicenseAcquired,
+            /**
+             * @test (1237) DLA_StreamingNetworkDisconnectWhileProc_AddDataSinkVideo Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_AddDataSinkVideo,
+            /**
+             * @test (1238) DLA_StreamingNetworkDisconnectWhileProc_AddDataSinkAudio Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_AddDataSinkAudio,
+            /**
+             * @test (1239) DLA_StreamingNetworkDisconnectWhileProc_Prepare Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_Prepare,
+            /**
+             * @test (1240) DLA_StreamingNetworkDisconnectWhileProc_Start Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_Start,
+            /**
+             * @test (1241) DLA_StreamingNetworkDisconnectWhileProc_Pause Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_Pause,
+            /**
+             * @test (1242) DLA_StreamingNetworkDisconnectWhileProc_Resume Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_Resume,
+            /**
+             * @test (1243) DLA_StreamingNetworkDisconnectWhileProc_Stop Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_Stop,
+            /**
+             * @test (1244) DLA_StreamingNetworkDisconnectWhileProc_SetPlaybackRange Test
+             */
             DLA_StreamingNetworkDisconnectWhileProc_SetPlaybackRange,
 
+            /**
+             * @test (1245) DLA_StreamingNetworkDisconnectReconnect_AddDataSource Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_AddDataSource = 1245,
+            /**
+             * @test (1246) DLA_StreamingNetworkDisconnectReconnect_Init Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_Init,
+            /**
+             * @test (1247) DLA_StreamingNetworkDisconnectReconnect_LicenseAcquired Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_LicenseAcquired,
+            /**
+             * @test (1248) DLA_StreamingNetworkDisconnectReconnect_AddDataSinkVideo Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_AddDataSinkVideo,
+            /**
+             * @test (1249) DLA_StreamingNetworkDisconnectReconnect_AddDataSinkAudio Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_AddDataSinkAudio,
+            /**
+             * @test (1250) DLA_StreamingNetworkDisconnectReconnect_Prepare Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_Prepare,
+            /**
+             * @test (1251) DLA_StreamingNetworkDisconnectReconnect_Start Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_Start,
+            /**
+             * @test (1252) DLA_StreamingNetworkDisconnectReconnect_Pause Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_Pause,
+            /**
+             * @test (1253) DLA_StreamingNetworkDisconnectReconnect_Resume Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_Resume,
+            /**
+             * @test (1254) DLA_StreamingNetworkDisconnectReconnect_Stop Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_Stop,
+            /**
+             * @test (1255) DLA_StreamingNetworkDisconnectReconnect_SetPlaybackRange Test
+             */
             DLA_StreamingNetworkDisconnectReconnect_SetPlaybackRange,
-
+            /**
+             * @test (1256) DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSource Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSource = 1256,
+            /**
+             * @test (1257) DLA_StreamingNetworkDisconnectReconnectWhileProc_Init Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_Init,
+            /**
+             * @test (1258) DLA_StreamingNetworkDisconnectReconnectWhileProc_LicenseAcquired Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_LicenseAcquired,
+            /**
+             * @test (1259) DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSinkVideo Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSinkVideo,
+            /**
+             * @test (1260) DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSinkAudio Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_AddDataSinkAudio,
+            /**
+             * @test (1261) DLA_StreamingNetworkDisconnectReconnectWhileProc_Prepare Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_Prepare,
+            /**
+             * @test (1262) DLA_StreamingNetworkDisconnectReconnectWhileProc_Start Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_Start,
+            /**
+             * @test (1263) DLA_StreamingNetworkDisconnectReconnectWhileProc_Pause Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_Pause,
+            /**
+             * @test (1264) DLA_StreamingNetworkDisconnectReconnectWhileProc_Resume Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_Resume,
+            /**
+             * @test (1265) DLA_StreamingNetworkDisconnectReconnectWhileProc_Stop Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_Stop,
+            /**
+             * @test (1266) DLA_StreamingNetworkDisconnectReconnectWhileProc_SetPlaybackRange Test
+             */
             DLA_StreamingNetworkDisconnectReconnectWhileProc_SetPlaybackRange,
-
+            /**
+             * @test (1267) DLA_StreamingNetworkDisconnectCancelAll_AddDataSource Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_AddDataSource = 1267,
+            /**
+             * @test (1268) DLA_StreamingNetworkDisconnectCancelAll_Init Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_Init,
+            /**
+             * @test (1269) DLA_StreamingNetworkDisconnectCancelAll_LicenseAcquired Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_LicenseAcquired,
+            /**
+             * @test (1270) DLA_StreamingNetworkDisconnectCancelAll_AddDataSinkVideo Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_AddDataSinkVideo,
+            /**
+             * @test (1271) DLA_StreamingNetworkDisconnectCancelAll_AddDataSinkAudio Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_AddDataSinkAudio,
+            /**
+             * @test (1272) DLA_StreamingNetworkDisconnectCancelAll_Prepare Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_Prepare,
+            /**
+             * @test (1273) DLA_StreamingNetworkDisconnectCancelAll_Start Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_Start,
+            /**
+             * @test (1274) DLA_StreamingNetworkDisconnectCancelAll_Pause Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_Pause,
+            /**
+             * @test (1275) DLA_StreamingNetworkDisconnectCancelAll_Resume Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_Resume,
+            /**
+             * @test (1276) DLA_StreamingNetworkDisconnectCancelAll_Stop Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_Stop,
+            /**
+             * @test (1277) DLA_StreamingNetworkDisconnectCancelAll_SetPlaybackRange Test
+             */
             DLA_StreamingNetworkDisconnectCancelAll_SetPlaybackRange,
-
+            /**
+             * @test (1278) DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSource Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSource = 1278,
+            /**
+             * @test (1279) DLA_StreamingNetworkDisconnectCancelAllWhileProc_Init Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_Init,
+            /**
+             * @test (1280) DLA_StreamingNetworkDisconnectCancelAllWhileProc_LicenseAcquired Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_LicenseAcquired,
+            /**
+             * @test (1281) DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSinkVideo Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSinkVideo,
+            /**
+             * @test (1282) DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSinkAudio Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_AddDataSinkAudio,
+            /**
+             * @test (1283) DLA_StreamingNetworkDisconnectCancelAllWhileProc_Prepare Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_Prepare,
+            /**
+             * @test (1284) DLA_StreamingNetworkDisconnectCancelAllWhileProc_Start Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_Start,
+            /**
+             * @test (1285) DLA_StreamingNetworkDisconnectCancelAllWhileProc_Pause Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_Pause,
+            /**
+             * @test (1286) DLA_StreamingNetworkDisconnectCancelAllWhileProc_Resume Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_Resume,
+            /**
+             * @test (1287) DLA_StreamingNetworkDisconnectCancelAllWhileProc_Stop Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_Stop,
+            /**
+             * @test (1288) DLA_StreamingNetworkDisconnectCancelAllWhileProc_SetPlaybackRange Test
+             */
             DLA_StreamingNetworkDisconnectCancelAllWhileProc_SetPlaybackRange,
 
+            /**
+             * @test (1289) DLA_StreamingOpenPlayMultiplePauseResumeUntilEOSTest Test
+             */
             DLA_StreamingOpenPlayMultiplePauseResumeUntilEOSTest = 1289,
+            /**
+             * @test (1290) DLA_StreamingOpenPlayMultipleSeekUntilEOSTest Test
+             */
             DLA_StreamingOpenPlayMultipleSeekUntilEOSTest,
-
+            /**
+             * @test (1291) DLA_StreamingOpenPlayStop_SleepAddDataSource Test
+             */
             DLA_StreamingOpenPlayStop_SleepAddDataSource = 1291,
+            /**
+             * @test (1292) DLA_StreamingOpenPlayStop_SleepInit Test
+             */
             DLA_StreamingOpenPlayStop_SleepInit,
+            /**
+             * @test (1293) DLA_StreamingOpenPlayStop_SleepLicenseAcquired Test
+             */
             DLA_StreamingOpenPlayStop_SleepLicenseAcquired,
+            /**
+             * @test (1294) DLA_StreamingOpenPlayStop_SleepAddDataSinkVideo Test
+             */
             DLA_StreamingOpenPlayStop_SleepAddDataSinkVideo,
+            /**
+             * @test (1295) DLA_StreamingOpenPlayStop_SleepAddDataSinkAudio Test
+             */
             DLA_StreamingOpenPlayStop_SleepAddDataSinkAudio,
+            /**
+             * @test (1296) DLA_StreamingOpenPlayStop_SleepPrepare Test
+             */
             DLA_StreamingOpenPlayStop_SleepPrepare,
+            /**
+             * @test (1301) DLA_StreamingOpenPlayStop_SleepStop Test
+             */
             DLA_StreamingOpenPlayStop_SleepStop = 1301,
             //END JANUS CPM TESTS
 
+            /**
+             * @test (1302) GenericOpenPlaySeekBeyondClipDurationTest Test
+             */
             GenericOpenPlaySeekBeyondClipDurationTest = 1302,
 
             //tests various modes of track selection
@@ -933,25 +2105,28 @@ class pvplayer_engine_test : public test_case,
              * =========== Basic PVR tests ===========
              */
 
-            /*
-             * 1600:        Play->pause->resume->stop test
-             * Description: Self-explanatory
-             */
 
             /**
             PVR Memory Live Buffer tests start at 1600
             */
 
+            /**
+             * @test (1600) PVR MLB:Play->pause->resume->stop test
+             * Description: Self-explanatory
+             */
             PVR_MLB_StreamingOpenPlayLivePausePlayStopTest = 1600,//1600
-            PVR_MLB_StreamingOpenPlayLivePausePlaySeekStopTest,//1601
-            PVR_MLB_StreamingOpenPlayLiveBufferBoundaryCheckTest,//1602
-            /*
-             * 1601:        Reposition after a play pause
+            /**
+             * @test (1601) PVR MLB:Reposition after a play pause
              * Description: See TC 1611
              */
-
-            /*
-             * 1602:        Check live buffer boundary
+            PVR_MLB_StreamingOpenPlayLivePausePlaySeekStopTest,//1601
+            /**
+             * @test (1602) PVR MLB:Reposition after a play pause
+             * Description: See TC 1611
+             */
+            PVR_MLB_StreamingOpenPlayLiveBufferBoundaryCheckTest,//1602
+            /**
+             * @test (1602) PVR MLB:Check live buffer boundary
              * Description: To maintain TC numbers, this test case
              *              does a play followed by a stop.
              */
@@ -960,29 +2135,29 @@ class pvplayer_engine_test : public test_case,
              * =========== Live pause tests ===========
              */
 
-            /*
-             * 1603:        Quick successive pause/resume
+            /**
+             * @test (1603) PVR MLB:Quick successive pause/resume
              * Description: This test case will call pause/resume in a quick and
              *              repetitive sequence to test quick successive pause/resume stress condition.
              * Input:       1. repeat count
              */
             PVR_MLB_StreamingOpenPlayMultipleLivePausePlayTest,//1603
-            /*
-             * 1604:        Pause with random duration
+            /**
+             * @test (1604) PVR MLB:Pause with random duration
              * Description: This test case will call pause/resume repeatedly.
              *              Each pause has random duration in a range.
              * Inputs:      1. repeat count.
              *              2. pause duration range
              */
             PVR_MLB_StreamingOpenPlayMultipleLivePauseRandomDurationPlayTest,//1604
-            /*
-             * 1605:        Long pause
+            /**
+             * @test (1605) PVR MLB:Long pause
              * Description: This test case will pause long period of time (> live buffer duration)
              * Input:       1. pause duration
              */
             PVR_MLB_StreamingOpenPlayLongLivePausePlayTest,//1605
-            /*
-             * 1606:        Stop during live pause
+            /**
+             * @test (1606) PVR MLB:Stop during live pause
              * Description: This test case stop the session during live pause.
              *              Then it starts the same session again.
              */
@@ -992,16 +2167,16 @@ class pvplayer_engine_test : public test_case,
              * =========== Random position tests ===========
              */
 
-            /*
-             * 1607:        Jump to live after pause
+            /**
+             * @test (1607) PVR MLB:Jump to live after pause
              * Description: This test case jumps to live session (not buffer) after a pause.
-             *				The above step is repeated several times, after pausing for a random duration.
+             *              The above step is repeated several times, after pausing for a random duration.
              * Inputs:      1. Repeat count
              *              2. Pause duration range
              */
             PVR_MLB_StreamingOpenPauseJumpToLiveStopTest, //1607
-            /*
-             * 1608:        Jump to live after pause/resume
+            /**
+             * @test (1608) PVR MLB:Jump to live after pause/resume.
              * Description: This test case pauses a live session for a random duration, resumes
              *              a for random duration that is less than the pause duration, and then
              *              jumps to live. This is repeated several times.
@@ -1017,31 +2192,31 @@ class pvplayer_engine_test : public test_case,
              *              session is started after the stop.
              */
             PVR_MLB_StreamingOpenPauseResumeStopTest, //1609
-            /*
-             * 1610:        RTSP URL test
+            /**
+             * @test (1610) PVR MLB:PVR RTSP URL test
              * Description: This test case uses an RTSP URL as the input for the streaming session.
              *              Both live and VOD cases are handled.
              */
             PVR_MLB_StreamingRTSPUrlPauseResumeStopTest, //1610
 
-            /*
-             * 1611:        PVR Repositioning test
+            /**
+             * @test (1611) PVR MLB:PVR Repositioning test
              * Description: This test case does a sequence of repositioning requests within the live buffer.
              *              The followed sequence is: start, pause, resume, repositioning sequence, stop.
-            				The repos. sequence consists of 6 repositioning requests back and forward.
+                            The repos. sequence consists of 6 repositioning requests back and forward.
              */
             PVR_MLB_StreamingPauseResumeRepositionStopTest, //1611
 
-            /*
-            * 1612:        PVR Repositioning test
-            * Description: This test case does a sequence of repositioning requests within the live buffer.
-            *              The followed sequence is: start, pause, repositioning, resume. This sequence is
-               			done six times, followed by a stop.
+            /**
+             * @test (1612) PVR MLB:PVR Repositioning test
+             * Description: This test case does a sequence of repositioning requests within the live buffer.
+             *              The followed sequence is: start, pause, repositioning, resume. This sequence is
+                        done six times, followed by a stop.
             */
             PVR_MLB_StreamingPauseRepositionResumeStopTest, //1612
 
-            /*
-             * 1613:        RTSP END_OF_STREAM test for memory live buffer.
+            /**
+             * @test (1613) PVR MLB:RTSP END_OF_STREAM test for memory live buffer.
              * Description: This test is design to test the case where and RTSP END_OF_STREAM arrives
              *              during a live pause. Total playback time must equal the cumulative playlist clip
              *              duration.
@@ -1050,24 +2225,20 @@ class pvplayer_engine_test : public test_case,
             PVR_MLB_StreamingOpenPlayLivePauseWaitForRTSPEOSResumeTest = 1613,//1613
 
 
-            /*
-            * 1614:        PVR Playlist switch with a full live buffer after JTL
-            * Description: This test case makes a live pause it resumes once the live buffer gets full, and makes
-            *              a JTL followed by a channel switch, the channel switch time is measured.
-
+            /**
+             * @test (1614) PVR MLB:Playlist switch with a full live buffer after JTL
+             * Description: This test case makes a live pause it resumes once the live buffer gets full, and makes
+             *              a JTL followed by a channel switch, the channel switch time is measured.
             */
             PVR_MLB_StreamingOpenPauseJmpToLiveChannelSwitchTest, //1614
 
-
-
-            /*
-            * 1615       PVR Bitrate estimation test
+            /**
+             * @test (1615) PVR MLB:Bitrate estimation test
             * Description: Test case for mismatch between advertised and real bitrate,
             *              the root of the problem with higher-than-advertised bitrates is that it
             *              may cause overwrites in the LiveBuffer, which is then reflected in quality artifacts.
             *
             *              PLEASE USE A SDP FILE THAT ANOUNCES A SMALLER BITRATE THAN THE REAL ONE
-
             */
             PVR_MLB_StreamingBitrateEstimationTest = 1615,
 
@@ -1116,7 +2287,7 @@ class pvplayer_engine_test : public test_case,
             /*
              * 1637:        Jump to live after pause
              * Description: This test case jumps to live session (not buffer) after a pause.
-             *				The above step is repeated several times, after pausing for a random duration.
+             *              The above step is repeated several times, after pausing for a random duration.
              * Inputs:      1. Repeat count
              *              2. Pause duration range
              */
@@ -1150,7 +2321,7 @@ class pvplayer_engine_test : public test_case,
              * 1641:        PVR Repositioning test
              * Description: This test case does a sequence of repositioning requests within the live buffer.
              *              The followed sequence is: start, pause, resume, repositioning sequence, stop.
-            				The repos. sequence consists of 6 repositioning requests back and forward.
+                            The repos. sequence consists of 6 repositioning requests back and forward.
              */
             PVR_FSLB_StreamingPauseResumeRepositionStopTest, //1641
 
@@ -1158,7 +2329,7 @@ class pvplayer_engine_test : public test_case,
             * 1642:        PVR Repositioning test
             * Description: This test case does a sequence of repositioning requests within the live buffer.
             *              The followed sequence is: start, pause, repositioning, resume. This sequence is
-               			done six times, followed by a stop.
+                        done six times, followed by a stop.
             */
             PVR_FSLB_StreamingPauseRepositionResumeStopTest, //1642
 
@@ -1326,6 +2497,8 @@ class pvplayer_engine_test : public test_case,
         uint32 iNumAllocs;
         //Flag for checking the file type
         int32 iFileFormatType;
+
+        uint32 iDownloadRateInKbps;
 };
 
 /**

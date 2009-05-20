@@ -17,37 +17,7 @@
  */
 /*
 
- Pathname: .huffman.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Put declaration of getfill in this file.
-
- Description: Remove prstflag from get_ics_info declaration.
-
- Description: Trivial change of the data type of one of the parameters to
-              get_ics_info.
-
- Description: Change where get_ics_info is declared.
-
- Description: Clean up comments
-
- Description: (1) Add declaration of binary tree search function for Huffman
-                  decoding
-              (2) #if the traditional and optimized linear seach methods.
-
- Description: Modified per review comments
-              (1) delete #if traditional and optimized linear seach methods
-
- Description: Merged Ken's change on getics: delete pFrameInfo from argument
-              list
-
- Description: Added function definition for table specific huffman decoding
-			  functions.
-
- Who:                                         Date:
- Description:
+ Filename: huffman.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

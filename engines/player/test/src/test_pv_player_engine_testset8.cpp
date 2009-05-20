@@ -67,6 +67,23 @@
 #include "oscl_mem_audit.h"
 #endif
 
+#ifndef PVMI_EXTERNAL_DOWNLOAD_DATASTREAM_FACTORY_H_INCLUDED
+#include "pvmi_external_download_datastream_factory.h"
+#endif
+
+#ifndef PVMI_EXTERNAL_DOWNLOAD_SIMULATOR_H_INCLUDED
+#include "pvmi_external_download_simulator.h"
+#endif
+
+#ifndef PVMF_FILEFORMAT_EVENTS_H_INCLUDED
+#include "pvmf_fileformat_events.h"
+#endif
+
+#ifndef PVMF_MP4FFPARSER_EVENTS_H_INCLUDED
+#include "pvmf_mp4ffparser_events.h"
+#endif
+
+FILE *fp;
 //
 // pvplayer_async_test_printmetadata section
 //
@@ -888,46 +905,46 @@ void pvplayer_async_test_printmetadata::PrintCodecSpecificInfo(char* aData, uint
 
     if (INDEX_CODEC_SPECIFIC_INFO_AUDIO == aIndex)
     {
-        uint16 CodecId = ((*(aData + 0))		 & 0x000000FF)
+        uint16 CodecId = ((*(aData + 0))         & 0x000000FF)
                          + (((*(aData + 1)) << 8)  & 0x0000FF00);
 
-        fprintf(iTestMsgOutputFile, "	CodecId:%d \n", CodecId);
+        fprintf(iTestMsgOutputFile, "\tCodecId:%d \n", CodecId);
 
-        uint16 NumChannels = ((*(aData + 2))		 & 0x000000FF)
+        uint16 NumChannels = ((*(aData + 2))         & 0x000000FF)
                              + (((*(aData + 3)) << 8)  & 0x0000FF00);
 
-        fprintf(iTestMsgOutputFile, "	NumChannels:%d \n", NumChannels);
+        fprintf(iTestMsgOutputFile, "\tNumChannels:%d \n", NumChannels);
 
-        uint32 SamplesPerSecond = ((*(aData + 4))		  & 0x000000FF)
+        uint32 SamplesPerSecond = ((*(aData + 4))         & 0x000000FF)
                                   + (((*(aData + 5)) << 8)  & 0x0000FF00)
                                   + (((*(aData + 6)) << 16) & 0x00FF0000)
                                   + (((*(aData + 7)) << 24) & 0xFF000000);
 
-        fprintf(iTestMsgOutputFile, "	SamplesPerSecond:%d \n", SamplesPerSecond);
+        fprintf(iTestMsgOutputFile, "\tSamplesPerSecond:%d \n", SamplesPerSecond);
 
-        uint32 AvgNumBytesPerSecond = ((*(aData + 8))		   & 0x000000FF)
+        uint32 AvgNumBytesPerSecond = ((*(aData + 8))          & 0x000000FF)
                                       + (((*(aData + 9)) << 8)   & 0x0000FF00)
                                       + (((*(aData + 10)) << 16) & 0x00FF0000)
                                       + (((*(aData + 11)) << 24) & 0xFF000000);
 
-        fprintf(iTestMsgOutputFile, "	AvgNumBytesPerSecond:%d \n", AvgNumBytesPerSecond);
+        fprintf(iTestMsgOutputFile, "\tAvgNumBytesPerSecond:%d \n", AvgNumBytesPerSecond);
 
-        uint16 BlockAlignment = ((*(aData + 12))		 & 0x000000FF)
+        uint16 BlockAlignment = ((*(aData + 12))         & 0x000000FF)
                                 + (((*(aData + 13)) << 8)  & 0x0000FF00);
 
-        fprintf(iTestMsgOutputFile, "	BlockAlignment:%d \n", BlockAlignment);
+        fprintf(iTestMsgOutputFile, "\tBlockAlignment:%d \n", BlockAlignment);
 
-        uint16 BitsPerSample = ((*(aData + 14))		    & 0x000000FF)
+        uint16 BitsPerSample = ((*(aData + 14))         & 0x000000FF)
                                + (((*(aData + 15)) << 8)  & 0x0000FF00);
 
-        fprintf(iTestMsgOutputFile, "	BitsPerSample:%d \n", BitsPerSample);
+        fprintf(iTestMsgOutputFile, "\tBitsPerSample:%d \n", BitsPerSample);
 
-        uint16 CodecSpecificDataSize = ((*(aData + 16))		    & 0x000000FF)
+        uint16 CodecSpecificDataSize = ((*(aData + 16))         & 0x000000FF)
                                        + (((*(aData + 17)) << 8)  & 0x0000FF00);
 
-        fprintf(iTestMsgOutputFile, "	CodecSpecificDataSize:%d \n", CodecSpecificDataSize);
+        fprintf(iTestMsgOutputFile, "\tCodecSpecificDataSize:%d \n", CodecSpecificDataSize);
 
-        fprintf(iTestMsgOutputFile, "	CodecSpecifcData: \n");
+        fprintf(iTestMsgOutputFile, "\tCodecSpecifcData: \n");
         fprintf(iTestMsgOutputFile, "\t");
         for (uint16 ii = 0; ii < CodecSpecificDataSize; ii++)
         {
@@ -940,97 +957,97 @@ void pvplayer_async_test_printmetadata::PrintCodecSpecificInfo(char* aData, uint
     }
     else if (INDEX_CODEC_SPECIFIC_INFO_VIDEO == aIndex)
     {
-        uint32 ImageWidth = ((*(aData + 0))		    & 0x000000FF)
+        uint32 ImageWidth = ((*(aData + 0))         & 0x000000FF)
                             + (((*(aData + 1)) << 8)  & 0x0000FF00)
                             + (((*(aData + 2)) << 16) & 0x00FF0000)
                             + (((*(aData + 3)) << 24) & 0xFF000000);
-        fprintf(iTestMsgOutputFile, "	ImageWidth:%d \n", ImageWidth);
+        fprintf(iTestMsgOutputFile, "\tImageWidth:%d \n", ImageWidth);
 
-        uint32 Imageheight = ((*(aData + 4))		 & 0x000000FF)
+        uint32 Imageheight = ((*(aData + 4))         & 0x000000FF)
                              + (((*(aData + 5)) << 8)  & 0x0000FF00)
                              + (((*(aData + 6)) << 16) & 0x00FF0000)
                              + (((*(aData + 7)) << 24) & 0xFF000000);
-        fprintf(iTestMsgOutputFile, "	Imageheight:%d \n", Imageheight);
+        fprintf(iTestMsgOutputFile, "\tImageheight:%d \n", Imageheight);
 
         uint8 ReservedFlags = ((*(aData + 8)) & 0x000000FF);
-        fprintf(iTestMsgOutputFile, "	ReservedFlags:%d \n", ReservedFlags);
+        fprintf(iTestMsgOutputFile, "\tReservedFlags:%d \n", ReservedFlags);
 
-        uint16 FormatDataSize = ((*(aData + 9))		     & 0x000000FF)
+        uint16 FormatDataSize = ((*(aData + 9))          & 0x000000FF)
                                 + (((*(aData + 10)) << 8)  & 0x0000FF00);
 
-        fprintf(iTestMsgOutputFile, "	FormatDataSize:%d \n", FormatDataSize);
+        fprintf(iTestMsgOutputFile, "\tFormatDataSize:%d \n", FormatDataSize);
 
-        uint32 FormatDataFormatDataSize = ((*(aData + 11))		   & 0x000000FF)
+        uint32 FormatDataFormatDataSize = ((*(aData + 11))         & 0x000000FF)
                                           + (((*(aData + 12)) << 8)  & 0x0000FF00)
                                           + (((*(aData + 13)) << 16) & 0x00FF0000)
                                           + (((*(aData + 14)) << 24) & 0xFF000000);
-        fprintf(iTestMsgOutputFile, "	FormatDataFormatDataSize:%d \n", FormatDataFormatDataSize);
+        fprintf(iTestMsgOutputFile, "\tFormatDataFormatDataSize:%d \n", FormatDataFormatDataSize);
 
-        uint32 FormatDataImageWidth = ((*(aData + 15))		   & 0x000000FF)
+        uint32 FormatDataImageWidth = ((*(aData + 15))         & 0x000000FF)
                                       + (((*(aData + 16)) << 8)  & 0x0000FF00)
                                       + (((*(aData + 17)) << 16) & 0x00FF0000)
                                       + (((*(aData + 18)) << 24) & 0xFF000000);
-        fprintf(iTestMsgOutputFile, "	FormatDataImageWidth:%d \n", FormatDataImageWidth);
+        fprintf(iTestMsgOutputFile, "\tFormatDataImageWidth:%d \n", FormatDataImageWidth);
 
-        uint32 FormatDataImageHeight = ((*(aData + 19))			& 0x000000FF)
+        uint32 FormatDataImageHeight = ((*(aData + 19))         & 0x000000FF)
                                        + (((*(aData + 20)) << 8)  & 0x0000FF00)
                                        + (((*(aData + 21)) << 16) & 0x00FF0000)
                                        + (((*(aData + 22)) << 24) & 0xFF000000);
-        fprintf(iTestMsgOutputFile, "	FormatDataImageHeight:%d \n", FormatDataImageHeight);
+        fprintf(iTestMsgOutputFile, "\tFormatDataImageHeight:%d \n", FormatDataImageHeight);
 
-        uint16 FormatDataReserved = ((*(aData + 23))		 & 0x000000FF)
+        uint16 FormatDataReserved = ((*(aData + 23))         & 0x000000FF)
                                     + (((*(aData + 24)) << 8)  & 0x0000FF00);
 
-        fprintf(iTestMsgOutputFile, "	FormatDataReserved:%d \n", FormatDataReserved);
+        fprintf(iTestMsgOutputFile, "\tFormatDataReserved:%d \n", FormatDataReserved);
 
-        uint16 FormatDataBitsPerPixelCount = ((*(aData + 25))		  & 0x000000FF)
+        uint16 FormatDataBitsPerPixelCount = ((*(aData + 25))         & 0x000000FF)
                                              + (((*(aData + 26)) << 8)  & 0x0000FF00);
 
-        fprintf(iTestMsgOutputFile, "	FormatDataBitsPerPixelCount:%d \n", FormatDataBitsPerPixelCount);
+        fprintf(iTestMsgOutputFile, "\tFormatDataBitsPerPixelCount:%d \n", FormatDataBitsPerPixelCount);
 
-        uint32 FormatDataCompressionId = ((*(aData + 27))		  & 0x000000FF)
+        uint32 FormatDataCompressionId = ((*(aData + 27))         & 0x000000FF)
                                          + (((*(aData + 28)) << 8)  & 0x0000FF00)
                                          + (((*(aData + 29)) << 16) & 0x00FF0000)
                                          + (((*(aData + 30)) << 24) & 0xFF000000);
 
-        fprintf(iTestMsgOutputFile, "	FormatDataCompressionId:%d \n", FormatDataCompressionId);
+        fprintf(iTestMsgOutputFile, "\tFormatDataCompressionId:%d \n", FormatDataCompressionId);
 
-        uint32 FormatDataImageSize = ((*(aData + 31))		  & 0x000000FF)
+        uint32 FormatDataImageSize = ((*(aData + 31))         & 0x000000FF)
                                      + (((*(aData + 32)) << 8)  & 0x0000FF00)
                                      + (((*(aData + 33)) << 16) & 0x00FF0000)
                                      + (((*(aData + 34)) << 24) & 0xFF000000);
 
-        fprintf(iTestMsgOutputFile, "	FormatDataImageSize:%d \n", FormatDataImageSize);
+        fprintf(iTestMsgOutputFile, "\tFormatDataImageSize:%d \n", FormatDataImageSize);
 
-        uint32 FormatDataHorizontalPixelsPerMeter = ((*(aData + 35))		 & 0x000000FF)
+        uint32 FormatDataHorizontalPixelsPerMeter = ((*(aData + 35))         & 0x000000FF)
                 + (((*(aData + 36)) << 8)  & 0x0000FF00)
                 + (((*(aData + 37)) << 16) & 0x00FF0000)
                 + (((*(aData + 38)) << 24) & 0xFF000000);
 
-        fprintf(iTestMsgOutputFile, "	FormatDataHorizontalPixelsPerMeter:%d \n", FormatDataHorizontalPixelsPerMeter);
+        fprintf(iTestMsgOutputFile, "\tFormatDataHorizontalPixelsPerMeter:%d \n", FormatDataHorizontalPixelsPerMeter);
 
-        uint32 FormatDataVerticalPixelsPerMeter = ((*(aData + 39))		   & 0x000000FF)
+        uint32 FormatDataVerticalPixelsPerMeter = ((*(aData + 39))         & 0x000000FF)
                 + (((*(aData + 40)) << 8)  & 0x0000FF00)
                 + (((*(aData + 41)) << 16) & 0x00FF0000)
                 + (((*(aData + 42)) << 24) & 0xFF000000);
 
-        fprintf(iTestMsgOutputFile, "	FormatDataVerticalPixelsPerMeter:%d \n", FormatDataVerticalPixelsPerMeter);
+        fprintf(iTestMsgOutputFile, "\tFormatDataVerticalPixelsPerMeter:%d \n", FormatDataVerticalPixelsPerMeter);
 
-        uint32 FormatDataColorsUsedCount = ((*(aData + 43))		    & 0x000000FF)
+        uint32 FormatDataColorsUsedCount = ((*(aData + 43))         & 0x000000FF)
                                            + (((*(aData + 44)) << 8)  & 0x0000FF00)
                                            + (((*(aData + 45)) << 16) & 0x00FF0000)
                                            + (((*(aData + 46)) << 24) & 0xFF000000);
 
-        fprintf(iTestMsgOutputFile, "	FormatDataColorsUsedCount:%d \n", FormatDataColorsUsedCount);
+        fprintf(iTestMsgOutputFile, "\tFormatDataColorsUsedCount:%d \n", FormatDataColorsUsedCount);
 
-        uint32 FormatDataImportantColorsCount = ((*(aData + 47))		 & 0x000000FF)
+        uint32 FormatDataImportantColorsCount = ((*(aData + 47))         & 0x000000FF)
                                                 + (((*(aData + 48)) << 8)  & 0x0000FF00)
                                                 + (((*(aData + 49)) << 16) & 0x00FF0000)
                                                 + (((*(aData + 50)) << 24) & 0xFF000000);
 
-        fprintf(iTestMsgOutputFile, "	FormatDataImportantColorsCount:%d \n", FormatDataImportantColorsCount);
+        fprintf(iTestMsgOutputFile, "\tFormatDataImportantColorsCount:%d \n", FormatDataImportantColorsCount);
 
-        fprintf(iTestMsgOutputFile, "	CodecSpecifcData: \n");
+        fprintf(iTestMsgOutputFile, "\tCodecSpecifcData: \n");
         fprintf(iTestMsgOutputFile, "\t");
         for (uint16 ii = 0; ii < (FormatDataSize - SIZE_FORMATDATA_VIDEO); ii++)
         {
@@ -1086,9 +1103,9 @@ void pvplayer_async_test_printmetadata::PrintMetadataInfo()
     CodecSpecificInfo  sCSI[MAX_CODEC_SPECIFIC_INFO_SUPPORTED];
     for (jj = 0; jj < MAX_CODEC_SPECIFIC_INFO_SUPPORTED; jj++)
     {
-        sCSI[jj].CodecSpecificInfoIndex		= -1;
-        sCSI[jj].MetadataKeyIndex			= -1;
-        sCSI[jj].ValueIndex					= -1;
+        sCSI[jj].CodecSpecificInfoIndex     = -1;
+        sCSI[jj].MetadataKeyIndex           = -1;
+        sCSI[jj].ValueIndex                 = -1;
     }
 
     fprintf(iTestMsgOutputFile, "Metadata key list (count=%d):\n", iMetadataKeyList.size());
@@ -1950,7 +1967,7 @@ void pvplayer_async_test_playuntileos::Run()
         case STATE_CREATE:
         {
             iPlayer = NULL;
-
+            fprintf(iTestMsgOutputFile, "Creating Player...\n");
             OSCL_TRY(error, iPlayer = PVPlayerFactory::CreatePlayer(this, this, this));
             if (error)
             {
@@ -1962,6 +1979,7 @@ void pvplayer_async_test_playuntileos::Run()
                 iState = STATE_ADDDATASOURCE;
                 RunIfNotReady();
             }
+            fprintf(iTestMsgOutputFile, "Create Done...\n");
         }
         break;
 
@@ -1970,71 +1988,190 @@ void pvplayer_async_test_playuntileos::Run()
             iDataSource = new PVPlayerDataSourceURL;
             oscl_UTF8ToUnicode(iFileName, oscl_strlen(iFileName), iTmpWCharBuffer, 512);
             iFileNameWStr.set(iTmpWCharBuffer, oscl_strlen(iTmpWCharBuffer));
-            /*
-             * In case of HTTP URLs always attempt rollover,
-             * since we donot know if it is a download or a streaming url
-             */
+
             if (iFileType == PVMF_MIME_DATA_SOURCE_HTTP_URL)
             {
-                iSourceContextData = new PVMFSourceContextData();
-                iSourceContextData->EnableStreamingSourceContext();
-                iSourceContextData->EnableCommonSourceContext();
-                PVInterface* sourceContextStream = NULL;
-
-                PVUuid streamingContextUuid(PVMF_SOURCE_CONTEXT_DATA_STREAMING_UUID);
-                if (iSourceContextData->queryInterface(streamingContextUuid, sourceContextStream))
+                //in this case use player's internal download infrastructure (DLMgr, PE node etc)
+                if (iExternalDownload == false)
                 {
-                    PVMFSourceContextDataStreaming* streamingContext =
-                        OSCL_STATIC_CAST(PVMFSourceContextDataStreaming*, sourceContextStream);
-                    streamingContext->iStreamStatsLoggingURL = iFileNameWStr;
+                    /*
+                     * In case of HTTP URLs always attempt rollover,
+                     * since we donot know if it is a download or a streaming url
+                     */
+                    iSourceContextData = new PVMFSourceContextData();
+                    iSourceContextData->EnableStreamingSourceContext();
+                    iSourceContextData->EnableCommonSourceContext();
+                    PVInterface* sourceContextStream = NULL;
 
-                    if (iProxyEnabled)
+                    PVUuid streamingContextUuid(PVMF_SOURCE_CONTEXT_DATA_STREAMING_UUID);
+                    if (iSourceContextData->queryInterface(streamingContextUuid, sourceContextStream))
                     {
-                        streamingContext->iProxyName = _STRLIT_WCHAR("");
-                        streamingContext->iProxyPort = 8080;
+                        PVMFSourceContextDataStreaming* streamingContext =
+                            OSCL_STATIC_CAST(PVMFSourceContextDataStreaming*, sourceContextStream);
+                        streamingContext->iStreamStatsLoggingURL = iFileNameWStr;
+
+                        if (iProxyEnabled)
+                        {
+                            streamingContext->iProxyName = _STRLIT_WCHAR("");
+                            streamingContext->iProxyPort = 8080;
+                        }
                     }
-                }
-                PVInterface* sourceContextDownload = NULL;
-                iSourceContextData->EnableDownloadHTTPSourceContext();
-                PVUuid downloadContextUuid(PVMF_SOURCE_CONTEXT_DATA_DOWNLOAD_HTTP_UUID);
-                if (iSourceContextData->queryInterface(downloadContextUuid, sourceContextDownload))
-                {
-                    //create the opaque data
-                    iDownloadProxy = _STRLIT_CHAR("");
-                    int32 iDownloadProxyPort = 0;
-                    if (iProxyEnabled)
+                    PVInterface* sourceContextDownload = NULL;
+                    iSourceContextData->EnableDownloadHTTPSourceContext();
+                    PVUuid downloadContextUuid(PVMF_SOURCE_CONTEXT_DATA_DOWNLOAD_HTTP_UUID);
+                    if (iSourceContextData->queryInterface(downloadContextUuid, sourceContextDownload))
                     {
+                        //create the opaque data
                         iDownloadProxy = _STRLIT_CHAR("");
-                        iDownloadProxyPort = 8080;
+                        int32 iDownloadProxyPort = 0;
+                        if (iProxyEnabled)
+                        {
+                            iDownloadProxy = _STRLIT_CHAR("");
+                            iDownloadProxyPort = 8080;
+                        }
+                        iDownloadConfigFilename = OUTPUTNAME_PREPEND_WSTRING;
+                        iDownloadConfigFilename += _STRLIT_WCHAR("mydlconfig");
+                        iDownloadMaxfilesize = 0x7FFFFFFF;
+                        iDownloadFilename = OUTPUTNAME_PREPEND_WSTRING;
+                        iDownloadFilename += _STRLIT_WCHAR("test_ftdownload.dl");
+                        bool aIsNewSession = true;
+
+                        iSourceContextData->DownloadHTTPData()->bIsNewSession = aIsNewSession;
+                        iSourceContextData->DownloadHTTPData()->iConfigFileName = iDownloadConfigFilename;
+                        iSourceContextData->DownloadHTTPData()->iDownloadFileName = iDownloadFilename;
+                        iSourceContextData->DownloadHTTPData()->iMaxFileSize = iDownloadMaxfilesize;
+                        iSourceContextData->DownloadHTTPData()->iPlaybackControl = PVMFSourceContextDataDownloadHTTP::EAsap;
+                        iSourceContextData->DownloadHTTPData()->iProxyName = iDownloadProxy;
+                        iSourceContextData->DownloadHTTPData()->iProxyPort = iDownloadProxyPort;
+
                     }
-                    iDownloadConfigFilename = OUTPUTNAME_PREPEND_WSTRING;
-                    iDownloadConfigFilename += _STRLIT_WCHAR("mydlconfig");
-                    iDownloadMaxfilesize = 0x7FFFFFFF;
-                    iDownloadFilename = OUTPUTNAME_PREPEND_WSTRING;
-                    iDownloadFilename += _STRLIT_WCHAR("test_ftdownload.dl");
-                    bool aIsNewSession = true;
+                    iDataSource->SetDataSourceContextData((OsclAny*)iSourceContextData);
 
-                    iSourceContextData->DownloadHTTPData()->bIsNewSession = aIsNewSession;
-                    iSourceContextData->DownloadHTTPData()->iConfigFileName = iDownloadConfigFilename;
-                    iSourceContextData->DownloadHTTPData()->iDownloadFileName = iDownloadFilename;
-                    iSourceContextData->DownloadHTTPData()->iMaxFileSize = iDownloadMaxfilesize;
-                    iSourceContextData->DownloadHTTPData()->iPlaybackControl = PVMFSourceContextDataDownloadHTTP::EAsap;
-                    iSourceContextData->DownloadHTTPData()->iProxyName = iDownloadProxy;
-                    iSourceContextData->DownloadHTTPData()->iProxyPort = iDownloadProxyPort;
-
+                    iDataSource->SetDataSourceFormatType(PVMF_MIME_DATA_SOURCE_MS_HTTP_STREAMING_URL);
+                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_HTTP_URL);
                 }
-                iDataSource->SetDataSourceContextData((OsclAny*)iSourceContextData);
-
-                iDataSource->SetDataSourceFormatType(PVMF_MIME_DATA_SOURCE_MS_HTTP_STREAMING_URL);
-                iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_HTTP_URL);
+#if RUN_PVNETWORK_DOWNLOAD_TESTCASES
+                else
+                {
+                    //setup pvnetwork class for download here
+                    iDownloadFilename = OUTPUTNAME_PREPEND_WSTRING;
+                    iDownloadFilename += _STRLIT_WCHAR("test_external_dl.out");
+                    OSCL_HeapString<OsclMemAllocator> downloadfile = OUTPUTNAME_PREPEND_STRING;
+                    downloadfile += _STRLIT_CHAR("test_external_dl.out");
+                    iDownloadBackEnd.GetFile(iFileName, downloadfile.get_cstr());
+                    iSourceContextData = new PVMFSourceContextData();
+                    iSourceContextData->EnableCommonSourceContext();
+                    PVMFSourceContextDataCommon* commonContext = iSourceContextData->CommonData();
+                    Oscl_Vector<PVInterface*, OsclMemAllocator> interfaceVec;
+                    PVInterface* tmp = NULL;
+                    if (iSimulateMultiProcessDownload == true)
+                    {
+                        PVMIExternalDownloadSizeObserver* obs =
+                            OSCL_STATIC_CAST(PVMIExternalDownloadSizeObserver*, this);
+                        iPollingDownloadBackend.SetObserver(obs);
+                        iPollingDownloadBackend.MonitorFile(downloadfile.get_cstr());
+                        iPollingDownloadBackend.queryInterface(PVMIExternalDownloadSizeUpdateInterfaceUUID, tmp);
+                        fprintf(iTestMsgOutputFile, "Doing External Download (Simulating MultProcess) - URL=%s\n",
+                                iFileName);
+                    }
+                    else
+                    {
+                        PVMIExternalDownloadSizeObserver* obs =
+                            OSCL_STATIC_CAST(PVMIExternalDownloadSizeObserver*, this);
+                        iDownloadBackEnd.SetObserver(obs);
+                        iDownloadBackEnd.queryInterface(PVMIExternalDownloadSizeUpdateInterfaceUUID, tmp);
+                        fprintf(iTestMsgOutputFile, "Doing External Download - URL=%s\n",
+                                iFileName);
+                    }
+                    interfaceVec.push_back(tmp);
+                    iDSFactory =
+                        OSCL_NEW(PVMIExternalDownloadDataStreamInterfaceFactory, (iDownloadFilename, interfaceVec));
+                    //now the interfaces have been handed over to DSFactory do a removeRef
+                    tmp->removeRef();
+                    commonContext->iContentAccessFactory =
+                        (PVMFCPMPluginAccessInterfaceFactory*)iDSFactory;
+                    //use the same factory for recognition since the mimetype is unknown
+                    commonContext->iRecognizerDataStreamFactory =
+                        (PVMFCPMPluginAccessInterfaceFactory*)iDSFactory;
+                    iDataSource->SetDataSourceContextData((OsclAny*)iSourceContextData);
+                }
+#endif
             }
             else
             {
-                iDataSource->SetDataSourceFormatType(iFileType);
+                if (iExternalDownload == true)
+                {
+                    //we do not allow RTSP URLs, SDP files, PVX files as input
+                    //or allow multi process simulate for non-http inputs
+                    if ((iFileType == PVMF_MIME_DATA_SOURCE_RTSP_URL) ||
+                            (iFileType == PVMF_MIME_DATA_SOURCE_SDP_FILE) ||
+                            (iFileType == PVMF_MIME_DATA_SOURCE_PVX_FILE) ||
+                            (iSimulateMultiProcessDownload == true))
+                    {
+                        fprintf(iTestMsgOutputFile, "Invalid Input for this testcase - Failing testcase\n");
+                        PVPATB_TEST_IS_TRUE(false);
+                        iState = STATE_CLEANUPANDCOMPLETE;
+                        RunIfNotReady();
+                        return;
+                    }
+                    else
+                    {
+                        iSourceContextData = new PVMFSourceContextData();
+                        iSourceContextData->EnableCommonSourceContext();
+                        PVMFSourceContextDataCommon* commonContext = iSourceContextData->CommonData();
+                        //assume it is local file and that we have to simulate external download
+                        //first open the file to detect file size
+                        Oscl_File inputfile;
+                        Oscl_FileServer iFs;
+                        iFs.Connect();
+                        if (inputfile.Open(iFileNameWStr.get_cstr(), Oscl_File::MODE_READ, iFs))
+                        {
+                            iFs.Close();
+                            fprintf(iTestMsgOutputFile, "Could not open input file - Failing testcase\n");
+                            PVPATB_TEST_IS_TRUE(false);
+                            iState = STATE_CLEANUPANDCOMPLETE;
+                            RunIfNotReady();
+                            return;
+                        }
+                        iFs.Close();
+                        PVMIExternalDownloadSimulatorParams params;
+                        params.iFileSizeInBytes = (uint32)inputfile.Size();
+                        //currently hardcoded
+                        params.iSizeUpdateIntervalInMS = 500;
+                        params.iDownloadRateInKbps = iDownloadRateInKbps;
+                        if (iDownloadSim != NULL)
+                        {
+                            iDownloadSim->Reset();
+                            OSCL_DELETE(iDownloadSim);
+                            iDownloadSim = NULL;
+                        }
+                        iDownloadSim = OSCL_NEW(PVMIExternalDownloadSimulator, (params));
+                        iDownloadSim->Start();
+                        Oscl_Vector<PVInterface*, OsclMemAllocator> interfaceVec;
+                        PVInterface* tmp = NULL;
+                        iDownloadSim->queryInterface(PVMIExternalDownloadSizeUpdateInterfaceUUID, tmp);
+                        interfaceVec.push_back(tmp);
+                        iDSFactory =
+                            OSCL_NEW(PVMIExternalDownloadDataStreamInterfaceFactory, (iFileNameWStr, interfaceVec));
+                        //now the interfaces have been handed over to DSFactory do a removeRef
+                        tmp->removeRef();
+                        commonContext->iContentAccessFactory =
+                            (PVMFCPMPluginAccessInterfaceFactory*)iDSFactory;
+                        //use the same factory for recognition in case the mimetype is unknown
+                        commonContext->iRecognizerDataStreamFactory =
+                            (PVMFCPMPluginAccessInterfaceFactory*)iDSFactory;
+                        iDataSource->SetDataSourceContextData((OsclAny*)iSourceContextData);
+                        fprintf(iTestMsgOutputFile, "Simulating External Download - Rate(in kbps)=%d, FileSize=%d\n",
+                                iDownloadRateInKbps, params.iFileSizeInBytes);
+                    }
+                }
+                else
+                {
+                    iDataSource->SetDataSourceFormatType(iFileType);
+                }
             }
-
             iDataSource->SetDataSourceURL(iFileNameWStr);
-
+            fprintf(iTestMsgOutputFile, "Calling AddDataSource...\n");
             OSCL_TRY(error, iCurrentCmdId = iPlayer->AddDataSource(*iDataSource, (OsclAny*) & iContextObject));
             OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
         }
@@ -2043,6 +2180,7 @@ void pvplayer_async_test_playuntileos::Run()
 
         case STATE_INIT:
         {
+            fprintf(iTestMsgOutputFile, "Calling Init...\n");
             OSCL_TRY(error, iCurrentCmdId = iPlayer->Init((OsclAny*) & iContextObject));
             OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
         }
@@ -2067,6 +2205,7 @@ void pvplayer_async_test_playuntileos::Run()
             iDataSinkVideo = new PVPlayerDataSinkPVMFNode;
             ((PVPlayerDataSinkPVMFNode*)iDataSinkVideo)->SetDataSinkNode(iIONodeVideo);
 
+            fprintf(iTestMsgOutputFile, "Adding Video Sink...\n");
             OSCL_TRY(error, iCurrentCmdId = iPlayer->AddDataSink(*iDataSinkVideo, (OsclAny*) & iContextObject));
             OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
         }
@@ -2091,6 +2230,7 @@ void pvplayer_async_test_playuntileos::Run()
             iDataSinkAudio = new PVPlayerDataSinkPVMFNode;
             ((PVPlayerDataSinkPVMFNode*)iDataSinkAudio)->SetDataSinkNode(iIONodeAudio);
 
+            fprintf(iTestMsgOutputFile, "Adding Audio Sink...\n");
             OSCL_TRY(error, iCurrentCmdId = iPlayer->AddDataSink(*iDataSinkAudio, (OsclAny*) & iContextObject));
             OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
         }
@@ -2101,6 +2241,708 @@ void pvplayer_async_test_playuntileos::Run()
             OSCL_wHeapString<OsclMemAllocator> sinkfilename;
             sinkfilename = OUTPUTNAME_PREPEND_WSTRING;
             sinkfilename += _STRLIT_WCHAR("test_player_playuntileos_");
+            OSCL_wHeapString<OsclMemAllocator> inputfilename;
+            RetrieveFilename(iFileNameWStr.get_str(), inputfilename);
+            sinkfilename += inputfilename;
+            sinkfilename += _STRLIT_WCHAR("_text.dat");
+
+            iMIOFileOutText = iMioFactory->CreateTextOutput((OsclAny*) & sinkfilename, MEDIATYPE_TEXT);
+            iIONodeText = PVMediaOutputNodeFactory::CreateMediaOutputNode(iMIOFileOutText);
+            iDataSinkText = new PVPlayerDataSinkPVMFNode;
+            ((PVPlayerDataSinkPVMFNode*)iDataSinkText)->SetDataSinkNode(iIONodeText);
+
+            fprintf(iTestMsgOutputFile, "Adding Text Sink...\n");
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->AddDataSink(*iDataSinkText, (OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_PREPARE:
+        {
+            fprintf(iTestMsgOutputFile, "Calling Prepare...\n");
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->Prepare((OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_START:
+        {
+            fprintf(iTestMsgOutputFile, "Calling Start...\n");
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->Start((OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_STOP:
+        {
+            fprintf(iTestMsgOutputFile, "Calling Stop...\n");
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->Stop((OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_REMOVEDATASINK_VIDEO:
+        {
+            fprintf(iTestMsgOutputFile, "Removing Video Sink...\n");
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->RemoveDataSink(*iDataSinkVideo, (OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_REMOVEDATASINK_AUDIO:
+        {
+            fprintf(iTestMsgOutputFile, "Removing Audio Sink...\n");
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->RemoveDataSink(*iDataSinkAudio, (OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_REMOVEDATASINK_TEXT:
+        {
+            fprintf(iTestMsgOutputFile, "Removing Text Sink...\n");
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->RemoveDataSink(*iDataSinkText, (OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_RESET:
+        {
+            fprintf(iTestMsgOutputFile, "Calling Reset...\n");
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->Reset((OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_REMOVEDATASOURCE:
+        {
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->RemoveDataSource(*iDataSource, (OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_CLEANUPANDCOMPLETE:
+        {
+            fprintf(iTestMsgOutputFile, "Deleting Player...\n");
+            PVPATB_TEST_IS_TRUE(PVPlayerFactory::DeletePlayer(iPlayer));
+            iPlayer = NULL;
+
+            delete iSourceContextData;
+            iSourceContextData = NULL;
+
+            delete iDataSource;
+            iDataSource = NULL;
+
+            delete iDataSinkVideo;
+            iDataSinkVideo = NULL;
+
+            delete iDataSinkAudio;
+            iDataSinkAudio = NULL;
+
+            delete iDataSinkText;
+            iDataSinkText = NULL;
+
+            PVMediaOutputNodeFactory::DeleteMediaOutputNode(iIONodeVideo);
+            iIONodeVideo = NULL;
+
+            PVMediaOutputNodeFactory::DeleteMediaOutputNode(iIONodeAudio);
+            iIONodeAudio = NULL;
+
+            PVMediaOutputNodeFactory::DeleteMediaOutputNode(iIONodeText);
+            iIONodeText = NULL;
+
+            iMioFactory->DestroyVideoOutput(iMIOFileOutVideo);
+            iMIOFileOutVideo = NULL;
+
+            iMioFactory->DestroyAudioOutput(iMIOFileOutAudio);
+            iMIOFileOutAudio = NULL;
+
+            iMioFactory->DestroyTextOutput(iMIOFileOutText);
+            iMIOFileOutText = NULL;
+
+            if (iDSFactory != NULL)
+            {
+                OSCL_DELETE(iDSFactory);
+            }
+
+            if (iDownloadSim != NULL)
+            {
+                iDownloadSim->Reset();
+                OSCL_DELETE(iDownloadSim);
+                iDownloadSim = NULL;
+            }
+
+#if RUN_PVNETWORK_DOWNLOAD_TESTCASES
+            PVMIExternalDownloadSizeObserver* obs =
+                OSCL_STATIC_CAST(PVMIExternalDownloadSizeObserver*, this);
+            if (iSimulateMultiProcessDownload)
+            {
+                if (iDownloadComplete == false)
+                {
+                    iPollingDownloadBackend.StopMonitoring();
+                }
+                iPollingDownloadBackend.RemoveObserver(obs);
+            }
+            else
+            {
+                iDownloadBackEnd.RemoveObserver(obs);
+            }
+#endif
+
+            iObserver->TestCompleted(*iTestCase);
+        }
+        break;
+
+        default:
+            break;
+
+    }
+}
+
+
+void pvplayer_async_test_playuntileos::CommandCompleted(const PVCmdResponse& aResponse)
+{
+    if (aResponse.GetCmdId() != iCurrentCmdId)
+    {
+        // Wrong command ID.
+        PVPATB_TEST_IS_TRUE(false);
+        iState = STATE_CLEANUPANDCOMPLETE;
+        RunIfNotReady();
+        return;
+    }
+
+    if (aResponse.GetContext() != NULL)
+    {
+        if (aResponse.GetContext() == (OsclAny*)&iContextObject)
+        {
+            if (iContextObject != iContextObjectRefValue)
+            {
+                // Context data value was corrupted
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+                return;
+            }
+        }
+        else
+        {
+            // Context data pointer was corrupted
+            PVPATB_TEST_IS_TRUE(false);
+            iState = STATE_CLEANUPANDCOMPLETE;
+            RunIfNotReady();
+            return;
+        }
+    }
+
+    switch (iState)
+    {
+        case STATE_ADDDATASOURCE:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "AddDataSource Complete...\n");
+                iState = STATE_INIT;
+                RunIfNotReady();
+            }
+            else
+            {
+                // AddDataSource failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_INIT:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Init Complete...\n");
+                iState = STATE_ADDDATASINK_VIDEO;
+                RunIfNotReady();
+            }
+            else
+            {
+                // Init failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_ADDDATASINK_VIDEO:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Add Video Sink Complete...\n");
+                iState = STATE_ADDDATASINK_AUDIO;
+                RunIfNotReady();
+            }
+            else
+            {
+                // AddDataSink failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_ADDDATASINK_AUDIO:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Add Audio Sink Complete...\n");
+                iState = STATE_ADDDATASINK_TEXT;
+                RunIfNotReady();
+            }
+            else
+            {
+                // AddDataSink failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_ADDDATASINK_TEXT:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Add Text Sink Complete...\n");
+                iState = STATE_PREPARE;
+                RunIfNotReady();
+            }
+            else
+            {
+                // AddDataSink failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_PREPARE:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Prepare Complete...\n");
+                iState = STATE_START;
+                // The delay is added between Prepare and Start to test that player
+                // does not start the clock and send playstatus events prior to start.
+                RunIfNotReady(PVPLAYER_ASYNC_TEST_PLAYUNTILEOS_DELAY_AFTER_PREPARE);
+            }
+            else
+            {
+                // Prepare failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_START:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                // Do nothing and wait for EOS event
+                fprintf(iTestMsgOutputFile, "Playback started.\n");
+            }
+            else
+            {
+                // Start failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_STOP:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Stop Complete...\n");
+                iState = STATE_REMOVEDATASINK_VIDEO;
+                RunIfNotReady();
+            }
+            else
+            {
+                // Stop failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_REMOVEDATASINK_VIDEO:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Remove Video Sink Complete...\n");
+                iState = STATE_REMOVEDATASINK_AUDIO;
+                RunIfNotReady();
+            }
+            else
+            {
+                // RemoveDataSink failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_REMOVEDATASINK_AUDIO:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Remove Audio Sink Complete...\n");
+                iState = STATE_REMOVEDATASINK_TEXT;
+                RunIfNotReady();
+            }
+            else
+            {
+                // RemoveDataSink failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_REMOVEDATASINK_TEXT:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Remove Text Sink Complete...\n");
+                iState = STATE_RESET;
+                RunIfNotReady();
+            }
+            else
+            {
+                // RemoveDataSink failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_RESET:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Reset Complete...\n");
+                iState = STATE_REMOVEDATASOURCE;
+                RunIfNotReady();
+            }
+            else
+            {
+                // Reset failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        case STATE_REMOVEDATASOURCE:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                fprintf(iTestMsgOutputFile, "Remove DataSource Complete...\n");
+                PVPATB_TEST_IS_TRUE(true);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            else
+            {
+                // RemoveDataSource failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+        default:
+        {
+            // Testing error if this is reached
+            PVPATB_TEST_IS_TRUE(false);
+            iState = STATE_CLEANUPANDCOMPLETE;
+            RunIfNotReady();
+        }
+        break;
+    }
+}
+
+
+void pvplayer_async_test_playuntileos::HandleErrorEvent(const PVAsyncErrorEvent& aEvent)
+{
+    switch (aEvent.GetEventType())
+    {
+        case PVMFErrResourceConfiguration:
+            // Just log the error
+            PVPATB_TEST_IS_TRUE(false);
+            break;
+
+        case PVMFErrResource:
+            // Just log the error
+            PVPATB_TEST_IS_TRUE(false);
+            break;
+
+        case PVMFErrCorrupt:
+            // Just log the error
+            PVPATB_TEST_IS_TRUE(false);
+            break;
+
+        case PVMFErrProcessing:
+            // Just log the error
+            PVPATB_TEST_IS_TRUE(false);
+            break;
+
+        default:
+            // Unknown error and just log the error
+            PVPATB_TEST_IS_TRUE(false);
+            break;
+    }
+
+    // Wait for engine to handle the error
+    Cancel();
+}
+
+
+void pvplayer_async_test_playuntileos::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
+{
+    if (aEvent.GetEventType() == PVMFInfoErrorHandlingStart)
+    {
+        fprintf(iTestMsgOutputFile, "PVMFInfoErrorHandlingStart...\n");
+    }
+    if (aEvent.GetEventType() == PVMFInfoErrorHandlingComplete)
+    {
+        fprintf(iTestMsgOutputFile, "PVMFInfoErrorHandlingComplete...\n");
+        iState = STATE_CLEANUPANDCOMPLETE;
+        RunIfNotReady();
+    }
+
+    // Check for stop time reached event
+    if (aEvent.GetEventType() == PVMFInfoEndOfData)
+    {
+        PVInterface* iface = (PVInterface*)(aEvent.GetEventExtensionInterface());
+        if (iface == NULL)
+        {
+            return;
+        }
+        PVUuid infomsguuid = PVMFErrorInfoMessageInterfaceUUID;
+        PVMFErrorInfoMessageInterface* infomsgiface = NULL;
+        if (iface->queryInterface(infomsguuid, (PVInterface*&)infomsgiface) == true)
+        {
+            int32 infocode;
+            PVUuid infouuid;
+            infomsgiface->GetCodeUUID(infocode, infouuid);
+            if ((infouuid == PVPlayerErrorInfoEventTypesUUID) && (infocode == PVPlayerInfoEndOfClipReached))
+            {
+                fprintf(iTestMsgOutputFile, "EOS received. Stopping playback.\n");
+                iState = STATE_STOP;
+                Cancel();
+                RunIfNotReady();
+            }
+        }
+    }
+    // Check and print out playback position status
+    else if (aEvent.GetEventType() == PVMFInfoPositionStatus)
+    {
+        PVPlayerState pstate;
+        iPlayer->GetPVPlayerStateSync(pstate);
+        if (pstate != PVP_STATE_STARTED)
+        {
+            fprintf(iTestMsgOutputFile, "Playback status recived in Wrong Engine State\n");
+            PVPATB_TEST_IS_TRUE(false);
+            iState = STATE_CLEANUPANDCOMPLETE;
+            RunIfNotReady();
+            return;
+        }
+
+        PVInterface* iface = (PVInterface*)(aEvent.GetEventExtensionInterface());
+        if (iface == NULL)
+        {
+            return;
+        }
+        PVUuid infomsguuid = PVMFErrorInfoMessageInterfaceUUID;
+        PVMFErrorInfoMessageInterface* infomsgiface = NULL;
+        if (iface->queryInterface(infomsguuid, (PVInterface*&)infomsgiface) == true)
+        {
+            int32 infocode;
+            PVUuid infouuid;
+            infomsgiface->GetCodeUUID(infocode, infouuid);
+            if ((infouuid == PVPlayerErrorInfoEventTypesUUID) && (infocode == PVPlayerInfoPlaybackPositionStatus))
+            {
+                uint8* localbuf = aEvent.GetLocalBuffer();
+                uint32 pbpos = 0;
+                oscl_memcpy(&pbpos, &(localbuf[4]), 4);
+                fprintf(iTestMsgOutputFile, "Playback status(time) %d ms\n", pbpos);
+            }
+        }
+
+        PVPPlaybackPosition curpos;
+
+        curpos.iPosValue.percent_value = 0;
+        curpos.iPosUnit = PVPPBPOSUNIT_PERCENT;
+        if (iPlayer->GetCurrentPositionSync(curpos) == PVMFSuccess)
+        {
+            fprintf(iTestMsgOutputFile, "Playback status(percentage) %d%%\n", curpos.iPosValue.percent_value);
+        }
+
+
+        curpos.iPosValue.samplenum_value = 0;
+        curpos.iPosUnit = PVPPBPOSUNIT_SAMPLENUMBER;
+        if (iPlayer->GetCurrentPositionSync(curpos) == PVMFSuccess)
+        {
+            fprintf(iTestMsgOutputFile, "Playback status(sample number) %d\n", curpos.iPosValue.samplenum_value);
+        }
+
+        curpos.iPosValue.datapos_value = 0;
+        curpos.iPosUnit = PVPPBPOSUNIT_DATAPOSITION;
+        if (iPlayer->GetCurrentPositionSync(curpos) == PVMFSuccess)
+        {
+            fprintf(iTestMsgOutputFile, "Playback status(data position) %d bytes\n", curpos.iPosValue.datapos_value);
+        }
+
+        fprintf(iTestMsgOutputFile, "------------------------------\n");
+    }
+}
+
+
+//
+// pvplayer_async_test_playuntileos_external_file_handle section
+//
+void pvplayer_async_test_playuntileos_using_external_file_handle::StartTest()
+{
+    AddToScheduler();
+    iState = STATE_CREATE;
+    RunIfNotReady();
+}
+
+
+void pvplayer_async_test_playuntileos_using_external_file_handle::Run()
+{
+    int error = 0;
+
+    switch (iState)
+    {
+        case STATE_CREATE:
+        {
+            iPlayer = NULL;
+
+            OSCL_TRY(error, iPlayer = PVPlayerFactory::CreatePlayer(this, this, this));
+            if (error)
+            {
+                PVPATB_TEST_IS_TRUE(false);
+                iObserver->TestCompleted(*iTestCase);
+            }
+            else
+            {
+                iState = STATE_QUERYINTERFACE;
+                RunIfNotReady();
+            }
+        }
+        break;
+
+        case STATE_QUERYINTERFACE:
+        {
+            PVUuid capconfigifuuid = PVMI_CAPABILITY_AND_CONFIG_PVUUID;
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->QueryInterface(capconfigifuuid, (PVInterface*&)iPlayerCapConfigIF, (OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+
+        case STATE_ADDDATASOURCE:
+        {
+            iDataSource = new PVPlayerDataSourceURL;
+            oscl_UTF8ToUnicode(iFileName, oscl_strlen(iFileName), iTmpWCharBuffer, 512);
+            iFileNameWStr.set(iTmpWCharBuffer, oscl_strlen(iTmpWCharBuffer));
+
+            // format type can be set explicitly, if recognizers need to  be bypassed.
+            // iDataSource->SetDataSourceFormatType(iFileType);
+
+            if (!iLocalDataSource)
+            {
+                OsclFileHandle* fileHandle = NULL;
+                fp = fopen((char*)iFileName, "rb");
+                if (fp)
+                {
+                    fileHandle = OSCL_NEW(OsclFileHandle, (fp));
+                }
+                if (fileHandle == NULL)
+                {
+                    if (fp)
+                    {
+                        fclose(fp);
+                    }
+                    PVPATB_TEST_IS_TRUE(false);
+                    iState = STATE_CLEANUPANDCOMPLETE;
+                    RunIfNotReady();
+                    return;
+                }
+                iLocalDataSource = OSCL_NEW(PVMFLocalDataSource, ());
+                iLocalDataSource->iFileHandle = fileHandle;
+                iDataSource->SetDataSourceContextData(iLocalDataSource);
+            }
+
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->AddDataSource(*iDataSource, (OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+
+        break;
+
+        case STATE_INIT:
+        {
+            PvmiKvp paramkvp;
+            OSCL_StackString<64> paramkey1(_STRLIT_CHAR("x-pvmf/parser/mp4ff-open-file-once-per-track;valtype=bool"));
+            paramkvp.key = paramkey1.get_str();
+            paramkvp.value.bool_value = false;
+            // Set the new settings
+            iErrorKVP = NULL;
+            iPlayerCapConfigIF->setParametersSync(NULL, &paramkvp, 1, iErrorKVP);
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->Init((OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_ADDDATASINK_VIDEO:
+        {
+            OSCL_wHeapString<OsclMemAllocator> sinkfilename;
+            sinkfilename = OUTPUTNAME_PREPEND_WSTRING;
+            sinkfilename += _STRLIT_WCHAR("test_player_playuntileos_usingexternalfilehandle_");
+            if (iCompressedVideo)
+            {
+                sinkfilename += _STRLIT_WCHAR("compressed_");
+            }
+            OSCL_wHeapString<OsclMemAllocator> inputfilename;
+            RetrieveFilename(iFileNameWStr.get_str(), inputfilename);
+            sinkfilename += inputfilename;
+            sinkfilename += _STRLIT_WCHAR("_video.dat");
+
+            iMIOFileOutVideo = iMioFactory->CreateVideoOutput((OsclAny*) & sinkfilename, MEDIATYPE_VIDEO, iCompressedVideo);
+            iIONodeVideo = PVMediaOutputNodeFactory::CreateMediaOutputNode(iMIOFileOutVideo);
+            iDataSinkVideo = new PVPlayerDataSinkPVMFNode;
+            ((PVPlayerDataSinkPVMFNode*)iDataSinkVideo)->SetDataSinkNode(iIONodeVideo);
+
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->AddDataSink(*iDataSinkVideo, (OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_ADDDATASINK_AUDIO:
+        {
+            OSCL_wHeapString<OsclMemAllocator> sinkfilename;
+            sinkfilename = OUTPUTNAME_PREPEND_WSTRING;
+            sinkfilename += _STRLIT_WCHAR("test_player_playuntileos_usingexternalfilehandle_");
+            if (iCompressedAudio)
+            {
+                sinkfilename += _STRLIT_WCHAR("compressed_");
+            }
+            OSCL_wHeapString<OsclMemAllocator> inputfilename;
+            RetrieveFilename(iFileNameWStr.get_str(), inputfilename);
+            sinkfilename += inputfilename;
+            sinkfilename += _STRLIT_WCHAR("_audio.dat");
+
+            iMIOFileOutAudio = iMioFactory->CreateAudioOutput((OsclAny*) & sinkfilename, MEDIATYPE_AUDIO, iCompressedAudio);
+            iIONodeAudio = PVMediaOutputNodeFactory::CreateMediaOutputNode(iMIOFileOutAudio);
+            iDataSinkAudio = new PVPlayerDataSinkPVMFNode;
+            ((PVPlayerDataSinkPVMFNode*)iDataSinkAudio)->SetDataSinkNode(iIONodeAudio);
+
+            OSCL_TRY(error, iCurrentCmdId = iPlayer->AddDataSink(*iDataSinkAudio, (OsclAny*) & iContextObject));
+            OSCL_FIRST_CATCH_ANY(error, PVPATB_TEST_IS_TRUE(false); iState = STATE_CLEANUPANDCOMPLETE; RunIfNotReady());
+        }
+        break;
+
+        case STATE_ADDDATASINK_TEXT:
+        {
+            OSCL_wHeapString<OsclMemAllocator> sinkfilename;
+            sinkfilename = OUTPUTNAME_PREPEND_WSTRING;
+            sinkfilename += _STRLIT_WCHAR("test_player_playuntileos_usingexternalfilehandle_");
             OSCL_wHeapString<OsclMemAllocator> inputfilename;
             RetrieveFilename(iFileNameWStr.get_str(), inputfilename);
             sinkfilename += inputfilename;
@@ -2177,6 +3019,11 @@ void pvplayer_async_test_playuntileos::Run()
             PVPATB_TEST_IS_TRUE(PVPlayerFactory::DeletePlayer(iPlayer));
             iPlayer = NULL;
 
+            if (fp)
+            {
+                fclose(fp);
+            }
+
             delete iSourceContextData;
             iSourceContextData = NULL;
 
@@ -2221,7 +3068,7 @@ void pvplayer_async_test_playuntileos::Run()
 }
 
 
-void pvplayer_async_test_playuntileos::CommandCompleted(const PVCmdResponse& aResponse)
+void pvplayer_async_test_playuntileos_using_external_file_handle::CommandCompleted(const PVCmdResponse& aResponse)
 {
     if (aResponse.GetCmdId() != iCurrentCmdId)
     {
@@ -2257,6 +3104,22 @@ void pvplayer_async_test_playuntileos::CommandCompleted(const PVCmdResponse& aRe
 
     switch (iState)
     {
+        case STATE_QUERYINTERFACE:
+            if (aResponse.GetCmdStatus() == PVMFSuccess)
+            {
+                iState = STATE_ADDDATASOURCE;
+                RunIfNotReady();
+            }
+            else
+            {
+                // QueryInterface failed
+                PVPATB_TEST_IS_TRUE(false);
+                iState = STATE_CLEANUPANDCOMPLETE;
+                RunIfNotReady();
+            }
+            break;
+
+
         case STATE_ADDDATASOURCE:
             if (aResponse.GetCmdStatus() == PVMFSuccess)
             {
@@ -2467,7 +3330,7 @@ void pvplayer_async_test_playuntileos::CommandCompleted(const PVCmdResponse& aRe
 }
 
 
-void pvplayer_async_test_playuntileos::HandleErrorEvent(const PVAsyncErrorEvent& aEvent)
+void pvplayer_async_test_playuntileos_using_external_file_handle::HandleErrorEvent(const PVAsyncErrorEvent& aEvent)
 {
     switch (aEvent.GetEventType())
     {
@@ -2502,7 +3365,7 @@ void pvplayer_async_test_playuntileos::HandleErrorEvent(const PVAsyncErrorEvent&
 }
 
 
-void pvplayer_async_test_playuntileos::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
+void pvplayer_async_test_playuntileos_using_external_file_handle::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
 {
     if (aEvent.GetEventType() == PVMFInfoErrorHandlingStart)
     {
@@ -2601,7 +3464,6 @@ void pvplayer_async_test_playuntileos::HandleInformationalEvent(const PVAsyncInf
         fprintf(iTestMsgOutputFile, "------------------------------\n");
     }
 }
-
 
 
 

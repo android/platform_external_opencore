@@ -22,12 +22,6 @@
 
    Pathname: ./cpp/include/pv_mp3dec_fxd_op_c_equivalent.h
 
-     Date: 12/06/2005
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

@@ -6,10 +6,6 @@ SHARED_LINK ?= $(CXX)
 AR ?= ar
 STRIP ?= strip
 
-# The following macro will turn on combined
-# compilation and dependency generation
-COMBINED_COMPILE_AND_DEPEND:=1
-
 override SYSLIBS = -lc -lm -ldl -lstdc++ -lpthread
 
 SHARED_CFLAGS ?= -fPIC
@@ -29,6 +25,12 @@ CO := -c -o # make sure to leave a space at the end
 #Make all warnings into errors.
 FLAG_COMPILE_WARNINGS_AS_ERRORS := -Werror
 
+#Ignore strict-aliasing warnings
+DISABLE_STRICT_ALIASING_WARNINGS := -Wno-strict-aliasing
+
+#Downgrade some diagnostics about nonconformant code from errors to warnings.
+FLAG_COMPILE_NONCONFORMING_CODE := -fpermissive
+
 STAT_LIB_EXT:=a
 SHARED_LIB_EXT:=so
 SHARED_ARCHIVE_LIB_EXT:=sa
@@ -41,9 +43,9 @@ INCDIRS += -I$(BUILD_ROOT)/installed_include
 CXXFLAGS?=-Wall -Wno-non-virtual-dtor
 
 #########################################################
-# $(call make-depend,source-file,object-file,depend-file,xflags)
+# $(call make-depend,source-file,object-file,depend-file,xpflags,xxflags)
 define make-depend
-  $(quiet) $(CXX) $4 $(CPPFLAGS) $(INCDIRS) $(CXXFLAGS) -MM $1 |        \
+  $(quiet) $(CXX) $4 $5 $(CPPFLAGS) $(INCDIRS) $(CXXFLAGS) -MM $1 |        \
    $(SED) -e 's,\($(notdir $2)\) *:,$2: ,' -e 's,$(BUILD_ROOT),$$(BUILD_ROOT),'  -e 's,$(SRC_ROOT),$$(SRC_ROOT),' > $3.tmp
   $(quiet) $(CP) $3.tmp $3
   $(quiet) $(SED) -e 's/#.*//'  \
@@ -56,11 +58,11 @@ endef
 #########################################################
 
 
-ifneq ($(strip $(COMBINED_COMPILE_AND_DEPEND)),)
+ifneq ($(strip $(BYPASS_COMBINED_COMPILE_AND_DEPEND)),1)
 #########################################################
-# $(call combined-cxx-compile-depend,source-file,object-file,depend-file,xflags)
+# $(call combined-cxx-compile-depend,source-file,object-file,depend-file,xpflags,xxflags)
 define combined-cxx-compile-depend
-  $(quiet) $(CXX) $4 $(CPPFLAGS) $(INCDIRS) $(CXXFLAGS) -MMD $(CO)$2 $1
+  $(quiet) $(CXX) $4 $5 $(CPPFLAGS) $(INCDIRS) $(CXXFLAGS) -MMD $(CO)$2 $1
   $(quiet) $(SED) -e '/^ *\\ *$$/ d' -e 's,$(BUILD_ROOT),$$(BUILD_ROOT),'  -e 's,$(SRC_ROOT),$$(SRC_ROOT),' $3 > $3.tmp
   $(quiet) $(CP) $3.tmp $3
   $(quiet) $(SED) -e 's/#.*//'  \
@@ -72,9 +74,9 @@ define combined-cxx-compile-depend
 endef
 #########################################################
 
-# $(call combined-cc-compile-depend,source-file,object-file,depend-file,xflags)
+# $(call combined-cc-compile-depend,source-file,object-file,depend-file,xpflags, xxflags)
 define combined-cc-compile-depend
-  $(quiet) $(CC) $4 $(CPPFLAGS) $(INCDIRS) $(CXXFLAGS) -MMD $(CO)$2 $1
+  $(quiet) $(CC) $4 $5 $(CPPFLAGS) $(INCDIRS) $(CXXFLAGS) -MMD $(CO)$2 $1
   $(quiet) $(SED) -e '/^ *\\ *$$/ d' -e 's,$(BUILD_ROOT),$$(BUILD_ROOT),'  -e 's,$(SRC_ROOT),$$(SRC_ROOT),' $3 > $3.tmp
   $(quiet) $(CP) $3.tmp $3
   $(quiet) $(SED) -e 's/#.*//'  \
@@ -87,7 +89,7 @@ endef
 #########################################################
 
 define assembly-compile
-  $(quiet) $(CXX) $4 $(CPPFLAGS) $(INCDIRS) $(CXXFLAGS) -MD $(CO)$2 $1
+  $(quiet) $(CXX) $4 $5 $(CPPFLAGS) $(INCDIRS) $(CXXFLAGS) -MD $(CO)$2 $1
 endef
 #########################################################
 endif

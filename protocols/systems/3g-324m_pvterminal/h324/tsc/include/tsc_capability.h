@@ -67,17 +67,18 @@ class TSC_capability
     public:
         TSC_capability(TSC_statemanager& aTSCstatemanager) :
                 iTSCstatemanager(aTSCstatemanager),
-                iRemoteCapability(NULL)
+                iRemoteCapability(NULL),
+                iLogger(NULL),
+                iTSCcomponent(NULL)
         {
             iLogger = PVLogger::GetLoggerObject("3g324m.h245user");
         };
 
         ~TSC_capability();
 
-        void SetMembers(TSC_component* aTSCcomponent)
-        {
-            iTSCcomponent = aTSCcomponent;
-        }
+        void Reset();
+
+        void SetMembers(TSC_component* aTSCcomponent);
         void InitVarsSession();
         void InitVarsLocal();
 
@@ -86,7 +87,7 @@ class TSC_capability
         void ResetCapability();
         void CreateNewCapability(Oscl_Vector<CPvtMediaCapability*, OsclMemAllocator> aCapabilityItems)
         {
-            iRemoteCapability = new CPvtTerminalCapability(aCapabilityItems);
+            iRemoteCapability = OSCL_NEW(CPvtTerminalCapability, (aCapabilityItems));
         }
         void ExtractTcsParameters(PS_VideoCapability apVideo, CPvtH263Capability *aMedia_capability);
         void ExtractTcsParameters(PS_VideoCapability pVideo, CPvtMpeg4Capability *aMedia_capability);
@@ -123,11 +124,11 @@ class TSC_capability
         // -------------------------------------------------
         // Parameters extracted from incoming TCS (RAN-32K)
         // -------------------------------------------------
-        uint32 iTcsIn_H263_sqcifMPI;		// Units 1/30 second
-        uint32 iTcsIn_H263_qcifMPI;		// Units 1/30 second
-        uint32 iTcsIn_H263_cifMPI;		// Units 1/30 second
-        uint32 iTcsIn_H263_4cifMPI;		// Units 1/30 second
-        uint32 iTcsIn_H263_16cifMPI;		// Units 1/30 second
+        uint32 iTcsIn_H263_sqcifMPI;        // Units 1/30 second
+        uint32 iTcsIn_H263_qcifMPI;     // Units 1/30 second
+        uint32 iTcsIn_H263_cifMPI;      // Units 1/30 second
+        uint32 iTcsIn_H263_4cifMPI;     // Units 1/30 second
+        uint32 iTcsIn_H263_16cifMPI;        // Units 1/30 second
 
 
         /* Video resolutions */

@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: get_sbr_startfreq.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: get_sbr_startfreq.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

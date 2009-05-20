@@ -26,6 +26,10 @@
 #include "oscl_mem_auto_ptr.h"
 #endif
 
+#ifndef OSCL_MEM_BASIC_FUNCTIONS_H
+#include "oscl_mem_basic_functions.h"
+#endif
+
 #ifndef PVMF_RETURN_CODES_H_INCLUDED
 #include "pvmf_return_codes.h"
 #endif
@@ -55,7 +59,7 @@ typedef enum
     PVMFErrorEvent,
     PVMFInfoEvent,
     PVMFEventLast
-}PVMFEventCategory;
+} PVMFEventCategory;
 
 /**
 Identifies the type of event (error & informational)
@@ -213,10 +217,10 @@ class PVMFCmdResp : public PVMFEventBase
          * with the removal of event data, length if event data wont be needed either.
          *
          * @param1 - bool& aEventDataLenAvailable
-         *			 false - length of event data(in bytes) is not available
-         *			 true - length of event data(in bytes) is available
+         *           false - length of event data(in bytes) is not available
+         *           true - length of event data(in bytes) is available
          * @param2 - uint32& aEventDataLength
-         *			 length of eventdata in bytes
+         *           length of eventdata in bytes
          */
         void GetEventDataLen(bool& aEventDataLenAvailable, uint32& aEventDataLength)const
         {
@@ -274,10 +278,7 @@ class PVMFAsyncEvent : public PVMFEventBase
                 , iContext(aContext)
                 , iEventData(aEventData)
         {
-            for (uint32 i = 0;i < PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE;i++)
-            {
-                iLocalBuffer[i] = 0;
-            }
+            oscl_memset(iLocalBuffer, 0, PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE);
             iEventDataLengthAvailable = false;
             iEventDataLength = 0;
         }
@@ -295,18 +296,15 @@ class PVMFAsyncEvent : public PVMFEventBase
                 , iContext(aContext)
                 , iEventData(aEventData)
         {
-            OSCL_ASSERT(aLocalBufferSize <= PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE);
-            if (iLocalBufferSize > PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE)
-            {
-                iLocalBufferSize = PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE;
-            }
-
             if (aLocalBuffer)
             {
-                for (uint32 i = 0;i < iLocalBufferSize;i++)
+                OSCL_ASSERT(aLocalBufferSize <= PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE);
+                if (iLocalBufferSize > PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE)
                 {
-                    iLocalBuffer[i] = aLocalBuffer[i];
+                    iLocalBufferSize = PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE;
                 }
+
+                oscl_memcpy(iLocalBuffer, aLocalBuffer, iLocalBufferSize);
             }
             iEventDataLengthAvailable = false;
             iEventDataLength = 0;
@@ -324,10 +322,7 @@ class PVMFAsyncEvent : public PVMFEventBase
                 , iContext(aContext)
                 , iEventData(aEventData)
         {
-            for (uint32 i = 0;i < PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE;i++)
-            {
-                iLocalBuffer[i] = 0;
-            }
+            oscl_memset(iLocalBuffer, 0, PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE);
             iEventDataLengthAvailable = false;
             iEventDataLength = 0;
         }
@@ -346,18 +341,15 @@ class PVMFAsyncEvent : public PVMFEventBase
                 , iContext(aContext)
                 , iEventData(aEventData)
         {
-            OSCL_ASSERT(aLocalBufferSize <= PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE);
-            if (iLocalBufferSize > PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE)
-            {
-                iLocalBufferSize = PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE;
-            }
-
             if (aLocalBuffer)
             {
-                for (uint32 i = 0;i < iLocalBufferSize;i++)
+                OSCL_ASSERT(aLocalBufferSize <= PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE);
+                if (iLocalBufferSize > PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE)
                 {
-                    iLocalBuffer[i] = aLocalBuffer[i];
+                    iLocalBufferSize = PVMF_ASYNC_EVENT_LOCAL_BUF_SIZE;
                 }
+
+                oscl_memcpy(iLocalBuffer, aLocalBuffer, iLocalBufferSize);
             }
             iEventDataLengthAvailable = false;
             iEventDataLength = 0;
@@ -422,10 +414,10 @@ class PVMFAsyncEvent : public PVMFEventBase
          * with the removal of event data, length if event data wont be needed either.
          *
          * @param1 - bool& aEventDataLenAvailable
-         *			 false - length of event data(in bytes) is not available
-         *			 true - length of event data(in bytes) is available
+         *           false - length of event data(in bytes) is not available
+         *           true - length of event data(in bytes) is available
          * @param2 - uint32& aEventDataLength
-         *			 length of eventdata in bytes
+         *           length of eventdata in bytes
          */
         void GetEventDataLen(bool& aEventDataLenAvailable, uint32& aEventDataLength)const
         {

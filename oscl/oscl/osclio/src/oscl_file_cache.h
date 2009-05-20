@@ -46,6 +46,78 @@
 
 #include "oscl_file_io.h"
 
+class OsclFileCache;
+
+class OsclFileCacheBuffer
+{
+    public:
+        OsclFileCacheBuffer(): isFixed(false)
+                , capacity(0)
+                , usableSize(0)
+                , pBuffer(NULL)
+                , filePosition(0)
+                , currentPos(0)
+                , endPos(0)
+                , updateStart(0)
+                , updateEnd(0)
+        {}
+
+        OsclFileCache* iContainer;
+
+        //Movable or fixed cache?
+        bool isFixed;
+
+        //Capacity of the cache buffer
+        uint32 capacity;
+
+        //Usable size of the cache buffer (may be l.t. its capacity)
+        uint32 usableSize;
+
+        //constant pointer to cache buffer
+        uint8*    pBuffer;
+
+        //the native file position corresponding to the start of the
+        //cache
+        TOsclFileOffset  filePosition;
+
+        //current working position (virtual file pointer) in the cache.
+        //units: 0-based byte offset from beginning of cache
+        uint32    currentPos;
+
+        //end of valid data in the cache.
+        //units: 0-based byte offset from beginning of cache
+        uint32    endPos;
+
+        //variables to track the range of data in the cache that
+        //has been updated by write operations, but has not yet
+        //been written to disk.
+        //units: 0-based byte offset from beginning of cache
+        uint32    updateStart;
+        uint32    updateEnd;
+
+        int32 SetPosition(TOsclFileOffset  pos);
+        int32 PrepRead();
+        int32 PrepWrite();
+        int32 WriteUpdatesToFile();
+        int32 FillFromFile(uint32, uint32);
+
+        bool IsUpdated()
+        {
+            return updateEnd > updateStart;
+        }
+
+        //return true if this cache contains the input position.
+        bool Contains(TOsclFileOffset  pos)
+        {
+            return (filePosition <= pos && pos < filePosition + (TOsclFileOffset)usableSize);
+        }
+        //return true if this cache preceeds the input position.
+        bool Preceeds(TOsclFileOffset  pos)
+        {
+            return (filePosition + (TOsclFileOffset)usableSize <= pos);
+        }
+};
+
 class Oscl_File;
 
 class OsclFileCache : public HeapBase
@@ -71,7 +143,7 @@ class OsclFileCache : public HeapBase
 
         TOsclFileOffset  Tell()
         {
-            return (_cacheFilePosition + _currentCachePos);
+            return (_curCache) ? (_curCache->filePosition + _curCache->currentPos) : 0;
         }
 
         int32 Flush();
@@ -82,47 +154,29 @@ class OsclFileCache : public HeapBase
         }
 
     private:
+        friend class OsclFileCacheBuffer;
         Oscl_File& iContainer;
 
         //file mode from the Open call.
         uint32 _mode;
 
-        //Size of the cache buffer, set by the Open call.
-        uint32 _cacheSize;
+    public:
+        OsclFileCacheBuffer _movableCache;
+        Oscl_Vector<OsclFileCacheBuffer, OsclMemAllocator> _fixedCaches;
+        OSCL_IMPORT_REF OsclFileCacheBuffer* AddFixedCache(const Oscl_File::OsclFixedCacheParam&);
 
-        //constant pointer to cache buffer
-        uint8*    _pCacheBufferStart;
-
-        //the native file position corresponding to the start of the
-        //cache
-        TOsclFileOffset  _cacheFilePosition;
-
-        //current working position (virtual file pointer) in the cache.
-        //units: 0-based byte offset from beginning of cache
-        uint32	  _currentCachePos;
-
-        //end of valid data in the cache.
-        //units: 0-based byte offset from beginning of cache
-        uint32	  _endCachePos;
-
-        //variables to track the range of data in the cache that
-        //has been updated by write operations, but has not yet
-        //been written to disk.
-        //units: 0-based byte offset from beginning of cache
-        uint32	  _cacheUpdateStart;
-        uint32    _cacheUpdateEnd;
+    private:
+        OsclFileCacheBuffer* _curCache;
+        int32 SetCachePosition(TOsclFileOffset);
+        int32 UpdateFixedCaches();
 
         //Current file size.  This is a virtual file size and
         //may not match the native file size when there is
         //cached data.
-        TOsclFileOffset 	_fileSize;
+        TOsclFileOffset     _fileSize;
 
         //Current true native file position.
         TOsclFileOffset  _nativePosition;
-
-        int32 SetCachePosition(TOsclFileOffset  pos);
-        int32 FillCacheFromFile();
-        int32 WriteCacheToFile();
 
         PVLogger* iLogger;
 };

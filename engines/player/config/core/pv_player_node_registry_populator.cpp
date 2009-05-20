@@ -399,6 +399,7 @@ void PVPlayerRegistryPopulator::RegisterAllNodes(PVPlayerNodeRegistryInterface* 
     //For PVMFDownloadManagerNode
     nodeinfo.iInputTypes.clear();
     nodeinfo.iInputTypes.push_back(PVMF_MIME_DATA_SOURCE_HTTP_URL);
+    nodeinfo.iInputTypes.push_back(PVMF_MIME_DATA_SOURCE_SHOUTCAST_URL);
     nodeinfo.iInputTypes.push_back(PVMF_MIME_DATA_SOURCE_PVX_FILE);
     nodeinfo.iNodeUUID = KPVMFDownloadManagerNodeUuid;
     nodeinfo.iOutputType.clear();

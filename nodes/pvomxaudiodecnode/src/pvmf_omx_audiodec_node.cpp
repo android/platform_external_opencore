@@ -36,11 +36,11 @@
 
 
 #define CONFIG_SIZE_AND_VERSION(param) \
-	    param.nSize=sizeof(param); \
-	    param.nVersion.s.nVersionMajor = SPECVERSIONMAJOR; \
-	    param.nVersion.s.nVersionMinor = SPECVERSIONMINOR; \
-	    param.nVersion.s.nRevision = SPECREVISION; \
-	    param.nVersion.s.nStep = SPECSTEP;
+        param.nSize=sizeof(param); \
+        param.nVersion.s.nVersionMajor = SPECVERSIONMAJOR; \
+        param.nVersion.s.nVersionMinor = SPECVERSIONMINOR; \
+        param.nVersion.s.nRevision = SPECREVISION; \
+        param.nVersion.s.nStep = SPECSTEP;
 
 
 
@@ -227,6 +227,11 @@ bool PVMFOMXAudioDecNode::ProcessIncomingMsg(PVMFPortInterface* aPort)
         //store the stream id and time stamp of bos message
         iStreamID = mediaMsgOut->getStreamID();
         iBOSTimestamp = mediaMsgOut->getTimestamp();
+
+
+        iInputTimestampClock.set_clock(iBOSTimestamp, 0);
+        iOMXTicksTimestamp = ConvertTimestampIntoOMXTicks(iInputTimestampClock);
+
         iSendBOS = true;
 
 #ifdef _DEBUG
@@ -287,6 +292,11 @@ bool PVMFOMXAudioDecNode::ProcessIncomingMsg(PVMFPortInterface* aPort)
         //store the stream id and time stamp of bos message
         iStreamID = msg->getStreamID();
         iBOSTimestamp = msg->getTimestamp();
+
+
+        iInputTimestampClock.set_clock(iBOSTimestamp, 0);
+        iOMXTicksTimestamp = ConvertTimestampIntoOMXTicks(iInputTimestampClock);
+
         iSendBOS = true;
 
         // if new BOS arrives, and
@@ -619,7 +629,7 @@ PVMFStatus PVMFOMXAudioDecNode::HandlePortReEnable()
         if (iPCMSamplingRate == 0) // use default sampling rate (i.e. 48000)
             iPCMSamplingRate = PVOMXAUDIODEC_DEFAULT_SAMPLINGRATE;
 
-        iNumberOfAudioChannels = Audio_Pcm_Param.nChannels;		// should be 1 or 2
+        iNumberOfAudioChannels = Audio_Pcm_Param.nChannels;     // should be 1 or 2
         if (iNumberOfAudioChannels != 1 && iNumberOfAudioChannels != 2)
         {
             PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
@@ -751,7 +761,11 @@ PVMFStatus PVMFOMXAudioDecNode::HandlePortReEnable()
         int numKvp = 0;
         PvmiKeyType aIdentifier = (PvmiKeyType)PVMF_BUFFER_ALLOCATOR_KEY;
         int32 err, err1;
-        ipExternalOutputBufferAllocatorInterface = NULL;
+        if (ipExternalOutputBufferAllocatorInterface)
+        {
+            ipExternalOutputBufferAllocatorInterface->removeRef();
+            ipExternalOutputBufferAllocatorInterface = NULL;
+        }
 
         OSCL_TRY(err, ((PVMFOMXDecPort*)iOutPort)->pvmiGetBufferAllocatorSpecificInfoSync(aIdentifier, kvp, numKvp););
 
@@ -848,7 +862,7 @@ PVMFStatus PVMFOMXAudioDecNode::HandlePortReEnable()
 
 
         if (!ProvideBuffersToComponent(iOutBufMemoryPool, // allocator
-                                       iOutputAllocSize,	 // size to allocate from pool (hdr only or hdr+ buffer)
+                                       iOutputAllocSize,     // size to allocate from pool (hdr only or hdr+ buffer)
                                        iNumOutputBuffers, // number of buffers
                                        iOMXComponentOutputBufferSize, // actual buffer size
                                        iOutputPortIndex, // port idx
@@ -929,7 +943,7 @@ PVMFStatus PVMFOMXAudioDecNode::HandlePortReEnable()
 
 
         if (!ProvideBuffersToComponent(iInBufMemoryPool, // allocator
-                                       iInputAllocSize,	 // size to allocate from pool (hdr only or hdr+ buffer)
+                                       iInputAllocSize,  // size to allocate from pool (hdr only or hdr+ buffer)
                                        iNumInputBuffers, // number of buffers
                                        iOMXComponentInputBufferSize, // actual buffer size
                                        iInputPortIndex, // port idx
@@ -1016,7 +1030,7 @@ bool PVMFOMXAudioDecNode::NegotiateComponentParameters(OMX_PTR aOutputParameters
 
 
     // loop through ports starting from the starting index to find index of the first input port
-    for (ii = AudioPortParameters.nStartPortNumber ;ii < AudioPortParameters.nStartPortNumber + NumPorts; ii++)
+    for (ii = AudioPortParameters.nStartPortNumber ; ii < AudioPortParameters.nStartPortNumber + NumPorts; ii++)
     {
         // get port parameters, and determine if it is input or output
         // if there are more than 2 ports, the first one we encounter that has input direction is picked
@@ -1056,7 +1070,7 @@ bool PVMFOMXAudioDecNode::NegotiateComponentParameters(OMX_PTR aOutputParameters
 
 
     // loop through ports starting from the starting index to find index of the first output port
-    for (ii = AudioPortParameters.nStartPortNumber ;ii < AudioPortParameters.nStartPortNumber + NumPorts; ii++)
+    for (ii = AudioPortParameters.nStartPortNumber ; ii < AudioPortParameters.nStartPortNumber + NumPorts; ii++)
     {
         // get port parameters, and determine if it is input or output
         // if there are more than 2 ports, the first one we encounter that has output direction is picked
@@ -1139,6 +1153,43 @@ bool PVMFOMXAudioDecNode::NegotiateComponentParameters(OMX_PTR aOutputParameters
         return false;
     }
 
+
+    // in case of WMA - config parser decodes config info and produces reliable numchannels and sampling rate
+    // set these values now to prevent unnecessary port reconfig
+    if (aInputs.iMimeType == PVMF_MIME_WMA)
+    {
+        // First get the structure
+        OMX_AUDIO_PARAM_PCMMODETYPE Audio_Pcm_Param;
+        Audio_Pcm_Param.nPortIndex = iOutputPortIndex; // we're looking for output port params
+        CONFIG_SIZE_AND_VERSION(Audio_Pcm_Param);
+
+        Err = OMX_GetParameter(iOMXDecoder, OMX_IndexParamAudioPcm, &Audio_Pcm_Param);
+        if (Err != OMX_ErrorNone)
+        {
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                            (0, "PVMFOMXAudioDecNode::NegotiateComponentParameters() Problem negotiating PCM parameters with output port %d ", iOutputPortIndex));
+            return false;
+        }
+
+        // set the sampling rate obtained from config parser
+        Audio_Pcm_Param.nSamplingRate = iPCMSamplingRate; // can be set to 0 (if unknown)
+
+        // set number of channels obtained from config parser
+        Audio_Pcm_Param.nChannels = iNumberOfAudioChannels;     // should be 1 or 2
+
+        // Now, set the parameters
+        Audio_Pcm_Param.nPortIndex = iOutputPortIndex; // we're looking for output port params
+        CONFIG_SIZE_AND_VERSION(Audio_Pcm_Param);
+
+        Err = OMX_SetParameter(iOMXDecoder, OMX_IndexParamAudioPcm, &Audio_Pcm_Param);
+        if (Err != OMX_ErrorNone)
+        {
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                            (0, "PVMFOMXAudioDecNode::NegotiateComponentParameters() Problem Setting PCM parameters with output port %d ", iOutputPortIndex));
+            return false;
+        }
+
+    }
 
 
     // Codec specific info set/get: SamplingRate, formats etc.
@@ -1255,7 +1306,11 @@ bool PVMFOMXAudioDecNode::NegotiateComponentParameters(OMX_PTR aOutputParameters
     int numKvp = 0;
     PvmiKeyType aIdentifier = (PvmiKeyType)PVMF_BUFFER_ALLOCATOR_KEY;
     int32 err, err1;
-    ipExternalOutputBufferAllocatorInterface = NULL;
+    if (ipExternalOutputBufferAllocatorInterface)
+    {
+        ipExternalOutputBufferAllocatorInterface->removeRef();
+        ipExternalOutputBufferAllocatorInterface = NULL;
+    }
 
     OSCL_TRY(err, ((PVMFOMXDecPort*)iOutPort)->pvmiGetBufferAllocatorSpecificInfoSync(aIdentifier, kvp, numKvp););
 
@@ -1375,7 +1430,8 @@ bool PVMFOMXAudioDecNode::NegotiateComponentParameters(OMX_PTR aOutputParameters
     // Since we already know that the component has the role we need, search until finding the proper nIndex
     // if component does not find the format will return OMX_ErrorNoMore
 
-    for (ii = 0;; ii++)
+
+    for (ii = 0; ii < PVOMXAUDIO_MAX_SUPPORTED_FORMAT; ii++)
     {
         AudioPortFormat.nIndex = ii;
         Err = OMX_GetParameter(iOMXDecoder, OMX_IndexParamAudioPortFormat, &AudioPortFormat);
@@ -1389,6 +1445,14 @@ bool PVMFOMXAudioDecNode::NegotiateComponentParameters(OMX_PTR aOutputParameters
         {
             break;
         }
+    }
+
+    if (ii == PVOMXAUDIO_MAX_SUPPORTED_FORMAT)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
+                        (0, "PVMFOMXAudioDecNode::NegotiateComponentParameters() No audio compression format found"));
+        return false;
+
     }
     // Now set the format to confirm parameters
     Err = OMX_SetParameter(iOMXDecoder, OMX_IndexParamAudioPortFormat, &AudioPortFormat);
@@ -1614,8 +1678,8 @@ bool PVMFOMXAudioDecNode::GetSetCodecSpecificInfo()
     // for AAC+: iSamplesPerFrame = 2048
     // for AMRNB: iSamplesPerFrame = 160
     // for AMRWB: iSamplesPerFrame = 320
-    // for MP3:	  iSamplesPerFrame = unknown, but either 1152 or 576 (we pick 1152 as default)
-    // for WMA:	   unknown (iSamplesPerFrame is set to 0)
+    // for MP3:   iSamplesPerFrame = unknown, but either 1152 or 576 (we pick 1152 as default)
+    // for WMA:    unknown (iSamplesPerFrame is set to 0)
 
     // GET the output buffer params and sizes
     OMX_AUDIO_PARAM_PCMMODETYPE Audio_Pcm_Param;
@@ -1639,7 +1703,7 @@ bool PVMFOMXAudioDecNode::GetSetCodecSpecificInfo()
     if (iPCMSamplingRate == 0) // use default sampling rate (i.e. 48000)
         iPCMSamplingRate = PVOMXAUDIODEC_DEFAULT_SAMPLINGRATE;
 
-    iNumberOfAudioChannels = Audio_Pcm_Param.nChannels;		// should be 1 or 2
+    iNumberOfAudioChannels = Audio_Pcm_Param.nChannels;     // should be 1 or 2
     if (iNumberOfAudioChannels != 1 && iNumberOfAudioChannels != 2)
         return false;
 
@@ -1699,8 +1763,8 @@ bool PVMFOMXAudioDecNode::InitDecoder(PVMFSharedMediaDataPtr& DataIn)
 
 
     // NOTE: the component may not start decoding without providing the Output buffer to it,
-    //		here, we're sending input/config buffers.
-    //		Then, we'll go to ReadyToDecode state and send output as well
+    //      here, we're sending input/config buffers.
+    //      Then, we'll go to ReadyToDecode state and send output as well
 
     if (((PVMFOMXDecPort*)iInPort)->iFormat == PVMF_MIME_LATM)
     {
@@ -1732,7 +1796,7 @@ bool PVMFOMXAudioDecNode::InitDecoder(PVMFSharedMediaDataPtr& DataIn)
         initbuffer = (uint8 *) DataFrag.getMemFragPtr();
         initbufsize = (int32) DataFrag.getMemFragSize();
 
-    }			// in some cases, initbufsize may be 0, and initbuf= NULL. Config is done after 1st frame of data
+    }           // in some cases, initbufsize may be 0, and initbuf= NULL. Config is done after 1st frame of data
     else if (((PVMFOMXDecPort*)iInPort)->iFormat == PVMF_MIME_AMR_IF2 ||
              ((PVMFOMXDecPort*)iInPort)->iFormat == PVMF_MIME_AMR_IETF ||
              ((PVMFOMXDecPort*)iInPort)->iFormat == PVMF_MIME_AMR ||
@@ -1765,6 +1829,9 @@ bool PVMFOMXAudioDecNode::InitDecoder(PVMFSharedMediaDataPtr& DataIn)
                             (0, "PVMFOMXAudioDecNode::InitDecoder() Error in processing config buffer"));
             return false;
         }
+
+        // set the flag requiring config data processing by the component
+        iIsConfigDataProcessingCompletionNeeded = true;
     }
 
 
@@ -1953,6 +2020,10 @@ OMX_ERRORTYPE PVMFOMXAudioDecNode::EventHandlerProcessing(OMX_OUT OMX_HANDLETYPE
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                             (0, "PVMFOMXAudioDecNode::EventHandlerProcessing: OMX_EventPortSettingsChanged returned from OMX component"));
 
+            // reset the flag requiring config data processing by the component
+            // getting port settings changed event means that component must have consumed config data if it were present
+            iIsConfigDataProcessingCompletionNeeded = false;
+
             // first check if dynamic reconfiguration is already in progress,
             // if so, wait until this is completed, and then initiate the 2nd reconfiguration
             if (iDynamicReconfigInProgress)
@@ -1991,7 +2062,7 @@ OMX_ERRORTYPE PVMFOMXAudioDecNode::EventHandlerProcessing(OMX_OUT OMX_HANDLETYPE
                     if (iPCMSamplingRate == 0) // use default sampling rate (i.e. 48000)
                         iPCMSamplingRate = PVOMXAUDIODEC_DEFAULT_SAMPLINGRATE;
 
-                    iNumberOfAudioChannels = Audio_Pcm_Param.nChannels;		// should be 1 or 2
+                    iNumberOfAudioChannels = Audio_Pcm_Param.nChannels;     // should be 1 or 2
                     if (iNumberOfAudioChannels != 1 && iNumberOfAudioChannels != 2)
                     {
                         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
@@ -2040,7 +2111,7 @@ OMX_ERRORTYPE PVMFOMXAudioDecNode::EventHandlerProcessing(OMX_OUT OMX_HANDLETYPE
                     if (iPCMSamplingRate == 0) // use default sampling rate (i.e. 48000)
                         iPCMSamplingRate = PVOMXAUDIODEC_DEFAULT_SAMPLINGRATE;
 
-                    iNumberOfAudioChannels = Audio_Pcm_Param.nChannels;		// should be 1 or 2
+                    iNumberOfAudioChannels = Audio_Pcm_Param.nChannels;     // should be 1 or 2
                     if (iNumberOfAudioChannels != 1 && iNumberOfAudioChannels != 2)
                     {
                         PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR,
@@ -2099,6 +2170,12 @@ bool PVMFOMXAudioDecNode::QueueOutputBuffer(OsclSharedPtr<PVMFMediaDataImpl> &me
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "PVMFOMXAudioDecNode::QueueOutputFrame: In"));
 
+    if (!iOutPort)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_DEBUG,
+                        (0, "PVMFOMXAudioDecNode::QueueOutputFrame() Output Port doesn't exist!!!!!!!!!!"));
+        return false;
+    }
     // First check if we can put outgoing msg. into the queue
     if (iOutPort->IsOutgoingQueueBusy())
     {
@@ -2124,7 +2201,7 @@ bool PVMFOMXAudioDecNode::QueueOutputBuffer(OsclSharedPtr<PVMFMediaDataImpl> &me
         mediaDataOut->setStreamID(iStreamID);
 
 
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_REL, iDataPathLogger, PVLOGMSG_INFO, (0, ":PVMFOMXAudioDecNode::QueueOutputFrame(): - SeqNum=%d, TS=%d", iSeqNum, iOutTimeStamp));
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iDataPathLogger, PVLOGMSG_INFO, (0, ":PVMFOMXAudioDecNode::QueueOutputFrame(): - SeqNum=%d, TS=%d", iSeqNum, iOutTimeStamp));
         int fsiErrorCode = 0;
 
         // Check if Fsi configuration need to be sent
@@ -2171,6 +2248,8 @@ bool PVMFOMXAudioDecNode::QueueOutputBuffer(OsclSharedPtr<PVMFMediaDataImpl> &me
                     {
                         PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_DEBUG,
                                         (0, "PVMFOMXAudioDecNode::NegotiateComponentParameters - Problem to set FSI"));
+
+                        alloc.deallocate((OsclAny*)(KvpKey));
                         SetState(EPVMFNodeError);
                         ReportErrorEvent(PVMFErrNoMemory);
                         return false; // this is going to make everyth go out of scope
@@ -2954,6 +3033,7 @@ bool PVMFOMXAudioDecNode::VerifyParametersSync(PvmiMIOSession aSession, PvmiKvp*
 
     if (aInputs.inBytes == 0 || aInputs.inPtr == NULL)
     {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFOMXAudioDecNode::VerifyParametersSync() Codec Config data is not present"));
         return cap_exchange_status;
     }
 
@@ -2961,7 +3041,7 @@ bool PVMFOMXAudioDecNode::VerifyParametersSync(PvmiMIOSession aSession, PvmiKvp*
     OMX_BOOL status = OMX_FALSE;
     OMX_U32 num_comps = 0, ii;
     OMX_STRING *CompOfRole;
-    //	uint32 ii;
+    //  uint32 ii;
     // call once to find out the number of components that can fit the role
     OMX_GetComponentsOfRole(aInputParameters.cComponentRole, &num_comps, NULL);
 
@@ -3044,6 +3124,7 @@ PVMFStatus PVMFOMXAudioDecNode::DoCapConfigVerifyParameters(PvmiKvp* aParameters
     {
         // in case of following formats - config codec data is expected to
         // be present in the query. If not, config parser cannot be called
+
         if (aInputs.iMimeType == PVMF_MIME_WMA ||
                 aInputs.iMimeType == PVMF_MIME_MPEG4_AUDIO ||
                 aInputs.iMimeType == PVMF_MIME_3640 ||
@@ -3054,10 +3135,13 @@ PVMFStatus PVMFOMXAudioDecNode::DoCapConfigVerifyParameters(PvmiKvp* aParameters
         {
             if (aInputs.iMimeType == PVMF_MIME_LATM)
             {
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFOMXAudioDecNode::DoCapConfigVerifyParameters() Codec Config data is not present"));
                 return PVMFErrNotSupported;
             }
             else
             {
+                PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFOMXAudioDecNode::DoCapConfigVerifyParameters() Codec Config data is not present"));
+
                 // DV TO_DO: remove this
                 OSCL_LEAVE(OsclErrNotSupported);
             }
@@ -3103,7 +3187,7 @@ PVMFStatus PVMFOMXAudioDecNode::DoCapConfigVerifyParameters(PvmiKvp* aParameters
     OMX_BOOL status = OMX_FALSE;
     OMX_U32 num_comps = 0, ii;
     OMX_STRING *CompOfRole;
-    //	uint32 ii;
+    //  uint32 ii;
     // call once to find out the number of components that can fit the role
     OMX_GetComponentsOfRole(aInputParameters.cComponentRole, &num_comps, NULL);
 

@@ -8,7 +8,18 @@
 LOCAL_SRCDIR :=  $(abspath $(LOCAL_PATH)/$(SRCDIR))
 LOCAL_INCSRCDIR :=  $(abspath $(LOCAL_PATH)/$(INCSRCDIR))
 
-OBJDIR := $(patsubst $(SRC_ROOT)/%,$(BUILD_ROOT)/%,$(abspath $(LOCAL_PATH)/$(OUTPUT_DIR_COMPONENT)))
+ifeq ($(strip $(DEFAULT_LIBMODE)),release)
+  XCXXFLAGS+=$(OPT_CXXFLAG)
+  XCXXFLAGS+=$(RELEASE_CXXFLAGS)
+  XCPPFLAGS+=$(RELEASE_CPPFLAGS)
+  OBJSUBDIR:=rel
+else
+  XCPPFLAGS+=$(DEBUG_CPPFLAGS)
+  XCXXFLAGS+=$(DEBUG_CXXFLAGS)
+  OBJSUBDIR:=dbg
+endif
+
+OBJDIR := $(patsubst $(SRC_ROOT)/%,$(BUILD_ROOT)/%,$(abspath $(LOCAL_PATH)/$(OUTPUT_DIR_COMPONENT)/$(OBJSUBDIR)))
 
 $(eval $(call set-src-and-obj-names,$(SRCS),$(LOCAL_SRCDIR)))
 
@@ -26,20 +37,13 @@ ifneq "$(MAKECMDGOALS)" "clean"
   endif
 endif
 
-ifeq ($(strip $(DEFAULT_LIBMODE)),release)
-  XCXXFLAGS+=$(OPT_CXXFLAG)
-  XCXXFLAGS+=$(RELEASE_CXXFLAGS)
-  XCPPFLAGS+=$(RELEASE_CPPFLAGS)
-else
-  XCPPFLAGS+=$(DEBUG_CPPFLAGS)
-  XCXXFLAGS+=$(DEBUG_CXXFLAGS)
-endif
 
 LOCAL_XINCDIRS := $(abspath $(patsubst ../%,$(LOCAL_PATH)/../%,$(patsubst -I%,%,$(XINCDIRS))))
 
 LOCAL_TOTAL_INCDIRS := $(LOCAL_SRCDIR) $(LOCAL_INCSRCDIR) $(LOCAL_XINCDIRS)
 
-$(COMPILED_OBJS): XFLAGS := $(XCPPFLAGS) $(patsubst %,-I%,$(LOCAL_TOTAL_INCDIRS)) $(XCXXFLAGS)
+$(COMPILED_OBJS): XPFLAGS := $(XCPPFLAGS) $(patsubst %,-I%,$(LOCAL_TOTAL_INCDIRS))
+$(COMPILED_OBJS): XXFLAGS := $(XCXXFLAGS)
 
 # remove any leading / trailing whitespace
 TARGET := $(strip $(TARGET))
@@ -54,10 +58,10 @@ endif
 
 
 $(OBJDIR)/%.$(OBJ_EXT): $(LOCAL_SRCDIR)/%.cpp 
-	$(call make-cpp-obj-and-depend,$<,$@,$(subst .$(OBJ_EXT),.d,$@),$(XFLAGS))
+	$(call make-cpp-obj-and-depend,$<,$@,$(subst .$(OBJ_EXT),.d,$@),$(XPFLAGS),$(XXFLAGS))
 
 $(OBJDIR)/%.$(OBJ_EXT): $(LOCAL_SRCDIR)/%.c
-	$(call make-c-obj-and-depend,$<,$@,$(subst .$(OBJ_EXT),.d,$@),$(XFLAGS))
+	$(call make-c-obj-and-depend,$<,$@,$(subst .$(OBJ_EXT),.d,$@),$(XPFLAGS),$(XXFLAGS))
 
 
 #ifeq ($(HOST_ARCH), win32)

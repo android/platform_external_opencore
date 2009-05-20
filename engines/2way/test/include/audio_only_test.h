@@ -23,11 +23,12 @@
 class audio_only_test : public test_base
 {
     public:
-        audio_only_test(bool aUseProxy,
-                        PVMFFormatType audio_src_format = PVMF_MIME_AMR_IF2,
-                        PVMFFormatType audio_sink_format = PVMF_MIME_AMR_IF2)
-                : test_base(audio_src_format, audio_sink_format, PVMF_MIME_YUV420, PVMF_MIME_YUV420, aUseProxy)
-        { };
+        audio_only_test(bool aUseProxy)
+                : test_base(aUseProxy)
+
+        {
+            iUsingAudio = true;
+        };
 
         ~audio_only_test()
         {
@@ -39,8 +40,6 @@ class audio_only_test : public test_base
         void Run();
 
         void DoCancel();
-
-        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
 
 
         void TimerCallback();

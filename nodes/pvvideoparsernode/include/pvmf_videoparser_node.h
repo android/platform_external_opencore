@@ -61,7 +61,7 @@ typedef struct vidparser_port_property
 {
     PVMFFormatType format;
     OSCL_HeapString<OsclMemAllocator> mimetype;
-    int32		porttag;
+    int32       porttag;
 } VideoParserPortProperty;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -266,7 +266,7 @@ class PVMFVideoParserNode : public OsclActiveObject, public PVMFNodeInterface
         PVMFStatus HandleCmdReleasePort(PVMFVideoParserNodeCmd* aCmd);
 
         void DataReceived(OsclSharedPtr<PVMFMediaMsg>& aMsg);
-        void SendFrame();
+        void SendFrame(bool bMarkerInfo);
         bool FrameMarkerExists(uint8* aDataPtr, int32 aDataSize, uint32 aCrcError);
 
         Oscl_Vector<PVMFPortActivity, OsclMemAllocator> iPortActivityQueue;
@@ -300,6 +300,10 @@ class PVMFVideoParserNode : public OsclActiveObject, public PVMFNodeInterface
         // Format specific info associated with the codec in this datapath
         uint8* iFormatSpecificInfo;
         uint32 iFormatSpecificInfoLen;
+        bool iNotFirstFrag;
+        bool iLastSduHadMarker;
+        unsigned int iTimestamp;
+
 };
 
 #endif // PVMF_VIDEOPARSER_NODE_H_INCLUDED

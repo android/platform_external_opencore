@@ -28,21 +28,7 @@ terms listed above has been obtained from the copyright holder.
 ****************************************************************************************/
 /*
 
- Pathname: .audio/gsm-amr/c/src/bitno_tab.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Define "const Word16 *bitno[N_MODES]" as "const Word16 *const
-                      bitno[N_MODES]"
-
- Description: Added #ifdef __cplusplus and removed "extern" from table
-              definition.
-
- Description: Put "extern" back.
-
- Who:                       Date:
- Description:
+ Filename: bitno_tab.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -87,28 +73,6 @@ terms listed above has been obtained from the copyright holder.
 ------------------------------------------------------------------------------
  PSEUDO-CODE
 
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

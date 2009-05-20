@@ -117,33 +117,57 @@ define include_module_mk_list
 endef
 
 define include_test_mk_list
- $(PRINTF) "$(subst $(SPACE)include,include,$(foreach app,$(strip $(call remove_quotes,$(TESTAPPS))),include \$$(PV_TOP)$(strip $(call strip_two_levels_up,$(call remove_quotes,$(TESTAPP_DIR_$(app))/local.mk)))/Android.mk\n))" >> $1
+ $(PRINTF) "$(subst $(SPACE)include,include,$(foreach app,$(strip $(call remove_quotes,$1)),include \$$(PV_TOP)$(strip $(call strip_two_levels_up,$(call remove_quotes,$(TESTAPP_DIR_$(app))/local.mk)))/Android.mk\n))" >> $2
 endef
 
 define create_toplevel_android_mk
 $1: FORCE
 	$$(quiet) echo "ifneq ($$(esc_dollar)(BUILD_WITHOUT_PV),true)" > $$@
 	$$(quiet) echo "LOCAL_PATH := $$(esc_dollar)(call my-dir)" >> $$@
-	$$(quiet) echo "PV_TOP := $$(esc_dollar)(LOCAL_PATH)" >> $$@
 	$$(quiet) echo "include $$(esc_dollar)(CLEAR_VARS)" >> $$@
 	$$(quiet) echo "" >> $$@
-	$$(quiet) echo "PV_CFLAGS := -Wno-non-virtual-dtor -DENABLE_MEMORY_PLAYBACK -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DUSE_CML2_CONFIG" >> $$@
+	$$(quiet) echo "# Set up the PV variables" >> $$@
+	$$(quiet) echo "include $$(esc_dollar)(LOCAL_PATH)/Config.mk" >> $$@
+	$$(quiet) echo "$$(esc_dollar)(call add-prebuilt-files, ETC, pvplayer.cfg)" >> $$@
 	$$(quiet) echo "" >> $$@
-	$$(quiet) echo "ifeq ($$(esc_dollar)(ENABLE_PV_LOGGING),1)" >> $$@
-	$$(quiet) echo " PV_CFLAGS += -DPVLOGGER_INST_LEVEL=5" >> $$@
-	$$(quiet) echo "endif"  >> $$@
+	$$(quiet) $$(call include_module_mk_list,$2,$$@)
+	$$(quiet) echo "ifeq ($$(esc_dollar)(BUILD_PV_2WAY),1)" >> $$@
+	$$(quiet) $$(call include_module_mk_list,$3,$$@)
+	$$(quiet) echo "endif" >> $$@
+	$$(quiet) $$(call include_staticlibs_list,$$(LIBDIR_static),$$@)
+	$$(quiet) echo "ifeq ($$(esc_dollar)(BUILD_PV_TEST_APPS),1)" >> $$@
+	$$(quiet) $$(call include_test_mk_list,$$(TESTAPPS_WO_2WAY),$$@)
+	$$(quiet) echo "ifeq ($$(esc_dollar)(BUILD_PV_2WAY),1)" >> $$@
+	$$(quiet) $$(call include_test_mk_list,$$(2WAY_TESTAPP),$$@)
+	$$(quiet) echo "endif" >> $$@
+	$$(quiet) echo "endif" >> $$@
 	$$(quiet) echo "" >> $$@
-	$$(quiet) echo "ifeq ($$(esc_dollar)(TARGET_ARCH),arm)" >> $$@
-	$$(quiet) echo "  PV_CFLAGS += -DPV_ARM_GCC_V5" >> $$@
-	$$(quiet) echo "endif"  >> $$@
+	$$(quiet) echo "endif" >> $$@
+endef
+
+define create_opencore_config_mk
+$1: FORCE
+	$$(quiet) echo "ifneq ($$(esc_dollar)(strip $$(esc_dollar)(EXTERNAL_OPENCORE_CONFIG_ONCE)),true)" > $$@
+	$$(quiet) echo "  # This is the first attempt to include this file" >> $$@
+	$$(quiet) echo "  EXTERNAL_OPENCORE_CONFIG_ONCE := true" >> $$@
 	$$(quiet) echo "" >> $$@
-	$$(quiet) echo "include $$(esc_dollar)(CLEAR_VARS)" >> $$@
+	$$(quiet) echo "  PV_TOP := $$(esc_dollar)(my-dir)" >> $$@
 	$$(quiet) echo "" >> $$@
-	$$(quiet) echo "FORMAT := android" >> $$@
+	$$(quiet) echo "  PV_CFLAGS := -Wno-non-virtual-dtor -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DUSE_CML2_CONFIG" >> $$@
 	$$(quiet) echo "" >> $$@
-	$$(quiet) echo "PV_COPY_HEADERS_TO := libpv" >> $$@
+	$$(quiet) echo "  ifeq ($$(esc_dollar)(ENABLE_PV_LOGGING),1)" >> $$@
+	$$(quiet) echo "      PV_CFLAGS += -DPVLOGGER_INST_LEVEL=5" >> $$@
+	$$(quiet) echo "  endif"  >> $$@
 	$$(quiet) echo "" >> $$@
-	$$(quiet) echo "PV_INCLUDES := \\" >> $$@
+	$$(quiet) echo "  ifeq ($$(esc_dollar)(TARGET_ARCH),arm)" >> $$@
+	$$(quiet) echo "    PV_CFLAGS += -DPV_ARM_GCC_V5" >> $$@
+	$$(quiet) echo "  endif"  >> $$@
+	$$(quiet) echo "" >> $$@
+	$$(quiet) echo "  FORMAT := android" >> $$@
+	$$(quiet) echo "" >> $$@
+	$$(quiet) echo "  PV_COPY_HEADERS_TO := libpv" >> $$@
+	$$(quiet) echo "" >> $$@
+	$$(quiet) echo "  PV_INCLUDES := \\" >> $$@
 	$$(quiet) $(PRINTF) "\t$$(esc_dollar)(PV_TOP)/android \\\\\n" >> $$@
 	$$(quiet) $(PRINTF) "\t$$(esc_dollar)(PV_TOP)/extern_libs_v2/khronos/openmax/include \\\\\n" >> $$@
 	$$(quiet) $(PRINTF) "\t$$(esc_dollar)(PV_TOP)/engines/common/include \\\\\n" >> $$@
@@ -161,11 +185,20 @@ $1: FORCE
 	$$(quiet) $(PRINTF) "\t$$(esc_dollar)(TARGET_OUT_HEADERS)/$$(esc_dollar)(PV_COPY_HEADERS_TO)" >> $$@
 	$$(quiet) echo "" >> $$@
 	$$(quiet) echo "" >> $$@
-	$$(quiet) echo "$$(esc_dollar)(call add-prebuilt-files, ETC, pvplayer.cfg)" >> $$@
-	$$(quiet) echo "" >> $$@
-	$$(quiet) $$(call include_module_mk_list,$2,$$@)
-	$$(quiet) $$(call include_staticlibs_list,$$(LIBDIR_static),$$@)
-	$$(quiet) $$(call include_test_mk_list,$$@)
+	$$(quiet) echo "  # Stash these values for the next include of this file" >> $$@
+	$$(quiet) echo "  OPENCORE.PV_TOP := $$(esc_dollar)(PV_TOP)" >> $$@
+	$$(quiet) echo "  OPENCORE.PV_CFLAGS := $$(esc_dollar)(PV_CFLAGS)" >> $$@
+	$$(quiet) echo "  OPENCORE.FORMAT := $$(esc_dollar)(FORMAT)" >> $$@
+	$$(quiet) echo "  OPENCORE.PV_COPY_HEADERS_TO := $$(esc_dollar)(PV_COPY_HEADERS_TO)" >> $$@
+	$$(quiet) echo "  OPENCORE.PV_INCLUDES := $$(esc_dollar)(PV_INCLUDES)" >> $$@
+	$$(quiet) echo "else" >> $$@
+	$$(quiet) echo "  # This file has already been included by someone, so we can" >> $$@
+	$$(quiet) echo "  # use the precomputed values." >> $$@
+	$$(quiet) echo "  PV_TOP := $$(esc_dollar)(OPENCORE.PV_TOP)" >> $$@
+	$$(quiet) echo "  PV_CFLAGS := $$(esc_dollar)(OPENCORE.PV_CFLAGS)" >> $$@
+	$$(quiet) echo "  FORMAT := $$(esc_dollar)(OPENCORE.FORMAT)" >> $$@
+	$$(quiet) echo "  PV_COPY_HEADERS_TO := $$(esc_dollar)(OPENCORE.PV_COPY_HEADERS_TO)" >> $$@
+	$$(quiet) echo "  PV_INCLUDES := $$(esc_dollar)(OPENCORE.PV_INCLUDES)" >> $$@
 	$$(quiet) echo "endif" >> $$@
 endef
 #### End generation of top level makefile #######
@@ -175,16 +208,26 @@ endef
 #  create the Android makefile name list.
 #  Append top-level Android.mk
 ANDROID_TOPLEVEL_MAKE_NAME := Android.mk
-ANDROID_MAKE_NAMES := $(patsubst %,Android_%.mk,$(SHARED_LIB_TARGET_LIST)) $(ANDROID_TOPLEVEL_MAKE_NAME)
+OPENCORE_CONFIG_MAKE_NAME := Config.mk
+ANDROID_MAKE_NAMES := $(patsubst %,Android_%.mk,$(SHARED_LIB_TARGET_LIST)) $(ANDROID_TOPLEVEL_MAKE_NAME) $(OPENCORE_CONFIG_MAKE_NAME)
 
 $(strip $(foreach lib,$(SHARED_LIB_TARGET_LIST),$(eval $(call create_aggregate_lib_android_mk,$(lib)))))
 
-$(eval $(call create_toplevel_android_mk,$(ANDROID_TOPLEVEL_MAKE_NAME),$(SHARED_LIB_TARGET_LIST)))
+# Need the ability exclude 2way by default
+2WAY_SHARED_LIB := opencore_2way
+SHARED_LIB_TARGET_LIST_WO_2WAY := $(strip $(subst $(2WAY_SHARED_LIB),,$(SHARED_LIB_TARGET_LIST)))
+2WAY_TESTAPP := pv2way_omx_engine_test
+TESTAPPS_WO_2WAY := $(strip $(subst $(2WAY_TESTAPP),,$(TESTAPPS)))
 
-android_clean: modulelevel_android_mk_clean toplevel_android_mk_clean
+$(eval $(call create_toplevel_android_mk,$(ANDROID_TOPLEVEL_MAKE_NAME),$(SHARED_LIB_TARGET_LIST_WO_2WAY),$(2WAY_SHARED_LIB)))
+$(eval $(call create_opencore_config_mk,$(OPENCORE_CONFIG_MAKE_NAME)))
+
+
+android_clean: modulelevel_android_mk_clean toplevel_android_mk_clean opencore_config_mk_clean
 
 modulelevel_android_mk_clean: ANDROID_MAKE_FILES_TO_CLEAN := $(ANDROID_MAKE_NAMES) 
 toplevel_android_mk_clean: ANDROID_MAKE_FILES_TO_CLEAN += $(ANDROID_TOPLEVEL_MAKE_NAME)
+opencore_config_mk_clean: ANDROID_MAKE_FILES_TO_CLEAN += $(OPENCORE_CONFIG_MAKE_NAME)
 
 modulelevel_android_mk_clean: FORCE
 	$(quiet) $(RM) $(ANDROID_MAKE_FILES_TO_CLEAN)
@@ -192,6 +235,8 @@ modulelevel_android_mk_clean: FORCE
 toplevel_android_mk_clean: FORCE
 	$(quiet) $(RM) $(ANDROID_TOPLEVEL_MAKE_NAME)
 
+opencore_config_mk_clean: FORCE
+	$(quiet) $(RM) $(OPENCORE_CONFIG_MAKE_NAME)
 #############################################
 #    Rules for a single library makefile
 #

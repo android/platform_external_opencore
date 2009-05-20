@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: e_Window_shape.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: e_window_shape.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

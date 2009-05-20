@@ -17,13 +17,8 @@
  */
 /*
 
- Pathname: synthesis_sub_band.h
+ Filename: synthesis_sub_band.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

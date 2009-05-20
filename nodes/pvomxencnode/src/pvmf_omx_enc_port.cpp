@@ -180,6 +180,57 @@ PVMFStatus PVMFOMXEncPort::Connect(PVMFPortInterface* aPort)
     return PVMFSuccess;
 }
 
+
+PVMFStatus PVMFOMXEncPort::PeerConnect(PVMFPortInterface* aPort)
+{
+    if (!aPort)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0, "0x%x PVMFOMXEncPort::PeerConnect: Error - Connecting to invalid port", this));
+        return PVMFErrArgument;
+    }
+
+    if (iConnectedPort)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0, "0x%x PVMFOMXEncPort::PeerConnect: Error - Already connected", this));
+        return PVMFFailure;
+    }
+
+    OsclAny* temp = NULL;
+    aPort->QueryInterface(PVMI_CAPABILITY_AND_CONFIG_PVUUID, temp);
+    PvmiCapabilityAndConfig* config = (PvmiCapabilityAndConfig*) temp;
+    if (!config)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFOMXEncPort::PeerConnect: Error - Peer port does not support capability interface"));
+        return PVMFFailure;
+    }
+
+    PVMFStatus status = PVMFSuccess;
+    switch (iTag)
+    {
+        case PVMF_OMX_ENC_NODE_PORT_TYPE_INPUT:
+            status = NegotiateInputSettings(config);
+            break;
+        case PVMF_OMX_ENC_NODE_PORT_TYPE_OUTPUT:
+            status = NegotiateOutputSettings(config);
+            break;
+        default:
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFOMXEncPort::PeerConnect: Error - Invalid port tag"));
+            status = PVMFFailure;
+    }
+
+    if (status != PVMFSuccess)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFOMXEncPort::Connect: Error - Settings negotiation failed. status=%d", status));
+        return status;
+    }
+
+    iConnectedPort = aPort;
+    PortActivity(PVMF_PORT_ACTIVITY_CONNECT);
+    return PVMFSuccess;
+}
+
+
+
 // needed for WMV port exchange
 void PVMFOMXEncPort::setParametersSync(PvmiMIOSession aSession,
                                        PvmiKvp* aParameters,
@@ -603,6 +654,7 @@ PVMFStatus PVMFOMXEncPort::GetOutputParametersSync(PvmiKeyType identifier, PvmiK
             }
             else
             {
+                releaseParameters(NULL, parameters, num_parameter_elements);
                 return PVMFFailure;
             }
         }

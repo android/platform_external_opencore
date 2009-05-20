@@ -16,8 +16,8 @@
  * -------------------------------------------------------------------
  */
 /**
-	@file omx_mpeg4_component.h
-	OpenMax decoder_component component.
+    @file omx_mpeg4_component.h
+    OpenMax decoder_component component.
 
 */
 
@@ -34,7 +34,8 @@
 
 
 #define INPUT_BUFFER_SIZE_MP4 16000
-#define OUTPUT_BUFFER_SIZE_MP4 152064
+// qcif size - 176*144*3/2
+#define OUTPUT_BUFFER_SIZE_MP4 38016
 
 #define NUMBER_INPUT_BUFFER_MP4  10
 #define NUMBER_OUTPUT_BUFFER_MP4  2
@@ -63,7 +64,7 @@ class OpenmaxMpeg4AO : public OmxComponentVideo
         OMX_ERRORTYPE ComponentInit();
         OMX_ERRORTYPE ComponentDeInit();
 
-        static void ComponentGetRolesOfComponent(OMX_STRING* aRoleString);
+
 
         void SetDecoderMode(int);
         void ComponentBufferMgmtWithoutMarker();
@@ -84,13 +85,13 @@ class OpenmaxMpeg4AO : public OmxComponentVideo
 
         void ReadBits(OMX_U8* aStream, uint8 aNumBits, uint32* aOutData);
 
-        OMX_BOOL				iUseExtTimestamp;
+        OMX_BOOL                iUseExtTimestamp;
         Mpeg4Decoder_OMX* ipMpegDecoderObject;
         OMX_S32 iDecMode;
 
         //Parameters required for H.263 source format parsing
         OMX_U32 iH263DataBitPos;
-        OMX_U32	iH263BitPos;
+        OMX_U32 iH263BitPos;
         OMX_U32 iH263BitBuf;
 };
 

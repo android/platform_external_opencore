@@ -30,7 +30,7 @@
 
 /*! \file oscl_file_io.h
     \brief The file oscl_file_io.h defines the class Oscl_File.  This is the
-	public API to the basic file I/O operations.
+    public API to the basic file I/O operations.
 */
 
 
@@ -50,6 +50,10 @@
 #include "oscl_mem.h"
 #endif
 
+#ifndef OSCL_VECTOR_H_INCLUDED
+#include "oscl_vector.h"
+#endif
+
 /**
  * Oscl_File_IO class defines the generic way of creating all the file object for all the platforms.
  * The class defines all the input output files operations like open, close, read, write, seek, tell
@@ -59,6 +63,7 @@
  */
 class PVLogger;
 class OsclFileCache;
+class OsclFileCacheBuffer;
 class Oscl_FileServer;
 class OsclFileHandle;
 class OsclNativeFile;
@@ -156,6 +161,64 @@ class Oscl_File : public HeapBase
          * @param aSize: cache size in bytes.  Zero disables the cache.
          */
         OSCL_IMPORT_REF void SetPVCacheSize(uint32 aSize);
+
+        /**
+        * Parameters for defining a fixed cache
+        */
+        class OsclFixedCacheParam
+        {
+            public:
+                /*
+                ** File position where the fixed cache is located.
+                */
+                TOsclFileOffset iFilePosition;
+                /*
+                ** Fixed cache size in bytes.
+                */
+                uint32 iSize;
+
+                bool Contains(TOsclFileOffset pos) const
+                {
+                    return (iFilePosition <= pos && pos < iFilePosition + (TOsclFileOffset)iSize);
+                }
+        };
+
+        /**
+         * AddFixedCache adds a fixed cache.  The fixed cache will
+         *    be used on the next opportunity.
+         *    The fixed cache must not overlap with any other fixed cache.
+         *
+         * @param aParam: Cache location and size.
+         */
+        void AddFixedCache(const OsclFixedCacheParam& aParam)
+        {
+            iAddFixedCache.push_back(aParam);
+        }
+
+        /**
+         * RemoveFixedCache removes a fixed cache.
+         *
+         * @param aPos: Cache location and size.
+         */
+        void RemoveFixedCache(const TOsclFileOffset &aPos)
+        {
+            iRemoveFixedCache.push_back(aPos);
+        }
+
+        /**
+        * For defining a cache observer.  Cache observer
+        * can implement customized cache schemes by replacing the
+        * SetCachePosition routine.
+        */
+        class OsclCacheObserver
+        {
+            public:
+                virtual OsclFileCacheBuffer* ChooseCurCache(OsclFileCache& aContext, TOsclFileOffset aPos) = 0;
+        };
+        void SetCacheObserver(OsclCacheObserver* aObs)
+        {
+            iCacheObserver = aObs;
+        }
 
         /**
          * SetNativeAccessMode allows switching between different native file access
@@ -398,6 +461,7 @@ class Oscl_File : public HeapBase
 
     private:
         friend class OsclFileCache;
+        friend class OsclFileCacheBuffer;
         friend class asyncfilereadwrite_test;
         friend class largeasyncfilereadwrite_test;
         friend class asyncfilereadcancel_test;
@@ -423,6 +487,9 @@ class Oscl_File : public HeapBase
         //For PV File Cache
         uint32 iPVCacheSize;
         OsclFileCache* iFileCache;
+        Oscl_Vector<OsclFixedCacheParam, OsclMemAllocator> iAddFixedCache;
+        Oscl_Vector<TOsclFileOffset, OsclMemAllocator> iRemoveFixedCache;
+        OsclCacheObserver* iCacheObserver;
 
         int32 OpenFileCacheOrAsyncBuffer(const char *filename
                                          , const oscl_wchar* wfilename

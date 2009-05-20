@@ -16,7 +16,7 @@
  * -------------------------------------------------------------------
  */
 /*! \file oscl_file_native.cpp
-	\brief This file contains file io APIs
+    \brief This file contains file io APIs
 */
 
 #include "oscl_file_native.h"
@@ -29,15 +29,13 @@
 #include "oscl_file_handle.h"
 
 
+
 OsclNativeFile::OsclNativeFile()
 {
     iOpenFileHandle = false;
     iMode = 0;
 
     iFile = 0;
-#if ENABLE_MEMORY_PLAYBACK
-    membase = NULL;
-#endif
 
 }
 
@@ -134,33 +132,18 @@ int32 OsclNativeFile::Open(const oscl_wchar *filename, uint32 mode
             return -1;
         }
 #else
-        //Convert to UTF8
-        char convfilename[OSCL_IO_FILENAME_MAXLEN];
-        if (0 == oscl_UnicodeToUTF8(filename, oscl_strlen(filename), convfilename, OSCL_IO_FILENAME_MAXLEN))
-        {
-            return -1;
-        }
-#if ENABLE_MEMORY_PLAYBACK
-        void* base;
-        long long offset;
-        long long len;
-        if (sscanf(convfilename, "mem://%p:%lld:%lld", &base, &offset, &len) == 3)
-        {
-            membase = base;
-            memoffset = offset;
-            memlen = len;
-            mempos = 0;
-        }
-        else
-#endif
-        {
-            if ((iFile = fopen(convfilename, openmode)) == NULL)
-            {
-                return -1;
-            }
-        }
-#endif
+    //Convert to UTF8
+    char convfilename[OSCL_IO_FILENAME_MAXLEN];
+    if (0 == oscl_UnicodeToUTF8(filename, oscl_strlen(filename), convfilename, OSCL_IO_FILENAME_MAXLEN))
+    {
+        return -1;
+    }
 
+    if ((iFile = fopen(convfilename, openmode)) == NULL)
+    {
+        return -1;
+    }
+#endif
         return 0;
     }
 
@@ -221,26 +204,10 @@ int32 OsclNativeFile::Open(const char *filename, uint32 mode
         }
 
         openmode[index++] = '\0';
-#if ENABLE_MEMORY_PLAYBACK
-        void* base;
-        long long offset;
-        long long len;
-        if (sscanf(filename, "mem://%p:%lld:%lld", &base, &offset, &len) == 3)
+        if ((iFile = fopen(filename, openmode)) == NULL)
         {
-            membase = (void*)base;
-            memoffset = offset;
-            memlen = len;
-            mempos = 0;
+            return -1;
         }
-        else
-#endif
-        {
-            if ((iFile = fopen(filename, openmode)) == NULL)
-            {
-                return -1;
-            }
-        }
-
         return 0;
     }
 
@@ -280,13 +247,6 @@ int32 OsclNativeFile::Close()
             closeret = fclose(iFile);
             iFile = NULL;
         }
-#if ENABLE_MEMORY_PLAYBACK
-        else if (membase != NULL)
-        {
-            membase = NULL;
-            return 0;
-        }
-#endif
         else
         {
             return -1; //Linux Porting : Fix 1
@@ -298,25 +258,6 @@ int32 OsclNativeFile::Close()
 
 uint32 OsclNativeFile::Read(OsclAny *buffer, uint32 size, uint32 numelements)
 {
-#if ENABLE_MEMORY_PLAYBACK
-    if (membase)
-    {
-        int req = size * numelements;
-        if (mempos + req > memlen)
-        {
-            req = memlen - mempos;
-        }
-
-        memcpyfailed = 0;
-        memcpy(buffer, ((char*)membase) + memoffset + mempos, req);
-        if (memcpyfailed)
-        {
-            return 0;
-        }
-        mempos += req;
-        return req / size;
-    }
-#endif
     if (iFile)
     {
         return fread(buffer, OSCL_STATIC_CAST(int32, size), OSCL_STATIC_CAST(int32, numelements), iFile);
@@ -351,10 +292,6 @@ uint32 OsclNativeFile::GetReadAsyncNumElements()
 
 uint32 OsclNativeFile::Write(const OsclAny *buffer, uint32 size, uint32 numelements)
 {
-#if ENABLE_MEMORY_PLAYBACK
-    if (membase)
-        return 0;
-#endif
     if (iFile)
     {
         return fwrite(buffer, OSCL_STATIC_CAST(int32, size), OSCL_STATIC_CAST(int32, numelements), iFile);
@@ -366,24 +303,6 @@ int32 OsclNativeFile::Seek(TOsclFileOffset offset, Oscl_File::seek_type origin)
 {
 
     {
-#if ENABLE_MEMORY_PLAYBACK
-        if (membase)
-        {
-            int newpos = mempos;
-            if (origin == Oscl_File::SEEKCUR)
-                newpos = mempos + offset;
-            else if (origin == Oscl_File::SEEKSET)
-                newpos = offset;
-            else if (origin == Oscl_File::SEEKEND)
-                newpos = memlen + offset;
-            if (newpos < 0)
-                return EINVAL;
-            if (newpos > memlen) // is this valid?
-                newpos = memlen;
-            mempos = newpos;
-            return 0;
-        }
-#endif
         if (iFile)
         {
             int32 seekmode = SEEK_CUR;
@@ -397,7 +316,7 @@ int32 OsclNativeFile::Seek(TOsclFileOffset offset, Oscl_File::seek_type origin)
 #if OSCL_HAS_LARGE_FILE_SUPPORT
             return fseeko(iFile, offset, seekmode);
 #else
-            return fseek(iFile, offset, seekmode);
+    return fseek(iFile, offset, seekmode);
 #endif
         }
     }
@@ -408,18 +327,12 @@ int32 OsclNativeFile::Seek(TOsclFileOffset offset, Oscl_File::seek_type origin)
 TOsclFileOffset OsclNativeFile::Tell()
 {
     TOsclFileOffset result = -1;
-#if ENABLE_MEMORY_PLAYBACK
-    if (membase)
-    {
-        result = mempos;
-    }
-#endif
     if (iFile)
     {
 #if OSCL_HAS_LARGE_FILE_SUPPORT
         result = ftello(iFile);
 #else
-        result = ftell(iFile);
+    result = ftell(iFile);
 #endif
     }
     return result;
@@ -430,10 +343,6 @@ TOsclFileOffset OsclNativeFile::Tell()
 int32 OsclNativeFile::Flush()
 {
 
-#if ENABLE_MEMORY_PLAYBACK
-    if (membase)
-        return 0;
-#endif
     if (iFile)
         return fflush(iFile);
     return EOF;
@@ -444,10 +353,6 @@ int32 OsclNativeFile::Flush()
 int32 OsclNativeFile::EndOfFile()
 {
 
-#if ENABLE_MEMORY_PLAYBACK
-    if (membase)
-        return mempos >= memlen;
-#endif
     if (iFile)
         return feof(iFile);
     return 0;
@@ -456,10 +361,6 @@ int32 OsclNativeFile::EndOfFile()
 
 int32 OsclNativeFile::GetError()
 {
-#if ENABLE_MEMORY_PLAYBACK
-    if (membase)
-        return 0;
-#endif
     if (iFile)
         return ferror(iFile);
     return 0;

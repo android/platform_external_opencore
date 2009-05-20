@@ -51,7 +51,7 @@ class OsclMemPoolResizableAllocator;
 class PVMFJitterBufferExtensionInterface : public PVInterface
 {
     public:
-        OSCL_IMPORT_REF virtual void setRTCPIntervalInMicroSecs(uint32 aRTCPInterval) = 0;	//Not used as of now
+        OSCL_IMPORT_REF virtual void setRTCPIntervalInMicroSecs(uint32 aRTCPInterval) = 0;  //Not used as of now
         OSCL_IMPORT_REF virtual bool setPortParams(PVMFPortInterface* aPort,
                 uint32 aTimeScale,
                 uint32 aBitRate,
@@ -62,7 +62,7 @@ class PVMFJitterBufferExtensionInterface : public PVInterface
                 int32 aStopTimeInMS,
                 bool oPlayAfterASeek,
                 bool aStopTimeAvailable = true) = 0;
-        OSCL_IMPORT_REF virtual void setPlayBackThresholdInMilliSeconds(uint32 threshold) = 0;	//Not used as of now [replace with wait for OOO timeout]
+        OSCL_IMPORT_REF virtual void setPlayBackThresholdInMilliSeconds(uint32 threshold) = 0;  //Not used as of now [replace with wait for OOO timeout]
         OSCL_IMPORT_REF virtual void setJitterBufferRebufferingThresholdInMilliSeconds(uint32 aThreshold) = 0;
         OSCL_IMPORT_REF virtual void getJitterBufferRebufferingThresholdInMilliSeconds(uint32& aThreshold) = 0;
         OSCL_IMPORT_REF virtual void setJitterBufferDurationInMilliSeconds(uint32 duration) = 0;
@@ -77,7 +77,7 @@ class PVMFJitterBufferExtensionInterface : public PVInterface
 
         OSCL_IMPORT_REF virtual void setClientPlayBackClock(PVMFMediaClock* clientClock) = 0;
         OSCL_IMPORT_REF virtual bool PrepareForRepositioning(bool oUseExpectedClientClockVal = false,
-                uint32 aExpectedClientClockVal = 0) = 0;	//called for RTSP based streaming only
+                uint32 aExpectedClientClockVal = 0) = 0;    //called for RTSP based streaming only
         OSCL_IMPORT_REF virtual bool setPortSSRC(PVMFPortInterface* aPort, uint32 aSSRC) = 0;
         OSCL_IMPORT_REF virtual bool setPortRTPParams(PVMFPortInterface* aPort,
                 bool   aSeqNumBasePresent,

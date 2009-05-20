@@ -4,6 +4,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	src/pv_2way_datapath.cpp \
  	src/pv_2way_engine.cpp \
+ 	src/pv_2way_engine_test_ext.cpp \
  	src/pv_2way_data_channel_datapath.cpp \
  	src/pv_2way_cmd_control_datapath.cpp \
  	src/pv_2way_dec_data_channel_datapath.cpp \
@@ -57,6 +58,7 @@ LOCAL_COPY_HEADERS_TO := $(PV_COPY_HEADERS_TO)
 LOCAL_COPY_HEADERS := \
 	include/pv_2way_interface.h \
  	include/pv_2way_engine_factory.h \
+ 	include/pv_2way_test_extension_interface.h \
  	include/pv_2way_proxy_factory.h
 
 include $(BUILD_STATIC_LIBRARY)

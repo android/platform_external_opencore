@@ -5,7 +5,7 @@ LOCAL_PATH := $(call get_makefile_dir)
 include $(MK)/clear.mk
 
 TARGET := pvjitterbuffernode
-
+XCXXFLAGS := $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 XINCDIRS += ../../../common/include ../../../streamingmanager/plugins/mshttp/config ../../../streamingmanager/include ../../../../../protocols/rtp/src
 XINCDIRS += -I ../../../common/include
 XINCDIRS += -I ../../jitterbuffer/common/include

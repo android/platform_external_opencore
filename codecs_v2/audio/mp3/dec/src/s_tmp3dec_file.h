@@ -22,13 +22,6 @@
 
    Filename: s_tmp3dec_file.h
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -95,7 +88,7 @@ extern "C"
         uint8           mainDataBuffer[BUFSIZE];
         tmp3Bits        inputStream;
         huffcodetab     ht[HUFF_TBL];
-    }tmp3dec_file;
+    } tmp3dec_file;
 
 
 #ifdef __cplusplus

@@ -83,13 +83,13 @@ SampleSizeAtom::SampleSizeAtom(MP4_FF_FILE *fp,
         uint32 entrySize = (4);
 
         if (_sampleSize == 0)
-        {	//samples have different size
+        {   //samples have different size
             if ((_sampleCount*entrySize) > dataSize)
             {
                 _success = false;
             }
             else
-            {	//the entry is valid
+            {   //the entry is valid
 
                 if (_parsing_mode == 1)
                 {
@@ -124,6 +124,7 @@ SampleSizeAtom::SampleSizeAtom(MP4_FF_FILE *fp,
                             _fileptr = OSCL_PLACEMENT_NEW(ptr, MP4_FF_FILE());
                             _fileptr->_fileServSession = fp->_fileServSession;
                             _fileptr->_pvfile.SetCPM(fp->_pvfile.GetCPM());
+                            _fileptr->_pvfile.SetFileHandle(fp->_pvfile.iFileHandle);
                             if (AtomUtils::OpenMP4File(filename,
                                                        Oscl_File::MODE_READ | Oscl_File::MODE_BINARY,
                                                        _fileptr) != 0)

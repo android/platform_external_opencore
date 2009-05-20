@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: sbr_requantize_envelope_data.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: sbr_requantize_envelope_data.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

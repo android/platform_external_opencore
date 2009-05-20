@@ -52,9 +52,6 @@
 #endif
 
 // pv_omxregistry.h is only needed if NOT using CML2
-#ifndef USE_CML2_CONFIG
-#include "pv_omxregistry.h"
-#endif
 
 #include "oscl_init.h"
 
@@ -1092,9 +1089,9 @@ OSCL_EXPORT_REF OMX_ERRORTYPE OMX_GetRolesOfComponent(
 //////////// to find their actual names
 //////////////////////////////////////////////////////////////////////////////////
 OSCL_EXPORT_REF OMX_ERRORTYPE OMX_GetComponentsOfRole(
-    OMX_IN		OMX_STRING role,
-    OMX_INOUT	OMX_U32	*pNumComps,
-    OMX_INOUT	OMX_U8	**compNames)
+    OMX_IN      OMX_STRING role,
+    OMX_INOUT   OMX_U32 *pNumComps,
+    OMX_INOUT   OMX_U8  **compNames)
 {
     int32 error;
 

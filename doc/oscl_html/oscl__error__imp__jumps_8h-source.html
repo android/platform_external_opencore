@@ -115,38 +115,38 @@
 00117 <span class="comment">//_PV_TRAP macro catches leaves.</span>
 00118 <span class="comment">//_r is leave code, _s is statements to execute.</span>
 <a name="l00119"></a><a class="code" href="oscl__error__imp__jumps_8h.html#a3">00119</a> <span class="preprocessor">#define _PV_TRAP(__r,__s)\</span>
-00120 <span class="preprocessor">        __r=OsclErrNone;\</span>
-00121 <span class="preprocessor">        {\</span>
-00122 <span class="preprocessor">                OsclErrorTrapImp* __trap=OsclErrorTrapImp::Trap();\</span>
-00123 <span class="preprocessor">                if(!__trap){__s;}else{\</span>
-00124 <span class="preprocessor">                int __tr=setjmp(*(__trap-&gt;iJumpData-&gt;Top()));\</span>
-00125 <span class="preprocessor">                if (__tr==0)\</span>
-00126 <span class="preprocessor">                {__s;}\</span>
-00127 <span class="preprocessor">                else if (__tr==internalLeave)\</span>
-00128 <span class="preprocessor">                {__r=__trap-&gt;iLeave;}\</span>
-00129 <span class="preprocessor">                __trap-&gt;UnTrap();}\</span>
-00130 <span class="preprocessor">        }</span>
+00120 <span class="preprocessor">    __r=OsclErrNone;\</span>
+00121 <span class="preprocessor">    {\</span>
+00122 <span class="preprocessor">        OsclErrorTrapImp* __trap=OsclErrorTrapImp::Trap();\</span>
+00123 <span class="preprocessor">        if(!__trap){__s;}else{\</span>
+00124 <span class="preprocessor">        int __tr=setjmp(*(__trap-&gt;iJumpData-&gt;Top()));\</span>
+00125 <span class="preprocessor">        if (__tr==0)\</span>
+00126 <span class="preprocessor">        {__s;}\</span>
+00127 <span class="preprocessor">        else if (__tr==internalLeave)\</span>
+00128 <span class="preprocessor">        {__r=__trap-&gt;iLeave;}\</span>
+00129 <span class="preprocessor">        __trap-&gt;UnTrap();}\</span>
+00130 <span class="preprocessor">    }</span>
 00131 <span class="preprocessor"></span>
 00132 <span class="comment">//Same as _PV_TRAP but avoids a TLS lookup.</span>
 00133 <span class="comment">// __trapimp is the OsclErrorTrapImp* for the calling thread.</span>
 <a name="l00134"></a><a class="code" href="oscl__error__imp__jumps_8h.html#a4">00134</a> <span class="preprocessor">#define _PV_TRAP_NO_TLS(__trapimp,__r,__s)\</span>
-00135 <span class="preprocessor">        __r=OsclErrNone;\</span>
-00136 <span class="preprocessor">        {\</span>
-00137 <span class="preprocessor">                OsclErrorTrapImp* __trap=OsclErrorTrapImp::TrapNoTls(__trapimp);\</span>
-00138 <span class="preprocessor">                if(!__trap){__s;}else{\</span>
-00139 <span class="preprocessor">                int __tr=setjmp(*(__trap-&gt;iJumpData-&gt;Top()));\</span>
-00140 <span class="preprocessor">                if (__tr==0)\</span>
-00141 <span class="preprocessor">                {__s;}\</span>
-00142 <span class="preprocessor">                else if (__tr==internalLeave)\</span>
-00143 <span class="preprocessor">                {__r=__trap-&gt;iLeave;}\</span>
-00144 <span class="preprocessor">                __trap-&gt;UnTrap();}\</span>
-00145 <span class="preprocessor">        }</span>
+00135 <span class="preprocessor">    __r=OsclErrNone;\</span>
+00136 <span class="preprocessor">    {\</span>
+00137 <span class="preprocessor">        OsclErrorTrapImp* __trap=OsclErrorTrapImp::TrapNoTls(__trapimp);\</span>
+00138 <span class="preprocessor">        if(!__trap){__s;}else{\</span>
+00139 <span class="preprocessor">        int __tr=setjmp(*(__trap-&gt;iJumpData-&gt;Top()));\</span>
+00140 <span class="preprocessor">        if (__tr==0)\</span>
+00141 <span class="preprocessor">        {__s;}\</span>
+00142 <span class="preprocessor">        else if (__tr==internalLeave)\</span>
+00143 <span class="preprocessor">        {__r=__trap-&gt;iLeave;}\</span>
+00144 <span class="preprocessor">        __trap-&gt;UnTrap();}\</span>
+00145 <span class="preprocessor">    }</span>
 00146 <span class="preprocessor"></span>
 00147 
 00148 <span class="preprocessor">#endif // OSCL_ERROR_IMP_JUMPS_H_INCLUDED</span>
 00149 <span class="preprocessor"></span>
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

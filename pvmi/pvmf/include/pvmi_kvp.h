@@ -329,15 +329,15 @@ class PvmfAssetInfo3GPPLocationStruct
         oscl_wchar* _astronomical_body;
         oscl_wchar* _additional_notes;
         OSCL_HeapString<OsclMemAllocator> Lang_code;
-        uint8	_role;
+        uint8   _role;
 
-        uint32	_longitude;//fixed-point 16.16 number indicating the longitude in degrees.
+        uint32  _longitude;//fixed-point 16.16 number indicating the longitude in degrees.
         //Negative values represent western longitude
 
-        uint32	_latitude;//fixed-point 16.16 number indicating the latitude in degrees.
+        uint32  _latitude;//fixed-point 16.16 number indicating the latitude in degrees.
         //Negative values represent southern latitude
 
-        uint32	_altitude;//fixed-point 16.16 number indicating the altitude in meters.
+        uint32  _altitude;//fixed-point 16.16 number indicating the altitude in meters.
         //The reference altitude, indicated by zero, is set to the sea level.
         uint16 _langCode;
 };
@@ -444,15 +444,25 @@ class PvmfAssetInfo3GPPLocationStruct
 
 #define PVMF_CLIENT_PLAYBACK_CLOCK_KEY "x-pvmf/player-clock-pointer;valtype=key_specific_value"
 
+#define PVMF_AUTHORING_CLOCK_KEY "x-pvmf/authoring-clock-pointer;valtype=key_specific_value"
+
 // Keys for format bitrate info for any type of media
 #define PVMF_BITRATE_VALUE_KEY "x-pvmf/media/bit-rate;valtype=uint32"
 
 // Keys for format framerate info for any type of media
 #define PVMF_FRAMERATE_VALUE_KEY "x-pvmf/media/frame-rate;valtype=uint32"
 
+// Keys for AVC NALSize length, applies only to PVMF_MIME_ISO_AVC_SAMPLE_FORMAT, can be 1, 2, 4 bytes
+#define PVMF_AVC_SAMPLE_NAL_SIZE_IN_BYTES_VALUE_KEY "x-pvmf/media/avc-nal-length-size-in-bytes;valtype=uint32"
+
 // Key for signalling max number of outstanding media msgs
 #define PVMF_DATAPATH_PORT_MAX_NUM_MEDIA_MSGS_KEY "x-pvmf/datapath/port/max-num-media-msgs;valtype=uint32"
 
+// Key for media input node to provide its cap-config interface to media input compnent
+#define PVMF_MEDIA_INPUT_NODE_CAP_CONFIG_INTERFACE_KEY "x-pvmf/media-input-node/cap-config-interface;valtype=key_specific_value"
+
+// Key for media output node to provide its cap-config interface to media output compnent
+#define PVMF_MEDIA_OUTPUT_NODE_CAP_CONFIG_INTERFACE_KEY "x-pvmf/media-output-node/cap-config-interface;valtype=key_specific_value"
 
 // Keys for media output components -- Audio
 //
@@ -513,7 +523,7 @@ class PvmfAssetInfo3GPPLocationStruct
 #define TEXT_INPUT_HEIGHT_CUR_VALUE ".../input/height;valtype=uint32"
 
 //AVC Encoder
-#define PVMF_AVC_ENCODER_ENCODINGMODE_KEY	"x-pvmf/encoder/video/encoding_mode;valtype=uint32"
+#define PVMF_AVC_ENCODER_ENCODINGMODE_KEY   "x-pvmf/encoder/video/encoding_mode;valtype=uint32"
 
 #define INPUT_TIMESCALE_CUR_QUERY ".../input/timescale;attr=cur"
 #define INPUT_TIMESCALE_CUR_VALUE ".../input/timescale;valtype=uint32"

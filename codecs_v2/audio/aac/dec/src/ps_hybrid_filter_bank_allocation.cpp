@@ -17,14 +17,7 @@
  */
 /*
 
- Filename: ps_hybrid_filter_bank_allocation.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
+ Filename: ps_hybrid_filter_bank_allocation.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

@@ -71,13 +71,6 @@
 #include "pvmf_local_data_source.h"
 #endif
 
-#ifndef PVMF_CPMPLUGIN_PASSTHRU_OMA1_FACTORY_H_INCLUDED
-#include "pvmf_cpmplugin_passthru_oma1_factory.h"
-#endif
-
-#ifndef PVMF_CPMPLUGIN_PASSTHRU_OMA1_TYPES_H_INCLUDED
-#include "pvmf_cpmplugin_passthru_oma1_types.h"
-#endif
 
 #include "pvmi_media_io_fileoutput.h"
 #include "pv_media_output_node_factory.h"
@@ -742,35 +735,6 @@ void pvplayer_async_test_cpmopenplaystopreset::Run()
 
             //This illustrates the use of CPM with a file source.
 
-            //Connect to plugin registry
-            PVMFStatus status;
-            status = iPluginRegistryClient.Connect();
-            if (status != PVMFSuccess)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iState = STATE_CLEANUPANDCOMPLETE;
-                RunIfNotReady();
-                break;
-            }
-            //Create & the passthru plugin factory.
-            iPluginFactory = new PVMFOma1PassthruPluginFactory();
-            if (!iPluginFactory)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iState = STATE_CLEANUPANDCOMPLETE;
-                RunIfNotReady();
-                break;
-            }
-            //Register the passthru plugin factory.
-            iPluginMimeType = PVMF_CPM_MIME_PASSTHRU_OMA1;
-            if (iPluginRegistryClient.RegisterPlugin(iPluginMimeType, *iPluginFactory) != PVMFSuccess)
-            {
-                PVPATB_TEST_IS_TRUE(false);
-                iState = STATE_CLEANUPANDCOMPLETE;
-                RunIfNotReady();
-                break;
-            }
-
             if (iUsingDataStreamInput)
             {
                 //Create a data stream factory for recognizer (a)
@@ -973,13 +937,6 @@ void pvplayer_async_test_cpmopenplaystopreset::Run()
 
             //close and cleanup the CPM plugin registry.
             iPluginRegistryClient.Close();
-
-            //delete the plugin factory.
-            if (iPluginFactory)
-            {
-                delete iPluginFactory;
-                iPluginFactory = NULL;
-            }
 
             delete iLocalDataSource;
             iLocalDataSource = NULL;
@@ -16604,7 +16561,7 @@ void pvplayer_async_test_setplaybackafterprepare::CommandCompleted(const PVCmdRe
             if (aResponse.GetCmdStatus() == PVMFSuccess)
             {
                 iState = STATE_REMOVEDATASINK_TEXT;
-                //	iState=STATE_RESET;
+                //  iState=STATE_RESET;
                 RunIfNotReady();
             }
             else
@@ -16751,10 +16708,10 @@ void pvplayer_async_test_setplaybackafterprepare::HandleInformationalEvent(const
                 fprintf(file, " PVMFInfoPositionStatus: %d\n", aPos2);
 
                 /*
-                				if ( !(aPos1.iPosValue.millisec_value <= aPos2 + 50) )
-                				{
-                					PVPATB_TEST_IS_TRUE(false);
-                				}
+                                if ( !(aPos1.iPosValue.millisec_value <= aPos2 + 50) )
+                                {
+                                    PVPATB_TEST_IS_TRUE(false);
+                                }
                 */
             }
         }
@@ -17817,7 +17774,7 @@ void pvplayer_async_test_multiple_instance::Run()
                 if (!iChildThreadExit)
                 {
                     fprintf(file, "Waiting on 2nd instance to exit...\n");
-                    for (uint32 i = 0;!iChildThreadExit && i < 20;i++)
+                    for (uint32 i = 0; !iChildThreadExit && i < 20; i++)
                         OsclThread::SleepMillisec(1000);
                 }
                 //make sure child thread exited within the allowed time
@@ -18172,7 +18129,7 @@ void pvplayer_async_test_multiple_instance::PrintMetadata()
     if (iParentInstance)
         return;
 
-    for (uint32 i = 0;i < iMetadataValueList.size();i++)
+    for (uint32 i = 0; i < iMetadataValueList.size(); i++)
     {
         if (!iMetadataValueList[i].key)
         {
@@ -18187,7 +18144,7 @@ void pvplayer_async_test_multiple_instance::PrintMetadata()
             OSCL_HeapString<OsclMemAllocator> ostr;
             char buf[2];
             buf[1] = '\0';
-            for (uint32 j = 0;;j++)
+            for (uint32 j = 0;; j++)
             {
                 if (iMetadataValueList[i].value.pWChar_value[j] == '\0')
                     break;
@@ -18605,7 +18562,7 @@ void pvplayer_async_test_multiple_thread::ThreadSafeQueueDataAvailable(ThreadSaf
 {
     if (aQueue == &iThreadSafeCommandQueue)
     {
-        for (uint32 ndata = 1;ndata;)
+        for (uint32 ndata = 1; ndata;)
         {
             ThreadSafeQueueId id;
             OsclAny* data;
@@ -18620,7 +18577,7 @@ void pvplayer_async_test_multiple_thread::ThreadSafeQueueDataAvailable(ThreadSaf
     }
     if (aQueue == &iThreadSafeErrorQueue)
     {
-        for (uint32 ndata = 1;ndata;)
+        for (uint32 ndata = 1; ndata;)
         {
             ThreadSafeQueueId id;
             OsclAny* data;
@@ -18635,7 +18592,7 @@ void pvplayer_async_test_multiple_thread::ThreadSafeQueueDataAvailable(ThreadSaf
     }
     if (aQueue == &iThreadSafeInfoQueue)
     {
-        for (uint32 ndata = 1;ndata;)
+        for (uint32 ndata = 1; ndata;)
         {
             ThreadSafeQueueId id;
             OsclAny* data;
@@ -19041,7 +18998,7 @@ void pvplayer_async_test_multiple_thread::HandleInformationalEvent(const PVAsync
 
 void pvplayer_async_test_multiple_thread::PrintMetadata()
 {
-    for (uint32 i = 0;i < iMetadataValueList.size();i++)
+    for (uint32 i = 0; i < iMetadataValueList.size(); i++)
     {
         if (!iMetadataValueList[i].key)
         {
@@ -19056,7 +19013,7 @@ void pvplayer_async_test_multiple_thread::PrintMetadata()
             OSCL_HeapString<OsclMemAllocator> ostr;
             char buf[2];
             buf[1] = '\0';
-            for (uint32 j = 0;;j++)
+            for (uint32 j = 0;; j++)
             {
                 if (iMetadataValueList[i].value.pWChar_value[j] == '\0')
                     break;

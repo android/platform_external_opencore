@@ -24,13 +24,12 @@
 class av_test : public test_base
 {
     public:
-        av_test(PVMFFormatType audio_src_format = PVMF_MIME_AMR_IF2,
-                PVMFFormatType audio_sink_format = PVMF_MIME_AMR_IF2,
-                PVMFFormatType video_src_format = PVMF_MIME_YUV420,
-                PVMFFormatType video_sink_format = PVMF_MIME_YUV420,
-                bool aUseProxy = false)
-                : test_base(audio_src_format, audio_sink_format, video_src_format, video_sink_format, aUseProxy, 1)
-        {}
+        av_test(bool aUseProxy = false)
+                : test_base(aUseProxy, 1)
+        {
+            iUsingAudio = true;
+            iUsingVideo = true;
+        }
 
         ~av_test()
         {
@@ -42,7 +41,6 @@ class av_test : public test_base
 
         void DoCancel();
 
-        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
 
         void TimerCallback();
 

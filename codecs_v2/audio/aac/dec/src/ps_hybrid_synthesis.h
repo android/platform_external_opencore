@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ps_hybrid_synthesis.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                   Date:
- Description:
+ Filename: ps_hybrid_synthesis.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -82,10 +76,10 @@ extern "C"
 #endif
 
     void ps_hybrid_synthesis(const Int32 *mHybridReal,
-                             const Int32 *mHybridImag,
-                             Int32 *mQmfReal,
-                             Int32 *mQmfImag,
-                             HYBRID *hHybrid);
+    const Int32 *mHybridImag,
+    Int32 *mQmfReal,
+    Int32 *mQmfImag,
+    HYBRID *hHybrid);
 
 #ifdef __cplusplus
 }

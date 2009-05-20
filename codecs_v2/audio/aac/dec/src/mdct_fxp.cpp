@@ -17,7 +17,7 @@
  */
 /*
 
- Pathname: mdct_fxp.c
+ Filename: mdct_fxp.cpp
  Funtions: fft_rx2
 
 ------------------------------------------------------------------------------
@@ -176,28 +176,6 @@
     MODIFIED    data_quant[]
 
     RETURN      (-shift-1)
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

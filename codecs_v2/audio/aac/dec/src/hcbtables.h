@@ -17,22 +17,7 @@
  */
 /*
 
- Pathname: hcbtables.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: (1) Add declaration of binary tree tables
-              (2) #if optimized Linear Search Huffman decoding
-
- Description: Modified per review comments
-              (1) delete #if optimized Linear Search Huffman decoding
-              (2) modified copyright header
-
- Description: (1) Add declaration different huffman tables
-
- Who:                              Date:
- Description:
+ Filename: hcbtables.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

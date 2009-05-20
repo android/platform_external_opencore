@@ -22,13 +22,6 @@
 
    Filename: pvmp3_poly_phase_synthesis.h
 
-   Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -87,9 +80,9 @@ extern "C"
 #endif
 
     void pvmp3_poly_phase_synthesis(tmp3dec_chan   *pChVars,
-                                    int32          numChannels,
-                                    e_equalization equalizerType,
-                                    int16          *outPcm);
+    int32          numChannels,
+    e_equalization equalizerType,
+    int16          *outPcm);
 
 #ifdef __cplusplus
 }

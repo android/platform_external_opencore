@@ -405,8 +405,16 @@ void pvframemetadata_async_test_getmetadata::CommandCompleted(const PVCmdRespons
                 // GetFrame failed
                 PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iPerfLogger, PVLOGMSG_NOTICE,
                                 (0, "PVFrameAndMetadataUtilityTest::GetFrame failed Tick=%d", OsclTickCount::TickCount()));
+                if (iEndOfDataReceived)
+                {
+                    iState = STATE_REMOVEDATASOURCE;
+                }
+                else
+                {
+                    iState = STATE_CLEANUPANDCOMPLETE;
+                }
                 PVFMUATB_TEST_IS_TRUE(false);
-                iState = STATE_CLEANUPANDCOMPLETE;
+
                 RunIfNotReady();
             }
             break;
@@ -451,7 +459,10 @@ void pvframemetadata_async_test_getmetadata::HandleErrorEvent(const PVAsyncError
 
 void pvframemetadata_async_test_getmetadata::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
 {
-    OSCL_UNUSED_ARG(aEvent);
+    if (aEvent.GetEventType() == PVMFInfoEndOfData)
+    {
+        iEndOfDataReceived = true;
+    }
 }
 
 
@@ -1665,10 +1676,17 @@ void pvframemetadata_async_test_get10secframe::CommandCompleted(const PVCmdRespo
             }
             else
             {
-                // GetFrame failed
-                PVFMUATB_TEST_IS_TRUE(false);
-                iState = STATE_CLEANUPANDCOMPLETE;
+                // Get Frame Failed
+                if (iEndOfDataReceived)
+                {
+                    iState = STATE_REMOVEDATASOURCE;
+                }
+                else
+                {
+                    iState = STATE_CLEANUPANDCOMPLETE;
+                }
                 RunIfNotReady();
+                PVFMUATB_TEST_IS_TRUE(false);
             }
             break;
 
@@ -1708,9 +1726,11 @@ void pvframemetadata_async_test_get10secframe::HandleErrorEvent(const PVAsyncErr
 
 void pvframemetadata_async_test_get10secframe::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
 {
-    OSCL_UNUSED_ARG(aEvent);
+    if (aEvent.GetEventType() == PVMFInfoEndOfData)
+    {
+        iEndOfDataReceived = true;
+    }
 }
-
 
 void pvframemetadata_async_test_get10secframe::SaveVideoFrame()
 {

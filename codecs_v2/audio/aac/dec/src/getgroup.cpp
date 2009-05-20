@@ -17,26 +17,7 @@
  */
 /*
 
- Pathname: getgroup.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description: (1) Modified to bring code in-line with PV standards
-              (2) Eliminated if(first_short) statement, move for-loop
-                  inside if statement
-              (3) Modified UChar -> Int on data types of group
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9 or less.
-
- Who:                       Date: MM/DD/YYYY
- Description:
+ Filename: getgroup.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -147,28 +128,6 @@
         *pGroup = win;
 
     ENDIF(pFrameInfo)
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

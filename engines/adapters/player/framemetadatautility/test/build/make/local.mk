@@ -6,7 +6,9 @@ include $(MK)/clear.mk
 
 TARGET := pv_frame_metadata_utility_test
 
-XINCDIRS += ../../config/common
+XCPPFLAGS += -DBUILD_OMX_DEC_NODE
+
+XINCDIRS += ../../config/common ../../../../../../../extern_libs_v2/khronos/openmax/include
 
 SRCDIR := ../../src
 INCSRCDIR := ../../src
@@ -25,7 +27,7 @@ pvplayer_engine \
         pvdownloadmanagernode \
         pvmp4ffparsernode \
         cpm \
-        passthru_oma1 \
+        pvoma1passthruplugin \
         pvaacffparsernode \
         pvwavffparsernode \
         pvstillimagenode \
@@ -136,8 +138,16 @@ pvplayer_engine \
 	scsp \
         pvdivxffrecognizer \
         pvdivxffparsernode \
-        pv_divxfile_parser
+        pv_divxfile_parser \
+        pvamrffrecognizer \
+		divxrecognizer_utility
+
 SYSLIBS += $(SYS_THREAD_LIB)
+
+TEST_ARGS := -all
+
+SOURCE_ARGS := -source ../../../../../../../extern_libs_v2/wmdrmmd/samples/MD220x176_96_384s_clear_wmv.asf 
+
 
 include $(MK)/prog.mk
 

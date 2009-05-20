@@ -30,7 +30,9 @@
 #define CONFIG_FILE_PATH _STRLIT("")
 #endif
 
-#define LOG_FILE_NAME _STRLIT("pvlog.txt")
+#include "pv_2way_codecspecifier.h"
+
+uint32 test_base::iTestCounter = 0;
 
 void test_base::H324MConfigCommandCompletedL(PVMFCmdResp& aResponse)
 {
@@ -59,9 +61,8 @@ void test_base::QueryInterfaceSucceeded()
         iH324MConfig->SetObserver(this);
 
         {
-            PVInterface *componentInterface;
 
-            iH324MConfig->queryInterface(PVUuidH324ComponentInterface, (PVInterface*&)componentInterface);
+            iH324MConfig->queryInterface(PVUuidH324ComponentInterface, (PVInterface*&)iComponentInterface);
         }
     }
     // now we have created the component, we can do init.
@@ -73,35 +74,10 @@ bool test_base::Init()
     int32 error = 0;
     OSCL_FastString aStr;
 
-    // Clear formats from prev call if any
-    iSdkInitInfo.iIncomingAudioFormats.clear();
-    iSdkInitInfo.iOutgoingAudioFormats.clear();
-    iSdkInitInfo.iIncomingVideoFormats.clear();
-    iSdkInitInfo.iOutgoingVideoFormats.clear();
-
-
-    iSdkInitInfo.iIncomingAudioFormats.push_back(iAudSinkFormatType.getMIMEStrPtr());
-
-    iSdkInitInfo.iOutgoingAudioFormats.push_back(iAudSrcFormatType.getMIMEStrPtr());
-
-    iSdkInitInfo.iIncomingVideoFormats.push_back(iVidSinkFormatType.getMIMEStrPtr());
-
-    iSdkInitInfo.iOutgoingVideoFormats.push_back(iVidSrcFormatType.getMIMEStrPtr());
-
-    if (pv_mime_strcmp(iVidSinkFormatType.getMIMEStrPtr(), PVMF_MIME_M4V) == 0)
-    {
-        iSdkInitInfo.iIncomingVideoFormats.push_back(PVMF_MIME_YUV420);
-    }
-
-    if (pv_mime_strcmp(iVidSrcFormatType.getMIMEStrPtr(), PVMF_MIME_M4V) == 0)
-    {
-        iSdkInitInfo.iOutgoingVideoFormats.push_back(PVMF_MIME_YUV420);
-    }
-
-
     OSCL_TRY(error, iInitCmdId = terminal->Init(iSdkInitInfo));
     if (error)
     {
+        printf("\n*************** Test FAILED: could not initialize terminal *************** \n");
         test_is_true(false);
 
         if (iUseProxy)
@@ -127,7 +103,10 @@ void test_base::InitSucceeded()
 
 void test_base::InitFailed()
 {
-    timer->Cancel();
+    if (timer)
+    {
+        timer->Cancel();
+    }
     RunIfNotReady();
 }
 void test_base::InitCancelled()
@@ -149,6 +128,7 @@ void test_base::ConnectSucceeded()
 
 void test_base::ConnectFailed()
 {
+    printf("\n*************** Test FAILED: connect failed *************** \n");
     test_is_true(false);
     reset();
 }
@@ -166,7 +146,6 @@ void test_base::CancelCmdCompleted()
 
 void test_base::RstCmdCompleted()
 {
-    destroy_sink_source();
     RunIfNotReady();
 }
 
@@ -178,20 +157,43 @@ void test_base::DisCmdSucceeded()
 void test_base::DisCmdFailed()
 {
     reset();
+    printf("test_base::DisCmdFailed() \n");
 }
 
 void test_base::AudioAddSinkCompleted()
 {
     iAudioSinkAdded = true;
-    if (iAudioSourceAdded)
+    if (iAudioSourceAdded && timer)
         timer->RunIfNotReady(TEST_DURATION);
 }
 
 void test_base::AudioAddSourceCompleted()
 {
     iAudioSourceAdded = true;
-    if (iAudioSinkAdded)
+    if (iAudioSinkAdded && timer)
         timer->RunIfNotReady(TEST_DURATION);
+}
+
+void test_base::VideoAddSinkSucceeded()
+{
+    iVideoSinkAdded = true;
+}
+
+void test_base::VideoAddSinkFailed()
+{
+    printf("\n*************** Test FAILED: add video sink failed *************** \n");
+    test_is_true(false);
+    disconnect();
+}
+
+void test_base::VideoAddSourceSucceeded()
+{
+    iVideoSourceAdded = true;
+}
+
+void test_base::VideoAddSourceFailed()
+{
+    iVideoSourceAdded = false;
 }
 
 void test_base::AudioRemoveSourceCompleted()
@@ -208,30 +210,15 @@ void test_base::AudioRemoveSinkCompleted()
         disconnect();
 }
 
-void test_base::VideoAddSinkSucceeded()
-{
-}
-void test_base::VideoAddSinkFailed()
-{
-    test_is_true(false);
-    disconnect();
-}
-void test_base::VideoAddSourceSucceeded()
-{
-}
-void test_base::VideoAddSourceFailed()
-{
-}
+
 void test_base::VideoRemoveSourceCompleted()
 {
     int error = 0;
     iVideoSourceAdded = false;
-    if (iSelVideoSink != NULL)
-    {
-        OSCL_TRY(error, iVideoRemoveSinkId = terminal->RemoveDataSink(*iSelVideoSink));
-    }
+    OSCL_TRY(error, iVideoRemoveSinkId = iSourceAndSinks->RemoveVideoSink());
     if (error)
     {
+        printf("\n*************** Test FAILED: error removing video sink *************** \n");
         test_is_true(false);
         disconnect();
     }
@@ -247,6 +234,8 @@ void test_base::VideoRemoveSinkCompleted()
 void test_base::CommandCompleted(const PVCmdResponse& aResponse)
 {
     PVCommandId cmdId = aResponse.GetCmdId();
+    if (cmdId < 0)
+        return;
     iTestStatus &= (aResponse.GetCmdStatus() == PVMFSuccess) ? true : false;
 
     if (iQueryInterfaceCmdId == cmdId)
@@ -256,6 +245,8 @@ void test_base::CommandCompleted(const PVCmdResponse& aResponse)
             if (iTempH324MConfigIterface)
             {
                 iH324MConfig = OSCL_STATIC_CAST(H324MConfigInterface*, iTempH324MConfigIterface);
+                iH324MConfig->addRef();
+                iTempH324MConfigIterface->removeRef();
                 iTempH324MConfigIterface = NULL;
                 QueryInterfaceSucceeded();
             }
@@ -379,7 +370,7 @@ void test_base::InitializeLogs()
     error = 0;
     if (obj.IsLoggerConfigFilePresent())
     {
-        error = obj.SetLoggerSettings(terminal, LOG_FILE_NAME);
+        error = obj.SetLoggerSettings(terminal, TEST_LOG_FILENAME);
         if (0 != error)
         {
             printf("Error Occured in PVLoggerConfigFile::SetLoggerSettings() \n");
@@ -396,16 +387,16 @@ void test_base::InitializeLogs()
     bool logfile = true;
     if (logfile)
     {
-//File Log
+        //File Log
         const uint32 TEXT_FILE_APPENDER_CACHE_SIZE = 1024;
-        lLoggerAppender = TextFileAppender<TimeAndIdLayout, 1024>::CreateAppender(LOG_FILE_NAME,
+        lLoggerAppender = TextFileAppender<TimeAndIdLayout, 1024>::CreateAppender(TEST_LOG_FILENAME,
                           TEXT_FILE_APPENDER_CACHE_SIZE);
         OsclRefCounter *appenderRefCounter = new OsclRefCounterSA<AppenderDestructDealloc<TextFileAppender<TimeAndIdLayout, 1024> > >(lLoggerAppender);
         refCounter = appenderRefCounter;
     }
     else
     {
-//Console Log
+        //Console Log
         lLoggerAppender = new StdErrAppender<TimeAndIdLayout, 1024>();
         OsclRefCounter *appenderRefCounter = new OsclRefCounterSA<AppenderDestructDealloc<StdErrAppender<TimeAndIdLayout, 1024> > >(lLoggerAppender);
         refCounter = appenderRefCounter;
@@ -436,16 +427,131 @@ bool test_base::start_async_test()
 
     if (error)
     {
+        printf("\n*************** Test FAILED: error creating terminal *************** \n");
         test_is_true(false);
         return false;
     }
 
+    if (iSourceAndSinks && terminal)
+    {
+        iSourceAndSinks->SetTerminal(terminal);
+    }
     InitializeLogs();
 
-    create_sink_source();
     iInitCmdId = -1;
     iQueryInterfaceCmdId = -1;
-    CreateH324Component();
+    CreateParts();
     return true;
 }
 
+void test_base::CreateParts()
+{
+    create_comm();
+    CreateH324Component();
+}
+
+void test_base::HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent)
+{
+    switch (aEvent.GetEventType())
+    {
+        case PVT_INDICATION_OUTGOING_TRACK:
+        {
+            TPVChannelId *channel_id = (TPVChannelId *)(&aEvent.GetLocalBuffer()[4]);
+            printf("\n\nIndication with logical channel #%d \n", *channel_id);
+            if (aEvent.GetLocalBuffer()[0] == PV_AUDIO)
+            {
+                if (iUsingAudio)
+                {
+                    iAudioAddSourceId = iSourceAndSinks->HandleOutgoingAudio(aEvent);
+                    if (iAudioAddSourceId)
+                    {
+                        printf("Audio");
+                    }
+                    else
+                    {
+                        printf("\nError adding handling outgoing audio track\n");
+                    }
+                }
+            }
+            else if (aEvent.GetLocalBuffer()[0] == PV_VIDEO)
+            {
+                if (iUsingVideo)
+                {
+                    iVideoAddSourceId = iSourceAndSinks->HandleOutgoingVideo(aEvent);
+                    if (iVideoAddSourceId)
+                    {
+                        printf("Video");
+                    }
+                    else
+                    {
+                        printf("\nError adding handling outgoing video track\n");
+                    }
+                }
+            }
+            else
+            {
+                printf("unknown");
+            }
+            printf(" outgoing Track\n");
+            break;
+        }
+
+        case PVT_INDICATION_INCOMING_TRACK:
+        {
+            TPVChannelId *channel_id = (TPVChannelId *)(&aEvent.GetLocalBuffer()[4]);
+            printf("\n\nIndication with logical channel #%d \n", *channel_id);
+            if (aEvent.GetLocalBuffer()[0] == PV_AUDIO)
+            {
+                if (iUsingAudio)
+                {
+                    iAudioAddSinkId = iSourceAndSinks->HandleIncomingAudio(aEvent);
+                    if (iAudioAddSinkId)
+                    {
+                        printf("Audio");
+                    }
+                    else
+                    {
+                        printf("\nError adding handling incoming audio track \n");
+                    }
+                }
+            }
+            else if (aEvent.GetLocalBuffer()[0] == PV_VIDEO)
+            {
+                if (iUsingVideo)
+                {
+                    iVideoAddSinkId = iSourceAndSinks->HandleIncomingVideo(aEvent);
+                    if (iVideoAddSinkId)
+                    {
+                        printf("Video");
+                    }
+                    else
+                    {
+                        printf("\nError adding handling incoming video track\n");
+                    }
+                }
+            }
+            else
+            {
+                printf("unknown");
+            }
+            printf(" incoming Track\n");
+            break;
+        }
+
+        case PVT_INDICATION_DISCONNECT:
+            iAudioSourceAdded = false;
+            iVideoSourceAdded = false;
+            iAudioSinkAdded = false;
+            iVideoSinkAdded = false;
+            break;
+
+        case PVT_INDICATION_CLOSE_TRACK:
+            break;
+
+        case PVT_INDICATION_INTERNAL_ERROR:
+            break;
+
+        default:
+            break;
+    }
+}

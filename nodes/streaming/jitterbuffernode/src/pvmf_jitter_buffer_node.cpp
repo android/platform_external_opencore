@@ -98,7 +98,7 @@ OSCL_EXPORT_REF PVMFJitterBufferNode::PVMFJitterBufferNode(int32 aPriority,
     iCapability.iOutputFormatCapability.push_back(PVMF_MIME_RTP);
     iCapability.iOutputFormatCapability.push_back(PVMF_MIME_ASFFF);
     //Jitter buffer factory
-    ipJitterBufferFactory	=	aJBFactory;
+    ipJitterBufferFactory   =   aJBFactory;
 
     //Initialize loggers
     ipLogger = NULL;
@@ -263,7 +263,7 @@ PVMFJitterBufferNode::~PVMFJitterBufferNode()
     PVMF_JBNODE_LOGINFO((0, "PVMFJitterBufferNode::~PVMFJitterBufferNode Out"));
 }
 
-void PVMFJitterBufferNode::CleanUp()	//Reverse of Construct
+void PVMFJitterBufferNode::CleanUp()    //Reverse of Construct
 {
     //noop
 }
@@ -1575,7 +1575,7 @@ void PVMFJitterBufferNode::Run()
          * Debug check-- all the port queues should be empty at
          * this point.
          */
-        for (i = 0;i < iPortVector.size();i++)
+        for (i = 0; i < iPortVector.size(); i++)
         {
             if (iPortVector[i]->IncomingMsgQueueSize() > 0 ||
                     iPortVector[i]->OutgoingMsgQueueSize() > 0)
@@ -1590,7 +1590,7 @@ void PVMFJitterBufferNode::Run()
         /*
          * resume port input so the ports can be re-started.
          */
-        for (i = 0;i < iPortVector.size();i++)
+        for (i = 0; i < iPortVector.size(); i++)
         {
             iPortVector[i]->ResumeInput();
         }
@@ -1976,13 +1976,13 @@ bool PVMFJitterBufferNode::CheckForPortRescheduling()
     //RTSP streaming to do firewall packet exchange. So if there are outgoing
     //msgs and oProcessOutgoingMessages is true then node needs scheduling.
     //b) PVMF_JITTER_BUFFER_PORT_TYPE_OUTPUT - As long as:
-    //	- there are msgs in outgoing queue
-    //	- oProcessOutgoingMessages is true
-    //	- and as long as there is data in JB and we are not in buffering
+    //  - there are msgs in outgoing queue
+    //  - oProcessOutgoingMessages is true
+    //  - and as long as there is data in JB and we are not in buffering
     //then node needs scheduling.
     //c) PVMF_JITTER_BUFFER_PORT_TYPE_FEEDBACK - As long as:
-    //	- there are msgs in incoming queue and oProcessIncomingMessages is true
-    //	- there are msgs in outgoing queue and oProcessOutgoingMessages is true
+    //  - there are msgs in incoming queue and oProcessIncomingMessages is true
+    //  - there are msgs in outgoing queue and oProcessOutgoingMessages is true
     uint32 i;
     for (i = 0; i < iPortVector.size(); i++)
     {
@@ -3630,8 +3630,7 @@ void PVMFJitterBufferNode::ReportInfoEvent(PVMFEventType aEventType,
     {
         uint8 localbuffer[8];
         oscl_memset(localbuffer, 0, 8);
-        localbuffer[0] = 1;
-        oscl_memcpy(&localbuffer[4], &iJitterDelayPercent, sizeof(uint32));
+        oscl_memcpy(localbuffer, &iJitterDelayPercent, sizeof(uint32));
         PVMFAsyncEvent asyncevent(PVMFInfoEvent,
                                   aEventType,
                                   NULL,
@@ -3835,4 +3834,21 @@ void PVMFJitterBufferNode::ClockStateUpdated()
 void PVMFJitterBufferNode::NotificationsInterfaceDestroyed()
 {
     //noop
+}
+
+void PVMFJitterBufferNode::MediaTrackSSRCEstablished(PVMFJitterBuffer* aJitterBuffer, uint32 aSSRC)
+{
+    for (uint32 ii = 0; ii < iPortVector.size(); ii++)
+    {
+        PVMFJitterBufferPortParams* pPortParams = NULL;
+        bool bRet = getPortContainer(iPortVector[ii], pPortParams);
+        if (bRet)
+        {
+            if (pPortParams->iTag == PVMF_JITTER_BUFFER_PORT_TYPE_INPUT && pPortParams->ipJitterBuffer == aJitterBuffer)
+            {
+                ipJitterBufferMisc->SetPortSSRC(&pPortParams->irPort, aSSRC);
+                break;
+            }
+        }
+    }
 }

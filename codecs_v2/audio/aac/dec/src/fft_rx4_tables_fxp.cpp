@@ -17,30 +17,10 @@
  */
 /*
 
- Pathname: ./src/fft_rx4_tables_fxp.c
+ Filename: fft_rx4_tables_fxp.cpp
  Funtions:
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Reduce the accuracy of w_256rx4 and w_512rx2 to Q10 format.
-			Try to to pack sin and cos into one 32-bit number to reduce the
-			memory access, but doesn't help in speed, so commented out for now.
-
- Description:
-        (1) Reduced precision of w_64rx4 from Q15 to Q12.
-        (2) Increased precision of w_512rx2 from Q10 to Q13, Both changes
-            increase overall decoder precision
-
- Description:
-        (1) per code review comment, added description for table generation
-        (2) modified definition of w_64rx4 from Int to Int16
-
-
- Who:                           Date:
- Description:
-
-  ----------------------------------------------------------------------------
  MODULE DESCRIPTION
 
   Table generation
@@ -50,7 +30,7 @@
 
  for j=1; j<log4(n); j *= 4
 
-	for i=0; i<n/4; i +=j
+    for i=0; i<n/4; i +=j
 
         phi_1 = 2*pi*i/n;
         phi_2 = 4*pi*i/n;

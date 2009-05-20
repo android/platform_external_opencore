@@ -24,14 +24,6 @@
 
    Filename: pvmp3_polyphase_filter_window.cpp
 
-     Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Description:
-
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
 
@@ -122,7 +114,7 @@ void pvmp3_polyphase_filter_window(int32 *synth_buffer,
     int32 i;
 
 
-    for (int16 j = 1;j < SUBBANDS_NUMBER / 2;j++)
+    for (int16 j = 1; j < SUBBANDS_NUMBER / 2; j++)
     {
         sum1 = 0x00000020;
         sum2 = 0x00000020;
@@ -206,7 +198,7 @@ void pvmp3_polyphase_filter_window(int32 *synth_buffer,
     sum2 = 0x00000020;
 
 
-    for (i = 16;i < HAN_SIZE + 16;i += (SUBBANDS_NUMBER << 2))
+    for (i = 16; i < HAN_SIZE + 16; i += (SUBBANDS_NUMBER << 2))
     {
         int32 *pt_synth = &synth_buffer[i];
         int32 temp1 = pt_synth[ 0                ];

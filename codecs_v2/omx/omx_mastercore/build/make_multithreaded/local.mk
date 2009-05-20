@@ -6,15 +6,12 @@ include $(MK)/clear.mk
 
 TARGET := omx_mastercore_lib
 
-XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
-
 OPTIMIZE_FOR_PERFORMANCE_OVER_SIZE := true
 
 XINCDIRS += \
          ../../../omx_common/include \
 	 ../../../../../extern_libs_v2/khronos/openmax/include 
 
-XCXXFLAGS += $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 
 SRCDIR    := ../../src
 INCSRCDIR := ../../include

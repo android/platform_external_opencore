@@ -149,7 +149,7 @@ typedef enum _TCmdMisc
     EVideoFastUpdatePicture,
     EVideoTemporalSpatialTradeOff,
     EMaxH223MUXPDUsize
-}TCmdMisc;
+} TCmdMisc;
 
 class TSC_324mObserver
 {
@@ -166,14 +166,14 @@ class TSC_component;
 
 
 class TSC_324m : public TSC,
-            public PVMFNodeInterface,
-            public OsclActiveObject,
-            public CPVH223MultiplexObserver,
-            public H245Observer,
-            public MSDObserver,
-            public CEObserver,
-            public SRPObserver,
-            public OsclTimerObserver
+        public PVMFNodeInterface,
+        public OsclActiveObject,
+        public CPVH223MultiplexObserver,
+        public H245Observer,
+        public MSDObserver,
+        public CEObserver,
+        public SRPObserver,
+        public OsclTimerObserver
 {
     public:
         OSCL_IMPORT_REF TSC_324m(TPVLoopbackMode aLoopbackMode);
@@ -266,8 +266,17 @@ class TSC_324m : public TSC,
         }
 
         /* PVInterface virtuals */
-        void addRef() {}
-        void removeRef() {}
+        void addRef()
+        {
+            iReferenceCount++;
+        }
+        void removeRef()
+        {
+            if (--iReferenceCount <= 0)
+            {
+                OSCL_DELETE(this);
+            }
+        }
         bool queryInterface(const PVUuid& uuid, PVInterface*& iface)
         {
             OSCL_UNUSED_ARG(uuid);
@@ -303,7 +312,6 @@ class TSC_324m : public TSC,
             return EPVT_Success;
         }
         virtual TPVStatusCode SetTerminalParam(CPVTerminalParam* params);
-        virtual CPVTerminalParam* GetTerminalParam();
         virtual TPVStatusCode SetOutgoingBitrate(int32 bitrate);
 
 
@@ -481,7 +489,7 @@ class TSC_324m : public TSC,
         uint32 Status08User07(PS_ControlMsgHeader  pReceiveInf);        /* RAN STCS */
         uint32 Status08User08(PS_ControlMsgHeader  pReceiveInf);        /* RAN HMR */
         uint32 Status08User09(PS_ControlMsgHeader  pReceiveInf);        /* RAN RCC */
-        uint32 Status08User10(PS_ControlMsgHeader  pReceiveInf);	/* RAN CLC */
+        uint32 Status08User10(PS_ControlMsgHeader  pReceiveInf);    /* RAN CLC */
         uint32 SessionClose_Comm();
         uint32 InternalError_Comm(PS_ControlMsgHeader  pReceiveInf);
         uint32 EndSessionRecv(PS_ControlMsgHeader  pReceiveInf);
@@ -498,8 +506,8 @@ class TSC_324m : public TSC,
         /* ------------------------------------ */
         /*           MISC Prototypes            */
         /* ------------------------------------ */
-        int32 GetReceivedAudioCodec(void);						// (RAN-TD)
-        int32 GetReceivedVideoCodec(void);						// (RAN-TD)
+        int32 GetReceivedAudioCodec(void);                      // (RAN-TD)
+        int32 GetReceivedVideoCodec(void);                      // (RAN-TD)
 
         uint32 CheckAltCapSet(PS_AlternativeCapabilitySet pAltCapSet, uint32 entry, uint32* preference_index);
         void ExtractTcsParameters(PS_TerminalCapabilitySet pCap);
@@ -508,8 +516,8 @@ class TSC_324m : public TSC,
         void CmdEcrpt(void);                   /* Encryption                    */
         void CmdFc(void);                      /* Flow Control                  */
         PVMFPortInterface* FindOutgoingPort(TPVMediaType_t mediaType);
-//	void CmdCnf            ( void );       /* Conference Commands           */
-//	void CmdCm             ( void );       /* Communication Mode Commands   */
+//  void CmdCnf            ( void );       /* Conference Commands           */
+//  void CmdCm             ( void );       /* Communication Mode Commands   */
         void CmdHmr(int32);                    /* H223MultiplexReconfiguration  */
 
         /* RME */
@@ -524,7 +532,7 @@ class TSC_324m : public TSC,
         typedef enum _TIndicationMisc
         {
             EVideoTemporalSpatialTradeOffIdc,
-        }TIndicationMisc;
+        } TIndicationMisc;
         void IndicationMisc(TIndicationMisc type, TPVChannelId channelId, uint32 param = 0, OsclAny* param1 = NULL);
         void Tsc_IdcSkew(TPVChannelId lcn1, TPVChannelId lcn2, uint16 skew);
         void SendFunctionNotSupportedIndication(uint16 cause, uint8* function = NULL, uint16 len = 0);
@@ -548,7 +556,7 @@ class TSC_324m : public TSC,
         /* The H223 instance */
         H223* iH223;
 
-        uint32 iTerminalStatus;		/* Terminal Status */
+        uint32 iTerminalStatus;     /* Terminal Status */
         uint32 iCeRetries;
 
 
@@ -566,7 +574,7 @@ class TSC_324m : public TSC,
         unsigned iSendRme; /* Send RME to remote */
         unsigned iCsupSeq; /* Order of sending TCS, MSD, VID */
         unsigned iRequestMaxMuxPduSize; /* Requests maxMuxPduSize to the remote terminal if > 0.  This is done after TCS
-											 if the remote terminal supports the maxMuxPduCapability */
+                                             if the remote terminal supports the maxMuxPduCapability */
         bool iMaxMuxPduCapabilityR;  /* Does the remote terminal suport maxMuxPduCapability ? */
 
 
@@ -673,6 +681,8 @@ class TSC_324m : public TSC,
         TSC_capability iTSCcapability;
         TSCComponentRegistry iComponentRegistry;
         PVMFMediaClock* iClock;
+        int32 iReferenceCount;
+
 };
 
 #define TSC_TIMER_RES 1000

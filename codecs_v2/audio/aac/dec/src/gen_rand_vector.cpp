@@ -17,40 +17,6 @@
  */
 /*
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to remove instances of pow() and sqrt(), and
- optimized for inclusion in fixed-point version of decoder.
-
- Description:  Modified to include comments/optimizations from code review.
- Also, declared appropriate variables as type "const"
-
- Description:  Adopted strategy of "one q-format per sfb" strategy, which
- eliminated the array q-format from this function.  The q-format the
- random vector is stored in is now returned from the function.
-
- Description:  Completely redesigned the routine to allow a simplified
-        calculation of the adjusted noise, by eliminating the dependency
-        on the band_length. Added polynomial approximation for the
-        function 1/sqrt(power). Updated comments and pseudo-code
-
- Description:  Modified function description, pseudocode, etc.
-
- Description:
-    Modified casting to ensure proper operations for different platforms
-
- Description:
-    Eliminiated access to memory for noise seed. Now a local variable is
-    used. Also unrolled loops to speed up code.
-
- Description:
-    Modified pointer decrement to a pointer increment, to ensure proper
-    compiler behavior
-
  Description:
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -257,28 +223,6 @@
     q_adjust = q_adjust - (power_scale >> 2);
 
     return q_adjust;
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

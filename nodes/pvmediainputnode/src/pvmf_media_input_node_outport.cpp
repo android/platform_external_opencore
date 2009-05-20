@@ -30,12 +30,6 @@
 #include "pvmf_format_type.h"
 #endif
 
-#ifdef TEXT_TRACK_DESC_INFO
-#ifndef TEXTSAMPLEDESCINFO_H
-#include "textsampledescinfo.h"
-#endif
-#endif
-
 #ifndef PVMF_MEDIA_MSG_FORMAT_IDS_H_INCLUDED
 #include "pvmf_media_msg_format_ids.h"
 #endif
@@ -43,6 +37,9 @@
 #include "pvmf_media_cmd.h"
 #endif
 
+#ifndef OSCL_BIN_STREAM_H_INCLUDED
+#include "oscl_bin_stream.h"
+#endif
 #define PVMIO_MEDIADATA_POOLNUM 9
 
 // Logging macros
@@ -62,6 +59,7 @@ PvmfMediaInputNodeOutPort::PvmfMediaInputNodeOutPort(PvmfMediaInputNode* aNode, 
         , inum_text_sample(0)
         , imax_num_sample(0)
 {
+    iNALType = 0;
     iCmdId = 0;
     AddToScheduler();
     iFormatType = PVMF_MIME_FORMAT_UNKNOWN;
@@ -157,7 +155,7 @@ void PvmfMediaInputNodeOutPort::Stop()
 {
     iWriteState = EWriteOK;
     PvmfPortBaseImpl::ClearMsgQueues();
-    iState = PvmfMediaInputNodeOutPort::PORT_STATE_BUFFERING;
+    iState = PvmfMediaInputNodeOutPort::PORT_STATE_STOPPED;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -252,6 +250,13 @@ PVMFCommandId PvmfMediaInputNodeOutPort::writeAsync(uint8 format_type, int32 for
         const PvmiMediaXferHeader& data_header_info,
         OsclAny* context)
 {
+    if (iState == PvmfMediaInputNodeOutPort::PORT_STATE_STOPPED)
+    {
+        // In stopped state we are not going to accept any buffers
+        OsclError::Leave(OsclErrNotReady);
+        LOG_DEBUG((0, "Ignoring PvmfMediaInputNodeOutPort::writeAsync"));
+        return -1;
+    }
     if (iWriteState == EWriteOK)
     {
         if (PVMI_MEDIAXFER_FMT_TYPE_NOTIFICATION == format_type)
@@ -260,65 +265,34 @@ PVMFCommandId PvmfMediaInputNodeOutPort::writeAsync(uint8 format_type, int32 for
             {
                     //added for timed text support
                     //here it handles the configuration information for timed text and passes it to the composernode
-
                 case PVMI_MEDIAXFER_FMT_INDEX_FMT_SPECIFIC_INFO:
                 {
-#ifdef TEXT_TRACK_DESC_INFO
-
-                    if (iFormatType == PVMF_MIME_3GPP_TIMEDTEXT)
-                    {
-                        //get indexing info to map text data with config info
-                        PvmiKvp* textKvp = OSCL_STATIC_CAST(PvmiKvp*, data);
-                        PVA_FF_TextSampleDescInfo* pDecoderinfo;
-                        pDecoderinfo = OSCL_STATIC_CAST(PVA_FF_TextSampleDescInfo*, textKvp->value.key_specific_value);
-
-                        itext_sample_index.push_back(pDecoderinfo->sdindex);
-                        istart_text_sample.push_back(pDecoderinfo->start_sample_num);
-                        iend_text_sample.push_back(pDecoderinfo->end_sample_num);
-                        imax_num_sample = pDecoderinfo->end_sample_num + 1;
-                    }
-
-                    uint32 cmdId = *(OSCL_STATIC_CAST(uint32*, context));
-
-                    OsclAny* temp = NULL;
-                    iConnectedPort->QueryInterface(PVMI_CAPABILITY_AND_CONFIG_PVUUID, temp);
-                    PvmiCapabilityAndConfig *config = OSCL_STATIC_CAST(PvmiCapabilityAndConfig*, temp);
-
-                    PvmiKvp* mioKvp = OSCL_STATIC_CAST(PvmiKvp*, data);
-                    PvmiKvp* ret_kvp = NULL;
-                    config->setParametersSync(NULL, mioKvp, 1, ret_kvp);
-                    iMediaInput->writeComplete(PVMFSuccess, cmdId, NULL);
-                    return 0;
-
-#endif
+                    //we expect media input components to use cap-config to provide
+                    //fmt specific info
+                    LOG_ERR((0, "Fmt Specific Info over WriteAsync Not Supported"));
+                    iNode->ReportErrorEvent(PVMFErrPortProcessing, (OsclAny*)NULL);
+                    OsclError::Leave(OsclErrGeneral);
                 }
                 break;
                 case PVMI_MEDIAXFER_FMT_INDEX_END_OF_STREAM:
                 {
-
                     SendEndOfTrackCommand(data_header_info);
                     MediaIOStarted();
-
                     return iCmdId++;
                 }
                 break;
                 default:
                 {
-                    LOG_DEBUG((0, "Ignoring Format Index :%d since not supported\n", format_index));
-
+                    LOG_ERR((0, "Ignoring Format Index :%d since not supported\n", format_index));
                     iNode->ReportErrorEvent(PVMFErrPortProcessing, (OsclAny*)NULL);
                     OsclError::Leave(OsclErrGeneral);
-
                 }
-
+                break;
             }
-
         }
-
         // TODO: Handle incoming data here. Create a media data using PvmiMIOSourceDataBufferAlloc::allocate,
         // save the data there, put the media data to outgoing queue.
         // If the port is started, schedule to send in Run
-
         else if (PVMI_MEDIAXFER_FMT_TYPE_DATA == format_type)
         {
             //if the outgoing queue is full, we can't accept data
@@ -426,47 +400,27 @@ PVMFCommandId PvmfMediaInputNodeOutPort::writeAsync(uint8 format_type, int32 for
                             "StreamID=%d, TS=%d, Len=%d, SN=%d, MimeType=%s",
                             data_header_info.stream_id,  data_header_info.timestamp, data_len,
                             data_header_info.seq_num, iMimeType.get_cstr()));
-            if (itext_sample_index.size())
+            if ((0 == data_header_info.seq_num) &&
+                    ((oscl_strcmp(PVMF_MIME_M4V, iMimeType.get_cstr()) == 0) ||
+                     (oscl_strcmp(PVMF_MIME_MPEG4_AUDIO, iMimeType.get_cstr())) == 0))
             {
-                bool found = false;
+
                 OsclMemAllocDestructDealloc<uint8> my_alloc;
                 OsclRefCounter* my_refcnt;
+                OsclMemoryFragment memfrag;
+                memfrag.len = data_header_info.private_data_length;
+
                 uint aligned_refcnt_size = oscl_mem_aligned_size(sizeof(OsclRefCounterSA< OsclMemAllocDestructDealloc<uint8> >));
-                uint8* my_ptr = (uint8*) my_alloc.allocate(aligned_refcnt_size + sizeof(int32));
-                my_refcnt = OSCL_PLACEMENT_NEW(my_ptr, OsclRefCounterSA< OsclMemAllocDestructDealloc<uint8> >(my_ptr));
+                uint8* my_ptr = (uint8*) my_alloc.allocate(aligned_refcnt_size + memfrag.len);
+                my_refcnt = new(my_ptr) OsclRefCounterSA< OsclMemAllocDestructDealloc<uint8> >(my_ptr);
                 my_ptr += aligned_refcnt_size;
 
-                OsclMemoryFragment memfrag;
-                memfrag.len = 0;
-                memfrag.ptr = my_ptr;
+                memfrag.ptr = data_header_info.private_data_ptr;
 
-                memfrag.len = sizeof(int32);
-
-                if (inum_text_sample >= imax_num_sample)
-                {
-                    while (inum_text_sample >= imax_num_sample)
-                    {
-                        inum_text_sample = inum_text_sample - imax_num_sample;
-                    }
-                }
-                for (uint32 ii = 0; ii < itext_sample_index.size(); ii++)
-                {
-                    if (inum_text_sample >= istart_text_sample[ii] && inum_text_sample <= iend_text_sample[ii])
-                    {
-                        found = true;
-                        memfrag.ptr = &(itext_sample_index[ii]);//vector stores the sample index no.
-                    }//this index no. gives the sample description index information
-                    if (found)
-                    {
-                        break;
-                    }
-                }
-
-                inum_text_sample += 1;
-                // Save format specific info
-                OsclRefCounterMemFrag configinfo(memfrag, my_refcnt, sizeof(int32));
+                OsclRefCounterMemFrag configinfo(memfrag, my_refcnt, memfrag.len);
                 iFormatSpecificInfo = configinfo;
                 mediaData->setFormatSpecificInfo(iFormatSpecificInfo);
+
             }
             // Convert media data to MediaMsg
             PVMFSharedMediaMsgPtr mediaMsg;

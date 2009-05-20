@@ -17,20 +17,10 @@
  */
 /*
 
- Pathname: mdct_tables_fxp.c
+ Filename: mdct_tables_fxp.cpp
  Funtions:
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Created from fft_rx2.c
-
- Description:  Modified to include forward and inverse tables
-
- Who:                       Date:
- Description:
-
-  ------------------------------------------------------------------------------
  MODULE DESCRIPTION
 
     MDCT rotation tables fixpoint tables

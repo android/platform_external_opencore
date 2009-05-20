@@ -13,7 +13,15 @@ OPTIMIZE_FOR_PERFORMANCE_OVER_SIZE := true
 
 XINCDIRS = ../../../../../pvmi/pvmf/include
 
+## WMA Build configurations
+ifeq ($(WMA_STD_ENABLED),1)
+XCPPFLAGS += -DBUILD_WMASTD
+endif
 
+ifeq ($(WMA_PRO_ENABLED),1)
+XCPPFLAGS += -DBUILD_WMAPRO \
+	     -DWMAPLUS_64KBPS_PROFILE_ONLY 
+endif
 
 SRCDIR := ../../src
 INCSRCDIR := ../../include

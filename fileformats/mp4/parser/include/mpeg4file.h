@@ -102,10 +102,11 @@ class Mpeg4File : public IMpeg4File, public Parentable
     public:
         Mpeg4File(MP4_FF_FILE *fp,
                   OSCL_wString& filename,
-                  uint32 parsingMode = 0); // Stream-in Constructor
+                  uint32 parsingMode = 0,
+                  bool aOpenFileOncePerTrack = true); // Stream-in Constructor
         virtual ~Mpeg4File();
 
-        int32 updateFileSize(uint32	filesize)
+        int32 updateFileSize(uint32 filesize)
         {
             if (_pmovieAtom != NULL)
             {
@@ -220,7 +221,7 @@ class Mpeg4File : public IMpeg4File, public Parentable
                                           bool bResetToIFrame,
                                           bool bBeforeRequestedTime);
 
-        virtual int32	querySyncFrameBeforeTime(uint32 time, uint16 numTracks, uint32 *trackList)
+        virtual int32   querySyncFrameBeforeTime(uint32 time, uint16 numTracks, uint32 *trackList)
         {
             if (_pmovieAtom == NULL)
             {
@@ -243,7 +244,7 @@ class Mpeg4File : public IMpeg4File, public Parentable
         {
             if (_pFileTypeAtom != NULL)
             {
-                return	_pFileTypeAtom->getMajorBrand();
+                return  _pFileTypeAtom->getMajorBrand();
             }
             else
             {
@@ -1281,7 +1282,7 @@ class Mpeg4File : public IMpeg4File, public Parentable
                 Oscl_FileServer* aFileServSession);
         void DestroyDataStreamForExternalDownload();
 
-
+        MP4_FF_FILE * _fp;
     private:
         void ReserveMemoryForLangCodeVector(Oscl_Vector<uint16, OsclMemAllocator> &iLangCode, int32 capacity, int32 &leavecode);
         void ReserveMemoryForValuesVector(Oscl_Vector<OSCL_wHeapString<OsclMemAllocator>, OsclMemAllocator> &iValues, int32 capacity, int32 &leavecode);

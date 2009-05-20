@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: e_MP4FF_const.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
+ Filename: e_mp4ff_const.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

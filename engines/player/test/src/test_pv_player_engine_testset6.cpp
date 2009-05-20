@@ -76,9 +76,7 @@
 #include "pvmf_protocol_engine_node_events.h"
 #endif
 
-#ifdef USE_CML2_CONFIG
 #include "pv_config.h"
-#endif
 
 
 
@@ -290,9 +288,6 @@ void pvplayer_async_test_streamingopenplaystop::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -2359,10 +2354,10 @@ void pvplayer_async_test_streamingopenplaystop::HandleInformationalEvent(const P
     if (aEvent.GetEventType() == PVMFInfoBufferingStatus)
     {
         uint8* localBuf = aEvent.GetLocalBuffer();
-        if (localBuf != NULL)
+        if ((localBuf != NULL) && (aEvent.GetLocalBufferSize() >= 4))
         {
             uint32 bufPercent = 0;
-            oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+            oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
             fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
         }
     }
@@ -3819,10 +3814,10 @@ void pvplayer_async_test_streamingJBadjust::HandleInformationalEvent(const PVAsy
     if (aEvent.GetEventType() == PVMFInfoBufferingStatus)
     {
         uint8* localBuf = aEvent.GetLocalBuffer();
-        if (localBuf != NULL)
+        if ((localBuf != NULL) && (aEvent.GetLocalBufferSize() >= 4))
         {
             uint32 bufPercent = 0;
-            oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+            oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
             fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
         }
     }
@@ -5176,10 +5171,10 @@ void pvplayer_async_test_streaming_bitstream_switch::HandleInformationalEvent(co
     if (aEvent.GetEventType() == PVMFInfoBufferingStatus)
     {
         uint8* localBuf = aEvent.GetLocalBuffer();
-        if (localBuf != NULL)
+        if ((localBuf != NULL) && (aEvent.GetLocalBufferSize() >= 4))
         {
             uint32 bufPercent = 0;
-            oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+            oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
             fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
         }
     }
@@ -6488,10 +6483,10 @@ void pvplayer_async_test_dvbh_streamingopenplaystop::HandleInformationalEvent(co
     if (aEvent.GetEventType() == PVMFInfoBufferingStatus)
     {
         uint8* localBuf = aEvent.GetLocalBuffer();
-        if (localBuf != NULL)
+        if ((localBuf != NULL) && (aEvent.GetLocalBufferSize() >= 4))
         {
             uint32 bufPercent = 0;
-            oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+            oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
             fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
         }
     }
@@ -7151,9 +7146,6 @@ void pvplayer_async_test_streamingopenplaystoppreparelaystop::Run()
                 else if (fileType == PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL)
                 {
                     fileType = PVMF_MIME_DATA_SOURCE_RTSP_URL;
-#if RUN_RTSP_CLOAKING_TESTCASES
-                    iDataSource->SetAlternateSourceFormatType(PVMF_MIME_DATA_SOURCE_REAL_HTTP_CLOAKING_URL);
-#endif
                 }
                 else if (fileType == PVMF_MIME_DATA_SOURCE_RTSP_URL)
                 {
@@ -8592,10 +8584,10 @@ void pvplayer_async_test_streamingopenplaystoppreparelaystop::HandleInformationa
     if (aEvent.GetEventType() == PVMFInfoBufferingStatus)
     {
         uint8* localBuf = aEvent.GetLocalBuffer();
-        if (localBuf != NULL)
+        if ((localBuf != NULL) && (aEvent.GetLocalBufferSize() >= 4))
         {
             uint32 bufPercent = 0;
-            oscl_memcpy(&bufPercent, &localBuf[4], sizeof(uint32));
+            oscl_memcpy(&bufPercent, localBuf, sizeof(uint32));
             fprintf(iTestMsgOutputFile, "###PVMFInfoBufferingStatus - BufferedPercent=%d\n", bufPercent);
         }
     }

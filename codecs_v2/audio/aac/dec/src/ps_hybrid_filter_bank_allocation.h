@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: ps_hybrid_filter_bank_allocation.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                   Date:
- Description:
+ Filename: ps_hybrid_filter_bank_allocation.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -83,9 +77,9 @@ extern "C"
 #endif
 
     Int32 ps_hybrid_filter_bank_allocation(HYBRID **phHybrid,
-                                           Int32 noBands,
-                                           const Int32 *pResolution,
-                                           Int32 **pPtr);
+    Int32 noBands,
+    const Int32 *pResolution,
+    Int32 **pPtr);
 
 #ifdef __cplusplus
 }

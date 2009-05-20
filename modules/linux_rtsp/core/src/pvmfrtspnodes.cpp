@@ -25,7 +25,7 @@
 #include "osclconfig.h"
 
 class StreamingNodesInterface: public OsclSharedLibraryInterface,
-            public NodeSharedLibraryInterface
+        public NodeSharedLibraryInterface
 {
     public:
         StreamingNodesInterface() {};
@@ -62,7 +62,7 @@ class StreamingNodesInterface: public OsclSharedLibraryInterface,
 
 extern "C"
 {
-    OsclSharedLibraryInterface* PVGetInterface(void)
+    OSCL_EXPORT_REF OsclSharedLibraryInterface* PVGetInterface(void)
     {
         return OSCL_NEW(StreamingNodesInterface, ());
     }

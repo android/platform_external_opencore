@@ -1,0 +1,8 @@
+t00.inp				//Amr Input File Name
+t00.amr				//Amr Output File Name
+16				//Input bits per sample
+8000				//Input Sampling Frequency
+1				//Number of channels
+OMX_AUDIO_AMRBandModeNB0	//Output band mode - 0 to 7
+if2				//Output format - if2 and fsf
+

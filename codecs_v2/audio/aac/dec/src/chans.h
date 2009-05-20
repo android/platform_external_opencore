@@ -17,12 +17,7 @@
  */
 /*
 
- Pathname:   chans.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Placed file in the correct template format.
+ Filename: chans.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

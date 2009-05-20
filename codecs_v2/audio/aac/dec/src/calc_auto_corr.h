@@ -21,12 +21,6 @@
  Funtions:
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
 
 
  ----------------------------------------------------------------------------
@@ -94,9 +88,9 @@ extern "C"
 #endif
 
     void calc_auto_corr_LC(struct ACORR_COEFS *ac,
-                           Int32  realBuf[][32],
-                           Int32  bd,
-                           Int32  len);
+    Int32  realBuf[][32],
+    Int32  bd,
+    Int32  len);
 
 
 #ifdef HQ_SBR

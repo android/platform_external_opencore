@@ -17,49 +17,8 @@
  */
 /*
 
-  Pathname: trans4m_time_2_freq_fxp.c
+ Filename: trans4m_time_2_freq_fxp.cpp
   Function: trans4m_time_2_freq_fxp
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-        Modified normalization, so it now happen per window basis, eliminated
-        shifts left or rigth to accomodate TNS inverse filtering. The output
-        is 32 bits but only the lowest 16 are being used.
-        Modified fuction interface
-
- Description: Modified variable names with leading "p" for pointers
-
- Description:
-        Modified call to mdct_fxp to reflect extended precision use. Added routine
-        buffer_adaptation to extract 16 MSB and keep highest precision.
-        Modify casting to ensure proper operations for different platforms
-
- Description:
-        Added comments according to code review
-
- Description:
-        Removed include file "buffer_normalization.h"
-
- Description:
-        Eliminated buffer_adaptation() and embedded its functionality in other
-        functions. Commented out the short window section given that this is
-        not supported by the standards
-
- Description:
-        Added shift down operation for case when the window was equal to one.
-        This was not needed previuosly because buffer_adaptation() was doing
-        it.
-
- Description: Created local version of vectors Long_Window_fxp and
-              Short_Window_fxp. This solve linking problem when using the
-              /ropi option (Read-only position independent) for some
-              compilers.
-
-
- Who:                       Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -289,28 +248,6 @@ block.
         MODIFYING( Time2Freq_data)
 
     ENDIF
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

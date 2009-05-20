@@ -17,16 +17,8 @@
  */
 /*
 
- Pathname: pns_left.h
+ Filename: pns_left.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Removed #defines of LEFT and RIGHT, and the extra include
- file "e_huffmanconst.h"
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

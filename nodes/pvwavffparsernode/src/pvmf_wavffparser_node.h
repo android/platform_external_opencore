@@ -344,11 +344,11 @@ class PVMFWAVFFParserOutPort;
 class PVLogger;
 
 class PVMFWAVFFParserNode : public OsclTimerObject,
-            public PVMFNodeInterface,
-            public PVMFDataSourceInitializationExtensionInterface,
-            public PVMFTrackSelectionExtensionInterface,
-            public PvmfDataSourcePlaybackControlInterface,
-            public PVMFMetadataExtensionInterface
+        public PVMFNodeInterface,
+        public PVMFDataSourceInitializationExtensionInterface,
+        public PVMFTrackSelectionExtensionInterface,
+        public PvmfDataSourcePlaybackControlInterface,
+        public PVMFMetadataExtensionInterface
 {
     public:
         PVMFWAVFFParserNode(int32 aPriority = OsclActiveObject::EPriorityNominal);
@@ -528,8 +528,9 @@ class PVMFWAVFFParserNode : public OsclTimerObject,
         PVMFPortInterface* iCmdRespPort;
 
         OSCL_wHeapString<OsclMemAllocator> iFilename;
+        OsclFileHandle *iFileHandle;
         Oscl_FileServer iFileServer;
-        PV_Wav_Parser* iWAVParser;
+        PV_Wav_Parser *iWAVParser;
 
         Oscl_Vector<PVWAVFFNodeTrackPortInfo, OsclMemAllocator> iSelectedTrackList;
 

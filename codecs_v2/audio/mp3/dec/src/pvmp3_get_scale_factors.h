@@ -22,13 +22,6 @@
 
    Filename: pvmp3_get_scale_factors.h
 
-   Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
@@ -87,10 +80,10 @@ extern "C"
 #endif
 
     void pvmp3_get_scale_factors(mp3ScaleFactors *scalefac,
-                                 mp3SideInfo *si,
-                                 int32 gr,
-                                 int32 ch,
-                                 tmp3Bits *pMainData);
+    mp3SideInfo *si,
+    int32 gr,
+    int32 ch,
+    tmp3Bits *pMainData);
 
 
 #ifdef __cplusplus

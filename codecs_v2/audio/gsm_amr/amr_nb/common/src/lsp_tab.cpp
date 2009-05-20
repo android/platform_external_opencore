@@ -28,19 +28,7 @@ terms listed above has been obtained from the copyright holder.
 ****************************************************************************************/
 /*
 
- Pathname: .audio/gsm-amr/c/src/lsp_tab.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Added #ifdef __cplusplus and removed "extern" from table
-              definition. Removed corresponding header file from Include
-              section.
-
- Description: Put "extern" back.
-
- Who:                       Date:
- Description:
+ Filename: lsp_tab.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -87,28 +75,6 @@ terms listed above has been obtained from the copyright holder.
 
 
 ------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
-
-------------------------------------------------------------------------------
 */
 
 
@@ -147,8 +113,8 @@ extern "C"
     ; Variable declaration - defined here and used outside this module
     ----------------------------------------------------------------------------*/
     extern const Word16 lsp_init_data[M] = {30000, 26000, 21000, 15000, 8000,
-                                                0, -8000, -15000, -21000, -26000
-                                               };
+        0, -8000, -15000, -21000, -26000
+    };
 
     /*----------------------------------------------------------------------------
     ; EXTERNAL FUNCTION REFERENCES

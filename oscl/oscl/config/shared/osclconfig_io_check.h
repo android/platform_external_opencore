@@ -28,6 +28,24 @@ Otherwise it should be set to 0.
 #endif
 
 /**
+OSCL_HAS_ANSI_64BIT_FILE_IO_SUPPORT macro should be set to 1 if
+the target platform supports the 64-bit ANSI C file I/O functions (fopen, fread, etc).
+Otherwise it should be set to 0.
+*/
+#ifndef OSCL_HAS_ANSI_64BIT_FILE_IO_SUPPORT
+#error "ERROR: OSCL_HAS_ANSI_64BIT_FILE_IO_SUPPORT has to be defined to either 1 or 0"
+#endif
+
+/**
+OSCL_HAS_MSWIN_FILE_IO_SUPPORT macro should be set to 1 if
+the target platform supports the ANSI C file I/O functions (fopen, fread, etc).
+Otherwise it should be set to 0.
+*/
+#ifndef OSCL_HAS_MSWIN_FILE_IO_SUPPORT
+#error "ERROR: OSCL_HAS_MSWIN_FILE_IO_SUPPORT has to be defined to either 1 or 0"
+#endif
+
+/**
 OSCL_HAS_SYMBIAN_COMPATIBLE_IO_FUNCTION macro should be set to 1 if
 the target platform supports the Symbian file I/O functions (RFile, RFs).
 Otherwise it should be set to 0.

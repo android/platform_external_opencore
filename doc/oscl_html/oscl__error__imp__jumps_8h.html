@@ -61,16 +61,16 @@ Implemenation of using Setjmp / Longjmp.
 
 <p>
 <b>Value:</b><div class="fragment"><pre>__r=<a class="code" href="group__osclerror.html#a11">OsclErrNone</a>;\
-        {\
-                <a class="code" href="classOsclErrorTrapImp.html">OsclErrorTrapImp</a>* __trap=<a class="code" href="classOsclErrorTrapImp.html#d0">OsclErrorTrapImp::Trap</a>();\
-                <span class="keywordflow">if</span>(!__trap){__s;}<span class="keywordflow">else</span>{\
-                <span class="keywordtype">int</span> __tr=setjmp(*(__trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#m0">iJumpData</a>-&gt;<a class="code" href="classOsclJump.html#a1">Top</a>()));\
-                <span class="keywordflow">if</span> (__tr==0)\
-                {__s;}\
-                <span class="keywordflow">else</span> <span class="keywordflow">if</span> (__tr==<a class="code" href="classinternalLeave.html">internalLeave</a>)\
-                {__r=__trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#m1">iLeave</a>;}\
-                __trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#a0">UnTrap</a>();}\
-        }</pre></div>    </td>
+    {\
+        <a class="code" href="classOsclErrorTrapImp.html">OsclErrorTrapImp</a>* __trap=<a class="code" href="classOsclErrorTrapImp.html#d0">OsclErrorTrapImp::Trap</a>();\
+        <span class="keywordflow">if</span>(!__trap){__s;}<span class="keywordflow">else</span>{\
+        <span class="keywordtype">int</span> __tr=setjmp(*(__trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#m0">iJumpData</a>-&gt;<a class="code" href="classOsclJump.html#a1">Top</a>()));\
+        <span class="keywordflow">if</span> (__tr==0)\
+        {__s;}\
+        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (__tr==<a class="code" href="classinternalLeave.html">internalLeave</a>)\
+        {__r=__trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#m1">iLeave</a>;}\
+        __trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#a0">UnTrap</a>();}\
+    }</pre></div>    </td>
   </tr>
 </table>
 <a name="a4" doxytag="oscl_error_imp_jumps.h::_PV_TRAP_NO_TLS"></a><p>
@@ -104,16 +104,16 @@ Implemenation of using Setjmp / Longjmp.
 
 <p>
 <b>Value:</b><div class="fragment"><pre>__r=<a class="code" href="group__osclerror.html#a11">OsclErrNone</a>;\
-        {\
-                <a class="code" href="classOsclErrorTrapImp.html">OsclErrorTrapImp</a>* __trap=<a class="code" href="classOsclErrorTrapImp.html#d1">OsclErrorTrapImp::TrapNoTls</a>(__trapimp);\
-                <span class="keywordflow">if</span>(!__trap){__s;}<span class="keywordflow">else</span>{\
-                <span class="keywordtype">int</span> __tr=setjmp(*(__trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#m0">iJumpData</a>-&gt;<a class="code" href="classOsclJump.html#a1">Top</a>()));\
-                <span class="keywordflow">if</span> (__tr==0)\
-                {__s;}\
-                <span class="keywordflow">else</span> <span class="keywordflow">if</span> (__tr==<a class="code" href="classinternalLeave.html">internalLeave</a>)\
-                {__r=__trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#m1">iLeave</a>;}\
-                __trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#a0">UnTrap</a>();}\
-        }</pre></div>    </td>
+    {\
+        <a class="code" href="classOsclErrorTrapImp.html">OsclErrorTrapImp</a>* __trap=<a class="code" href="classOsclErrorTrapImp.html#d1">OsclErrorTrapImp::TrapNoTls</a>(__trapimp);\
+        <span class="keywordflow">if</span>(!__trap){__s;}<span class="keywordflow">else</span>{\
+        <span class="keywordtype">int</span> __tr=setjmp(*(__trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#m0">iJumpData</a>-&gt;<a class="code" href="classOsclJump.html#a1">Top</a>()));\
+        <span class="keywordflow">if</span> (__tr==0)\
+        {__s;}\
+        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (__tr==<a class="code" href="classinternalLeave.html">internalLeave</a>)\
+        {__r=__trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#m1">iLeave</a>;}\
+        __trap-&gt;<a class="code" href="classOsclErrorTrapImp.html#a0">UnTrap</a>();}\
+    }</pre></div>    </td>
   </tr>
 </table>
 <a name="a2" doxytag="oscl_error_imp_jumps.h::PVError_DoLeave"></a><p>
@@ -144,7 +144,7 @@ Implemenation of using Setjmp / Longjmp.
   </tr>
 </table>
 <hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

@@ -106,9 +106,13 @@ class pvframemetadata_async_test_getmetadata : public pvframemetadata_async_test
             iMode = aMode;
             iSourceContextData = NULL;
             iBestThumbNailMode = aBestThumbNailMode;
+            iEndOfDataReceived = false;
         }
 
-        ~pvframemetadata_async_test_getmetadata() {}
+        ~pvframemetadata_async_test_getmetadata()
+        {
+            iEndOfDataReceived = false;
+        }
 
         void StartTest();
         void Run();
@@ -161,6 +165,7 @@ class pvframemetadata_async_test_getmetadata : public pvframemetadata_async_test
         // Handle to the logger node
         PVLogger* iLogger;
         PVLogger* iPerfLogger;
+        bool iEndOfDataReceived;
 };
 
 
@@ -397,9 +402,13 @@ class pvframemetadata_async_test_get10secframe : public pvframemetadata_async_te
                 , iCurrentCmdId(0)
         {
             iTestCaseName = _STRLIT_CHAR("Get Frame at 10sec");
+            iEndOfDataReceived = false;
         }
 
-        ~pvframemetadata_async_test_get10secframe() {}
+        ~pvframemetadata_async_test_get10secframe()
+        {
+            iEndOfDataReceived = false;
+        }
 
         void StartTest();
         void Run();
@@ -436,6 +445,7 @@ class pvframemetadata_async_test_get10secframe : public pvframemetadata_async_te
 
         Oscl_FileServer iFS;
         Oscl_File iFrameFile;
+        bool iEndOfDataReceived;
 };
 
 

@@ -32,7 +32,8 @@
 #include "oscl_stdstring.h"
 #include "oscl_snprintf.h"
 #include "pvmi_kvp_util.h"
-
+#include "pvmf_local_data_source.h"
+#include "pvmf_source_context_data.h"
 
 static const char PVWAVMETADATA_ALL_METADATA_KEY[] = "all";
 
@@ -56,6 +57,7 @@ PVMFWAVFFParserNode::PVMFWAVFFParserNode(int32 aPriority) :
         iOutPort(NULL),
         iLogger(NULL),
         iCmdRespPort(NULL),
+        iFileHandle(NULL),
         iWAVParser(NULL),
         iExtensionRefCount(0)
 {
@@ -626,7 +628,7 @@ bool PVMFWAVFFParserNode::RetrieveTrackData(PVWAVFFNodeTrackPortInfo& aTrackPort
     {
         if (errcode == OsclErrNoResources)
         {
-            aTrackPortInfo.iTrackDataMemoryPool->notifyfreechunkavailable(aTrackPortInfo);	// Enable flag to receive event when next deallocate() is called on pool
+            aTrackPortInfo.iTrackDataMemoryPool->notifyfreechunkavailable(aTrackPortInfo);  // Enable flag to receive event when next deallocate() is called on pool
             return false;
         }
         else if (errcode == OsclErrNoMemory)
@@ -665,7 +667,7 @@ bool PVMFWAVFFParserNode::RetrieveTrackData(PVWAVFFNodeTrackPortInfo& aTrackPort
 
     else
     {
-        aTrackPortInfo.iMediaDataMemPool->notifyfreechunkavailable(aTrackPortInfo);		// Enable flag to receive event when next deallocate() is called on pool
+        aTrackPortInfo.iMediaDataMemPool->notifyfreechunkavailable(aTrackPortInfo);     // Enable flag to receive event when next deallocate() is called on pool
         return false;
     }
 
@@ -1084,7 +1086,7 @@ void PVMFWAVFFParserNode::DoInit(PVMFWAVFFNodeCommand& aCmd)
                          return;);
     if (iWAVParser)
     {
-        if (iWAVParser->InitWavParser(iFilename, &iFileServer) != PVWAVPARSER_OK)
+        if (iWAVParser->InitWavParser(iFilename, &iFileServer, iFileHandle) != PVWAVPARSER_OK)
         {
             PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_ERR,
                             (0, "PVMFWAVFFParserNode::DoInit Error attempting to initialize the WAV parser"));
@@ -1656,6 +1658,12 @@ bool PVMFWAVFFParserNode::ReleaseAllPorts()
 
 void PVMFWAVFFParserNode::CleanupFileSource()
 {
+    if (iFileHandle)
+    {
+        OSCL_DELETE(iFileHandle);
+        iFileHandle = NULL;
+    }
+
     iAvailableMetadataKeys.clear();
 
     if (iWAVParser)
@@ -1812,6 +1820,40 @@ PVMFStatus PVMFWAVFFParserNode::SetSourceInitializationData(OSCL_wString& aSourc
     }
 
     iFilename = aSourceURL;
+    if (aSourceData)
+    {
+        PVInterface* pvInterface = OSCL_STATIC_CAST(PVInterface*, aSourceData);
+        PVInterface* localDataSrc = NULL;
+        PVUuid localDataSrcUuid(PVMF_LOCAL_DATASOURCE_UUID);
+        // Check if it is a local file
+        if (pvInterface->queryInterface(localDataSrcUuid, localDataSrc))
+        {
+            PVMFLocalDataSource* opaqueData = OSCL_STATIC_CAST(PVMFLocalDataSource*, localDataSrc);
+            if (opaqueData->iFileHandle)
+            {
+                iFileHandle = OSCL_NEW(OsclFileHandle, (*(opaqueData->iFileHandle)));
+            }
+        }
+        else
+        {
+            PVInterface* sourceDataContext = NULL;
+            PVInterface* commonDataContext = NULL;
+            PVUuid sourceContextUuid(PVMF_SOURCE_CONTEXT_DATA_UUID);
+            PVUuid commonContextUuid(PVMF_SOURCE_CONTEXT_DATA_COMMON_UUID);
+            if (pvInterface->queryInterface(sourceContextUuid, sourceDataContext))
+            {
+                if (sourceDataContext->queryInterface(commonContextUuid, commonDataContext))
+                {
+                    PVMFSourceContextDataCommon* cContext =
+                        OSCL_STATIC_CAST(PVMFSourceContextDataCommon*, commonDataContext);
+                    if (cContext->iFileHandle)
+                    {
+                        iFileHandle = OSCL_NEW(OsclFileHandle, (*(cContext->iFileHandle)));
+                    }
+                }
+            }
+        }
+    }
     return PVMFSuccess;
 }
 
@@ -3077,7 +3119,7 @@ PVMFStatus PVMFWAVFFParserNode::PushBackMetadataKeys(PVMFMetadataList *&aKeyList
 {
     int32 leavecode = 0;
     OSCL_TRY(leavecode, aKeyListPtr->push_back(iAvailableMetadataKeys[aLcv]));
-    OSCL_FIRST_CATCH_ANY(leavecode,	PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFRMFFParserNode::DoGetMetadataKeys() Memory allocation failure when copying metadata key"));return PVMFErrNoMemory);
+    OSCL_FIRST_CATCH_ANY(leavecode, PVLOGGER_LOGMSG(PVLOGMSG_INST_HLDBG, iLogger, PVLOGMSG_ERR, (0, "PVMFRMFFParserNode::DoGetMetadataKeys() Memory allocation failure when copying metadata key")); return PVMFErrNoMemory);
 
     return PVMFSuccess;
 }

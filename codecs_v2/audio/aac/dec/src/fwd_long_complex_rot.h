@@ -17,14 +17,7 @@
  */
 /*
 
- Pathname: ./include/fwd_long_complex_rot.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                   Date:
- Description:
+ Filename: fwd_long_complex_rot.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

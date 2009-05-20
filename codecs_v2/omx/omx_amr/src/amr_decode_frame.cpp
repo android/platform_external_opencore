@@ -25,17 +25,15 @@
 #include "cnst.h"
 #include "d_homing.h"
 
-#define ETS_INPUT_FRAME_SIZE 500
 
 //Compressed audio formats
-#define PV_AMR_IETF					0
-#define PV_AMR_IF2					1
-#define PV_AMR_ETS                  2
-#define PV_AMR_IETF_COMBINED        3
+#define PV_AMR_IETF                 0
+#define PV_AMR_IF2                  1
+#define PV_AMR_IETF_COMBINED        2
 
 //WB modes
-#define PV_AMRWB_IETF_PAYLOAD        4
-#define PV_AMRWB_IETF		         5
+#define PV_AMRWB_IETF_PAYLOAD        3
+#define PV_AMRWB_IETF                4
 
 
 // decoder returns -1 if there is an error in decoding a frame
@@ -47,68 +45,68 @@
 // Find frame size for each frame type
 static const OMX_S32 WBIETFFrameSize[16] =
 {
-    18		// AMR-WB 6.60 Kbps
-    , 24		// AMR-WB 8.85 Kbps
-    , 33		// AMR-WB 12.65 Kbps
-    , 37		// AMR-WB 14.25 Kbps
-    , 41		// AMR-WB 15.85 Kbps
-    , 47		// AMR-WB 18.25 Kbps
-    , 51		// AMR-WB 19.85 Kbps
-    , 59		// AMR-WB 23.05 Kbps
-    , 61		// AMR-WB 23.85 Kbps
-    , 6		// AMR-WB SID
+    18      // AMR-WB 6.60 Kbps
+    , 24        // AMR-WB 8.85 Kbps
+    , 33        // AMR-WB 12.65 Kbps
+    , 37        // AMR-WB 14.25 Kbps
+    , 41        // AMR-WB 15.85 Kbps
+    , 47        // AMR-WB 18.25 Kbps
+    , 51        // AMR-WB 19.85 Kbps
+    , 59        // AMR-WB 23.05 Kbps
+    , 61        // AMR-WB 23.85 Kbps
+    , 6     // AMR-WB SID
     , 1
     , 1
     , 1
     , 1
-    , 1		// WBAMR Frame No Data
-    , 1		// WBAMR Frame No Data
+    , 1     // WBAMR Frame No Data
+    , 1     // WBAMR Frame No Data
 };
 
 //////////////////////////////////////////////////////////////////////////////////
 static const OMX_S32 IETFFrameSize[16] =
 {
-    13		// AMR 4.75 Kbps
-    , 14		// AMR 5.15 Kbps
-    , 16		// AMR 5.90 Kbps
-    , 18		// AMR 6.70 Kbps
-    , 20		// AMR 7.40 Kbps
-    , 21		// AMR 7.95 Kbps
-    , 27		// AMR 10.2 Kbps
-    , 32		// AMR 12.2 Kbps
-    , 6		// GsmAmr comfort noise
-    , 7		// Gsm-Efr comfort noise
-    , 6		// IS-641 comfort noise
-    , 6		// Pdc-Efr comfort noise
-    , 1		// future use; 0 length but set to 1 to skip the frame type byte
-    , 1		// future use; 0 length but set to 1 to skip the frame type byte
-    , 1		// future use; 0 length but set to 1 to skip the frame type byte
-    , 1		// AMR Frame No Data
+    13      // AMR 4.75 Kbps
+    , 14        // AMR 5.15 Kbps
+    , 16        // AMR 5.90 Kbps
+    , 18        // AMR 6.70 Kbps
+    , 20        // AMR 7.40 Kbps
+    , 21        // AMR 7.95 Kbps
+    , 27        // AMR 10.2 Kbps
+    , 32        // AMR 12.2 Kbps
+    , 6     // GsmAmr comfort noise
+    , 7     // Gsm-Efr comfort noise
+    , 6     // IS-641 comfort noise
+    , 6     // Pdc-Efr comfort noise
+    , 1     // future use; 0 length but set to 1 to skip the frame type byte
+    , 1     // future use; 0 length but set to 1 to skip the frame type byte
+    , 1     // future use; 0 length but set to 1 to skip the frame type byte
+    , 1     // AMR Frame No Data
 };
 
 static const OMX_S32 IF2FrameSize[16] =
 {
-    13		// AMR 4.75 Kbps
-    , 14		// AMR 5.15 Kbps
-    , 16		// AMR 5.90 Kbps
-    , 18		// AMR 6.70 Kbps
-    , 19		// AMR 7.40 Kbps
-    , 21		// AMR 7.95 Kbps
-    , 26		// AMR 10.2 Kbps
-    , 31		// AMR 12.2 Kbps
-    , 6		// AMR Frame SID
-    , 6		// AMR Frame GSM EFR SID
-    , 6		// AMR Frame TDMA EFR SID
-    , 6		// AMR Frame PDC EFR SID
-    , 1		// future use; 0 length but set to 1 to skip the frame type byte
-    , 1		// future use; 0 length but set to 1 to skip the frame type byte
-    , 1		// future use; 0 length but set to 1 to skip the frame type byte
-    , 1		// AMR Frame No Data
+    13      // AMR 4.75 Kbps
+    , 14        // AMR 5.15 Kbps
+    , 16        // AMR 5.90 Kbps
+    , 18        // AMR 6.70 Kbps
+    , 19        // AMR 7.40 Kbps
+    , 21        // AMR 7.95 Kbps
+    , 26        // AMR 10.2 Kbps
+    , 31        // AMR 12.2 Kbps
+    , 6     // AMR Frame SID
+    , 6     // AMR Frame GSM EFR SID
+    , 6     // AMR Frame TDMA EFR SID
+    , 6     // AMR Frame PDC EFR SID
+    , 1     // future use; 0 length but set to 1 to skip the frame type byte
+    , 1     // future use; 0 length but set to 1 to skip the frame type byte
+    , 1     // future use; 0 length but set to 1 to skip the frame type byte
+    , 1     // AMR Frame No Data
 };
 
 OmxAmrDecoder::OmxAmrDecoder()
 {
-    iOmxInputFormat = PV_AMR_ETS;
+    iOmxInputFormat = PV_AMR_IETF;
     iAMRFramesinTOC = 0;
     iAmrInitFlag = 0;
     iNarrowBandFlag = OMX_TRUE;
@@ -176,12 +174,7 @@ OMX_BOOL OmxAmrDecoder::AmrDecInit(OMX_AUDIO_AMRFRAMEFORMATTYPE aInFormat, OMX_A
     iCodecExternals->quality = 1;  // assume its always good data
 
     //Extracting the input format information
-    if (OMX_AUDIO_AMRFrameFormatConformance == aInFormat)
-    {
-        iOmxInputFormat = PV_AMR_ETS;
-        iCodecExternals->input_format = ETS;
-    }
-    else if (OMX_AUDIO_AMRFrameFormatIF2 == aInFormat)
+    if (OMX_AUDIO_AMRFrameFormatIF2 == aInFormat)
     {
         iOmxInputFormat = PV_AMR_IF2;
         iCodecExternals->input_format = IF2;
@@ -257,7 +250,7 @@ void OmxAmrDecoder::ResetDecoder()
 void OmxAmrDecoder::GetStartPointsForIETFCombinedMode
 (OMX_U8* aPtrIn, OMX_U32 aLength, OMX_U8* &aTocPtr, OMX_S32* aNumOfBytes)
 {
-    OMX_U8 Fbit		= 0x80;
+    OMX_U8 Fbit     = 0x80;
     OMX_U32 FrameCnt = 0;
 
     /* Count number of frames */
@@ -275,15 +268,12 @@ void OmxAmrDecoder::GetStartPointsForIETFCombinedMode
 /* Decode function for all the input formats */
 OMX_BOOL OmxAmrDecoder::AmrDecodeFrame(OMX_S16* aOutputBuffer,
                                        OMX_U32* aOutputLength, OMX_U8** aInBuffer,
-                                       OMX_U32* aInBufSize, OMX_S32* aIsFirstBuffer,
-                                       OMX_BOOL* aResizeFlag)
+                                       OMX_U32* aInBufSize, OMX_S32* aIsFirstBuffer)
 {
     OMX_BOOL Status = OMX_TRUE;
 
-    *aResizeFlag = OMX_FALSE;
 
-    OMX_S32 ByteOffset, ii;
-    TXFrameType  TxFrame;
+    OMX_S32 ByteOffset;
 
     /* 3GPP Frame Type Buffer */
     Frame_Type_3GPP FrameType3gpp;
@@ -297,8 +287,6 @@ OMX_BOOL OmxAmrDecoder::AmrDecodeFrame(OMX_S16* aOutputBuffer,
     /* Reset speech_bits buffer pointer */
     OMX_U8* pSpeechBits = *aInBuffer;
     OMX_U8 *pTocPtr;
-    //ETS mode requires a 16-bit pointer
-    OMX_S16* pEtsSpeechBits = (OMX_S16*) * aInBuffer;
 
     if ((PV_AMR_IETF_COMBINED == iOmxInputFormat) || (PV_AMR_IETF == iOmxInputFormat)
             || (PV_AMRWB_IETF_PAYLOAD == iOmxInputFormat) || (PV_AMRWB_IETF == iOmxInputFormat))
@@ -424,116 +412,8 @@ OMX_BOOL OmxAmrDecoder::AmrDecodeFrame(OMX_S16* aOutputBuffer,
             Status = OMX_FALSE; // treat buffer overrun as an error
         }
     }
-    else if (PV_AMR_ETS == iOmxInputFormat)
-    {
-        FrameType3gpp = (enum Frame_Type_3GPP) pSpeechBits[(1 + MAX_SERIAL_SIZE) * 2];
-
-        /* Get TX frame type */
-        TxFrame = (TXFrameType)pEtsSpeechBits[0];
-
-        /* Convert TX frame type to RX frame type */
-        switch (TxFrame)
-        {
-            case TX_SPEECH_GOOD:
-                pEtsSpeechBits[0] = RX_SPEECH_GOOD;
-                break;
-
-            case TX_SPEECH_DEGRADED:
-                pEtsSpeechBits[0] = RX_SPEECH_DEGRADED;
-                break;
-
-            case TX_SPEECH_BAD:
-                pEtsSpeechBits[0] = RX_SPEECH_BAD;
-                break;
-
-            case TX_SID_FIRST:
-                pEtsSpeechBits[0] = RX_SID_FIRST;
-                break;
-
-            case TX_SID_UPDATE:
-                pEtsSpeechBits[0] = RX_SID_UPDATE;
-                break;
-
-            case TX_SID_BAD:
-                pEtsSpeechBits[0] = RX_SID_BAD;
-                break;
-
-            case TX_ONSET:
-                pEtsSpeechBits[0] = RX_ONSET;
-                break;
-
-            case TX_NO_DATA:
-                pEtsSpeechBits[0] = RX_NO_DATA;
-                FrameType3gpp = (enum Frame_Type_3GPP) iCodecExternals->mode;
-                break;
-
-            default:
-                break;
-        }
-
-        /* if homed: check if this frame is another homing frame */
-        if (1 == iDecHomingFlagOld)
-        {
-            /* only check until end of first subframe */
-            iDecHomingFlag = decoder_homing_frame_test_first(
-                                 (OMX_S16*) & pEtsSpeechBits[1],
-                                 (enum Mode) FrameType3gpp);
-        }
-
-        /* produce encoder homing frame if homed & input=decoder homing frame */
-        if ((0 != iDecHomingFlag) && (0 != iDecHomingFlagOld))
-        {
-            for (ii = 0; ii < L_FRAME; ii++)
-            {
-                aOutputBuffer[ii] = EHF_MASK;
-            }
-        }
-        else
-        {
-            /* Set up pointer to the start of frame to be decoded */
-            iCodecExternals->mode = (uint32)FrameType3gpp;
-            iCodecExternals->pInputBuffer = (uint8*) pEtsSpeechBits;
-            iCodecExternals->pOutputBuffer = (int16*) aOutputBuffer;
-
-            ByteOffset = iAudioAmrDecoder->ExecuteL(iCodecExternals);
-
-            if (PV_GSMAMR_DECODE_STATUS_ERR == ByteOffset)
-            {
-                Status = OMX_FALSE;
-            }
-
-        }
-
-        /* if not homed: check whether current frame is a homing frame */
-        if (0 == iDecHomingFlagOld)
-        {
-            /* check whole frame */
-            iDecHomingFlag = decoder_homing_frame_test(
-                                 (OMX_S16*) & pEtsSpeechBits[1],
-                                 (enum Mode) FrameType3gpp);
-        }
-        /* reset decoder if current frame is a homing frame */
-        if (0 != iDecHomingFlag)
-        {
-            iAudioAmrDecoder->ResetDecoderL();
-        }
-
-        iDecHomingFlagOld = iDecHomingFlag;
-
-        //Input buffer requirement per frame is constant at ETS_INPUT_FRAME_SIZE
-        *aInBufSize -= ETS_INPUT_FRAME_SIZE;
-        *aInBuffer += ETS_INPUT_FRAME_SIZE;
-        *aOutputLength = iOutputFrameSize;
-    }
 
     (*aIsFirstBuffer)++;
-
-    //After decoding the first frame, modify all the input & output port settings
-    if (1 == *aIsFirstBuffer)
-    {
-        //Set the Resize flag to send the port settings changed callback
-        *aResizeFlag = OMX_TRUE;
-    }
 
     return Status;
 }

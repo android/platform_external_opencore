@@ -17,21 +17,7 @@
  */
 /*
 
- Pathname: s_BITS.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Remove unused field.
-
- Description: Change buffer type from UInt to UInt32, makes API much easier
-              to understand and describe, and getbits is faster on TI C55X
-              if the buffer is 32 bits instead of 16.
-
- Description: Change buffer type from UInt32 to UChar.
-
- Who:                                   Date:
- Description:
+ Filename: s_bits.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

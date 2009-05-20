@@ -187,24 +187,24 @@
 00187 
 00188 <span class="comment">//Some handy macros</span>
 <a name="l00189"></a><a class="code" href="group__osclproc.html#a7">00189</a> <span class="preprocessor">#define QUE_ITER_BEGIN(_type,_qname)\</span>
-00190 <span class="preprocessor">        if (!_qname.IsEmpty())\</span>
-00191 <span class="preprocessor">        {\</span>
-00192 <span class="preprocessor">                OsclDoubleRunner &lt;_type&gt; iter(_qname);\</span>
-00193 <span class="preprocessor">                _type *item;\</span>
-00194 <span class="preprocessor">                for (iter.SetToHead(); ;iter++)\</span>
-00195 <span class="preprocessor">                {\</span>
-00196 <span class="preprocessor">                        item=iter;\</span>
+00190 <span class="preprocessor">    if (!_qname.IsEmpty())\</span>
+00191 <span class="preprocessor">    {\</span>
+00192 <span class="preprocessor">        OsclDoubleRunner &lt;_type&gt; iter(_qname);\</span>
+00193 <span class="preprocessor">        _type *item;\</span>
+00194 <span class="preprocessor">        for (iter.SetToHead(); ;iter++)\</span>
+00195 <span class="preprocessor">        {\</span>
+00196 <span class="preprocessor">            item=iter;\</span>
 00197 <span class="preprocessor"> </span>
 <a name="l00198"></a><a class="code" href="group__osclproc.html#a8">00198</a> <span class="preprocessor"></span><span class="preprocessor">#define QUE_ITER_END(_qname)\</span>
-00199 <span class="preprocessor">                        if (_qname.IsTail(item))\</span>
-00200 <span class="preprocessor">                                break;\</span>
-00201 <span class="preprocessor">                }\</span>
-00202 <span class="preprocessor">        }</span>
+00199 <span class="preprocessor">            if (_qname.IsTail(item))\</span>
+00200 <span class="preprocessor">                break;\</span>
+00201 <span class="preprocessor">        }\</span>
+00202 <span class="preprocessor">    }</span>
 00203 <span class="preprocessor"></span>
 00204 <span class="preprocessor">#endif</span>
 00205 <span class="preprocessor"></span>
 </pre></div><hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

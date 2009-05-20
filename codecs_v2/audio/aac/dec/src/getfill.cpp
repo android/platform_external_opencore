@@ -17,33 +17,8 @@
  */
 /*
 
- Pathname: getfill.c
+ Filename: getfill.cpp
  Funtions: getfill
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  1. Used template to re-organize function and filled out
-                  Input/Output and Function definition section.
-               2. Optimized code.
-
- Description:  Made the following changes based on review comments.
-               1. Exchanging MODIFYING and RETURNING on line 87, 88.
-               2. Added MPEG reference.
-               3. Changed "fill" to "pass over", "bitstreams are" to
-                  "bitstream is" in FUNCTION DESCRIPTION section.
-               4. Fixed tabs.
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9 or less.
-
- Who:                                   Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -134,28 +109,6 @@
     ENDIF
 
     pInputStream->usedBits += cnt * LEN_BYTE;
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-        stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-        name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

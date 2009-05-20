@@ -16,32 +16,38 @@ SRCDIR := ../../src
 INCSRCDIR := ../../include
 
 SRCS :=	ccrgb16toyuv420.cpp \
-	ccrgb24torgb16.cpp \
 	ccyuv422toyuv420.cpp \
-	cczoomrotation12.cpp \
 	cczoomrotation16.cpp \
-	cczoomrotation24.cpp \
-	cczoomrotation32.cpp \
 	cczoomrotationbase.cpp \
-	cpvvideoblend.cpp \
 	ccrgb24toyuv420.cpp \
 	ccrgb12toyuv420.cpp \
 	ccyuv420semiplnrtoyuv420plnr.cpp \
 	ccyuv420toyuv420semi.cpp
 
+ifneq ($(ARCHITECTURE),android)
+SRCS += cczoomrotation12.cpp \
+        cczoomrotation24.cpp \
+        cczoomrotation32.cpp \
+	ccrgb24torgb16.cpp \
+	cpvvideoblend.cpp
+endif
+
 HDRS :=  cczoomrotationbase.h \
-	cczoomrotation12.h \
 	cczoomrotation16.h \
-	cczoomrotation24.h \
-	cczoomrotation32.h \
 	ccrgb16toyuv420.h \
-	ccrgb24torgb16.h \
 	ccyuv422toyuv420.h \
 	colorconv_config.h \
-	pvvideoblend.h \
 	ccrgb24toyuv420.h \
 	ccrgb12toyuv420.h \
 	ccyuv420semitoyuv420.h \
 	ccyuv420toyuv420semi.h
+
+ifneq ($(ARCHITECTURE),android)
+SRCS += cczoomrotation12.h \
+        cczoomrotation24.h \
+        cczoomrotation32.h \
+	ccrgb24torgb16.h \
+	pvvideoblend.h
+endif
 
 include $(MK)/library.mk

@@ -10,6 +10,7 @@ XINCDIRS += ../../../common/include
 
 XINCDIRS +=  ../../config/core 
 
+XCXXFLAGS := $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 
 SRCDIR := ../../src
 INCSRCDIR := ../../include

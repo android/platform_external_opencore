@@ -17,16 +17,8 @@
  */
 /*
 
- Pathname: ms_synt.h
+ Filename: ms_synt.h
 
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Updated to reflect new functionality of ms_synt() routine.
- (ms_synt now only decodes one grouped scalefactor band at a time.)
-
- Who:                       Date:
- Description:
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 

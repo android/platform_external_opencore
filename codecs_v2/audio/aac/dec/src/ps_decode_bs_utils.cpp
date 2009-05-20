@@ -17,20 +17,13 @@
  */
 /*
 
- Filename: ps_decode_bs_utils.c
+ Filename: ps_decode_bs_utils.cpp
 
   Functions:
         GetNrBitsAvailable
         differential_Decoding
         map34IndexTo20
         limitMinMax
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS

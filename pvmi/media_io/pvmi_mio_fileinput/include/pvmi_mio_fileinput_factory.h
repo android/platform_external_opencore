@@ -52,6 +52,8 @@ class PvmiMIOFileInputSettings
             iFrameHeight = 144;
             iFrameWidth = 176;
             iFrameRate = 15;
+            iTotalSamples = 0;
+            iAverageBitRate = 0;
         }
 
         PvmiMIOFileInputSettings(const PvmiMIOFileInputSettings& aSettings)
@@ -68,6 +70,10 @@ class PvmiMIOFileInputSettings
             iFileName = aSettings.iFileName;
             iLogFileName = aSettings.iLogFileName;
             iTextFileName = aSettings.iTextFileName;
+            iAudioLogFileName = aSettings.iAudioLogFileName;
+            iVideoLogFileName = aSettings.iVideoLogFileName;
+            iTotalSamples = aSettings.iTotalSamples;
+            iAverageBitRate = aSettings.iAverageBitRate;
         }
 
         ~PvmiMIOFileInputSettings()
@@ -81,6 +87,8 @@ class PvmiMIOFileInputSettings
             iFrameHeight = 144;
             iFrameWidth = 176;
             iFrameRate = 15;
+            iTotalSamples = 0;
+            iAverageBitRate = 0;
         }
 
         // General settings
@@ -89,6 +97,8 @@ class PvmiMIOFileInputSettings
         OSCL_wStackString<512> iFileName;
         OSCL_wStackString<512> iLogFileName;
         OSCL_wStackString<512> iTextFileName;
+        OSCL_wStackString<512> iAudioLogFileName;
+        OSCL_wStackString<512> iVideoLogFileName;
         // Settings for audio files
         uint32 iSamplingFrequency;
         uint32 iNumChannels;
@@ -98,6 +108,8 @@ class PvmiMIOFileInputSettings
         uint32 iFrameHeight;
         uint32 iFrameWidth;
         OsclFloat iFrameRate;
+        uint32 iTotalSamples;
+        uint32 iAverageBitRate;
 };
 
 

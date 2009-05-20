@@ -17,42 +17,8 @@
  */
 /*
 
- Pathname: infoinit.c
+ Filename: infoinit.cpp
 
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  Pass eight_short_info and the array 'sfbwidth128'.
-               Change function arguments' names for clarity
-
- Description:  move sfb definitions to "sfb.h", and "sfb.c", eliminated
-               the function "huffbookinit.c"
-
- Description:  Remove initialization of the never used array,
-               pFrameInfo->group_offs
-
- Description:
- (1) Changed "stdinc.h" to <stdlib.h> - this avoids linking in the math
- library and stdio.h.  (All for just defining the NULL pointer macro)
-
- (2) Updated copyright header.
-
- Description: Updated the SW template to include the full pathname to the
- source file and a slightly modified copyright header.
-
- Description: Addresses of constant vectors are now found by means of a
-              switch statement, this solve linking problem when using the
-              /ropi option (Read-only position independent) for some
-              compilers
-
- Who:                               Date:
- Description:
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -138,19 +104,6 @@
         win_seq_info[window_seq].members = setup values;
 
     ENDFOR
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE:
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES:
 
 ------------------------------------------------------------------------------
 */

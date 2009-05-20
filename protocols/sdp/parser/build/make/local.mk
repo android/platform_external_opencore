@@ -5,7 +5,7 @@ LOCAL_PATH := $(call get_makefile_dir)
 include $(MK)/clear.mk
 
 TARGET := pvsdpparser
-
+XCXXFLAGS := $(FLAG_COMPILE_WARNINGS_AS_ERRORS)
 
 
 

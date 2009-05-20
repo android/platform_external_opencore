@@ -281,15 +281,6 @@ void PVAuthorEngineNodeUtility::NodeCommandCompleted(const PVMFCmdResp& aRespons
     PVLOGGER_LOGMSG(PVLOGMSG_INST_REL, iLogger, PVLOGMSG_STACK_TRACE,
                     (0, "PVAuthorEngineNodeUtility::NodeCommandCompleted"));
 
-    if (aResponse.GetCmdStatus() != PVMFSuccess)
-    {
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_REL, iLogger, PVLOGMSG_ERR,
-                        (0, "PVAuthorEngineNodeUtility::NodeCommandCompleted: Command failed - context=0x%x, status=0x%x",
-                         aResponse.GetContext(), aResponse.GetCmdStatus()));
-        CompleteUtilityCmd(iCmdQueue[0], aResponse.GetCmdStatus());
-        return;
-    }
-
     if (iCmdQueue.empty())
     {
         LOG_ERR((0, "PVAuthorEngineNodeUtility::NodeCommandCompleted: Error - Empty command queue"));
@@ -298,8 +289,17 @@ void PVAuthorEngineNodeUtility::NodeCommandCompleted(const PVMFCmdResp& aRespons
         return;
     }
 
-    PVMFStatus status = PVMFSuccess;
     PVAENodeUtilCmd cmd = iCmdQueue[0];
+    if (aResponse.GetCmdStatus() != PVMFSuccess)
+    {
+        PVLOGGER_LOGMSG(PVLOGMSG_INST_REL, iLogger, PVLOGMSG_ERR,
+                        (0, "PVAuthorEngineNodeUtility::NodeCommandCompleted: Command failed - context=0x%x, status=0x%x",
+                         aResponse.GetContext(), aResponse.GetCmdStatus()));
+        CompleteUtilityCmd(cmd, aResponse.GetCmdStatus());
+        return;
+    }
+
+    PVMFStatus status = PVMFSuccess;
     switch (cmd.iType)
     {
         case PVAENU_CMD_CONNECT:
@@ -440,7 +440,7 @@ void PVAuthorEngineNodeUtility::CompleteUtilityCmd(const PVAENodeUtilCmd& aCmd, 
     {
         LOG_ERR((0, "PVAuthorEngineNodeUtility::CompleteUtilityCmd: Error - Observer not set"));
         OSCL_LEAVE(OsclErrGeneral);
-        // return;	This statement was removed to avoid compiler warning for Unreachable Code
+        // return; This statement was removed to avoid compiler warning for Unreachable Code
     }
 
     if (iCmdQueue.empty() || aCmd.iType != iCmdQueue[0].iType)

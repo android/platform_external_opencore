@@ -32,6 +32,7 @@
 
 #define PVMFOMXVIDEODECNODE_NUM_CMD_IN_POOL 8
 #define PVOMXVIDEODECMAXNUMDPBFRAMESPLUS1 17
+#define PVOMXVIDEO_MAX_SUPPORTED_FORMAT 12
 
 #define PVOMX_VIDEO_DECODER_H264 "video_decoder.avc"
 #define PVOMX_VIDEO_DECODER_MPEG4 "video_decoder.mpeg4"
@@ -99,7 +100,7 @@ typedef enum
     PV_MPEG_VIDEO_ADVANCE_SIMPLE_PROFILE,
     PV_MPEG_VIDEO_FINE_GRANUALITY_SCALABLE_PROFILE,
     PV_MPEG_VIDEO_RESERVED_PROFILE
-}PVMF_MPEGVideoProfileType;
+} PVMF_MPEGVideoProfileType;
 
 typedef enum
 {
@@ -111,7 +112,7 @@ typedef enum
     PV_MPEG_VIDEO_LEVEL5,
     PV_MPEG_VIDEO_LEVEL_UNKNOWN
 
-}PVMF_MPEGVideoLevelType;
+} PVMF_MPEGVideoLevelType;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -124,7 +125,7 @@ typedef enum
 #define PVMF_BASEMIMETYPE "pvxxx"
 
 class PVMFOMXVideoDecNode
-            : public PVMFOMXBaseDecNode
+        : public PVMFOMXBaseDecNode
 {
     public:
         PVMFOMXVideoDecNode(int32 aPriority);

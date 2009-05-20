@@ -15,26 +15,6 @@
  * and limitations under the License.
  * -------------------------------------------------------------------
  */
-/*
-------------------------------------------------------------------------------
-   PacketVideo Corp.
-   MP3 Decoder Library
-
-   Filename: pvmp3_equalizer.h
-
-   Date: 09/21/2007
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:
-
-------------------------------------------------------------------------------
- INCLUDE DESCRIPTION
-
-------------------------------------------------------------------------------
-*/
-
 /*----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
@@ -87,8 +67,8 @@ extern "C"
 #endif
 
     void pvmp3_equalizer(int32 *inData,
-                         e_equalization equalizerType,
-                         int32 *pt_work_buff);
+    e_equalization equalizerType,
+    int32 *pt_work_buff);
 
 #ifdef __cplusplus
 }

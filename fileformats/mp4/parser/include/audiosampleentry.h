@@ -173,6 +173,29 @@ class AudioSampleEntry : public SampleEntry
         ESDAtom *_pes;
 };
 
+class SpeechSampleEntry3GPP2 : public Atom
+{
+    public:
+        SpeechSampleEntry3GPP2(MP4_FF_FILE *fp, uint32 size, uint32 type);
+        virtual ~SpeechSampleEntry3GPP2() {};
+        void SetMimeType(uint32 aBoxType);
+        void GetMimeType(OSCL_String& aMimeType)
+        {
+            aMimeType = iMimeType;
+        }
+
+    private:
+        OSCL_HeapString<OsclMemAllocator> iMimeType;
+        uint16 _data_reference_index;
+        uint16 _timeScale;
+        uint32 _vendor;
+        uint8  _decoder_version;
+        uint8  _frames_per_sample;
+        //valid only for VMR
+        uint16 _mode_set;
+        uint8  _media_sampling_frequency;
+};
+
 
 #endif // AUDIOSAMPLEENTRY_H_INCLUDED
 

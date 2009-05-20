@@ -114,11 +114,6 @@
 #include "imp3ff.h"  // Includes for the core file format mp3 parser library
 #endif
 
-#ifndef USE_CML2_CONFIG
-#ifndef PVMF_MP3FFPASER_NODE_CONFIG_H_INCLUDED
-#include "pvmf_mp3ffparser_node_config.h"
-#endif
-#endif
 
 #if PV_HAS_SHOUTCAST_SUPPORT_ENABLED // include scsp only when SHOUTCAST support is enabled
 #ifndef PVMF_SHOUTCAST_STREAM_PARSER_H_INCLUDED
@@ -207,7 +202,7 @@ class PVMFSubNodeContainerBaseMp3
 };
 
 class PVMFCPMContainerMp3: public PVMFSubNodeContainerBaseMp3,
-            public PVMFCPMStatusObserver
+        public PVMFCPMStatusObserver
 {
     public:
         PVMFCPMContainerMp3()
@@ -375,19 +370,19 @@ class PVMp3DurationCalculator : public OsclTimerObject
 * */
 
 class PVMFMP3FFParserNode : public OsclTimerObject,
-            public PVMFNodeInterface,
-            public PVMFDataSourceInitializationExtensionInterface,
-            public PVMFTrackSelectionExtensionInterface,
-            public PVMFMetadataExtensionInterface,
-            public OsclMemPoolFixedChunkAllocatorObserver,
-            public PVMFFormatProgDownloadSupportInterface,
-            public PvmiDataStreamObserver,
-            public PVMIDatastreamuserInterface,
-            public OsclMemPoolResizableAllocatorObserver,
-            public PvmfDataSourcePlaybackControlInterface,
-            public PVMFCPMPluginLicenseInterface
+        public PVMFNodeInterface,
+        public PVMFDataSourceInitializationExtensionInterface,
+        public PVMFTrackSelectionExtensionInterface,
+        public PVMFMetadataExtensionInterface,
+        public OsclMemPoolFixedChunkAllocatorObserver,
+        public PVMFFormatProgDownloadSupportInterface,
+        public PvmiDataStreamObserver,
+        public PVMIDatastreamuserInterface,
+        public OsclMemPoolResizableAllocatorObserver,
+        public PvmfDataSourcePlaybackControlInterface,
+        public PVMFCPMPluginLicenseInterface
 #if PV_HAS_SHOUTCAST_SUPPORT_ENABLED
-            , public PVMFMetadataUpdatesObserver
+        , public PVMFMetadataUpdatesObserver
 #endif
 {
     public:

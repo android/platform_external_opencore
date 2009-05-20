@@ -25,7 +25,7 @@ class init_test : public test_base
 {
     public:
         init_test(bool aUseProxy, int aMaxRuns, bool isSIP = false) :
-                test_base(PVMF_MIME_AMR_IF2, PVMF_MIME_AMR_IF2, PVMF_MIME_YUV420, PVMF_MIME_YUV420, aUseProxy, aMaxRuns, isSIP) {  };
+                test_base(aUseProxy, aMaxRuns, isSIP) {  };
 
         ~init_test()
         {
@@ -36,9 +36,6 @@ class init_test : public test_base
         void Run();
 
         void DoCancel();
-
-        void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
-
 
     private:
         virtual void InitSucceeded();

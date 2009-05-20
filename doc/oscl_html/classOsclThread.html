@@ -13,7 +13,7 @@
 <tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
 <tr><td nowrap align=right valign=top>OSCL_IMPORT_REF&nbsp;</td><td valign=bottom><a class="el" href="classOsclThread.html#a0">OsclThread</a> ()</td></tr>
 <tr><td nowrap align=right valign=top>OSCL_IMPORT_REF&nbsp;</td><td valign=bottom><a class="el" href="classOsclThread.html#a1">~OsclThread</a> ()</td></tr>
-<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF <a class="el" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a>&nbsp;</td><td valign=bottom><a class="el" href="classOsclThread.html#a2">Create</a> (<a class="el" href="oscl__thread_8h.html#a0">TOsclThreadFuncPtr</a> func, int32 stack_size, <a class="el" href="osclconfig__proc__unix__android_8h.html#a7">TOsclThreadFuncArg</a> argument, <a class="el" href="oscl__thread_8h.html#a10">OsclThread_State</a> state=Start_on_creation)</td></tr>
+<tr><td nowrap align=right valign=top>OSCL_IMPORT_REF <a class="el" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a>&nbsp;</td><td valign=bottom><a class="el" href="classOsclThread.html#a2">Create</a> (<a class="el" href="oscl__thread_8h.html#a0">TOsclThreadFuncPtr</a> func, int32 stack_size, <a class="el" href="osclconfig__proc__unix__android_8h.html#a7">TOsclThreadFuncArg</a> argument, <a class="el" href="oscl__thread_8h.html#a10">OsclThread_State</a> state=Start_on_creation, bool oIsJoinable=false)</td></tr>
 <tr><td nowrap align=right valign=top>OSCL_IMPORT_REF <a class="el" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a>&nbsp;</td><td valign=bottom><a class="el" href="classOsclThread.html#a3">GetPriority</a> (<a class="el" href="oscl__thread_8h.html#a11">OsclThreadPriority</a> &amp;refThreadPriority)</td></tr>
 <tr><td nowrap align=right valign=top>OSCL_IMPORT_REF <a class="el" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a>&nbsp;</td><td valign=bottom><a class="el" href="classOsclThread.html#a4">SetPriority</a> (<a class="el" href="oscl__thread_8h.html#a11">OsclThreadPriority</a> ePriority)</td></tr>
 <tr><td nowrap align=right valign=top>OSCL_IMPORT_REF <a class="el" href="classOsclProcStatus.html#s35">OsclProcStatus::eOsclProcError</a>&nbsp;</td><td valign=bottom><a class="el" href="classOsclThread.html#a5">Suspend</a> ()</td></tr>
@@ -158,7 +158,13 @@ true if equal. </dl>    </td>
           <td></td>
           <td></td>
           <td class="md" nowrap><a class="el" href="oscl__thread_8h.html#a10">OsclThread_State</a>&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>state</em> = Start_on_creation</td>
+          <td class="mdname" nowrap>&nbsp; <em>state</em> = Start_on_creation, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>oIsJoinable</em> = false</td>
         </tr>
         <tr>
           <td></td>
@@ -181,7 +187,7 @@ true if equal. </dl>    </td>
 This routine will create a thread. The thread may be launched immediately or may be created in a suspended state and launched with a Resume call.<dl compact><dt><b>Parameters: </b></dt><dd>
 <table border=0 cellspacing=2 cellpadding=0>
 <tr><td valign=top><em>func</em>&nbsp;</td><td>
-= Name of the thread Function stack_size = Size of the thread stack. If zero, then the platform-specific default stack size will be used. argument = Argument to be passed to thread function state = Enumeration which specifies the state of the thread on creation with values Running and Suspend. Note: the Suspend option may not be available on all platforms. If it is not supported, the Create call will return INVALID_PARAM_ERROR. </td></tr>
+= Name of the thread Function stack_size = Size of the thread stack. If zero, then the platform-specific default stack size will be used. argument = Argument to be passed to thread function state = Enumeration which specifies the state of the thread on creation with values Running and Suspend. Note: the Suspend option may not be available on all platforms. If it is not supported, the Create call will return INVALID_PARAM_ERROR. oIsJoinable = A boolean, which when set to true, creates a Joinable thread. The default value for this is false, which creates a Detached thread. Note 1: When a joinable thread is created, it is imperative to call thread Terminate. Otherwise, it would cause a memory leak. Note 2: This is currently available only for platforms that have support for pthreads. </td></tr>
 </table>
 </dl><dl compact><dt><b>Returns: </b></dt><dd>
 eOsclProcError </dl>    </td>
@@ -500,7 +506,7 @@ Error code </dl>    </td>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="oscl__thread_8h-source.html">oscl_thread.h</a></ul>
 <hr size="1"><img src="pvlogo_small.jpg"><address style="align: right;"><small>OSCL API</small>
-<address style="align: left;"><small>Posting Version: OPENCORE_20090310 </small>
+<address style="align: left;"><small>Posting Version: OPENCORE_20090517 </small>
 </small></address>
 </body>
 </html>

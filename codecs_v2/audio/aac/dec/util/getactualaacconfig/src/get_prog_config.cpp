@@ -17,36 +17,7 @@
  */
 /*
 
- Pathname: get_prog_config.c
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description:  Modified from original shareware code
-
- Description:  Modified to pass variables by reference to eliminate use
-               of global variables.
-
- Description:  Move functionality from get_adif_header for when to change
-               the current program configuration, add a temporary config
-               to read into, clean up code, change function prototype.
-
- Description:  Clean up
-
- Description:  Update per review comments
-
- Description:  Fix double 'could'
-
- Description:  change enter_mc_info to set_mc_info
-
- Description:  update comments
-
- Description: Replace some instances of getbits to get9_n_lessbits
-			  when the number of bits read is 9 or less and get1bits
-			  when only 1 bit is read.
-
- Who:                                   Date:
- Description:
+ Filename: get_prog_config.cpp
 
 ------------------------------------------------------------------------------
  INPUT AND OUTPUT DEFINITIONS
@@ -377,28 +348,6 @@
     MODIFY( pVars->winmap )
     MODIFY( pVars->SFBWidth128 )
     RETURN (status)
-
-------------------------------------------------------------------------------
- RESOURCES USED
-   When the code is written for a specific target processor the
-     the resources used should be documented below.
-
- STACK USAGE: [stack count for this module] + [variable to represent
-          stack usage for each subroutine called]
-
-     where: [stack usage variable] = stack usage for [subroutine
-         name] (see [filename].ext)
-
- DATA MEMORY USED: x words
-
- PROGRAM MEMORY USED: x words
-
- CLOCK CYCLES: [cycle count equation for this module] + [variable
-           used to represent cycle count for each subroutine
-           called]
-
-     where: [cycle count variable] = cycle count for [subroutine
-        name] (see [filename].ext)
 
 ------------------------------------------------------------------------------
 */

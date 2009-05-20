@@ -17,16 +17,10 @@
  */
 /*
 
- Pathname: ./src/digit_reversal_tables.c
+ Filename: digit_reversal_tables.cpp
  Funtions:
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:                       Date:
- Description:
-
-  ------------------------------------------------------------------------------
  MODULE DESCRIPTION
 
   Tables for digit reverse operation

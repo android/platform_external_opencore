@@ -20,25 +20,6 @@
   Name: PVMP4AudioDecoder_API.h
 
 ------------------------------------------------------------------------------
- REVISION HISTORY
-
- Description: Change buffer type to UChar
-
- Description: Update comments
-
- Description: Updated a comment that MT did not get around to
- before the end of his contract.
-
- Description: add a new API to decode audioSpecificConfig separately, the same
-              change has been made on 32-bits version (element \main\2)
-
- Description: add a new API to reset history buffer, the same change has been
-              made on a 32-bits version(element \nd.e0352.wjin\1)
-
- Who:                                       Date:
- Description:
-
-------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
 
  Main header file for the Packet Video MP4/AAC audio decoder library. The
@@ -158,7 +139,7 @@ extern "C"
         AAC = 0,
         AACPLUS,
         ENH_AACPLUS
-    }STREAMTYPE;
+    } STREAMTYPE;
 
     /*----------------------------------------------------------------------------
     ; STRUCTURES TYPEDEF'S

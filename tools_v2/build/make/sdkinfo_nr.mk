@@ -146,7 +146,7 @@ $(sdkinfo_header_filename): sdkinfo_rule_file_data := $(file_data)
 $(sdkinfo_header_filename): sdkinfo_rule_data := $(data)
 
 $(sdkinfo_header_filename): $(sdkinfo_target_prereq)
-	@$(ECHO) "Writing $@..."
+	@$(ECHO) "[make] Writing $@..."
 	@$(ECHO) "#ifndef $(sdkinfo_rule_hdr_macro)_H_INCLUDED" > $@
 	@$(ECHO) "#define $(sdkinfo_rule_hdr_macro)_H_INCLUDED" >> $@
 	@$(ECHO) "" >> $@

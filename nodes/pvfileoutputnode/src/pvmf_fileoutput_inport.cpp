@@ -745,6 +745,16 @@ PVMFStatus PVMFFileOutputInPort::VerifyAndSetParameter(PvmiKvp* aKvp, bool aSetP
         LOG_DEBUG((0, "PVMFFileOutputInPort::VerifyAndSetParameter: framerate=%d", aKvp->value.uint32_value));
         return PVMFSuccess;
     }
+    else if (pv_mime_strcmp(aKvp->key, VIDEO_AVC_OUTPUT_SPS_CUR_VALUE) == 0)
+    {
+        LOG_DEBUG((0, "PVMFFileOutputInPort::VerifyAndSetParameter: AVC SPS NAL"));
+        return PVMFSuccess;
+    }
+    else if (pv_mime_strcmp(aKvp->key, VIDEO_AVC_OUTPUT_PPS_CUR_VALUE) == 0)
+    {
+        LOG_DEBUG((0, "PVMFFileOutputInPort::VerifyAndSetParameter: AVC PPS NAL"));
+        return PVMFSuccess;
+    }
 
     LOG_ERR((0, "PVMFFileOutputInPort::VerifyAndSetParameter: Error - Unsupported parameter"));
     return PVMFFailure;

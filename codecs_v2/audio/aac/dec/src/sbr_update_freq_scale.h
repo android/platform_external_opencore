@@ -18,17 +18,8 @@
 /*
 
  Filename: sbr_update_freq_scale.h
- Funtions:
+ Functions:
     get_dse
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-
- Who:                                   Date: MM/DD/YYYY
- Description:
-------------------------------------------------------------------------------
-
 
  ----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED

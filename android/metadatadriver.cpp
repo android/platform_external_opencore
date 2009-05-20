@@ -72,10 +72,12 @@ MetadataDriver::MetadataDriver(uint32 mode): OsclActiveObject(OsclActiveObject::
 #if BEST_THUMBNAIL_MODE
     mLocalDataSource = NULL;
 #endif
+    mSourceContextData = NULL;
     mCmdId = 0;
     mContextObjectRefValue = 0x5C7A; // Some random number
     mContextObject = mContextObjectRefValue;
     mMediaAlbumArt = NULL;
+    mSharedFd = -1;
     mVideoFrame = NULL;
     for (uint32 i = 0; i < NUM_METADATA_KEYS; ++i) {
         mMetadataValues[i][0] = '\0';
@@ -114,10 +116,10 @@ int MetadataDriver::retrieverThread()
     return 0;
 }
 
-
 MetadataDriver::~MetadataDriver()
 {
     LOGV("destructor");
+
     mCmdId = 0;
     delete mVideoFrame;
     mVideoFrame = NULL;
@@ -125,6 +127,8 @@ MetadataDriver::~MetadataDriver()
     mMediaAlbumArt = NULL;
     delete mSyncSem;
     mSyncSem = NULL;
+
+    closeSharedFdIfNecessary();
 }
 
 const char* MetadataDriver::extractMetadata(int keyCode)
@@ -183,7 +187,7 @@ bool MetadataDriver::containsSupportedKey(const OSCL_HeapString<OsclMemAllocator
 void MetadataDriver::trimKeys()
 {
     LOGV("trimKeys");
-    dumpkeystolog(mMetadataKeyList);
+    //dumpkeystolog(mMetadataKeyList);
     mActualMetadataKeyList.clear();
     uint32 n = mMetadataKeyList.size();
     mActualMetadataKeyList.reserve(n);
@@ -361,14 +365,43 @@ void MetadataDriver::clearCache()
     }
 }
 
+status_t MetadataDriver::setDataSourceFd(
+        int fd, int64_t offset, int64_t length) {
+    LOGV("setDataSourceFd");
+
+    closeSharedFdIfNecessary();
+
+    if (offset < 0 || length < 0) {
+        if (offset < 0) {
+            LOGE("negative offset (%lld)", offset);
+        }
+        if (length < 0) {
+            LOGE("negative length (%lld)", length);
+        }
+        return INVALID_OPERATION;
+    }
+
+    mSharedFd = dup(fd);
+
+    char url[80];
+    sprintf(url, "sharedfd://%d:%lld:%lld", mSharedFd, offset, length);
+
+    clearCache();
+    return doSetDataSource(url);
+}
+
 status_t MetadataDriver::setDataSource(const char* srcUrl)
 {
-    LOGV("setDataSource");
+    LOGV("setDataSource %s", srcUrl);
+
+    closeSharedFdIfNecessary();
+
     // Don't let somebody trick us in to reading some random block of memory.
-    if (strncmp("mem://", srcUrl, 6) == 0) {
+    if (strncmp("sharedfd://", srcUrl, 11) == 0) {
         LOGE("setDataSource: Invalid url (%s).", srcUrl);
         return UNKNOWN_ERROR;
     }
+
     if (oscl_strlen(srcUrl) > MAX_STRING_LENGTH) {
         LOGE("setDataSource: Data source url length (%d) is too long.", oscl_strlen(srcUrl));
         return UNKNOWN_ERROR;
@@ -389,10 +422,9 @@ status_t MetadataDriver::doSetDataSource(const char* dataSrcUrl)
         mFrameSelector.iFrameInfo.iFrameIndex=0;
 #endif
     }
+    mDataSourceUrl = dataSrcUrl;
+
     mIsSetDataSourceSuccessful = false;
-    oscl_wchar tmpWCharBuf[MAX_STRING_LENGTH];
-    oscl_UTF8ToUnicode(dataSrcUrl, oscl_strlen(dataSrcUrl), tmpWCharBuf, sizeof(tmpWCharBuf));
-    mDataSourceUrl.set(tmpWCharBuf, oscl_strlen(tmpWCharBuf));
     mSyncSem = new OsclSemaphore();
     mSyncSem->Create();
     createThreadEtc(MetadataDriver::startDriverThread, this, "PVMetadataRetriever");
@@ -434,9 +466,16 @@ void MetadataDriver::doColorConversion()
         delete bitmap;
         return;
     }
+
+    // When passing parameters in Init call of ColorConverter library
+    // we need to take care of passing even width and height to the CC.
+    // If Width is odd then making it even as below
+    // will reduce the pitch by 1. This may result in a tilted image for
+    // clips with odd width.
     ColorConvertBase* colorConverter = ColorConvert16::NewL();
     if (!colorConverter ||
-        !colorConverter->Init(width, height, width, displayWidth, displayHeight, displayWidth, CCROTATE_NONE) ||
+       !colorConverter->Init(((width)&(~1)), ((height)&(~1)), ((width)&(~1)), displayWidth, ((displayHeight)&(~1)), ((displayWidth)&(~1)), CCROTATE_NONE) ||
+        //!colorConverter->Init(width, height, width, displayWidth, displayHeight, displayWidth, CCROTATE_NONE) ||
         !colorConverter->SetMode(1) ||
         !colorConverter->Convert(mFrameBuffer, (uint8*)bitmap->getPixels())) {
         LOGE("failed to do color conversion");
@@ -494,8 +533,13 @@ void MetadataDriver::handleAddDataSource()
     LOGV("handleAddDataSource");
     int error = 0;
     mDataSource = new PVPlayerDataSourceURL;
+
+    OSCL_wHeapString<OsclMemAllocator> wFileName;
+    oscl_wchar tmpWCharBuf[MAX_STRING_LENGTH];
+    oscl_UTF8ToUnicode(mDataSourceUrl, oscl_strlen(mDataSourceUrl), tmpWCharBuf, sizeof(tmpWCharBuf));
+    wFileName.set(tmpWCharBuf, oscl_strlen(tmpWCharBuf));
     if (mDataSource) {
-        mDataSource->SetDataSourceURL(mDataSourceUrl);
+        mDataSource->SetDataSourceURL(wFileName);
         mDataSource->SetDataSourceFormatType((char*)PVMF_MIME_FORMAT_UNKNOWN);
         if (mMode & GET_FRAME_ONLY) {
 #if BEST_THUMBNAIL_MODE
@@ -504,6 +548,21 @@ void MetadataDriver::handleAddDataSource()
             mLocalDataSource->iIntent = BITMASK_PVMF_SOURCE_INTENT_THUMBNAILS;
             mDataSource->SetDataSourceContextData((OsclAny*)mLocalDataSource);
 #endif
+        }
+        int fd;
+        long long offset;
+        long long len;
+        if (sscanf(mDataSourceUrl, "sharedfd://%d:%lld:%lld", &fd, &offset, &len) == 3) {
+            LOGV("handleSetDataSource- parsed sharedfd = %d, %lld, %lld",fd, offset, len);
+            lseek64(fd, offset, SEEK_CUR);
+            TOsclFileHandle fh = fdopen(fd,"rb");
+            OsclFileHandle* sourcehandle = new OsclFileHandle(fh);
+            delete mSourceContextData;
+            mSourceContextData = new PVMFSourceContextData();
+            mSourceContextData->EnableCommonSourceContext();
+            PVMFSourceContextDataCommon* commonContext = mSourceContextData->CommonData();
+            commonContext->iFileHandle = sourcehandle;
+            mDataSource->SetDataSourceContextData((OsclAny*)mSourceContextData);
         }
         OSCL_TRY(error, mCmdId = mUtil->AddDataSource(*mDataSource, (OsclAny*)&mContextObject));
         OSCL_FIRST_CATCH_ANY(error, handleCommandFailure());
@@ -533,6 +592,9 @@ void MetadataDriver::handleCleanUp()
 #endif
     delete mDataSource;
     mDataSource = NULL;
+
+    delete mSourceContextData;
+    mSourceContextData = NULL;
 
     OsclExecScheduler *sched=OsclExecScheduler::Current();
     if (sched) {
@@ -685,7 +747,16 @@ void MetadataDriver::HandleInformationalEvent(const PVAsyncInformationalEvent& a
 }
 
 
+void MetadataDriver::closeSharedFdIfNecessary() {
+    if (mSharedFd >= 0) {
+        close(mSharedFd);
+        mSharedFd = -1;
+    }
+}
+
 //------------------------------------------------------------------------------
+#undef LOG_TAG
+#define LOG_TAG "PVMetadataRetriever"
 #include <media/PVMetadataRetriever.h>
 
 namespace android {
@@ -705,6 +776,7 @@ PVMetadataRetriever::PVMetadataRetriever()
 PVMetadataRetriever::~PVMetadataRetriever()
 {
     LOGV("destructor");
+
     Mutex::Autolock lock(mLock);
     delete mMetadataDriver;
 }
@@ -712,6 +784,7 @@ PVMetadataRetriever::~PVMetadataRetriever()
 status_t PVMetadataRetriever::setDataSource(const char *url)
 {
     LOGV("setDataSource (%s)", url);
+
     Mutex::Autolock lock(mLock);
     if (mMetadataDriver == 0) {
         LOGE("No MetadataDriver available");
@@ -727,21 +800,14 @@ status_t PVMetadataRetriever::setDataSource(const char *url)
 status_t PVMetadataRetriever::setDataSource(int fd, int64_t offset, int64_t length)
 {
     LOGV("setDataSource fd(%d), offset(%lld), length(%lld)", fd, offset, length);
+
     Mutex::Autolock lock(mLock);
     if (mMetadataDriver == 0) {
         LOGE("No MetadataDriver available");
         return INVALID_OPERATION;
     }
-    if (offset < 0 || length < 0) {
-        if (offset < 0) {
-            LOGE("negative offset (%lld)", offset);
-        }
-        if (length < 0) {
-            LOGE("negative length (%lld)", length);
-        }
-        return INVALID_OPERATION;
-    }
-    return NO_ERROR;
+
+    return mMetadataDriver->setDataSourceFd(fd, offset, length);
 }
 
 status_t PVMetadataRetriever::setMode(int mode)

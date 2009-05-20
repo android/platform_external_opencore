@@ -3,8 +3,7 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
 	src/amr_decode_frame.cpp \
- 	src/omx_amr_component.cpp \
- 	src/d_homing.cpp
+ 	src/omx_amr_component.cpp
 
 
 LOCAL_MODULE := libomx_amr_component_lib
@@ -35,7 +34,6 @@ LOCAL_COPY_HEADERS_TO := $(PV_COPY_HEADERS_TO)
 
 LOCAL_COPY_HEADERS := \
 	include/amr_dec.h \
- 	include/omx_amr_component.h \
- 	include/d_homing.h
+ 	include/omx_amr_component.h
 
 include $(BUILD_STATIC_LIBRARY)

@@ -17,15 +17,7 @@
  */
 /*
 
- Pathname: ./include/fft_rx4.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
-        (1) modified definition of w_64rx4 from Int to Int16
-
- Who:                   Date:
- Description:
+ Filename: fft_rx4.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION

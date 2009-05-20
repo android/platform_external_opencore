@@ -57,14 +57,14 @@ OSCL_EXPORT_REF  IMpeg4File *IMpeg4File::readMP4File(OSCL_wString& aFilename,
         PVMFCPMPluginAccessInterfaceFactory* aCPMAccessFactory,
         OsclFileHandle* aHandle,
         uint32 aParsingMode,
-        Oscl_FileServer* aFileServSession)
+        Oscl_FileServer* aFileServSession,
+        bool aOpenFileOncePerTrack)
 {
     //optimized mode is not supported if multiple file ptrs are not allowed
     if (aParsingMode == 1)
     {
-#ifndef OPEN_FILE_ONCE_PER_TRACK
-        aParsingMode = 0;
-#endif
+        if (!aOpenFileOncePerTrack)
+            aParsingMode = 0;
     }
 
     MP4_FF_FILE fileStruct;
@@ -85,35 +85,37 @@ OSCL_EXPORT_REF  IMpeg4File *IMpeg4File::readMP4File(OSCL_wString& aFilename,
     AtomUtils::getCurrentFileSize(fp, fileSize);
     fp->_fileSize = (int32)fileSize;
 
-    Mpeg4File *mp4 = NULL;
-    PV_MP4_FF_NEW(fp->auditCB, Mpeg4File, (fp, aFilename, aParsingMode), mp4);
+    AtomUtils::seekFromStart(fp, 0);
 
-#ifdef OPEN_FILE_ONCE_PER_TRACK
-    if (mp4 != NULL)
+    Mpeg4File *mp4 = NULL;
+    PV_MP4_FF_NEW(fp->auditCB, Mpeg4File, (fp, aFilename, aParsingMode, aOpenFileOncePerTrack), mp4);
+
+    if (aOpenFileOncePerTrack)
     {
-        if (!mp4->IsMovieFragmentsPresent())
+        if (mp4 != NULL)
         {
-            if (fp->IsOpen())
-                AtomUtils::CloseMP4File(fp);
+            if (!mp4->IsMovieFragmentsPresent())
+            {
+                if (fp->IsOpen())
+                    AtomUtils::CloseMP4File(fp);
+            }
         }
     }
-#endif
-
     return mp4;
 }
 
-//IsXXXable	*******************************************
+//IsXXXable *******************************************
 /*
 oMoovBeforeMdat: as input,
-				1: IsMobileMP4 check
-				2: IsPseudoStreamable() check
-				3: IsPlayable() check
-				 as output,
-				 1:	moov atom is in front of the mdat atom
-				 0: there is mdat atom in front of moov atom
+                1: IsMobileMP4 check
+                2: IsPseudoStreamable() check
+                3: IsPlayable() check
+                 as output,
+                 1: moov atom is in front of the mdat atom
+                 0: there is mdat atom in front of moov atom
 
 metaDataSize   : as input. It is the available data size
-				 as output. It is the offset of the file where the full "moov" atom is available.
+                 as output. It is the offset of the file where the full "moov" atom is available.
 */
 
 OSCL_EXPORT_REF
@@ -150,7 +152,7 @@ IMpeg4File::IsXXXable(OSCL_wString& filename,
 
     fp->_fileSize = fileSize;
 
-    int32	mp4ErrorCode = DEFAULT_ERROR;
+    int32   mp4ErrorCode = DEFAULT_ERROR;
 
     uint32 atomType = UNKNOWN_ATOM;
     uint32 atomSize = 0;
@@ -181,13 +183,13 @@ IMpeg4File::IsXXXable(OSCL_wString& filename,
             uint32 majorBrand = _pFileTypeAtom->getMajorBrand();
 
             //conversion
-            if (majorBrand == MOBILE_MP4)	*pMajorBrand = EMMP4;
-            else if (majorBrand == BRAND_3GPP4)	*pMajorBrand = E3GP4;
-            else if (majorBrand == BRAND_3GPP5)	*pMajorBrand = E3GP5;
-            else if (majorBrand == BRAND_ISOM)	*pMajorBrand = EISOM;
-            else if (majorBrand == BRAND_MP41)	*pMajorBrand = EMP41;
-            else if (majorBrand == BRAND_MP42)	*pMajorBrand = EMP42;
-            else if (majorBrand == WMF_BRAND)	*pMajorBrand = EWMF;
+            if (majorBrand == MOBILE_MP4)   *pMajorBrand = EMMP4;
+            else if (majorBrand == BRAND_3GPP4) *pMajorBrand = E3GP4;
+            else if (majorBrand == BRAND_3GPP5) *pMajorBrand = E3GP5;
+            else if (majorBrand == BRAND_ISOM)  *pMajorBrand = EISOM;
+            else if (majorBrand == BRAND_MP41)  *pMajorBrand = EMP41;
+            else if (majorBrand == BRAND_MP42)  *pMajorBrand = EMP42;
+            else if (majorBrand == WMF_BRAND)   *pMajorBrand = EWMF;
             // else .. set to ENoFileType above
 
             Oscl_Vector<uint32, OsclMemAllocator> *compatibleBrandArray =
@@ -201,13 +203,13 @@ IMpeg4File::IsXXXable(OSCL_wString& filename,
                 {
                     uint32 compatibleBrand = (*compatibleBrandArray)[i];
 
-                    if (compatibleBrand == MOBILE_MP4)			*pCompatibleBrands |= EMMP4;
-                    else if (compatibleBrand == BRAND_3GPP4)	*pCompatibleBrands |= E3GP4;
-                    else if (compatibleBrand == BRAND_3GPP5)	*pCompatibleBrands |= E3GP5;
-                    else if (compatibleBrand == BRAND_ISOM)		*pCompatibleBrands |= EISOM;
-                    else if (compatibleBrand == BRAND_MP41)		*pCompatibleBrands |= EMP41;
-                    else if (compatibleBrand == BRAND_MP42)		*pCompatibleBrands |= EMP42;
-                    else if (compatibleBrand == WMF_BRAND)		*pCompatibleBrands |= EWMF;
+                    if (compatibleBrand == MOBILE_MP4)          *pCompatibleBrands |= EMMP4;
+                    else if (compatibleBrand == BRAND_3GPP4)    *pCompatibleBrands |= E3GP4;
+                    else if (compatibleBrand == BRAND_3GPP5)    *pCompatibleBrands |= E3GP5;
+                    else if (compatibleBrand == BRAND_ISOM)     *pCompatibleBrands |= EISOM;
+                    else if (compatibleBrand == BRAND_MP41)     *pCompatibleBrands |= EMP41;
+                    else if (compatibleBrand == BRAND_MP42)     *pCompatibleBrands |= EMP42;
+                    else if (compatibleBrand == WMF_BRAND)      *pCompatibleBrands |= EWMF;
                 }
             }
         }//end of get file type
@@ -288,7 +290,7 @@ IMpeg4File::IsXXXable(OSCL_wString& filename,
                 break;
             }
             else
-            {	//error: other atoms should not be in file level
+            {   //error: other atoms should not be in file level
                 mp4ErrorCode = DEFAULT_ERROR;
                 break;
             }
@@ -325,7 +327,7 @@ IMpeg4File::IsXXXable(MP4_FF_FILE_REFERENCE fileRef,
     AtomUtils::seekFromStart(fp, 0);
     fp->_fileSize = fileSize;
 
-    int32	mp4ErrorCode = DEFAULT_ERROR;
+    int32   mp4ErrorCode = DEFAULT_ERROR;
 
     uint32 atomType = UNKNOWN_ATOM;
     uint32 atomSize = 0;
@@ -356,13 +358,13 @@ IMpeg4File::IsXXXable(MP4_FF_FILE_REFERENCE fileRef,
             uint32 majorBrand = _pFileTypeAtom->getMajorBrand();
 
             //conversion
-            if (majorBrand == MOBILE_MP4)	*pMajorBrand = EMMP4;
-            else if (majorBrand == BRAND_3GPP4)	*pMajorBrand = E3GP4;
-            else if (majorBrand == BRAND_3GPP5)	*pMajorBrand = E3GP5;
-            else if (majorBrand == BRAND_ISOM)	*pMajorBrand = EISOM;
-            else if (majorBrand == BRAND_MP41)	*pMajorBrand = EMP41;
-            else if (majorBrand == BRAND_MP42)	*pMajorBrand = EMP42;
-            else if (majorBrand == WMF_BRAND)	*pMajorBrand = EWMF;
+            if (majorBrand == MOBILE_MP4)   *pMajorBrand = EMMP4;
+            else if (majorBrand == BRAND_3GPP4) *pMajorBrand = E3GP4;
+            else if (majorBrand == BRAND_3GPP5) *pMajorBrand = E3GP5;
+            else if (majorBrand == BRAND_ISOM)  *pMajorBrand = EISOM;
+            else if (majorBrand == BRAND_MP41)  *pMajorBrand = EMP41;
+            else if (majorBrand == BRAND_MP42)  *pMajorBrand = EMP42;
+            else if (majorBrand == WMF_BRAND)   *pMajorBrand = EWMF;
 
 
             Oscl_Vector<uint32, OsclMemAllocator> *compatibleBrandArray =
@@ -377,13 +379,13 @@ IMpeg4File::IsXXXable(MP4_FF_FILE_REFERENCE fileRef,
                 {
                     uint32 compatibleBrand = (*compatibleBrandArray)[i];
 
-                    if (compatibleBrand == MOBILE_MP4)			*pCompatibleBrands |= EMMP4;
-                    else if (compatibleBrand == BRAND_3GPP4)	*pCompatibleBrands |= E3GP4;
-                    else if (compatibleBrand == BRAND_3GPP5)	*pCompatibleBrands |= E3GP5;
-                    else if (compatibleBrand == BRAND_ISOM)		*pCompatibleBrands |= EISOM;
-                    else if (compatibleBrand == BRAND_MP41)		*pCompatibleBrands |= EMP41;
-                    else if (compatibleBrand == BRAND_MP42)		*pCompatibleBrands |= EMP42;
-                    else if (compatibleBrand == WMF_BRAND)		*pCompatibleBrands |= EWMF;
+                    if (compatibleBrand == MOBILE_MP4)          *pCompatibleBrands |= EMMP4;
+                    else if (compatibleBrand == BRAND_3GPP4)    *pCompatibleBrands |= E3GP4;
+                    else if (compatibleBrand == BRAND_3GPP5)    *pCompatibleBrands |= E3GP5;
+                    else if (compatibleBrand == BRAND_ISOM)     *pCompatibleBrands |= EISOM;
+                    else if (compatibleBrand == BRAND_MP41)     *pCompatibleBrands |= EMP41;
+                    else if (compatibleBrand == BRAND_MP42)     *pCompatibleBrands |= EMP42;
+                    else if (compatibleBrand == WMF_BRAND)      *pCompatibleBrands |= EWMF;
                 }
             }
         }//end of get file type
@@ -464,7 +466,7 @@ IMpeg4File::IsXXXable(MP4_FF_FILE_REFERENCE fileRef,
                 break;
             }
             else
-            {	//error: other atoms should not be in file level
+            {   //error: other atoms should not be in file level
                 mp4ErrorCode = DEFAULT_ERROR;
                 break;
             }
@@ -593,6 +595,7 @@ IMpeg4File::GetMetaDataSize(PVMFCPMPluginAccessInterfaceFactory* aCPMAccessFacto
 
     if (fileSize <= DEFAULT_ATOM_SIZE)
     {
+        AtomUtils::CloseMP4File(fp);
         return INSUFFICIENT_DATA;
     }
 
@@ -671,5 +674,15 @@ IMpeg4File::GetMetaDataSize(PVMFCPMPluginAccessInterfaceFactory* aCPMAccessFacto
 OSCL_EXPORT_REF void IMpeg4File::DestroyMP4FileObject(IMpeg4File* aMP4FileObject)
 {
     Mpeg4File* ptr = OSCL_STATIC_CAST(Mpeg4File*, aMP4FileObject);
+
+    if (ptr)
+    {
+        MP4_FF_FILE * fp = ptr->_fp;
+        if (fp)
+        {
+            if (fp->IsOpen())
+                AtomUtils::CloseMP4File(fp);
+        }
+    }
     PV_MP4_FF_DELETE(NULL, Mpeg4File, ptr);
 }

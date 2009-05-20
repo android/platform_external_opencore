@@ -17,13 +17,7 @@
  */
 /*
 
- Pathname: s_ProgConfig.h
-
-------------------------------------------------------------------------------
- REVISION HISTORY
-
- Who:						Date:
- Description:
+ Filename: s_progconfig.h
 
 ------------------------------------------------------------------------------
  INCLUDE DESCRIPTION
@@ -36,7 +30,7 @@
 /*----------------------------------------------------------------------------
 ; CONTINUE ONLY IF NOT ALREADY DEFINED
 ----------------------------------------------------------------------------*/
-#ifndef	S_PROGCONFIG_H
+#ifndef S_PROGCONFIG_H
 #define S_PROGCONFIG_H
 
 /*----------------------------------------------------------------------------
@@ -88,7 +82,7 @@ typedef struct
 
     Char    comments[(1<<LEN_PC_COMM)+1]; /* TO BE DELETED */
 
-    Int32   buffer_fullness;	/* put this transport level info here */
+    Int32   buffer_fullness;    /* put this transport level info here */
     Bool    file_is_adts;       /* For ADTS use only */
     Int32   headerless_frames;  /* For ADTS use only */
     Int32   frame_length;       /* For use by ADTS only */

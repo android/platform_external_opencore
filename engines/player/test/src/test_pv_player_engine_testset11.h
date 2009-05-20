@@ -37,11 +37,6 @@
 #include "pvmf_streaming_data_source.h"
 #endif
 
-#if RUN_FASTTRACK_TESTCASES
-#ifndef PVPVXPARSER_H_INCLUDED
-#include "pvpvxparser.h"
-#endif
-#endif
 
 #ifndef PVMF_DOWNLOAD_DATA_SOURCE_H_INCLUDED
 #include "pvmf_download_data_source.h"
@@ -250,9 +245,6 @@ class pvplayer_async_test_genericcancelall : public pvplayer_async_test_base
         PVMFDownloadDataSourcePVX* iDownloadContextDataPVX;
         PVMFDownloadDataSourceHTTP* iDownloadContextDataHTTP;
         int32 iDownloadMaxfilesize;
-#if RUN_FASTTRACK_TESTCASES
-        CPVXInfo iDownloadPvxInfo;
-#endif
         OSCL_wHeapString<OsclMemAllocator> iDownloadURL;
         OSCL_wHeapString<OsclMemAllocator> iDownloadFilename;
         OSCL_HeapString<OsclMemAllocator> iDownloadProxy;

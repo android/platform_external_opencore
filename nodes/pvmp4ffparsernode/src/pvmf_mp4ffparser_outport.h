@@ -71,8 +71,8 @@
 #define PVMF_MP4FFPARSERNODE_LOGINFOMED(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_MLDBG,iLogger,PVLOGMSG_INFO,m);
 #define PVMF_MP4FFPARSERNODE_LOGINFOLOW(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iLogger,PVLOGMSG_INFO,m);
 #define PVMF_MP4FFPARSERNODE_LOGINFO(m) PVMF_MP4FFPARSERNODE_LOGINFOMED(m)
-#define PVMF_MP4FFPARSERNODE_LOGDATATRAFFIC(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iDataPathLogger,PVLOGMSG_INFO,m);
-#define PVMF_MP4FFPARSERNODE_LOGDATATRAFFIC_AVC(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iAVCDataPathLogger,PVLOGMSG_INFO,m);
+#define PVMF_MP4FFPARSERNODE_LOGDATATRAFFIC(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iDataPathLogger,PVLOGMSG_INFO,m);
+#define PVMF_MP4FFPARSERNODE_LOGDATATRAFFIC_AVC(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG,iAVCDataPathLogger,PVLOGMSG_INFO,m);
 #define PVMF_MP4FFPARSERNODE_LOGCLOCK(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_REL,iClockLogger,PVLOGMSG_INFO,m);
 #define PVMF_MP4FFPARSERNODE_LOGBIN(iPortLogger, m) PVLOGGER_LOGBIN(PVLOGMSG_INST_LLDBG, iPortLogger, PVLOGMSG_ERR, m);
 #define PVMF_MP4FFPARSERNODE_LOGDIAGNOSTICS(m) PVLOGGER_LOGMSG(PVLOGMSG_INST_PROF,iDiagnosticsLogger,PVLOGMSG_INFO,m);
@@ -104,7 +104,7 @@ class VideoTrackDimensionInfo
 };
 
 class PVMP4FFNodeTrackPortInfo : public OsclMemPoolFixedChunkAllocatorObserver,
-            public OsclMemPoolResizableAllocatorObserver
+        public OsclMemPoolResizableAllocatorObserver
 {
     public:
         enum TrackState
@@ -396,7 +396,7 @@ class PVMP4FFNodeTrackOMA2DRMInfo
 class PVMFMP4FFParserNode;
 
 class PVMFMP4FFParserOutPort : public PvmfPortBaseImpl,
-            public PvmiCapabilityAndConfigPortFormatImpl
+        public PvmiCapabilityAndConfigPortFormatImpl
 {
     public:
         PVMFMP4FFParserOutPort(int32 aTag, PVMFNodeInterface* aNode, const char*);
@@ -432,7 +432,7 @@ class PVMFMP4FFParserOutPort : public PvmfPortBaseImpl,
 
         /* Implement pure virtuals from PvmiCapabilityAndConfig interface */
         PVMFStatus getParametersSync(PvmiMIOSession aSession, PvmiKeyType aIdentifier,
-                                     PvmiKvp*& aParameters, int& num_parameter_elements,	PvmiCapabilityContext aContext);
+                                     PvmiKvp*& aParameters, int& num_parameter_elements,    PvmiCapabilityContext aContext);
         PVMFStatus releaseParameters(PvmiMIOSession aSession, PvmiKvp* aParameters, int num_elements);
         void setParametersSync(PvmiMIOSession aSession, PvmiKvp* aParameters,
                                int num_elements, PvmiKvp * & aRet_kvp);

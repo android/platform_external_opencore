@@ -1,6 +1,9 @@
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
+# Use the PV variables
+include external/opencore/Config.mk
+
 LOCAL_SRC_FILES := \
 	authordriver.cpp \
 	PVMediaRecorder.cpp \
@@ -9,12 +12,8 @@ LOCAL_SRC_FILES := \
 	android_audio_input_threadsafe_callbacks.cpp \
 	../thread_init.cpp \
 
-LOCAL_CFLAGS := $(PV_CFLAGS)
-
 # board-specific configuration
-LOCAL_CFLAGS += $(BOARD_OPENCORE_FLAGS)
-
-LOCAL_ARM_MODE := arm
+LOCAL_CFLAGS := $(BOARD_OPENCORE_FLAGS)
 
 LOCAL_C_INCLUDES := $(PV_INCLUDES) \
 	$(PV_TOP)/engines/common/include \
@@ -30,11 +29,12 @@ LOCAL_C_INCLUDES := $(PV_INCLUDES) \
 	libs/drm/mobile1/include \
     $(call include-path-for, graphics corecg)
 
-LOCAL_SHARED_LIBRARIES := libmedia
+LOCAL_MODULE := libandroid_opencore_author
 
-LOCAL_MODULE := libandroidpvauthor
+-include $(PV_TOP)/Android_platform_extras.mk
+LOCAL_SHARED_LIBRARIES += libopencore_author libopencore_common
 
-LOCAL_LDLIBS += 
+-include $(PV_TOP)/Android_system_extras.mk
 
-include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
 

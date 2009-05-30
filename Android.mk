@@ -39,5 +39,7 @@ ifeq ($(BUILD_PV_2WAY),1)
 include $(PV_TOP)/engines/2way/test/Android.mk
 endif
 endif
+include $(PV_TOP)/android/Android.mk
+include $(PV_TOP)/android/author/Android.mk
 
 endif

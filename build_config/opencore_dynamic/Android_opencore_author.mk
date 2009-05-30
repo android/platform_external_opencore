@@ -6,8 +6,6 @@ LOCAL_WHOLE_STATIC_LIBRARIES := \
  	libpvmp4ffcomposernode \
  	libpvauthorengine
 
-LOCAL_WHOLE_STATIC_LIBRARIES +=  libandroidpvauthor
-
 LOCAL_MODULE := libopencore_author
 
 -include $(PV_TOP)/Android_platform_extras.mk
@@ -20,5 +18,4 @@ include $(BUILD_SHARED_LIBRARY)
 include   $(PV_TOP)/fileformats/mp4/composer/Android.mk
 include   $(PV_TOP)/nodes/pvmp4ffcomposernode/Android.mk
 include   $(PV_TOP)/engines/author/Android.mk
-include $(PV_TOP)/android/author/Android.mk
 

@@ -21,8 +21,6 @@ LOCAL_WHOLE_STATIC_LIBRARIES := \
  	libpvframemetadatautility \
  	libpvplayer_engine
 
-LOCAL_WHOLE_STATIC_LIBRARIES +=  libandroidpv
-
 LOCAL_MODULE := libopencore_player
 
 -include $(PV_TOP)/Android_platform_extras.mk
@@ -50,5 +48,4 @@ include   $(PV_TOP)/pvmi/recognizer/plugins/pvwavffrecognizer/Android.mk
 include   $(PV_TOP)/pvmi/recognizer/Android.mk
 include   $(PV_TOP)/engines/adapters/player/framemetadatautility/Android.mk
 include   $(PV_TOP)/engines/player/Android.mk
-include $(PV_TOP)/android/Android.mk
 

@@ -1,6 +1,9 @@
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
+# Use the PV variables
+include external/opencore/Config.mk
+
 LOCAL_SRC_FILES := \
 	autodetect.cpp \
 	metadatadriver.cpp \
@@ -12,8 +15,6 @@ LOCAL_SRC_FILES := \
 	android_audio_stream.cpp \
 	android_audio_mio.cpp \
 	android_audio_output_threadsafe_callbacks.cpp
-
-LOCAL_CFLAGS := $(PV_CFLAGS)
 
 LOCAL_C_INCLUDES := $(PV_INCLUDES) \
 	$(PV_TOP)/engines/common/include \
@@ -33,9 +34,12 @@ LOCAL_C_INCLUDES := $(PV_INCLUDES) \
 	external/icu4c/common \
 	$(call include-path-for, graphics corecg)
 
-LOCAL_MODULE := libandroidpv
+LOCAL_MODULE := libandroid_opencore_player
 
-LOCAL_LDLIBS += 
+-include $(PV_TOP)/Android_platform_extras.mk
+LOCAL_SHARED_LIBRARIES += libopencore_player libopencore_common
 
-include $(BUILD_STATIC_LIBRARY)
+-include $(PV_TOP)/Android_system_extras.mk
+
+include $(BUILD_SHARED_LIBRARY)
 

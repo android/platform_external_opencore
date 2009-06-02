@@ -23,7 +23,9 @@
 #include "pv_omxcore.h"
 #include "omx_interface.h"
 
+#ifndef OMX_CORE_LIBRARY
 #define OMX_CORE_LIBRARY "libOmxCore.so"
+#endif
 
 class PVOMXInterface : public OMXInterface
 {

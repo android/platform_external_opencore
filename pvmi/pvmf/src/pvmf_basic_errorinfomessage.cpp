@@ -139,3 +139,16 @@ OSCL_EXPORT_REF bool PVMFBasicErrorInfoMessage::queryInterface(const PVUuid& uui
     return true;
 }
 
+#include <stdio.h>
+#include "pvmf_return_codes.h"
+
+const char *PVMFStatusToString(PVMFStatus status) {
+    static char msg[32];
+
+    if(IsPVMFInfoCode(status) || IsPVMFErrCode(status)) {
+	sprintf(msg, "%d", status);
+	return msg;
+    }
+
+    return NULL;
+}

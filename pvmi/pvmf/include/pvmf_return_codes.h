@@ -377,4 +377,6 @@ const PVMFStatus PVMFInfoLast = 100;
  */
 #define IsPVMFInfoCode(s) ((PVMFInfoFirst<=s)&&(s<=PVMFInfoLast))
 
+extern const char *PVMFStatusToString(PVMFStatus status);
+
 #endif

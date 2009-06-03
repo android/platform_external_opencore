@@ -295,7 +295,7 @@ class PlayerDriver :
     int                     mRecentSeek;
     bool                    mSeekComp;
     bool                    mSeekPending;
-
+    bool                    mIsLiveStreaming;
     bool                    mEmulation;
     void*                   mLibHandle;
 };
@@ -311,6 +311,7 @@ PlayerDriver::PlayerDriver(PVPlayer* pvPlayer) :
         mRecentSeek(0),
         mSeekComp(true),
         mSeekPending(false),
+        mIsLiveStreaming(false),
         mEmulation(false)
 {
     LOGV("constructor");
@@ -436,7 +437,7 @@ status_t PlayerDriver::enqueueCommand(PlayerCommand* command)
 
 void PlayerDriver::FinishSyncCommand(PlayerCommand* command)
 {
-    command->complete(0, false);
+    command->complete(NO_ERROR, false);
     delete command;
 }
 
@@ -507,11 +508,26 @@ void PlayerDriver::Run()
                 break;
 
             case PlayerCommand::PLAYER_PAUSE:
-                handlePause(static_cast<PlayerPause*>(command));
+                {
+                    if(mIsLiveStreaming) {
+                        LOGW("Pause denied");
+                        FinishSyncCommand(command);
+                        return;
+                    }
+                    handlePause(static_cast<PlayerPause*>(command));
+                }
                 break;
 
             case PlayerCommand::PLAYER_SEEK:
-                handleSeek(static_cast<PlayerSeek*>(command));
+                {
+                    if(mIsLiveStreaming) {
+                        LOGW("Seek denied");
+                        mPvPlayer->sendEvent(MEDIA_SEEK_COMPLETE);
+                        FinishSyncCommand(command);
+                        return;
+                    }
+                    handleSeek(static_cast<PlayerSeek*>(command));
+                }
                 break;
 
             case PlayerCommand::PLAYER_GET_POSITION:
@@ -565,14 +581,7 @@ void PlayerDriver::commandFailed(PlayerCommand* command)
     }
 
     LOGV("Command failed: %d", command->code());
-    // FIXME: Ignore seek failure because it might not work when streaming
-    if (mSeekPending) {
-        LOGV("Ignoring failed seek");
-        command->complete(NO_ERROR, false);
-        mSeekPending = false;
-    } else {
-        command->complete(UNKNOWN_ERROR, false);
-    }
+    command->complete(UNKNOWN_ERROR, false);
     delete command;
 }
 
@@ -936,6 +945,7 @@ void PlayerDriver::handleGetDuration(PlayerGetDuration* command)
     command->set(-1);
     mMetaKeyList.clear();
     mMetaKeyList.push_back(OSCL_HeapString<OsclMemAllocator>("duration"));
+    mMetaKeyList.push_back(OSCL_HeapString<OsclMemAllocator>("pause-denied"));
     mMetaValueList.clear();
     mNumMetaValues=0;
     int error = 0;
@@ -1133,6 +1143,15 @@ void PlayerDriver::handleGetDurationComplete(PlayerGetDuration* cmd)
                 cmd->set(mcc.get_converted_ts(1000));
             }
         }
+        substr = oscl_strstr((char*)(mMetaValueList[i].key), _STRLIT_CHAR("pause-denied;valtype=bool"));
+        if (substr!=NULL) {
+            if ( mMetaValueList[i].value.bool_value == true ) {
+                LOGW("Live Streaming ... \n");
+                mIsLiveStreaming = true;
+            }
+        }
+
+
     }
 }
 

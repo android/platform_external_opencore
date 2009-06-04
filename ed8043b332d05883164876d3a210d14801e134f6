@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAWn///6U\u003d",
+        "filename": "android/playerdriver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 1000387
+      },
+      "writtenOn": "2009-06-04T15:36:33Z",
+      "side": 1,
+      "message": "The placement of this seems problematic. mIsLiveStreaming only gets set if the getDuration is called. Wouldn\u0027t it be better to check this during prepare()?",
+      "revId": "ed8043b332d05883164876d3a210d14801e134f6",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAWn///6Y\u003d",
+        "filename": "android/playerdriver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1149,
+      "author": {
+        "id": 1000387
+      },
+      "writtenOn": "2009-06-04T15:36:33Z",
+      "side": 1,
+      "message": "Please change to LOGV - we don\u0027t want a warning in the log everytime a live stream is played.",
+      "revId": "ed8043b332d05883164876d3a210d14801e134f6",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

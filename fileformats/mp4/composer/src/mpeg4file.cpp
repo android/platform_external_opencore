@@ -616,6 +616,12 @@ PVA_FF_Mpeg4File::addTrack(int32 mediaType,
         // just added (with a 1-based index NOT a zero-based index)
         TrackID = pmediatrack->getTrackID();
     }
+
+    if (TrackID > 1)
+        _interLeaveDuration = DEFAULT_INTERLEAVE_INTERVAL;
+    else
+        _interLeaveDuration = 0; // No need to interleave if there is just one track
+
     recomputeSize();
     return (TrackID);
 }

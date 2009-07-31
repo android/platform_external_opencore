@@ -46,6 +46,9 @@
 // used for WMA support
 #include "media/mediametadataretriever.h"
 
+// FLAC includes
+#include "FLAC/all.h"
+
 #include <media/thread_init.h>
 #include <utils/string_array.h>
 
@@ -432,6 +435,75 @@ static PVMFStatus parseOgg(const char *filename, MediaScannerClient& client)
 failure:
     ov_clear(&vf); // this also closes the FILE
     return PVMFFailure;
+
+}
+
+static FLAC__StreamDecoderWriteStatus flac_write(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 *const buffer[], void *client_data) {
+    (void)decoder, (void)frame, (void)buffer, (void)client_data;
+    return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
+}
+
+static void flac_error(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data) {
+    (void)decoder, (void)status, (void)client_data;
+}
+
+static void flac_metadata(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data) {
+    MediaScannerClient *client = (MediaScannerClient *)client_data;
+
+    if (metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
+        FLAC__uint64 duration = metadata->data.stream_info.total_samples / metadata->data.stream_info.sample_rate;
+        if (duration > 0) {
+            char buffer[20];
+            sprintf(buffer, "%lld", duration);
+            if (!client->addStringTag("duration", buffer))
+                return;
+        }
+    } else if (metadata->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
+        for (uint32_t i = 0; i < metadata->data.vorbis_comment.num_comments; i++) {
+            char *ptr = (char *)metadata->data.vorbis_comment.comments[i].entry;
+
+            char *val = strchr(ptr, '=');
+            if (val) {
+                int keylen = val++ - ptr;
+                char key[keylen + 1];
+                strncpy(key, ptr, keylen);
+                key[keylen] = 0;
+                if (!client->addStringTag(key, val)) return;
+            }
+        }
+    }
+}
+
+static PVMFStatus parseFlac(const char *filename, MediaScannerClient& client)
+{
+    PVMFStatus status = PVMFFailure;
+
+    FLAC__StreamDecoder *decoder;
+
+    decoder = FLAC__stream_decoder_new();
+    if (!decoder)
+        return status;
+
+    FLAC__stream_decoder_set_md5_checking(decoder, false);
+    FLAC__stream_decoder_set_metadata_ignore_all(decoder);
+    FLAC__stream_decoder_set_metadata_respond(decoder, FLAC__METADATA_TYPE_STREAMINFO);
+    FLAC__stream_decoder_set_metadata_respond(decoder, FLAC__METADATA_TYPE_VORBIS_COMMENT);
+
+    FLAC__StreamDecoderInitStatus init_status;
+    init_status = FLAC__stream_decoder_init_file(decoder, filename, flac_write, flac_metadata, flac_error, &client);
+    if (init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
+        goto exit;
+
+    if (!FLAC__stream_decoder_process_until_end_of_metadata(decoder))
+        goto exit;
+
+    status = PVMFSuccess;
+
+exit:
+    FLAC__stream_decoder_finish(decoder);
+    FLAC__stream_decoder_delete(decoder);
+
+    return PVMFSuccess;
 }
 
 static PVMFStatus parseMidi(const char *filename, MediaScannerClient& client) {
@@ -556,6 +628,8 @@ status_t MediaScanner::processFile(const char *path, const char* mimeType, Media
         result = parseMP4(path, client);
     } else if (extension && strcasecmp(extension, ".ogg") == 0) {
         result = parseOgg(path, client);
+    } else if (extension && strcasecmp(extension, ".flac") == 0) {
+        result = parseFlac(path, client);
     } else if (extension &&
         ( strcasecmp(extension, ".mid") == 0 || strcasecmp(extension, ".smf") == 0
         || strcasecmp(extension, ".imy") == 0)) {

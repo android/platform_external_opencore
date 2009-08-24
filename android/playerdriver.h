@@ -123,6 +123,7 @@ class PlayerCommand
         // for asynchronous commands only or for synchronous as well?
         PLAYER_CANCEL_ALL_COMMANDS      = 18,
         PLAYER_EXTENSION_COMMAND        = 19,
+        PLAYER_CHECK_LIVE_STREAMING     = 20,
     };
 
     virtual             ~PlayerCommand() {}
@@ -301,6 +302,15 @@ class PlayerGetDuration: public PlayerCommand
     int*                mMsec;
 };
 
+class PlayerCheckLiveStreaming: public PlayerCommand
+{
+  public:
+    PlayerCheckLiveStreaming(media_completion_f cbf, void* cookie) :
+    PlayerCommand(PLAYER_CHECK_LIVE_STREAMING, cbf, cookie) {}
+  private:
+    PlayerCheckLiveStreaming();
+};
+
 class PlayerGetStatus: public PlayerCommand
 {
   public:
@@ -382,9 +392,9 @@ class PlayerDriver :
     void handleGetDuration(PlayerGetDuration* command);
     void handleGetStatus(PlayerGetStatus* command);
     void handleExtensionCommand(PlayerExtensionCommand* command);
+    void handleCheckLiveStreaming(PlayerCheckLiveStreaming* cmd);
 
-    void endOfData();
-
+    PVMFFormatType getFormatType();
     void CommandCompleted(const PVCmdResponse& aResponse);
     void HandleErrorEvent(const PVAsyncErrorEvent& aEvent);
     void HandleInformationalEvent(const PVAsyncInformationalEvent& aEvent);
@@ -398,6 +408,7 @@ class PlayerDriver :
     void FinishSyncCommand(PlayerCommand* command);
 
     void handleGetDurationComplete(PlayerGetDuration* cmd);
+    void handleCheckLiveStreamingComplete(PlayerCheckLiveStreaming* cmd);
 
     int setupHttpStreamPre();
     int setupHttpStreamPost();
@@ -434,6 +445,9 @@ class PlayerDriver :
     PVPMetadataList mMetaKeyList;
     Oscl_Vector<PvmiKvp,OsclMemAllocator> mMetaValueList;
     int mNumMetaValues;
+    PVPMetadataList mCheckLiveKey;
+    Oscl_Vector<PvmiKvp,OsclMemAllocator> mCheckLiveValue;
+    int mCheckLiveMetaValues;
 
     // Semaphore used for synchronous commands.
     OsclSemaphore           *mSyncSem;
@@ -452,7 +466,7 @@ class PlayerDriver :
     int                     mRecentSeek;
     bool                    mSeekComp;
     bool                    mSeekPending;
-
+    bool                    mIsLiveStreaming;
     bool                    mEmulation;
     void*                   mLibHandle;
     PVPlayerExtensionHandler* mExtensionHandler;

@@ -23,7 +23,7 @@ FrameAndMetadata Utility (FMU) is recommended instead.
 - 2way Lip-Sync unit test cases.
 
 
-Improvement
+Improvements
 - A new base node implementation is introduced for the purpose of 
   refactoring and consolidating common logic in the nodes. The changes
   will improve maintainability and make it easier to create new nodes.

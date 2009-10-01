@@ -33,6 +33,7 @@ LOCAL_C_INCLUDES := $(PV_INCLUDES) \
 	external/skia/include/corecg \
 	external/tremor/Tremor \
 	external/icu4c/common \
+	external/flac/include \
 	$(call include-path-for, graphics corecg)
 
 LOCAL_MODULE := libandroidpv

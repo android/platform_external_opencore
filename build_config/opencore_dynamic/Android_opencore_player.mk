@@ -27,7 +27,7 @@ LOCAL_WHOLE_STATIC_LIBRARIES +=  libandroidpv
 
 LOCAL_MODULE := libopencore_player
 
-LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc
+LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc libFLAC
 
 -include $(PV_TOP)/Android_system_extras.mk
 

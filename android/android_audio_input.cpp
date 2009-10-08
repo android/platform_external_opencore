@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// FAKE UPDATE -- disregard
+
 //#define LOG_NDEBUG 0
 #define LOG_TAG "audio_input"
 #include <utils/Log.h>

@@ -167,11 +167,12 @@ DecoderConfigDescriptor::DecoderConfigDescriptor(MP4_FF_FILE *fp)
                     (_streamType == STREAM_TYPE_VISUAL))
             {
                 // FOR AUDIO/VISUAL TRACKS, DEC SPECIFIC INFO IS MANDATORY
-                if (_pdecSpecificInfo == NULL)
+                // DEC SPECIFIC INFO is not mandatory
+                /*if (_pdecSpecificInfo == NULL)
                 {
                     _success = false;
                     _mp4ErrorCode = READ_DECODER_CONFIG_DESCRIPTOR_FAILED;
-                }
+                }*/
             }
         }
         else

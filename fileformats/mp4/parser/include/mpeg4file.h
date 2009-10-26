@@ -92,6 +92,8 @@
 #include "pv_id3_parcom.h"
 #endif
 
+#define PVMFFFPARSERNODE_MAX_NUM_TRACKS 6 //Max tracks in mp4
+
 class AVCSampleEntry;
 
 struct TrackIndex
@@ -1380,6 +1382,9 @@ class Mpeg4File : public IMpeg4File, public Parentable
         bool _oPVContentDownloadable;
 
         MP4_FF_FILE *_commonFilePtr;
+
+        uint32 specinfoid[PVMFFFPARSERNODE_MAX_NUM_TRACKS];
+        uint8 *specinfolist[PVMFFFPARSERNODE_MAX_NUM_TRACKS];
 
         bool _isMovieFragmentsPresent;
         uint32 _pointerMovieAtomEnd;

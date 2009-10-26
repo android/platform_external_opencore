@@ -115,6 +115,8 @@ Mpeg4File::Mpeg4File(MP4_FF_FILE *fp,
     numLyricist = 0;
     numComposer = 0;
     numVersion = 0;
+    oscl_memset(specinfoid, 0, sizeof(specinfoid));
+    oscl_memset(specinfolist, 0, sizeof(specinfolist));
     // Create miscellaneous vector of atoms
     PV_MP4_FF_NEW(fp->auditCB, trackAtomVecType, (), _pTrackAtomVec);
     PV_MP4_FF_NEW(fp->auditCB, movieFragmentAtomVecType, (), _pMovieFragmentAtomVec);
@@ -1381,6 +1383,12 @@ OSCL_wString& Mpeg4File::getCreationDate(MP4FFParserOriginalCharEnc &charType)
 Mpeg4File::~Mpeg4File()
 {
     uint32 i = 0;
+    for(i=0; i< PVMFFFPARSERNODE_MAX_NUM_TRACKS; i++)
+    {
+        specinfoid[0] = 0;
+        if(specinfolist[i]) oscl_free(specinfolist[i]);
+        specinfolist[i]= NULL;
+    }
     // Clean up atoms
     if (_pmovieAtom != NULL)
     {
@@ -1923,7 +1931,67 @@ uint8 *Mpeg4File::getTrackDecoderSpecificInfoContent(uint32 id)
     }
     else
     {
-        return NULL;
+        GAU aGau;
+        uint32 numSamples;
+        int32 i, match,retval,sampleSize;
+
+        OSCL_HeapString<OsclMemAllocator> trackMIMEType;
+        getTrackMIMEType(id, trackMIMEType);
+
+        OSCL_FastString iMime;
+        iMime.set(trackMIMEType.get_str(), oscl_strlen(trackMIMEType.get_str()));
+
+        PVMFFormatType trackformattype = trackMIMEType.get_str();
+
+        if(trackformattype != PVMF_MIME_M4V) return NULL;
+
+        match = 0;
+        for(i=0; i< PVMFFFPARSERNODE_MAX_NUM_TRACKS; i++)
+        {
+            if(specinfoid[i] == id)
+            {
+                match = 1;
+                break;
+            }
+        }
+
+        if(!match)
+        {
+            for(i=0; i< PVMFFFPARSERNODE_MAX_NUM_TRACKS; i++)
+            {
+                if(!specinfolist[i])
+                {
+                    match = 1;
+                    break;
+                }
+            }
+
+            if(!match) return NULL;
+
+            specinfoid[i] = id;
+
+            sampleSize = getTrackDecoderSpecificInfoSize(id);
+            if(!sampleSize) return NULL;
+
+            specinfolist[i] = (uint8*)oscl_malloc(sampleSize + 16);
+            if(!specinfolist[i]) return NULL;
+
+            oscl_memset(&aGau.buf, 0, sizeof(aGau.buf));
+            oscl_memset(&aGau.info, 0, sizeof(aGau.info));
+            aGau.free_buffer_states_when_done = 0;
+            aGau.numMediaSamples = 1;
+            aGau.buf.num_fragments = 1;
+            aGau.buf.buf_states[0] = NULL;
+            aGau.buf.fragments[0].ptr = (OsclAny*)specinfolist[i];
+            aGau.buf.fragments[0].len = sampleSize;
+            retval =getNextBundledAccessUnits(id,
+                  &numSamples,
+                  &aGau);
+
+            if(retval != EVERYTHING_FINE) return NULL;
+        }
+
+        return specinfolist[i];
     }
 }
 
@@ -1938,7 +2006,24 @@ uint32 Mpeg4File::getTrackDecoderSpecificInfoSize(uint32 id)
     }
     else
     {
-        return 0;
+        MediaMetaInfo info;
+        uint32 numSamples = 1;
+        int32 retval = EVERYTHING_FINE;
+        OSCL_HeapString<OsclMemAllocator> trackMIMEType;
+
+        getTrackMIMEType(id, trackMIMEType);
+
+        OSCL_FastString iMime;
+        iMime.set(trackMIMEType.get_str(), oscl_strlen(trackMIMEType.get_str()));
+
+        PVMFFormatType trackformattype = trackMIMEType.get_str();
+
+        if(trackformattype != PVMF_MIME_M4V) return 0;
+
+        retval = peekNextBundledAccessUnits(id, &numSamples, &info);
+        if(retval != EVERYTHING_FINE) return 0;
+
+        return info.len;
     }
 }
 

@@ -9,6 +9,7 @@ LOCAL_SRC_FILES := \
  	src/assetinfoatoms.cpp \
  	src/atom.cpp \
  	src/audiosampleentry.cpp \
+	src/mp3sampleentry.cpp \
  	src/avcconfigurationbox.cpp \
  	src/avcsampleentry.cpp \
  	src/avcsampledependencytype.cpp \

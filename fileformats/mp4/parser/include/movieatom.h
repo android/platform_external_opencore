@@ -242,6 +242,9 @@ class MovieAtom : public Atom
         OSCL_IMPORT_REF int32 getTrackHeight(uint32 id);
         OSCL_IMPORT_REF int32 getTrackWidth(uint32 id);
 
+        OSCL_IMPORT_REF int32 getAudioChannelCount(uint32 id);
+        OSCL_IMPORT_REF int32 getAudioSampleRate(uint32 id);
+
         TrackAtom *getTrackforID(uint32 id);
 
         void resetPlayback();

@@ -711,6 +711,36 @@ OSCL_EXPORT_REF int32 MovieAtom::getTrackWidth(uint32 id)
     }
 }
 
+OSCL_EXPORT_REF int32 MovieAtom::getAudioChannelCount(uint32 id)
+{
+    TrackAtom *trackAtom = getTrackforID(id);
+
+    if (trackAtom != NULL)
+    {
+
+        return trackAtom->getAudioChannelCount();
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+OSCL_EXPORT_REF int32 MovieAtom::getAudioSampleRate(uint32 id)
+{
+    TrackAtom *trackAtom = getTrackforID(id);
+
+    if (trackAtom != NULL)
+    {
+
+        return trackAtom->getAudioSampleRate();
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 int32  MovieAtom::getTrackAverageBitrate(uint32 id)
 {
     TrackAtom *trackAtom = getTrackforID(id);

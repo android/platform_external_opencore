@@ -514,6 +514,32 @@ class MediaAtom : public Atom
             }
         }
 
+        int32 getAudioChannelCount()
+        {
+            if (_pmediaInformation != NULL)
+            {
+                return _pmediaInformation->getAudioChannelCount();
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
+
+        int32 getAudioSampleRate()
+        {
+            if (_pmediaInformation != NULL)
+            {
+                return _pmediaInformation->getAudioSampleRate();
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
+
         //PASP box
         uint32 getHspacing()
         {

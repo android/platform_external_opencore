@@ -397,6 +397,16 @@ class Mpeg4File : public IMpeg4File, public Parentable
             return _pmovieAtom->getTrackWidth(trackid);
         }
 
+        int32 getAudioChannelCount(uint32 trackid)
+        {
+            return _pmovieAtom->getAudioChannelCount(trackid);
+        }
+
+        int32 getAudioSampleRate(uint32 trackid)
+        {
+            return _pmovieAtom->getAudioSampleRate(trackid);
+        }
+
         int32 getTextTrackWidth(uint32 trackid)
         {
             return _pmovieAtom->getTextTrackWidth(trackid);

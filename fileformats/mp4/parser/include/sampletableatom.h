@@ -322,6 +322,32 @@ class SampleTableAtom : public Atom
             }
         }
 
+        int32 getAudioChannelCount()
+        {
+            if (_psampleDescriptionAtom != NULL)
+            {
+                return _psampleDescriptionAtom->getAudioChannelCount();
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
+
+        int32 getAudioSampleRate()
+        {
+            if (_psampleDescriptionAtom != NULL)
+            {
+                return _psampleDescriptionAtom->getAudioSampleRate();
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
+
         //PASP
         uint32 getHspacing()
         {

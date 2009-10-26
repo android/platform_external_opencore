@@ -188,6 +188,10 @@ class SampleDescriptionAtom : public FullAtom
 
         int32 getHeight();
         int32 getWidth();
+
+        int32 getAudioChannelCount();
+        int32 getAudioSampleRate();
+
     private:
         uint32 _entryCount;
         uint32 _handlerType;
@@ -205,6 +209,7 @@ class SampleDescriptionAtom : public FullAtom
         bool _o3GPPH263;
         bool _o3GPPWBAMR;
         bool _oAVC;
+        bool _oMP3; /*MP3 Audio */
 
         ProtectionSchemeInformationBox* _pProtectionSchemeInformationBox;
 

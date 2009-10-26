@@ -211,6 +211,7 @@ PVMFMP4FFParserNode::PVMFMP4FFParserNode(int32 aPriority) :
              iCapability.iOutputFormatCapability.push_back(PVMFFormatType(PVMF_MIME_AMR_IETF));
              iCapability.iOutputFormatCapability.push_back(PVMFFormatType(PVMF_MIME_AMRWB_IETF));
              iCapability.iOutputFormatCapability.push_back(PVMFFormatType(PVMF_MIME_MPEG4_AUDIO));
+             iCapability.iOutputFormatCapability.push_back(PVMFFormatType(PVMF_MIME_MP3)); /* support mp3 track */
              iCapability.iOutputFormatCapability.push_back(PVMFFormatType(PVMF_MIME_M4V));
              iCapability.iOutputFormatCapability.push_back(PVMFFormatType(PVMF_MIME_H2631998));
              iCapability.iOutputFormatCapability.push_back(PVMFFormatType(PVMF_MIME_H2632000));
@@ -2060,6 +2061,10 @@ PVMFStatus PVMFMP4FFParserNode::DoRequestPort(PVMFMP4FFParserNodeCommand& aCmd, 
     if (formattype == PVMF_MIME_MPEG4_AUDIO)
     {
         trackportinfo.iFormatTypeInteger = PVMF_MP4_PARSER_NODE_MPEG4_AUDIO;
+    }
+    if (formattype == PVMF_MIME_MP3)
+    {
+        trackportinfo.iFormatTypeInteger = PVMF_MP4_PARSER_NODE_MP3_AUDIO;
     }
     else if (formattype == PVMF_MIME_H264_VIDEO_MP4)
     {

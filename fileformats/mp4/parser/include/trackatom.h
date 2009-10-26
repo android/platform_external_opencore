@@ -518,6 +518,32 @@ class TrackAtom : public Atom
             }
         }
 
+        int32 getAudioChannelCount()
+        {
+            if (_pmediaAtom != NULL)
+            {
+                return _pmediaAtom->getAudioChannelCount();
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
+
+        int32 getAudioSampleRate()
+        {
+            if (_pmediaAtom != NULL)
+            {
+                return _pmediaAtom->getAudioSampleRate();
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
+
         //PASP box
         uint32 getHspacing()
         {

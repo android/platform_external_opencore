@@ -227,6 +227,9 @@ class IMpeg4File : public ISucceedFail
         virtual int32 getVideoFrameHeight(uint32 trackid) = 0;
         virtual int32 getVideoFrameWidth(uint32 trackid) = 0;
 
+        virtual int32 getAudioChannelCount(uint32 trackid) = 0;
+        virtual int32 getAudioSampleRate(uint32 trackid) = 0;
+
         virtual int32 getTextTrackWidth(uint32 trackid) = 0;
         virtual int32 getTextTrackHeight(uint32 trackid) = 0;
         virtual int32 getTextTrackXOffset(uint32 trackid) = 0;

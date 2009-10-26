@@ -32,6 +32,7 @@
 
 #include "visualsampleentry.h"
 #include "audiosampleentry.h"
+#include "mp3sampleentry.h"
 #include "mpegsampleentry.h"
 
 
@@ -67,6 +68,7 @@ SampleDescriptionAtom::SampleDescriptionAtom(MP4_FF_FILE *fp,
     _o3GPPH263 = false;
     _o3GPPWBAMR = false;
     _oAVC = false;
+    _oMP3 = false;
     _pProtectionSchemeInformationBox = NULL;
     _p3GPP2SpeechSampleEntry = NULL;
 
@@ -234,6 +236,19 @@ SampleDescriptionAtom::SampleDescriptionAtom(MP4_FF_FILE *fp,
                                 _mp4ErrorCode = READ_SAMPLE_DESCRIPTION_ATOM_FAILED;
                                 return;
                             }
+                        }
+                        else if (atomType == MP3_SAMPLE_ENTRY)
+                        {
+                            PV_MP4_FF_NEW(fp->auditCB, Mp3SampleEntry, (fp, atomSize, atomType), entry);
+                            if (!entry->MP4Success())
+                            {
+                                _success = false;
+                                _mp4ErrorCode = entry->GetMP4Error();
+                                Mp3SampleEntry *ptr = (Mp3SampleEntry *)entry;
+                                PV_MP4_FF_DELETE(NULL, Mp3SampleEntry, ptr);
+                                return;
+                            }
+                             _oMP3 = true;
                         }
                         else
                         {
@@ -458,6 +473,11 @@ SampleDescriptionAtom::~SampleDescriptionAtom()
                 AudioSampleEntry *ptr = (AudioSampleEntry *)(*_psampleEntryVec)[i];
                 PV_MP4_FF_DELETE(NULL, AudioSampleEntry, ptr);
             }
+            else if (pSampleEntryPtr->getType() == MP3_SAMPLE_ENTRY)
+            {
+                Mp3SampleEntry *ptr = (Mp3SampleEntry *)(*_psampleEntryVec)[i];
+                PV_MP4_FF_DELETE(NULL, Mp3SampleEntry, ptr);
+            }
             else if (pSampleEntryPtr->getType() == TEXT_SAMPLE_ENTRY)
             {
                 TextSampleEntry *ptr = (TextSampleEntry *)(*_psampleEntryVec)[i];
@@ -606,6 +626,9 @@ uint8  SampleDescriptionAtom::getObjectTypeIndication()
     if (_oAVC)
         return (AVC_VIDEO);
 
+    if (_oMP3)
+        return (MP3_AUDIO);
+
     // ok to continue if size()==0, will be
     // caught on MEDIA_TYPE_AUDIO and MEDIA_TYPE_VISUAL
     // but not on MEDIA_TYPE_TEXT or default case
@@ -721,6 +744,39 @@ int32 SampleDescriptionAtom::getHeight()
     return (uint32)entry->getHeight();
 }
 
+int32 SampleDescriptionAtom::getAudioChannelCount()
+{
+
+    uint32 i = 0;
+
+    if(_oMP3) /* only for mp3 audio */
+    {
+        Mp3SampleEntry * entry = ( Mp3SampleEntry *)getSampleEntryAt(i);
+        if (!entry)
+            return 0;
+        return (int32)entry->getChannelCount();
+    }
+
+    /* for other kind of audio, will get this info from parsing codec specific info */
+    return 0;
+}
+
+int32 SampleDescriptionAtom::getAudioSampleRate()
+{
+
+    uint32 i = 0; 
+
+    if(_oMP3) /* only for mp3 audio */
+    {
+        Mp3SampleEntry * entry = (Mp3SampleEntry *)getSampleEntryAt(i);
+        if (!entry)		
+            return 0;
+        return (int32)entry->getSampleRate();
+    }
+
+    /* for other kind of audio, will get this info from parsing codec specific info */
+    return 0;
+}
 
 uint32
 SampleDescriptionAtom::getMaxBufferSizeDB()
@@ -903,6 +959,10 @@ void SampleDescriptionAtom::getMIMEType(OSCL_String& aMimeType)
     else if (objectType == AVC_VIDEO)
     {
         mimeType.set(PVMF_MIME_H264_VIDEO_MP4, oscl_strlen(PVMF_MIME_H264_VIDEO_MP4));
+    }
+    else if (objectType == MP3_AUDIO)
+    {
+        mimeType.set(PVMF_MIME_MP3, oscl_strlen(PVMF_MIME_MP3));
     }
     else if (_pMediaType == MEDIA_TYPE_TEXT)
     {

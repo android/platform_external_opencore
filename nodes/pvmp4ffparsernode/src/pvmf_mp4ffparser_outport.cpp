@@ -75,7 +75,8 @@ bool PVMFMP4FFParserOutPort::IsFormatSupported(PVMFFormatType aFmt)
             aFmt == PVMF_MIME_H264_VIDEO_MP4 ||
             aFmt == PVMF_MIME_MPEG4_AUDIO ||
             aFmt == PVMF_MIME_AMR_IETF ||
-            aFmt == PVMF_MIME_3GPP_TIMEDTEXT)
+            aFmt == PVMF_MIME_3GPP_TIMEDTEXT ||
+            aFmt == PVMF_MIME_MP3)
     {
         return true;
     }

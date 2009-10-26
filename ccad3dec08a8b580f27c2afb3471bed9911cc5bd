@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAoH///dU\u003d",
+        "filename": "codecs_v2/omx/omx_aac/src/aac_decode_frame.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1002768
+      },
+      "writtenOn": "2009-10-26T21:50:56Z",
+      "side": 1,
+      "message": "This change is not correct. \nThe AAC decoder provides the correct sampling rate in the case of eAAC and eAAC+. There is no need to double it again.",
+      "revId": "ccad3dec08a8b580f27c2afb3471bed9911cc5bd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

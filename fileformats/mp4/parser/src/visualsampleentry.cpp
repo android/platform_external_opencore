@@ -82,6 +82,19 @@ VisualSampleEntry::VisualSampleEntry(MP4_FF_FILE *fp, uint32 size, uint32 type)
 
             AtomUtils::getNextAtomType(fp, atomSize, atomType);
 
+            if(PASP_ATOM == atomType){
+                uint8  _reserved;
+                for(int32 i = 0; i < (atomSize-8); i++){
+                    if (!AtomUtils::read8(fp, _reserved))
+                    {
+                        _success = false;
+                        break;
+                    }
+                }
+                if(_success)
+                    AtomUtils::getNextAtomType(fp, atomSize, atomType);
+            }
+
             if (atomType == ESD_ATOM)
             {
 

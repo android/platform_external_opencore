@@ -289,6 +289,8 @@ const uint32    ITUNES_MEAN_ATOM = FourCharConstToUint32('m', 'e', 'a', 'n');
 const uint32    ITUNES_FREE_FORM_ATOM = FourCharConstToUint32('-', '-', '-', '-');
 const uint32    ITUNES_TRACK_SUBTITLE_ATOM = FourCharConstToUint32('@', 's', 't', '3');
 const uint32    ITUNES_CONTENT_RATING_ATOM = FourCharConstToUint32('r', 't', 'n', 'g');  // Same tag as ASSET_INFO_RATING_ATOM
+const uint32    PASP_ATOM = FourCharConstToUint32('p', 'a', 's', 'p');
+
 #define ITUNES_FREE_FORM_DATA_ATOM_TYPE_NORM "iTunNORM"
 #define ITUNES_FREE_FORM_DATA_ATOM_TYPE_TOOL "tool"
 #define ITUNES_FREE_FORM_DATA_ATOM_TYPE_CDDB1 "iTunes_CDDB_1"

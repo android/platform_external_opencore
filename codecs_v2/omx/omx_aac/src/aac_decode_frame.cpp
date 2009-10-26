@@ -226,7 +226,8 @@ Int OmxAacDecoder::AacDecodeFrames(OMX_S16* aOutputBuffer,
             //Output Port Parameters
             aAudioPcmParam->nSamplingRate = iExt.samplingRate;
             aAudioPcmParam->nChannels = iExt.desiredChannels;
-
+            if ((StreamType>0) && (2 == iConfigUpSamplingFactor))
+                aAudioPcmParam->nSamplingRate = iExt.samplingRate * iConfigUpSamplingFactor;
             //Input Port Parameters
             aAudioAacParam->nSampleRate = iExt.samplingRate;
 

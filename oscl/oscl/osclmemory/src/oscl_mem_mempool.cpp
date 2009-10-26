@@ -173,7 +173,7 @@ OSCL_EXPORT_REF void OsclMemPoolFixedChunkAllocator::deallocate(OsclAny* p)
 #endif
 
     // Put the returned chunk in the free pool
-    iFreeMemChunkList.push_back(p);
+    iFreeMemChunkList.push_front(p);
 
     // Notify the observer about free chunk available if waiting for such callback
     if (iCheckNextAvailableFreeChunk)

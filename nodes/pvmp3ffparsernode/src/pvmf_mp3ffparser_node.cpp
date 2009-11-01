@@ -1889,6 +1889,8 @@ PVMFStatus PVMFMP3FFParserNode::SetSourceInitializationData(OSCL_wString& aSourc
                 iFileHandle = OSCL_NEW(OsclFileHandle, (*(opaqueData->iFileHandle)));
                 iCPMSourceData.iFileHandle = iFileHandle;
             }
+            iCPMSourceData.iPreviewMode = opaqueData->iPreviewMode;
+            iCPMSourceData.iIntent = opaqueData->iIntent;
             if (opaqueData->iContentAccessFactory != NULL)
             {
                 //Cannot have both plugin usage and a datastream factory

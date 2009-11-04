@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAo3///2w\u003d",
+        "filename": "oscl/oscl/osclmemory/src/oscl_mem_mempool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1001211
+      },
+      "writtenOn": "2009-11-04T19:29:28Z",
+      "side": 1,
+      "message": "It is less efficient to push chunks onto the front of the list than the back (that\u0027s the reason the code was pushing on the back).  The user of the memory pool shouldn\u0027t care which free chunk gets returned in the next allocation.",
+      "revId": "bffafaeab158fa59a2b0179df0ddc9a93504b03d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

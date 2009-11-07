@@ -94,6 +94,7 @@ AndroidAudioInput::AndroidAudioInput(uint32 audioSource)
         iObserver=NULL;
         iWriteBusy=false;
         iWriteBusySeqNum=0;
+        iAudioNumChannels = 1;
     }
 }
 

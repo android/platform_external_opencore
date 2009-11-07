@@ -126,6 +126,9 @@ enum author_command_type {
     AUTHOR_SET_OUTPUT_FORMAT,
     AUTHOR_SET_VIDEO_ENCODER,
     AUTHOR_SET_AUDIO_ENCODER,
+    AUTHOR_SET_AUDIO_SAMPLE_RATE,
+    AUTHOR_SET_AUDIO_BIT_RATE,
+    AUTHOR_SET_AUDIO_CHANNEL,
     AUTHOR_SET_VIDEO_SIZE,
     AUTHOR_SET_VIDEO_FRAME_RATE,
     AUTHOR_SET_PREVIEW_SURFACE,
@@ -191,6 +194,25 @@ struct set_output_file_command : author_command
     int64_t                     offset;
     int64_t                     length;
 };
+
+struct set_audio_sample_rate_command : author_command
+{
+    set_audio_sample_rate_command() : author_command(AUTHOR_SET_AUDIO_SAMPLE_RATE) {};
+    int                              rate;
+};
+
+struct set_audio_bit_rate_command : author_command
+{
+    set_audio_bit_rate_command() : author_command(AUTHOR_SET_AUDIO_BIT_RATE) {};
+    int                              rate;
+};
+
+struct set_audio_channel_command : author_command
+{
+    set_audio_channel_command() : author_command(AUTHOR_SET_AUDIO_CHANNEL) {};
+    int                              channel;
+};
+
 struct set_video_size_command : author_command
 {
     set_video_size_command() : author_command(AUTHOR_SET_VIDEO_SIZE) {};
@@ -258,6 +280,9 @@ public:
     void handleSetOutputFormat(set_output_format_command *ac);
     void handleSetAudioEncoder(set_audio_encoder_command *ac);
     void handleSetVideoEncoder(set_video_encoder_command *ac);
+    void handleSetAudioSampleRate(set_audio_sample_rate_command *ac);
+    void handleSetAudioBitRate(set_audio_bit_rate_command *ac);
+    void handleSetAudioChannel(set_audio_channel_command *ac);
     void handleSetVideoSize(set_video_size_command *ac);
     void handleSetVideoFrameRate(set_video_frame_rate_command *ac);
     void handleSetPreviewSurface(set_preview_surface_command *ac);
@@ -372,6 +397,7 @@ private:
     sp<ICamera>             mCamera;
     sp<IMediaPlayerClient>  mListener;
 
+    int              mAudioBitRate;
     int32            mSamplingRate;
     int32            mNumberOfChannels;
     int32            mAudio_bitrate_setting;

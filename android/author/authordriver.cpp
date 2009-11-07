@@ -244,6 +244,18 @@ void AuthorDriver::Run()
         handleSetVideoSize((set_video_size_command *)ac);
         return;
 
+    case AUTHOR_SET_AUDIO_SAMPLE_RATE:
+        handleSetAudioSampleRate((set_audio_sample_rate_command *)ac);
+        return;
+
+    case AUTHOR_SET_AUDIO_BIT_RATE:
+        handleSetAudioBitRate((set_audio_bit_rate_command *)ac);
+        return;
+
+    case AUTHOR_SET_AUDIO_CHANNEL:
+        handleSetAudioChannel((set_audio_channel_command *)ac);
+        return;
+
     case AUTHOR_SET_VIDEO_FRAME_RATE:
         handleSetVideoFrameRate((set_video_frame_rate_command *)ac);
         return;
@@ -586,6 +598,47 @@ void AuthorDriver::handleSetVideoEncoder(set_video_encoder_command *ac)
 
     OSCL_TRY(error, mAuthor->AddMediaTrack(*mVideoNode, iVideoEncoderMimeType, mSelectedComposer, mVideoEncoderConfig, ac));
     OSCL_FIRST_CATCH_ANY(error, commandFailed(ac));
+}
+
+void AuthorDriver::handleSetAudioSampleRate(set_audio_sample_rate_command *ac)
+{
+    if (mAudioInputMIO == NULL) {
+        LOGE("Audio MIO is NULL");
+        commandFailed(ac);
+        return;
+    }
+
+    mSamplingRate = ac->rate;
+
+    mAudioInputMIO->setAudioSamplingRate(ac->rate);
+    FinishNonAsyncCommand(ac);
+}
+
+void AuthorDriver::handleSetAudioBitRate(set_audio_bit_rate_command *ac)
+{
+    if (mAudioInputMIO == NULL) {
+        LOGE("Audio MIO is NULL");
+        commandFailed(ac);
+        return;
+    }
+
+    mAudioBitRate = ac->rate;
+
+    FinishNonAsyncCommand(ac);
+}
+
+void AuthorDriver::handleSetAudioChannel(set_audio_channel_command *ac)
+{
+    if (mAudioInputMIO == NULL) {
+        LOGE("Audio MIO is NULL");
+        commandFailed(ac);
+        return;
+    }
+
+    mNumberOfChannels = ac->channel;
+
+    mAudioInputMIO->setAudioNumChannels(ac->channel);
+    FinishNonAsyncCommand(ac);
 }
 
 void AuthorDriver::handleSetVideoSize(set_video_size_command *ac)

@@ -182,6 +182,59 @@ status_t PVMediaRecorder::setVideoEncoder(video_encoder ve)
     return mAuthorDriverWrapper->enqueueCommand(ac, 0, 0);
 }
 
+status_t PVMediaRecorder::setAudioSampleRate(int samples_per_second)
+{
+    LOGV("setAudioSampleRate(%d)", samples_per_second);
+    if (mAuthorDriverWrapper == NULL) {
+        LOGE("author driver wrapper is not initialized yet");
+        return UNKNOWN_ERROR;
+    }
+
+    set_audio_sample_rate_command *ac = new set_audio_sample_rate_command();
+    if (ac == NULL) {
+        LOGE("failed to construct an author command");
+        return UNKNOWN_ERROR;
+    }
+    ac->rate = samples_per_second;
+    return mAuthorDriverWrapper->enqueueCommand(ac, 0, 0);
+}
+
+status_t PVMediaRecorder::setAudioBitRate(int bits_per_second)
+{
+    LOGV("setAudioBitRate(%d)", bits_per_second);
+    if (mAuthorDriverWrapper == NULL) {
+        LOGE("author driver wrapper is not initialized yet");
+        return UNKNOWN_ERROR;
+    }
+
+    set_audio_bit_rate_command *ac = new set_audio_bit_rate_command();
+    if (ac == NULL) {
+        LOGE("failed to construct an author command");
+        return UNKNOWN_ERROR;
+    }
+    ac->rate = bits_per_second;
+    return mAuthorDriverWrapper->enqueueCommand(ac, 0, 0);
+}
+
+
+status_t PVMediaRecorder::setAudioChannel(int channel)
+{
+    LOGV("setAudioChannel(%d)", channel);
+    if (mAuthorDriverWrapper == NULL) {
+        LOGE("author driver wrapper is not initialized yet");
+        return UNKNOWN_ERROR;
+    }
+
+    set_audio_channel_command *ac = new set_audio_channel_command();
+    if (ac == NULL) {
+        LOGE("failed to construct an author command");
+        return UNKNOWN_ERROR;
+    }
+    ac->channel= channel;
+    return mAuthorDriverWrapper->enqueueCommand(ac, 0, 0);
+}
+
+
 status_t PVMediaRecorder::setVideoFrameRate(int frames_per_second)
 {
     LOGV("setVideoFrameRate(%d)", frames_per_second);

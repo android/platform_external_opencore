@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAo3///l4\u003d",
+        "filename": "android/author/android_audio_input.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2009-11-08T20:23:27Z",
+      "side": 1,
+      "message": "Line no. 59 in the constructor already initializes iAudioNumChannels. Is this still needed?",
+      "revId": "717e47cdcccf1b3d0048c4f800d39a5b0c5c422f",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAo3///l0\u003d",
+        "filename": "android/author/authordriver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2009-11-08T20:23:27Z",
+      "side": 1,
+      "message": "These look redundant. These parameters are already supported through \"handleSetParameters\" and \"setParameter\" functions. Please look at them.",
+      "revId": "717e47cdcccf1b3d0048c4f800d39a5b0c5c422f",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

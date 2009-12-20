@@ -42,6 +42,11 @@
 #include "ivorbiscodec.h"
 #include "ivorbisfile.h"
 
+// WavPack include
+extern "C" {
+#include "wavpack.h"
+}
+
 // Sonivox includes
 #include <libsonivox/eas.h>
 
@@ -67,6 +72,52 @@
 #include "utils/Log.h"
 
 #define MAX_STR_LEN    1000
+
+static int32_t read_bytes (void *id, void *data, int32_t bcount) {
+    return (int32_t) fread (data, 1, bcount, (FILE*) id);
+}
+
+static uint32_t get_pos (void *id) {
+    return ftell ((FILE*) id);
+}
+
+static int set_pos_abs (void *id, uint32_t pos) {
+    return fseek ((FILE *)id, pos, SEEK_SET);
+}
+
+static int set_pos_rel (void *id, int32_t delta, int mode) {
+    return fseek ((FILE *)id, delta, mode);
+}
+
+static int push_back_byte (void *id, int c) {
+    return ungetc (c, (FILE *)id);
+}
+
+static uint32_t get_length (void *id) {
+    FILE *file = (FILE *)id;
+    struct stat statbuf;
+
+    if (!file || fstat (fileno (file), &statbuf) || !(statbuf.st_mode & S_IFREG))
+        return 0;
+
+    return statbuf.st_size;
+}
+
+static int can_seek (void *id) {
+    FILE *file = (FILE *)id;
+    struct stat statbuf;
+
+    return file && !fstat (fileno (file), &statbuf) && (statbuf.st_mode & S_IFREG);
+}
+
+static int32_t write_bytes (void *id, void *data, int32_t bcount) {
+    return (int32_t) fwrite (data, 1, bcount, (FILE*) id);
+}
+
+static WavpackStreamReader freader = {
+    read_bytes, get_pos, set_pos_abs, set_pos_rel, push_back_byte, get_length, can_seek,
+    write_bytes
+};
 
 
 namespace android {
@@ -444,6 +495,75 @@ failure:
     return PVMFFailure;
 }
 
+static PVMFStatus parseWavPack(const char *filename, MediaScannerClient& client, int processAlbumArt)
+{
+    uint32_t sample_rate;
+    char errorBuff[128];
+    char buffer[60];
+    char value [128];
+    uint64_t num_samples = 0;
+    uint32_t songduration = 0;
+
+    WavpackContext *wpc;
+    int open_flags;
+    FILE *f = NULL;
+
+    f = fopen(filename, "r");
+    if (!f)
+        return PVMFFailure;
+
+    open_flags = OPEN_TAGS | OPEN_2CH_MAX | OPEN_NORMALIZE;
+
+    wpc = WavpackOpenFileInputEx (&freader, f, NULL, errorBuff, open_flags, 0);
+
+    if (wpc == NULL) {
+        goto tidyup;
+    }
+
+    num_samples = WavpackGetNumSamples(wpc);
+    sample_rate = WavpackGetSampleRate(wpc);
+
+    songduration = num_samples*1000 / sample_rate;
+    sprintf(buffer, "%d", songduration);
+    if (!client.addStringTag("duration", buffer)) goto tidyup;
+
+    if (WavpackGetTagItem (wpc, "title", value, sizeof (value))) {
+        if (!client.addStringTag("title", value)) goto tidyup;
+    }
+
+    if (WavpackGetTagItem (wpc, "album", value, sizeof (value))) {
+        if (!client.addStringTag("album", value)) goto tidyup;
+    }
+
+    if (WavpackGetTagItem (wpc, "artist", value, sizeof (value))) {
+        if (!client.addStringTag("artist", value)) goto tidyup;
+    }
+
+    if (WavpackGetTagItem (wpc, "year", value, sizeof (value))) {
+        if (!client.addStringTag("year", value)) goto tidyup;
+    }
+
+    if (WavpackGetTagItem (wpc, "track", value, sizeof (value))) {
+        if (!client.addStringTag("track", value)) goto tidyup;
+    }
+
+    if (WavpackGetTagItem (wpc, "genre", value, sizeof (value))) {
+        if (!client.addStringTag("genre", value)) goto tidyup;
+    }
+
+    wpc = WavpackCloseFile(wpc);
+
+    return PVMFSuccess;
+
+
+tidyup:
+    if(wpc != NULL) {
+        wpc = WavpackCloseFile(wpc);
+    }
+
+    return PVMFFailure;
+}
+
 static PVMFStatus parseMidi(const char *filename, MediaScannerClient& client) {
 
     // get the library configuration and do sanity check
@@ -576,6 +696,8 @@ status_t MediaScanner::processFile(const char *path, const char* mimeType, Media
                 result = parseMP4(path, client);
             } else if (extension && strcasecmp(extension, ".ogg") == 0) {
                 result = parseOgg(path, client);
+            } else if (extension && strcasecmp(extension, ".wv") == 0) {
+                result = parseWavPack(path, client, 0);
             } else if (extension &&
                 ( strcasecmp(extension, ".mid") == 0 || strcasecmp(extension, ".smf") == 0
                 || strcasecmp(extension, ".imy") == 0)) {
@@ -741,6 +863,67 @@ static char* doExtractAlbumArt(PvmfApicStruct* aApic)
     return data;
 }
 
+static char* extractWVAlbumArt(int fd)
+{
+    WavpackContext *wpc;
+    int open_flags;
+    char errorBuff[128];
+    char value[128];
+    int art_size;
+
+    FILE *f = fdopen(fd, "r");
+    if (!f)
+        return NULL;
+
+    open_flags = OPEN_TAGS | OPEN_2CH_MAX | OPEN_NORMALIZE;
+
+    wpc = WavpackOpenFileInputEx (&freader, f, NULL, errorBuff, open_flags, 0);
+    if(wpc==NULL) {
+        goto tidyup;
+    }
+
+    art_size = WavpackGetBinaryTagItem (wpc, "cover art (front)", NULL, 0);
+
+    if(art_size > 0) {
+        char *embeddedart = (char*)malloc(art_size);
+        if(embeddedart) {
+            WavpackGetBinaryTagItem (wpc, "cover art (front)", embeddedart, art_size);
+
+            int fileNameLength = strlen((char*)embeddedart); // get the filename at the start of the data
+            fileNameLength += 1; // skip an extra character to handle the null character at end of filename string
+
+            int size_remaining = art_size - fileNameLength;
+
+            char *data = (char*)malloc(size_remaining + 4);
+            if(data) {
+                long *len = (long*)data;
+                *len = size_remaining;
+
+                memcpy(data + 4, embeddedart+fileNameLength, size_remaining);
+
+                free(embeddedart);
+                wpc = WavpackCloseFile(wpc);
+
+                return data;
+            } else {
+                free(embeddedart);
+            }
+        }
+    }
+
+    wpc = WavpackCloseFile(wpc);
+
+    return NULL;
+
+
+tidyup:
+
+    if(wpc != NULL) {
+        wpc = WavpackCloseFile(wpc);
+    }
+    return NULL;
+}
+
 static char* extractMP3AlbumArt(int fd)
 {
     PVID3ParCom pvId3Param;
@@ -874,11 +1057,15 @@ char* MediaScanner::extractAlbumArt(int fd)
     char *    albumArtData = NULL;
     int error = 0;
     int32 ident;
-    lseek(fd, 4, SEEK_SET);
+    int32 wvident;
+    read(fd, &wvident, sizeof(wvident));
     read(fd, &ident, sizeof(ident));
-    
-    OSCL_TRY(error,    
-            if (ident == 0x70797466) {
+
+    OSCL_TRY(error,
+            if (wvident == 0x6b707677) {
+                // a WavPack file
+                albumArtData = extractWVAlbumArt(fd);
+            } else if (ident == 0x70797466) {
                 // some kind of mpeg 4 stream
                 lseek(fd, 0, SEEK_SET);
                 albumArtData = extractM4AAlbumArt(fd);

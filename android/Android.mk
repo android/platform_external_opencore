@@ -32,6 +32,7 @@ LOCAL_C_INCLUDES := $(PV_INCLUDES) \
     include/graphics \
 	external/skia/include/corecg \
 	external/tremor/Tremor \
+        external/wavpack/include \
 	external/icu4c/common \
 	$(call include-path-for, graphics corecg)
 

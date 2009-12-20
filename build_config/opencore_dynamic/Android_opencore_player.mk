@@ -27,11 +27,11 @@ LOCAL_WHOLE_STATIC_LIBRARIES +=  libandroidpv
 
 LOCAL_MODULE := libopencore_player
 ifeq ($(PLATFORM_VERSION),1.5)
-    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc
+    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc libWavPack
 else ifeq ($(PLATFORM_VERSION),1.6)
-    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc
+    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc libWavPack
 else
-    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libskia libvorbisidec libsonivox liblog libicuuc libbinder
+    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libskia libvorbisidec libsonivox liblog libicuuc libbinder libWavPack
 endif
 
 -include $(PV_TOP)/Android_system_extras.mk

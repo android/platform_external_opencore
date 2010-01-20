@@ -24,7 +24,7 @@
 
 #define MAX_STRING_LEN  255
 
-FILE *file;
+//FILE *file;
 
 class PVLoggerConfigFile{
 /*  

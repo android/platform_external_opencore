@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAr3///hk\u003d",
+        "filename": "android/android_logger_config.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2010-01-21T03:28:07Z",
+      "side": 1,
+      "message": "I\u0027d rather remove the line than have it commented.",
+      "revId": "51603a7d4984cc3858585bb28771c7106cf38817",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

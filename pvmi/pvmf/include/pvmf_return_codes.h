@@ -313,9 +313,52 @@ Error returned when the video container is not valid for progressive playback.
 const PVMFStatus PVMFErrContentInvalidForProgressivePlayback = (-82);
 
 /*
+Error when RTSP error is returned
+*/
+
+const PVMFStatus PVMFErrRTSP400BadRequest = (-83);
+const PVMFStatus PVMFErrRTSP401Unauthorized = (-84);
+const PVMFStatus PVMFErrRTSP402CodePaymentRequired = (-85);
+const PVMFStatus PVMFErrRTSP403Forbidden = (-86);
+const PVMFStatus PVMFErrRTSP404NotFound = (-87);
+const PVMFStatus PVMFErrRTSP405MethodNotAllowed = (-88);
+const PVMFStatus PVMFErrRTSP406NotAcceptable = (-89);
+const PVMFStatus PVMFErrRTSP407ProxyAuthenticationRequired = (-90);
+const PVMFStatus PVMFErrRTSP408RequestTimeOut = (-91);
+//const PVMFStatus PVMFErrRTSP409 = (-90);
+const PVMFStatus PVMFErrRTSP410Gone = (-92);
+const PVMFStatus PVMFErrRTSP411LengthRequired = (-93);
+const PVMFStatus PVMFErrRTSP412PreconditionFailed = (-94);
+const PVMFStatus PVMFErrRTSP413RequestEntityTooLarge = (-95);
+const PVMFStatus PVMFErrRTSP414RequestURITooLarge = (-96);
+const PVMFStatus PVMFErrRTSP415UnsupportedMediaType = (-97);
+
+const PVMFStatus PVMFErrRTSP451ParameterNotUnderstood = (-98);
+const PVMFStatus PVMFErrRTSP452ConferenceNotFound = (-99);
+const PVMFStatus PVMFErrRTSP453NotEnoughBandwidth = (-100);
+const PVMFStatus PVMFErrRTSP454SessionNotFound = (-101);
+const PVMFStatus PVMFErrRTSP455MethodNotValidInThisState = (-102);
+const PVMFStatus PVMFErrRTSP456HeaderFieldNotValidForResource = (-103);
+const PVMFStatus PVMFErrRTSP457InvalidRange = (-104);
+const PVMFStatus PVMFErrRTSP458ParameterIsReadOnly = (-105);
+const PVMFStatus PVMFErrRTSP459AggregateOperationNotAllowed = (-106);
+const PVMFStatus PVMFErrRTSP460OnlyAggregateOperationAllowed = (-107);
+const PVMFStatus PVMFErrRTSP461UnsupportedTransport = (-108);
+const PVMFStatus PVMFErrRTSP462DestinationUnreachable = (-109);
+const PVMFStatus PVMFErrRTSP480UnsupportedClient = (-110);
+
+const PVMFStatus PVMFErrRTSP500InternalServerError = (-111);
+const PVMFStatus PVMFErrRTSP501NotImplemented = (-112);
+const PVMFStatus PVMFErrRTSP502BadGateway = (-113);
+const PVMFStatus PVMFErrRTSP503ServiceUnavailable = (-114);
+const PVMFStatus PVMFErrRTSP504GatewayTimeout = (-115);
+const PVMFStatus PVMFErrRTSP505RTSPVersionNotSupported = (-116);
+
+const PVMFStatus PVMFErrRTSP551OptionNotSupported = (-117);
+/*
  Placeholder for last event in range.
  */
-const PVMFStatus PVMFErrLast = (-100);
+const PVMFStatus PVMFErrLast = (-117);
 /*
  Macro to tell if a value is in PVMFErr range
  */

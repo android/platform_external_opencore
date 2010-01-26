@@ -911,6 +911,7 @@ class PVRTSPEngineNode
                                              PVUuid* aEventUUID = NULL,
                                              int32* aEventCode = NULL);
     private:
+        PVMFStatus MapRTSPCodeToPVMFStatusCode(RTSPStatusCode aStatusCode);
         void MapRTSPCodeToEventCode(RTSPStatusCode aStatusCode,
                                     int32& aEventCode);
         PVMFStatus CancelCurrentOps();

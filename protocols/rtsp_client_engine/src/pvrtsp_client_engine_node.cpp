@@ -3631,10 +3631,130 @@ OSCL_EXPORT_REF PVMFStatus PVRTSPEngineNode::processIncomingMessage(RTSPIncoming
         //error
         MapRTSPCodeToEventCode(iIncomingMsg.statusCode, iCurrentErrorCode);
         OSCL_DELETE(tmpOutgoingMsg);
-        return PVMFFailure;
+        return MapRTSPCodeToPVMFStatusCode(iIncomingMsg.statusCode);
     }
 
     return iOutgoingMsgQueue.empty() ? PVMFSuccess : PVMFPending;
+}
+
+/* 
+Map RTSP error code to PVMF status code
+*/
+PVMFStatus PVRTSPEngineNode::MapRTSPCodeToPVMFStatusCode(RTSPStatusCode aStatusCode)
+{
+    PVMFStatus status= PVMFFailure;
+	
+    switch (aStatusCode)
+    {
+          case 400:
+	  	status=PVMFErrRTSP400BadRequest;
+	  	break;
+          case 401:
+	  	status=PVMFErrRTSP401Unauthorized;
+	  	break;
+          case 402:
+	  	status=PVMFErrRTSP402CodePaymentRequired;
+	  	break;
+          case 403:
+	  	status=PVMFErrRTSP403Forbidden;
+	  	break;
+          case 404:
+	  	status=PVMFErrRTSP404NotFound;
+	  	break;
+          case 405:
+	  	status=PVMFErrRTSP405MethodNotAllowed;
+	  	break;
+          case 406:
+	  	status=PVMFErrRTSP406NotAcceptable;
+	  	break;
+          case 407:
+	  	status=PVMFErrRTSP407ProxyAuthenticationRequired;
+	  	break;
+          case 408:
+	  	status=PVMFErrRTSP408RequestTimeOut;
+	  	break;
+          case 410:
+	  	status=PVMFErrRTSP410Gone;
+	  	break;
+          case 411:
+	  	status=PVMFErrRTSP411LengthRequired;
+	  	break;
+          case 412:
+	  	status=PVMFErrRTSP412PreconditionFailed;
+	  	break;
+          case 413:
+	  	status=PVMFErrRTSP413RequestEntityTooLarge;
+	  	break;
+          case 414:
+	  	status=PVMFErrRTSP414RequestURITooLarge;
+	  	break;
+          case 415:
+	  	status=PVMFErrRTSP415UnsupportedMediaType;
+	  	break;
+          case 451:
+	  	status=PVMFErrRTSP451ParameterNotUnderstood;
+	  	break;
+          case 452:
+	  	status=PVMFErrRTSP452ConferenceNotFound;
+	  	break;
+          case 453:
+	  	status=PVMFErrRTSP453NotEnoughBandwidth;
+	  	break;
+          case 454:
+	  	status=PVMFErrRTSP454SessionNotFound;
+	  	break;
+          case 455:
+	  	status=PVMFErrRTSP455MethodNotValidInThisState;
+	  	break;
+          case 456:
+	  	status=PVMFErrRTSP456HeaderFieldNotValidForResource;
+	  	break;
+          case 457:
+	  	status=PVMFErrRTSP457InvalidRange;
+	  	break;
+          case 458:
+	  	status=PVMFErrRTSP458ParameterIsReadOnly;
+	  	break;
+          case 459:
+	  	status=PVMFErrRTSP459AggregateOperationNotAllowed;
+	  	break;
+          case 460:
+	  	status=PVMFErrRTSP460OnlyAggregateOperationAllowed;
+	  	break;
+          case 461:
+	  	status=PVMFErrRTSP461UnsupportedTransport;
+	  	break;
+          case 462:
+	  	status=PVMFErrRTSP462DestinationUnreachable;
+	  	break;
+          case 480:
+	  	status=PVMFErrRTSP480UnsupportedClient;
+	  	break;
+          case 500:
+	  	status=PVMFErrRTSP500InternalServerError;
+	  	break;
+          case 501:
+	  	status=PVMFErrRTSP501NotImplemented;
+	  	break;
+          case 502:
+	  	status=PVMFErrRTSP502BadGateway;
+	  	break;
+          case 503:
+	  	status=PVMFErrRTSP503ServiceUnavailable;
+	  	break;
+          case 504:
+	  	status=PVMFErrRTSP504GatewayTimeout;
+	  	break;
+          case 505:
+	  	status=PVMFErrRTSP505RTSPVersionNotSupported;
+	  	break;
+          case 551:
+	  	status=PVMFErrRTSP551OptionNotSupported;
+	  	break;
+          default:
+		status=PVMFFailure;
+    	}
+   return status;
 }
 
 void PVRTSPEngineNode::MapRTSPCodeToEventCode(RTSPStatusCode aStatusCode,

@@ -123,6 +123,43 @@ OSCL_EXPORT_REF const char *PVMFStatusToString(const PVMFStatus status)
             CONSIDER(PVMFInfoShoutcastMediaDataLength);
             CONSIDER(PVMFInfoShoutcastClipBitrate);
             CONSIDER(PVMFInfoIsShoutcastSesssion);
+// PVMF status code for RTSP errors begins
+            CONSIDER(PVMFErrRTSP400BadRequest);
+            CONSIDER(PVMFErrRTSP401Unauthorized);
+            CONSIDER(PVMFErrRTSP402CodePaymentRequired);
+            CONSIDER(PVMFErrRTSP403Forbidden);
+            CONSIDER(PVMFErrRTSP404NotFound);
+            CONSIDER(PVMFErrRTSP405MethodNotAllowed);
+            CONSIDER(PVMFErrRTSP406NotAcceptable);
+            CONSIDER(PVMFErrRTSP407ProxyAuthenticationRequired);
+            CONSIDER(PVMFErrRTSP408RequestTimeOut);
+            CONSIDER(PVMFErrRTSP410Gone);
+            CONSIDER(PVMFErrRTSP411LengthRequired);
+            CONSIDER(PVMFErrRTSP412PreconditionFailed);
+            CONSIDER(PVMFErrRTSP413RequestEntityTooLarge);
+            CONSIDER(PVMFErrRTSP414RequestURITooLarge);
+            CONSIDER(PVMFErrRTSP415UnsupportedMediaType);
+            CONSIDER(PVMFErrRTSP451ParameterNotUnderstood);
+            CONSIDER(PVMFErrRTSP452ConferenceNotFound);
+            CONSIDER(PVMFErrRTSP453NotEnoughBandwidth);
+            CONSIDER(PVMFErrRTSP454SessionNotFound);
+            CONSIDER(PVMFErrRTSP455MethodNotValidInThisState);
+            CONSIDER(PVMFErrRTSP456HeaderFieldNotValidForResource);
+            CONSIDER(PVMFErrRTSP457InvalidRange);
+            CONSIDER(PVMFErrRTSP458ParameterIsReadOnly);
+            CONSIDER(PVMFErrRTSP459AggregateOperationNotAllowed);
+            CONSIDER(PVMFErrRTSP460OnlyAggregateOperationAllowed);
+            CONSIDER(PVMFErrRTSP461UnsupportedTransport);
+            CONSIDER(PVMFErrRTSP462DestinationUnreachable);
+            CONSIDER(PVMFErrRTSP480UnsupportedClient);
+            CONSIDER(PVMFErrRTSP500InternalServerError);
+            CONSIDER(PVMFErrRTSP501NotImplemented);
+            CONSIDER(PVMFErrRTSP502BadGateway);
+            CONSIDER(PVMFErrRTSP503ServiceUnavailable);
+            CONSIDER(PVMFErrRTSP504GatewayTimeout);
+            CONSIDER(PVMFErrRTSP505RTSPVersionNotSupported);
+            CONSIDER(PVMFErrRTSP551OptionNotSupported);
+// PVMF status code for RTSP errors ends
         default:
             return "UNKNOWN PVMFStatus";
     }

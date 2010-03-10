@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAvn///+k\u003d",
+        "filename": "android/mediascanner.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 1003334
+      },
+      "writtenOn": "2010-03-10T17:48:31Z",
+      "side": 1,
+      "message": "Does this line do anything? Shouldn\u0027t the last line of this function be return status; ?",
+      "revId": "196b24ddaf8742f0a1de148078ea77adf9c50553",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

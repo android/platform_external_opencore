@@ -410,6 +410,7 @@ class PlayerDriver :
     void handleGetDurationComplete(PlayerGetDuration* cmd);
     void handleCheckLiveStreamingComplete(PlayerCheckLiveStreaming* cmd);
 
+    int setupRtspStreamPre();
     int setupHttpStreamPre();
     int setupHttpStreamPost();
 
@@ -437,6 +438,7 @@ class PlayerDriver :
 
     OSCL_wHeapString<OsclMemAllocator> mDownloadFilename;
     OSCL_HeapString<OsclMemAllocator> mDownloadProxy;
+    OSCL_wHeapString<OsclMemAllocator> mRTSPProxy;
     OSCL_wHeapString<OsclMemAllocator> mDownloadConfigFilename;
     PVMFSourceContextData   *mDownloadContextData;
     PVMFSourceContextData   *mLocalContextData;

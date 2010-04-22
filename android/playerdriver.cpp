@@ -460,6 +460,26 @@ void PlayerDriver::handleSetup(PlayerSetup* command)
     OSCL_FIRST_CATCH_ANY(error, commandFailed(command));
 }
 
+// Utility function for setting up RTSP proxy begin
+int PlayerDriver::setupRtspStreamPre()
+{
+    mDataSource->SetDataSourceFormatType((char*)PVMF_MIME_DATA_SOURCE_RTSP_URL);
+
+    delete mDownloadContextData;
+    mDownloadContextData = NULL;
+
+    mDownloadContextData = new PVMFSourceContextData();
+    mDownloadContextData->EnableCommonSourceContext();
+    mDownloadContextData->EnableStreamingSourceContext();
+
+    mRTSPProxy = _STRLIT_WCHAR("");
+    mDownloadContextData->StreamingData()->iProxyName = mRTSPProxy;
+    mDownloadContextData->StreamingData()->iProxyPort = 0;
+
+    mDataSource->SetDataSourceContextData(mDownloadContextData);
+
+    return 0;
+}
 int PlayerDriver::setupHttpStreamPre()
 {
     mDataSource->SetDataSourceFormatType((char*)PVMF_MIME_DATA_SOURCE_HTTP_URL);
@@ -549,8 +569,13 @@ void PlayerDriver::handleSetDataSource(PlayerSetDataSource* command)
     mDataSource->SetDataSourceURL(wFileName);
     LOGV("handleSetDataSource- scanning for extension");
     if (strncmp(url, "rtsp:", strlen("rtsp:")) == 0) {
-        mDataSource->SetDataSourceFormatType((const char*)PVMF_MIME_DATA_SOURCE_RTSP_URL);
-    } else if (strncmp(url, "http:", strlen("http:")) == 0) {
+        // Call utility function for setting RTSP proxy server
+        if (0!=setupRtspStreamPre())
+        {
+            commandFailed(command);
+            return;
+       }
+   } else if (strncmp(url, "http:", strlen("http:")) == 0) {
         if (0!=setupHttpStreamPre())
         {
             commandFailed(command);

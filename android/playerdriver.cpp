@@ -176,7 +176,7 @@ PlayerDriver::PlayerDriver(PVPlayer* pvPlayer) :
     mVideoOutputMIO = NULL;
 
     mPlayerCapConfig = NULL;
-    mDownloadContextData = NULL;
+    mStreamingContextData = NULL;
     mLocalContextData = NULL;
     mExtensionHandler = NULL;
 
@@ -460,32 +460,52 @@ void PlayerDriver::handleSetup(PlayerSetup* command)
     OSCL_FIRST_CATCH_ANY(error, commandFailed(command));
 }
 
-int PlayerDriver::setupHttpStreamPre()
+// Utility function for setting up RTSP proxy begin
+void PlayerDriver::setupRtspStream()
+{
+    mDataSource->SetDataSourceFormatType((char*)PVMF_MIME_DATA_SOURCE_RTSP_URL);
+
+    delete mStreamingContextData;
+    mStreamingContextData = NULL;
+
+    mStreamingContextData = new PVMFSourceContextData();
+    mStreamingContextData->EnableCommonSourceContext();
+    mStreamingContextData->EnableStreamingSourceContext();
+
+    mRTSPProxy = _STRLIT_WCHAR("");
+    mRTSPPort = 0;
+    mStreamingContextData->StreamingData()->iProxyName = mRTSPProxy;
+    mStreamingContextData->StreamingData()->iProxyPort = mRTSPPort;
+
+    mDataSource->SetDataSourceContextData(mStreamingContextData);
+
+}
+
+void PlayerDriver::setupHttpStreamPre()
 {
     mDataSource->SetDataSourceFormatType((char*)PVMF_MIME_DATA_SOURCE_HTTP_URL);
 
-    delete mDownloadContextData;
-    mDownloadContextData = NULL;
+    delete mStreamingContextData;
+    mStreamingContextData = NULL;
 
-    mDownloadContextData = new PVMFSourceContextData();
-    mDownloadContextData->EnableCommonSourceContext();
-    mDownloadContextData->EnableDownloadHTTPSourceContext();
+    mStreamingContextData = new PVMFSourceContextData();
+    mStreamingContextData->EnableCommonSourceContext();
+    mStreamingContextData->EnableDownloadHTTPSourceContext();
 
     mDownloadConfigFilename = _STRLIT_WCHAR("/tmp/http-stream-cfg");
     mDownloadFilename = NULL;
     mDownloadProxy = _STRLIT_CHAR("");
 
-    mDownloadContextData->DownloadHTTPData()->iMaxFileSize = 0xFFFFFFFF;
-    mDownloadContextData->DownloadHTTPData()->iPlaybackControl = PVMFSourceContextDataDownloadHTTP::ENoSaveToFile;
-    mDownloadContextData->DownloadHTTPData()->iConfigFileName = mDownloadConfigFilename;
-    mDownloadContextData->DownloadHTTPData()->iDownloadFileName = mDownloadFilename;
-    mDownloadContextData->DownloadHTTPData()->iProxyName = mDownloadProxy;
-    mDownloadContextData->DownloadHTTPData()->iProxyPort = 0;
-    mDownloadContextData->DownloadHTTPData()->bIsNewSession = true;
+    mStreamingContextData->DownloadHTTPData()->iMaxFileSize = 0xFFFFFFFF;
+    mStreamingContextData->DownloadHTTPData()->iPlaybackControl = PVMFSourceContextDataDownloadHTTP::ENoSaveToFile;
+    mStreamingContextData->DownloadHTTPData()->iConfigFileName = mDownloadConfigFilename;
+    mStreamingContextData->DownloadHTTPData()->iDownloadFileName = mDownloadFilename;
+    mStreamingContextData->DownloadHTTPData()->iProxyName = mDownloadProxy;
+    mStreamingContextData->DownloadHTTPData()->iProxyPort = 0;
+    mStreamingContextData->DownloadHTTPData()->bIsNewSession = true;
 
-    mDataSource->SetDataSourceContextData(mDownloadContextData);
+    mDataSource->SetDataSourceContextData(mStreamingContextData);
 
-    return 0;
 }
 
 int PlayerDriver::setupHttpStreamPost()
@@ -549,13 +569,10 @@ void PlayerDriver::handleSetDataSource(PlayerSetDataSource* command)
     mDataSource->SetDataSourceURL(wFileName);
     LOGV("handleSetDataSource- scanning for extension");
     if (strncmp(url, "rtsp:", strlen("rtsp:")) == 0) {
-        mDataSource->SetDataSourceFormatType((const char*)PVMF_MIME_DATA_SOURCE_RTSP_URL);
-    } else if (strncmp(url, "http:", strlen("http:")) == 0) {
-        if (0!=setupHttpStreamPre())
-        {
-            commandFailed(command);
-            return;
-        }
+        // Call utility function for setting RTSP proxy server
+        setupRtspStream();
+   } else if (strncmp(url, "http:", strlen("http:")) == 0) {
+        setupHttpStreamPre();
     } else {
         LOGV("handleSetDataSource - called with a filepath - %s",url);
         mDataSource->SetDataSourceFormatType((const char*)PVMF_MIME_FORMAT_UNKNOWN); // Let PV figure it out
@@ -579,7 +596,7 @@ void PlayerDriver::handleInit(PlayerInit* command)
 {
     int error = 0;
 
-    if (mDownloadContextData) {
+    if (mStreamingContextData) {
         setupHttpStreamPost();
     }
 
@@ -974,8 +991,8 @@ int PlayerDriver::playerThread()
     LOGV("DeletePlayer");
     PVPlayerFactory::DeletePlayer(mPlayer);
 
-    delete mDownloadContextData;
-    mDownloadContextData = NULL;
+    delete mStreamingContextData;
+    mStreamingContextData = NULL;
 
     delete mLocalContextData;
     mLocalContextData = NULL;
@@ -1100,14 +1117,14 @@ void PlayerDriver::CommandCompleted(const PVCmdResponse& aResponse)
     if (status == PVMFSuccess) {
         switch (command->code()) {
             case PlayerCommand::PLAYER_PREPARE:
-                LOGV("PLAYER_PREPARE complete mDownloadContextData=%p, mDataReadyReceived=%d", mDownloadContextData, mDataReadyReceived);
+                LOGV("PLAYER_PREPARE complete mStreamingContextData=%p, mDataReadyReceived=%d", mStreamingContextData, mDataReadyReceived);
                 mPrepareDone = true;
                 // If we are streaming from the network, we
                 // have to wait until the first PVMFInfoDataReady
                 // is sent to notify the user that it is okay to
                 // begin playback.  If it is a local file, just
                 // send it now at the completion of Prepare().
-                if ((mDownloadContextData == NULL) || mDataReadyReceived) {
+                if ((mStreamingContextData == NULL) || mDataReadyReceived) {
                     mPvPlayer->sendEvent(MEDIA_PREPARED);
                 }
                 break;
@@ -1241,7 +1258,7 @@ void PlayerDriver::HandleInformationalEvent(const PVAsyncInformationalEvent& aEv
                 break;
             mDataReadyReceived = true;
             // If this is a network stream, we are now ready to play.
-            if (mDownloadContextData && mPrepareDone) {
+            if (mStreamingContextData && mPrepareDone) {
                 mPvPlayer->sendEvent(MEDIA_PREPARED);
             }
             break;

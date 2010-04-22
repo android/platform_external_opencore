@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAw3///8I\u003d",
+        "filename": "android/playerdriver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2010-04-22T16:24:20Z",
+      "side": 1,
+      "message": "Since there is no \"post\" operation, I think we should rename this function to setupRtspStream().",
+      "revId": "10c37d66b29d134e249e7ef215b0d1f84f1e8dae",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAw3///8E\u003d",
+        "filename": "android/playerdriver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2010-04-22T16:24:20Z",
+      "side": 1,
+      "message": "Instead of hardcoding this to 0, please use a variable name mRTSPPort and initialize that to 0.\n\nAnd, it would be good if you can add a system property check to decide on the actual values of mRTSPProxy and mRTSPPort.",
+      "revId": "10c37d66b29d134e249e7ef215b0d1f84f1e8dae",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAw3///8A\u003d",
+        "filename": "android/playerdriver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2010-04-22T16:24:20Z",
+      "side": 1,
+      "message": "This function returns only 0. There shouldn\u0027t be a need for an \"int\" return type for the function. I guess, this and setupHttpStreamPre() both need to change.",
+      "revId": "10c37d66b29d134e249e7ef215b0d1f84f1e8dae",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAw3///8M\u003d",
+        "filename": "android/playerdriver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2010-04-22T16:24:20Z",
+      "side": 1,
+      "message": "Please add an empty line after the function setupRtspStreamPre()",
+      "revId": "10c37d66b29d134e249e7ef215b0d1f84f1e8dae",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAw3///8U\u003d",
+        "filename": "android/playerdriver.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2010-04-22T16:24:20Z",
+      "side": 1,
+      "message": "Please move this line below mDownloadConfigFilename so that all the \"download\" parameters are together.",
+      "revId": "10c37d66b29d134e249e7ef215b0d1f84f1e8dae",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAw3///8Q\u003d",
+        "filename": "android/playerdriver.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 1001446
+      },
+      "writtenOn": "2010-04-22T16:24:20Z",
+      "side": 1,
+      "message": "Also, I think we should rename this variable to mStreamingContextData because we are using this for both RTSP and HTTP streaming.",
+      "revId": "10c37d66b29d134e249e7ef215b0d1f84f1e8dae",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}

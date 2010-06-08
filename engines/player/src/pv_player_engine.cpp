@@ -14310,15 +14310,14 @@ void PVPlayerEngine::HandleSinkNodeSkipMediaDataDuringPlayback(PVPlayerEngineCon
 
     if ((iNumPendingSkipCompleteEvent == 0) && (iNumPVMFInfoStartOfDataPending == 0))
     {
-        if (iWatchDogTimer->IsBusy())
-        {
-            iWatchDogTimer->Cancel();
-        }
         // we have received all the bos event for
         // playback hasnt started yet
 
-        StartPlaybackClock();
-        PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iReposLogger, PVLOGMSG_INFO, (0, "PVPlayerEngine::HandleSinkNodeSkipMediaDataDuringPlayback - PlayClock Started"));
+        if (iState == PVP_ENGINE_STATE_STARTED)
+        {
+            StartPlaybackClock();
+            PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iReposLogger, PVLOGMSG_INFO, (0, "PVPlayerEngine::HandleSinkNodeSkipMediaDataDuringPlayback - PlayClock Started"));
+        }
     }
 
     PVLOGGER_LOGMSG(PVLOGMSG_INST_LLDBG, iLogger, PVLOGMSG_STACK_TRACE, (0, "PVPlayerEngine::HandleSinkNodeSkipMediaDataDuringPlayback() Out"));

@@ -47,6 +47,7 @@ LOCAL_C_INCLUDES := $(PV_INCLUDES) \
     include/graphics \
 	external/skia/include/corecg \
 	external/tremolo/Tremolo \
+        external/wavpack/include \
 	external/icu4c/common \
 	$(call include-path-for, graphics corecg)
 

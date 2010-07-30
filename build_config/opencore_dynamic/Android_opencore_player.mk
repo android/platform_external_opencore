@@ -25,19 +25,19 @@ LOCAL_WHOLE_STATIC_LIBRARIES := \
  	libwavparser \
  	libpvmfrecognizer \
  	libpvframemetadatautility \
- 	libpvplayer_engine
+ 	libpvplayer_engine 
 
 LOCAL_WHOLE_STATIC_LIBRARIES +=  libandroidpv
 
 LOCAL_MODULE := libopencore_player
 ifeq ($(PLATFORM_VERSION),1.5)
-    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc
+    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc libWavPack
 else ifeq ($(PLATFORM_VERSION),1.6)
-    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc
+    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libsgl libvorbisidec libsonivox liblog libicuuc libWavPack
 else ifeq ($(PLATFORM_VERSION),2.1)
-    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libskia libvorbisidec libsonivox liblog libicuuc libbinder
+    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libskia libvorbisidec libsonivox liblog libicuuc libbinder libWavPack
 else
-    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libskia libvorbisidec libsonivox liblog libicuuc libbinder libsurfaceflinger_client libcamera_client
+    LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libhardware libandroid_runtime libdrm1 libmedia libskia libvorbisidec libsonivox liblog libicuuc libbinder libsurfaceflinger_client libcamera_client libWavPack
 endif
 
 -include $(PV_TOP)/Android_system_extras.mk

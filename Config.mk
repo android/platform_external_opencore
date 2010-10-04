@@ -7,7 +7,7 @@ ifneq ($(strip $(EXTERNAL_OPENCORE_CONFIG_ONCE)),true)
   PV_CFLAGS := -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
   ifeq ($(PLATFORM_VERSION),1.5)
   else ifeq ($(PLATFORM_VERSION),1.6)
-  else ifeq ($(PLATFORM_VERSION),2.1)
+  else ifeq (,$(filter-out 2.1%,$(PLATFORM_VERSION)))
     ifeq ($(PV_WERROR),1)
       PV_CFLAGS += -Wno-psabi
     endif

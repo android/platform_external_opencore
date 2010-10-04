@@ -14,7 +14,7 @@ ifeq ($(PLATFORM_VERSION),1.5)
     LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libandroid_runtime libmedia liblog libicuuc
 else ifeq ($(PLATFORM_VERSION),1.6)
     LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libandroid_runtime libmedia liblog libicuuc
-else ifeq ($(PLATFORM_VERSION),2.1)
+else ifeq (,$(filter-out 2.1%,$(PLATFORM_VERSION)))
     LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libandroid_runtime libmedia liblog libicuuc libbinder
 else
     LOCAL_SHARED_LIBRARIES :=  libutils libcutils libui libandroid_runtime libmedia liblog libicuuc libbinder libsurfaceflinger_client libcamera_client

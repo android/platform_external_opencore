@@ -489,7 +489,7 @@ void MetadataDriver::handleCreate()
         handleCommandFailure();
     } else {
         char value[PROPERTY_VALUE_MAX] = {"0"};
-        property_get("media.prioritize_sw_over_hw_codecs_for_thumbnails", value, "0");
+        property_get("media.prefer_sw_for_thumbnails", value, "0");
         if (1 == atoi(value)) {
             mState = STATE_QUERY_TRACK_SELECTION_HELPER;
         } else {

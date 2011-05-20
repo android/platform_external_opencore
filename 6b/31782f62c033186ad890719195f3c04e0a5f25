@@ -1,0 +1,10 @@
+Change-Id: I6b31782f62c033186ad890719195f3c04e0a5f25
+Verified+1: Jean-Baptiste Queru <jbq@google.com>
+Code-Review+1: Garret Pick <pickgr@pv.com>
+Code-Review+2: Greg Sherwood <sherwood@pv.com>
+Verified+1: Greg Sherwood <sherwood@pv.com>
+Submitted-by: Greg Sherwood <sherwood@pv.com>
+Submitted-at: Tue, 31 Mar 2009 15:37:39 -0700
+Reviewed-on: https://review.source.android.com/9447
+Project: platform/external/opencore
+Branch: refs/heads/master

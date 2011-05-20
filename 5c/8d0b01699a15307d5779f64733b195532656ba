@@ -1,0 +1,8 @@
+Change-Id: I5c8d0b01699a15307d5779f64733b195532656ba
+Code-Review+2: Dave Sparks <davidsparks@android.com>
+Verified+1: Dave Sparks <davidsparks@android.com>
+Submitted-by: Greg Sherwood <sherwood@pv.com>
+Submitted-at: Tue, 14 Jul 2009 14:29:06 -0700
+Reviewed-on: https://review.source.android.com/10480
+Project: platform/external/opencore
+Branch: refs/heads/master

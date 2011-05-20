@@ -1,0 +1,8 @@
+Change-Id: Ifc35dcb7e2f0ca94cb90d066e784adc67e3322c6
+Code-Review+2: Dave Sparks <davidsparks@android.com>
+Verified+1: Jean-Baptiste Queru <jbq@google.com>
+Submitted-by: Ravi Kishore Yenduri <yenduri@pv.com>
+Submitted-at: Mon, 27 Jul 2009 08:54:18 -0700
+Reviewed-on: https://review.source.android.com/10781
+Project: platform/external/opencore
+Branch: refs/heads/master
